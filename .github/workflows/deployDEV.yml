@@ -41,3 +41,5 @@ jobs:
           git pull
           git merge --no-ff ${{ steps.vars.outputs.BRANCH }} -m ${{ steps.vars.outputs.COMMIT }}
           git push
+        env:
+          ACTIONS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
