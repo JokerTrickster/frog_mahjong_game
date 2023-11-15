@@ -23,6 +23,9 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 전체 저장소 히스토리를 가져오기 위해 깊이를 0으로 설정
+          token: ${{ secrets.GITHUB_TOKEN }}  # Personal Access Token 사용
       - name: prepare
         id: vars
         run: |
@@ -34,8 +37,9 @@ jobs:
           git config user.email "pkjhj485@gmail.com"
       - name: merge
         run: |
-          git fetch --unshallow
           git checkout main
           git pull
           git merge --no-ff ${{ steps.vars.outputs.BRANCH }} -m ${{ steps.vars.outputs.COMMIT }}
           git push
+        env:
+          ACTIONS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
