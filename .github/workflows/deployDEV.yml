@@ -9,12 +9,63 @@ jobs:
   build:
     name: build n deploy
     runs-on: self-hosted
+    env: 
+      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
+      REPO_URL: frog
+      CLUSTER_NAME: frog-cluster
+      REGION: us-east-1
     steps:
       - name: check path
         run: pwd
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
+      - name: prepare envs
+        id: vars
+        run: |
+          echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_NAME=frog-container" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=frog-ecs-service" >> $GITHUB_OUTPUT
+          echo "MEM=856" >> $GITHUB_OUTPUT
+      - name: login to ECR
+        run: aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
+      - name: build & tag image
+        run: |
+          V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
+          echo $V
+          docker build -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} -f ./src/deployment/Dockerfile ./src/
+          docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+      - name: push image
+        id: image
+        run: |
+          DIGEST=$(docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} | tail -1 | awk '{ print $3 }')
+          docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+          echo "digest of ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} is ${DIGEST}"
+          echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
+      - name: clean up
+        run: |
+          docker rmi ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }}
+          docker rmi ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+          docker image prune -f
+          docker system prune --filter until=240h -f
+      - name: create new task definition
+        run: |
+          echo "deploy digest : ${{ steps.image.outputs.DIGEST }}"
+          TASK_JSON=$(cat ./src/deployment/taskDefinition.json)
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_DOMAIN__/${REPO_DOMAIN}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_URL__/${REPO_URL}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__ENV__/${{ steps.vars.outputs.BRANCH }}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__MEM__/${{ steps.vars.outputs.MEM }}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REGION__/${REGION}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__IMAGE_DIGEST__/${{ steps.image.outputs.DIGEST }}/g")
+          echo ${TASK_JSON} | tee ./src/deployment/tmp_taskDefinition.json
+      - name: register new task definition
+        run: |
+          aws ecs register-task-definition --region "${REGION}" --family ${{ steps.vars.outputs.TASK_DEFINITION_NAME }} --cli-input-json file://./src/deployment/tmp_taskDefinition.json
+      - name: update service
+        run: |
+          aws ecs update-service --region ${REGION} --cluster ${CLUSTER_NAME} --service ${{ steps.vars.outputs.SERVICE_NAME }} --task-definition ${{ steps.vars.outputs.TASK_DEFINITION_NAME }}
 
   auto-merge:
     name: auto merge to main branch
