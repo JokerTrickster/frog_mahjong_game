@@ -3,9 +3,11 @@ module main
 go 1.21.1
 
 require (
+	github.com/elastic/go-lumber v0.1.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.11.3
+	github.com/sirupsen/logrus v1.9.3
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.2
 	gorm.io/driver/mysql v1.5.2

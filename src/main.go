@@ -36,6 +36,5 @@ func main() {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.HideBanner = true
 	e.Logger.Fatal(e.Start(":" + utils.Env.Port))
-
 	return
 }
