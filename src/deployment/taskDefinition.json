@@ -60,7 +60,7 @@
             "privileged": false
         }
     ],
-    "taskDefinitionArn": "arn:aws:iam::190009833917:role/frog-task-execution-role",
+    "taskRoleArn": "arn:aws:iam::190009833917:role/frog-task-execution-role",
     "executionRoleArn": "arn:aws:iam::190009833917:role/frog-ecs-service-role",
     "networkMode": "awsvpc",
     "volumes": [],
