@@ -1,6 +1,11 @@
 package utils
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"runtime"
+	"strings"
+)
 
 // 프론트엔드 받을 에러 형식
 type ResError struct {
@@ -69,4 +74,31 @@ var ErrHttpCode = map[string]int{
 	"NOT_MATCHED_SIGNUP_INFO": http.StatusBadRequest,
 	"INVALID_AUTH_CODE":       http.StatusBadRequest,
 	"EXPIRED_AUTH_CODE":       http.StatusBadRequest,
+}
+
+func ErrorParsing(data string) Err {
+	slice := strings.Split(data, "|")
+	result := Err{
+		HttpCode: ErrHttpCode[slice[0]],
+		ErrType:  slice[0],
+		Trace:    slice[1],
+		Msg:      slice[2],
+		From:     slice[3],
+	}
+	return result
+}
+
+func ErrorMsg(errType ErrType, trace string, msg string, from IErrFrom) error {
+	return fmt.Errorf("%s|%s|%s|%s", errType, trace, msg, from)
+}
+
+func (e ErrType) New(errType string, msg string) *ResError {
+	return &ResError{ErrType: errType, Msg: msg}
+}
+
+func Trace() string {
+	pc, _, _, _ := runtime.Caller(1)
+	funcName := runtime.FuncForPC(pc).Name()
+	_, line := runtime.FuncForPC(pc).FileLine(pc)
+	return fmt.Sprintf("%s.L%d", funcName, line)
 }
