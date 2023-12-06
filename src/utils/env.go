@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 type envStruct struct {
@@ -54,4 +55,18 @@ func getOSLookupEnv(envVarNames []string) (map[string]string, error) {
 		}
 	}
 	return result, nil
+}
+
+func TimeToEpochMillis(time time.Time) int64 {
+	nanos := time.UnixNano()
+	millis := nanos / 1000000
+	return millis
+}
+
+func EpochToTime(date int64) time.Time {
+	return time.Unix(date, 0)
+}
+
+func EpochToTimeMillis(t int64) time.Time {
+	return time.Unix(t/1000, t%1000*1000000)
 }

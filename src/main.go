@@ -5,7 +5,6 @@ import (
 	swaggerDocs "main/docs"
 	"main/middleware"
 	"main/utils"
-	"main/utils/db"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -15,7 +14,7 @@ import (
 //export PATH=$PATH:~/go/bin
 func main() {
 	e := echo.New()
-	if err := utils.InitEnv(); err != nil {
+	if err := utils.InitServer(); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -23,10 +22,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	if err := db.InitMySQL(); err != nil {
-		fmt.Println(err)
-		return
-	}
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!!!!!!!")
 	})
