@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"main/utils/db"
+	"main/utils/db/mysql"
 )
 
 func InitServer() error {
@@ -16,7 +16,7 @@ func InitServer() error {
 		return err
 	}
 
-	if err := db.InitMySQL(); err != nil {
+	if err := mysql.InitMySQL(); err != nil {
 		fmt.Sprintf("db 초기화 에러 : %s", err.Error())
 		return err
 	}
