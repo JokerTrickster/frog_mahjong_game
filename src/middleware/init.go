@@ -27,6 +27,9 @@ func InitMiddleware(e *echo.Echo) error {
 		Timeout:      24 * time.Second,
 	}))
 
+	//Logger : 로깅 미들웨어
+	e.Use(Logger)
+
 	//jwt 검증 미들웨어
 	signingKey := utils.AccessTokenSecretKey
 	utils.JwtConfig = middleware.JWTConfig{
