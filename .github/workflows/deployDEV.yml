@@ -12,7 +12,7 @@ jobs:
     env: 
       REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
       REPO_URL: frog
-      CLUSTER_NAME: frog-cluster
+      CLUSTER_NAME: frog
       REGION: us-east-1
     steps:
       - name: check path
@@ -25,7 +25,7 @@ jobs:
         run: |
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
           echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
-          echo "TASK_DEFINITION_NAME=frog-container" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_NAME=dev_frog" >> $GITHUB_OUTPUT
           echo "SERVICE_NAME=dev_frog" >> $GITHUB_OUTPUT
           echo "MEM=856" >> $GITHUB_OUTPUT
       - name: login to ECR
