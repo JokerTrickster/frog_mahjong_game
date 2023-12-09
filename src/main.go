@@ -26,6 +26,7 @@ func main() {
 	e.GET("/health", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
+	fmt.Println(utils.Env.Port)
 	// swagger 초기화
 	swaggerDocs.SwaggerInfo.Host = "localhost:" + utils.Env.Port
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
