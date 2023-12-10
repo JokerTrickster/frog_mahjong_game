@@ -25,7 +25,7 @@
                 },
                 {
                     "name": "REGION",
-                    "value": "us-east-1"
+                    "value": "ap-northeast-2"
                 }
             ],
             "portMappings": [
@@ -39,7 +39,7 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "ecs-dev-frog",
-                    "awslogs-region": "us-east-1"
+                    "awslogs-region": "ap-northeast-2"
                 }
             },
             "ulimits": [
