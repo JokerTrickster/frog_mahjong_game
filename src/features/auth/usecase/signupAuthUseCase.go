@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/auth/model/interface"
 	"main/features/auth/model/request"
 	"time"
@@ -17,15 +16,38 @@ func NewSignupAuthUseCase(repo _interface.ISignupAuthRepository, timeout time.Du
 	return &SignupAuthUseCase{Repository: repo, ContextTimeout: timeout}
 }
 
-func (s *SignupAuthUseCase) Signup(c context.Context, req *request.ReqSignup) error {
-	ctx, cancel := context.WithTimeout(c, s.ContextTimeout)
+func (d *SignupAuthUseCase) Signup(c context.Context, req *request.ReqSignup) error {
+	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
+
 	//1. 해당 이름이 존재하는지 체크
+	err := d.Repository.FindOneUserAuth(ctx, req.Name)
+	if err != nil {
+		return err
+	}
 
-	//2. 회원가입 정보 DTO를 만든다.
-
+	//2. 유저 DTO를 만든다.
+	gUserDTO, err := CreateSignupUserDTO(req.Name, req.Email)
+	if err != nil {
+		return err
+	}
 	//3. 유저 정보를 저장한다.
+	userID, err := d.Repository.InsertOneUserDTO(ctx, gUserDTO)
+	if err != nil {
+		return err
+	}
+
+	//4. 유저 인증 DTO를 만든다.
+	gUserAuthDTO, err := CreateSignupUserAuthDTO(userID, req)
+	if err != nil {
+		return err
+	}
+
+	//5. 유저 인증 정보를 저장한다.
+	err = d.Repository.InsertOneUserAuthDTO(ctx, gUserAuthDTO)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

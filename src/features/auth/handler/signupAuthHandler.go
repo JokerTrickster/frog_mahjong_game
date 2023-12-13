@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	_interface "main/features/auth/model/interface"
 	"main/features/auth/model/request"
 	"main/utils"
@@ -41,7 +42,7 @@ func NewSignupAuthHandler(c *echo.Echo, useCase _interface.ISignupAuthUseCase) _
 // @Failure 500 {object} error
 // @Tags auth
 func (d *SignupAuthHandler) Signup(c echo.Context) error {
-	ctx := c.Request().Context()
+	ctx := context.Background()
 	req := &request.ReqSignup{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
