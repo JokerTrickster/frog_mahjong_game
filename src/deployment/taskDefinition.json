@@ -2,7 +2,7 @@
     "family": "dev_frog",
     "containerDefinitions": [
         {
-            "image": "__REPO_DOMAIN__/__REPO_URL__@__IMAGE_DIGEST__",
+            "image": "__REPO_DOMAIN__/__REPO_URL__:__IMAGE_TAG__",
             "name": "dev_frog",
             "cpu": 1024,
             "memoryReservation": __MEM__,

@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	swaggerDocs "main/docs"
+	"main/features"
 	"main/middleware"
 	"main/utils"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -22,14 +22,20 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	//핸드러 초기화
+	if err := features.InitHandler(e); err != nil {
+		fmt.Sprintln("handler 초기화 에러 : %s", err.Error())
+		return
+	}
 
-	e.GET("/health", func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
-	})
-	fmt.Println(utils.Env.Port)
 	// swagger 초기화
-	swaggerDocs.SwaggerInfo.Host = "localhost:" + utils.Env.Port
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	if utils.Env.IsLocal {
+		swaggerDocs.SwaggerInfo.Host = "localhost:8080"
+		e.GET("/swagger/*", echoSwagger.WrapHandler)
+	} else {
+		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.breathings.net", utils.Env.Env, "frog")
+		e.GET("/swagger/*", echoSwagger.WrapHandler)
+	}
 	e.HideBanner = true
 	e.Logger.Fatal(e.Start(":" + utils.Env.Port))
 	return
