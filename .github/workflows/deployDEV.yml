@@ -10,10 +10,10 @@ jobs:
     name: build n deploy
     runs-on: self-hosted
     env: 
-      REPO_DOMAIN: 190009833917.dkr.ecr.ap-northeast-2.amazonaws.com
+      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
       REPO_URL: frog
-      CLUSTER_NAME: admin-portal
-      REGION: ap-northeast-2
+      CLUSTER_NAME: frog
+      REGION: us-east-1
     steps:
       - name: check path
         run: pwd
@@ -39,10 +39,8 @@ jobs:
       - name: push image
         id: image
         run: |
-          DIGEST=$(docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} | tail -1 | awk '{ print $3 }')
+          docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }}
           docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
-          echo "digest of ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} is ${DIGEST}"
-          echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
       - name: clean up
         run: |
           docker rmi ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }}
@@ -51,7 +49,6 @@ jobs:
           docker system prune --filter until=240h -f
       - name: create new task definition
         run: |
-          echo "deploy digest : ${{ steps.image.outputs.DIGEST }}"
           TASK_JSON=$(cat ./src/deployment/taskDefinition.json)
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_DOMAIN__/${REPO_DOMAIN}/g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_URL__/${REPO_URL}/g")
