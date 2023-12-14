@@ -10,10 +10,10 @@ jobs:
     name: build n deploy
     runs-on: self-hosted
     env: 
-      REPO_DOMAIN: 190009833917.dkr.ecr.ap-northeast-2.amazonaws.com
+      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
       REPO_URL: frog
       CLUSTER_NAME: frog
-      REGION: ap-northeast-2
+      REGION: us-east-1
     steps:
       - name: check path
         run: pwd
