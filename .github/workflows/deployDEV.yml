@@ -25,8 +25,8 @@ jobs:
         run: |
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
           echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
-          echo "TASK_DEFINITION_NAME=dev_frog" >> $GITHUB_OUTPUT
-          echo "SERVICE_NAME=dev_frog" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_NAME=dev_frogs" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=dev_frogs" >> $GITHUB_OUTPUT
           echo "MEM=856" >> $GITHUB_OUTPUT
       - name: login to ECR
         run: aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
