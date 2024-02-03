@@ -36,6 +36,7 @@ func main() {
 		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.breathings.net", utils.Env.Env, "frog")
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
+	fmt.Println("테스트")
 	e.HideBanner = true
 	e.Logger.Fatal(e.Start(":" + utils.Env.Port))
 	return
