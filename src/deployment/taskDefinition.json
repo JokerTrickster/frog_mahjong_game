@@ -1,9 +1,9 @@
 {
-    "family": "dev_frog",
+    "family": "dev_frogs",
     "containerDefinitions": [
         {
-            "image": "__REPO_DOMAIN__/__REPO_URL__:__IMAGE_TAG__",
-            "name": "dev_frog",
+            "image": "__REPO_DOMAIN__/__REPO_URL__@__IMAGE_DIGEST__",
+            "name": "dev_frogs",
             "cpu": 1024,
             "memoryReservation": __MEM__,
             "environment": [
