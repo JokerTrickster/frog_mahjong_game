@@ -4,6 +4,7 @@ package mocks
 
 import (
 	context "context"
+	mysql "main/utils/db/mysql"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -13,22 +14,32 @@ type ISigninAuthRepository struct {
 	mock.Mock
 }
 
-// FindOneUserAuth provides a mock function with given fields: ctx, name
-func (_m *ISigninAuthRepository) FindOneUserAuth(ctx context.Context, name string) error {
-	ret := _m.Called(ctx, name)
+// FindOneUser provides a mock function with given fields: ctx, email, password
+func (_m *ISigninAuthRepository) FindOneUser(ctx context.Context, email string, password string) (mysql.Users, error) {
+	ret := _m.Called(ctx, email, password)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FindOneUserAuth")
+		panic("no return value specified for FindOneUser")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(ctx, name)
+	var r0 mysql.Users
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (mysql.Users, error)); ok {
+		return rf(ctx, email, password)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) mysql.Users); ok {
+		r0 = rf(ctx, email, password)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(mysql.Users)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, email, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewISigninAuthRepository creates a new instance of ISigninAuthRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

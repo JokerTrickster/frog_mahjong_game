@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"fmt"
+	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
+	"main/utils"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -18,7 +20,7 @@ func (g *SignupAuthRepository) UserCheckByEmail(ctx context.Context, email strin
 	if result.RowsAffected == 0 {
 		return nil
 	} else {
-		return fmt.Errorf("%s email is already existed", email)
+		return utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserAlreadyExisted.Error(), utils.ErrFromClient)
 	}
 }
 func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Users) error {

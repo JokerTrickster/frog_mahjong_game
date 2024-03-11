@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/auth/model/request"
+	"main/features/auth/model/response"
 )
 
 type ISignupAuthUseCase interface {
@@ -10,5 +11,5 @@ type ISignupAuthUseCase interface {
 }
 
 type ISigninAuthUseCase interface {
-	Signin(c context.Context, req *request.ReqSignin) error
+	Signin(c context.Context, req *request.ReqSignin) (response.ResSignin, error)
 }

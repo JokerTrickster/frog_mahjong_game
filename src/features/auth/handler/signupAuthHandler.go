@@ -49,7 +49,7 @@ func (d *SignupAuthHandler) Signup(c echo.Context) error {
 	}
 	err := d.UseCase.Signup(ctx, req)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return err
 	}
 	return c.JSON(http.StatusOK, true)
 }
