@@ -12,7 +12,7 @@ tmp_dir = "tmp"
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false
-  full_bin =  "PORT=8080 ENV=dev IS_LOCAL=true MYSQL_USER=root MYSQL_PASSWORD=examplepassword MYSQL_HOST=0.0.0.0 MYSQL_PORT=3306 MYSQL_DATABASE=frog_dev  ./tmp/main"
+  full_bin =  "PORT=8080 ENV=dev IS_LOCAL=true MYSQL_USER=root MYSQL_PASSWORD=examplepassword MYSQL_HOST=0.0.0.0 MYSQL_PORT=3306 MYSQL_DATABASE=frog_dev PG_USER=dev PG_PASSWORD=asdASD123 PG_DB_NAME=frog_dev  ./tmp/main"
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   kill_delay = "0s"
