@@ -8,8 +8,8 @@ import (
 )
 
 type JwtCustomClaims struct {
-	createTime int64  `json:"createTime"`
-	UserID     string `json:"userID"`
+	createTime int64 `json:"createTime"`
+	UserID     uint  `json:"userID"`
 	jwt.StandardClaims
 }
 
@@ -29,7 +29,8 @@ func InitJwt() error {
 	return nil
 }
 
-func GenerateToken(email string, now time.Time, userID string) (string, string, error) {
+func GenerateToken(email string, userID uint) (string, string, error) {
+	now := time.Now()
 	accessToken, err := GenerateAccessToken(email, now, userID)
 	if err != nil {
 		return "", "", err
@@ -41,7 +42,7 @@ func GenerateToken(email string, now time.Time, userID string) (string, string, 
 	return accessToken, refreshToken, nil
 }
 
-func GenerateAccessToken(email string, now time.Time, userID string) (string, error) {
+func GenerateAccessToken(email string, now time.Time, userID uint) (string, error) {
 	// Set custom claims
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
@@ -61,7 +62,7 @@ func GenerateAccessToken(email string, now time.Time, userID string) (string, er
 	return accessToken, nil
 }
 
-func GenerateRefreshToken(email string, now time.Time, userID string) (string, error) {
+func GenerateRefreshToken(email string, now time.Time, userID uint) (string, error) {
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
