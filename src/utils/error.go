@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -42,10 +43,10 @@ const (
 const (
 	ErrBadParameter         = ErrType("PARAM_BAD")
 	ErrAuthFailed           = ErrType("AUTH_FAILED")
+	ErrUserNotExist         = ErrType("USER_NOT_EXIST")
 	ErrNotFound             = ErrType("NOT_FOUND")
 	ErrAuthInActive         = ErrType("AUTH_INACTIVE")
-	ErrUserNotExisted       = ErrType("USR_NOT_EXISTED")
-	ErrUserAlreadyExisted   = ErrType("USR_ALREADY_EXISTED")
+	ErrUserAlreadyExisted   = ErrType("USER_ALREADY_EXISTED")
 	ErrBadToken             = ErrType("TOKEN_BAD")
 	ErrAuthPolicyViolation  = ErrType("POLICY_VIOLATION")
 	ErrInternalServer       = ErrType("INTERNAL_SERVER")
@@ -63,8 +64,7 @@ var ErrHttpCode = map[string]int{
 	"NOT_FOUND":               http.StatusNotFound,
 	"AUTH_FAILED":             http.StatusUnauthorized,
 	"AUTH_INACTIVE":           http.StatusForbidden,
-	"USR_NOT_EXISTED":         http.StatusBadRequest,
-	"USR_ALREADY_EXISTED":     http.StatusBadRequest,
+	"USER_ALREADY_EXISTED":    http.StatusBadRequest,
 	"TOKEN_BAD":               http.StatusUnauthorized,
 	"POLICY_VIOLATION":        http.StatusUnauthorized,
 	"INTERNAL_SERVER":         http.StatusInternalServerError,
@@ -74,6 +74,7 @@ var ErrHttpCode = map[string]int{
 	"NOT_MATCHED_SIGNUP_INFO": http.StatusBadRequest,
 	"INVALID_AUTH_CODE":       http.StatusBadRequest,
 	"EXPIRED_AUTH_CODE":       http.StatusBadRequest,
+	"USER_NOT_EXIST":          http.StatusBadRequest,
 }
 
 func ErrorParsing(data string) Err {
@@ -88,7 +89,8 @@ func ErrorParsing(data string) Err {
 	return result
 }
 
-func ErrorMsg(errType ErrType, trace string, msg string, from IErrFrom) error {
+func ErrorMsg(ctx context.Context, errType ErrType, trace string, msg string, from IErrFrom) error {
+
 	return fmt.Errorf("%s|%s|%s|%s", errType, trace, msg, from)
 }
 

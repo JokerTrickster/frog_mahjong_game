@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"main/utils"
 	"strings"
@@ -28,7 +29,7 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 		resError := utils.Err{}
 		var resCode int
 		if c.Response().Status == 404 {
-			err = utils.ErrorMsg(utils.ErrNotFound, "", fmt.Sprintf("Invalid url call : %s", url), utils.ErrFromClient)
+			err = utils.ErrorMsg(context.TODO(), utils.ErrNotFound, "", fmt.Sprintf("Invalid url call : %s", url), utils.ErrFromClient)
 		}
 		fmt.Println(err)
 		if err != nil {

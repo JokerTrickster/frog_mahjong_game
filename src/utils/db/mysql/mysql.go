@@ -20,7 +20,7 @@ const DBTimeOut = 8 * time.Second
 
 func InitMySQL() error {
 	// MySQL 연결 문자열
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),

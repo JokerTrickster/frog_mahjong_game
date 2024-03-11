@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"main/utils/db/postgresql"
+	"main/utils/db/mysql"
 )
 
 func InitServer() error {
@@ -15,15 +15,15 @@ func InitServer() error {
 		fmt.Sprintf("jwt 초기화 에러 : %s", err.Error())
 		return err
 	}
-	if err := postgresql.InitPostgreSQL(); err != nil {
-		fmt.Sprintf("db 초기화 에러 : %s", err.Error())
-		return err
-	}
-
-	// if err := mysql.InitMySQL(); err != nil {
+	// if err := postgresql.InitPostgreSQL(); err != nil {
 	// 	fmt.Sprintf("db 초기화 에러 : %s", err.Error())
 	// 	return err
 	// }
+
+	if err := mysql.InitMySQL(); err != nil {
+		fmt.Sprintf("db 초기화 에러 : %s", err.Error())
+		return err
+	}
 
 	return nil
 }

@@ -7,3 +7,6 @@ import (
 type SignupAuthRepository struct {
 	GormDB *gorm.DB
 }
+type SigninAuthRepository struct {
+	GormDB *gorm.DB
+}

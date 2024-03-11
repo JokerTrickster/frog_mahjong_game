@@ -14,21 +14,21 @@ import (
 )
 
 func TestSignupAuthUseCase_Signup(t *testing.T) {
-	mockSignupAuthRepository := new(mocks.ISignupAuthRepository)
+	// table driven test
 	tests := []struct {
 		name string
 		req  request.ReqSignup
 		want error
 	}{
-		{"success1", request.ReqSignup{Email: "test01@test.com", Password: "1234"}, nil},
-		{"success2", request.ReqSignup{Email: "test02@test.com", Password: "1234"}, nil},
+		{"success1", request.ReqSignup{Email: "test01@test.com", Password: "1234", Name: "ryan"}, nil},
+		{"success2", request.ReqSignup{Email: "test02@test.com", Password: "1234", Name: "test"}, nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			//given
-			mockSignupAuthRepository.On("FindOneUserAuth", mock.Anything, mock.Anything).Return(nil)       //mock
-			mockSignupAuthRepository.On("InsertOneUserDTO", mock.Anything, mock.Anything).Return("1", nil) //mock
-			mockSignupAuthRepository.On("InsertOneUserAuthDTO", mock.Anything, mock.Anything).Return(nil)  //mock
+			mockSignupAuthRepository := new(mocks.ISignupAuthRepository)
+			mockSignupAuthRepository.On("UserCheckByEmail", mock.Anything, mock.Anything).Return(nil) //mock
+			mockSignupAuthRepository.On("InsertOneUser", mock.Anything, mock.Anything).Return(nil)    //mock
 			us := NewSignupAuthUseCase(mockSignupAuthRepository, 8*time.Second)
 
 			//when
