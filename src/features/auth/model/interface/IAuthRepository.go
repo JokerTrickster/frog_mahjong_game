@@ -6,7 +6,10 @@ import (
 )
 
 type ISignupAuthRepository interface {
+	UserCheckByEmail(ctx context.Context, email string) error
+	InsertOneUser(ctx context.Context, user mysql.Users) error
+}
+
+type ISigninAuthRepository interface {
 	FindOneUserAuth(ctx context.Context, name string) error
-	InsertOneUserDTO(ctx context.Context, userDTO mysql.GormUserDTO) (string, error)
-	InsertOneUserAuthDTO(ctx context.Context, userAuthDTO mysql.GormUserAuthDTO) error
 }

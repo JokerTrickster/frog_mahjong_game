@@ -4,11 +4,10 @@ import (
 	"main/features/auth/repository"
 	"main/features/auth/usecase"
 	"main/utils/db/mysql"
-	"main/utils/db/postgresql"
 
 	"github.com/labstack/echo/v4"
 )
 
 func NewAuthHandler(c *echo.Echo) {
-	NewSignupAuthHandler(c, usecase.NewSignupAuthUseCase(repository.NewSignupAuthRepository(mysql.GormMysqlDB), postgresql.DBTimeOut))
+	NewSignupAuthHandler(c, usecase.NewSignupAuthUseCase(repository.NewSignupAuthRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

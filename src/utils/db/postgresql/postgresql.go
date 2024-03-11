@@ -7,7 +7,6 @@ package postgresql
 import (
 	"fmt"
 	"log"
-	"main/utils/db"
 	"os"
 	"time"
 
@@ -41,25 +40,5 @@ func InitPostgreSQL() error {
 
 	// GormDB 로그 모드 설정 (선택 사항)
 	GormPGDB.LogMode(true)
-
-	GormPGDB.AutoMigrate(&db.Users{})
-
-	users, err := GetTableData()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, user := range users {
-		fmt.Println(user)
-	}
-
 	return nil
-}
-
-func GetTableData() ([]db.Users, error) {
-	var users []db.Users
-	err := GormPGDB.Find(&users).Error
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
 }

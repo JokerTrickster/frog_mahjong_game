@@ -26,9 +26,8 @@ func TestSignupAuthUseCase_Signup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			//given
-			mockSignupAuthRepository.On("FindOneUserAuth", mock.Anything, mock.Anything).Return(nil)       //mock
-			mockSignupAuthRepository.On("InsertOneUserDTO", mock.Anything, mock.Anything).Return("1", nil) //mock
-			mockSignupAuthRepository.On("InsertOneUserAuthDTO", mock.Anything, mock.Anything).Return(nil)  //mock
+			mockSignupAuthRepository.On("UserCheckByEmail", mock.Anything, mock.Anything).Return(nil) //mock
+			mockSignupAuthRepository.On("InsertOneUser", mock.Anything, mock.Anything).Return(nil)    //mock
 			us := NewSignupAuthUseCase(mockSignupAuthRepository, 8*time.Second)
 
 			//when
