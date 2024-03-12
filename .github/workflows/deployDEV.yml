@@ -21,6 +21,6 @@ jobs:
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
       - name: go test
         run: |
-          cd ./src
+          cd ./src/features
           go test -v ./...
   
