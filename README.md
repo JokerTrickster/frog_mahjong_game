@@ -19,10 +19,9 @@
 
 ### 역할 및 기술
 백엔드 : 조현준 / Golang & AWS & RDBMS
-프론트엔드 : 채은비 / 
 
 ### 일정
-23년 11월 11일 ~ 24년 1월 1일
+
 
 ### 프로젝트 문서들
 [링크 클릭](https://drive.google.com/drive/folders/1km1pTM_KVxDrc0HCSJ-pdL-DT5wblw1D?usp=drive_link)
