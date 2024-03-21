@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -8,8 +9,9 @@ import (
 )
 
 type JwtCustomClaims struct {
-	createTime int64 `json:"createTime"`
-	UserID     uint  `json:"userID"`
+	createTime int64  `json:"createTime"`
+	UserID     uint   `json:"userID"`
+	Email      string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -47,6 +49,7 @@ func GenerateAccessToken(email string, now time.Time, userID uint) (string, erro
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
+		email,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * AccessTokenExpiredTime).Unix(),
 		},
@@ -66,6 +69,7 @@ func GenerateRefreshToken(email string, now time.Time, userID uint) (string, err
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
+		email,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * RefreshTokenExpiredTime).Unix(),
 		},
@@ -79,4 +83,31 @@ func GenerateRefreshToken(email string, now time.Time, userID uint) (string, err
 		return "", err
 	}
 	return refreshToken, nil
+}
+
+func ParseAccessToken(tokenString string) (uint, string, error) {
+	// Parse the token
+	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return AccessTokenSecretKey, nil
+	})
+	if err != nil {
+		return 0, "", err
+	}
+
+	// Check token validity
+	if !token.Valid {
+		return 0, "", errors.New("invalid token")
+	}
+
+	// Extract claims
+	claims, ok := token.Claims.(*JwtCustomClaims)
+	if !ok {
+		return 0, "", errors.New("failed to parse claims")
+	}
+
+	// Extract email and userID
+	email := claims.Email
+	userID := claims.UserID
+
+	return userID, email, nil
 }

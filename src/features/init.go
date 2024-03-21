@@ -2,6 +2,7 @@ package features
 
 import (
 	authHandler "main/features/auth/handler"
+	roomHandler "main/features/room/handler"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -14,6 +15,7 @@ func InitHandler(e *echo.Echo) error {
 	})
 	//인증 핸들러 초기화
 	authHandler.NewAuthHandler(e)
+	roomHandler.NewRoomHandler(e)
 
 	return nil
 }

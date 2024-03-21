@@ -1,4 +1,19 @@
 definitions:
+  request.ReqCreate:
+    properties:
+      max_count:
+        type: integer
+      min_count:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - max_count
+    - min_count
+    - name
+    type: object
   request.ReqSignin:
     properties:
       email:
@@ -98,4 +113,41 @@ paths:
       summary: 회원 가입
       tags:
       - auth
+  /v0.1/room/create:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 생성
+      tags:
+      - room
 swagger: "2.0"
