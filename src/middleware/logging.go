@@ -19,6 +19,7 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 		req := c.Request()
 		url := req.URL.Path
 		requestID := random.String(32)
+
 		c.Set("requestID", requestID)
 		if req.Method == "GET" && url == "/health" {
 			return next(c)

@@ -29,7 +29,7 @@ type RoomUsers struct {
 	RoomID      int    `json:"roomID" gorm:"column:room_id"`
 	Score       int    `json:"score" gorm:"column:score"`
 	CardCount   int    `json:"cardCount" gorm:"column:card_count"`
-	PlayerState string `json:"playerState" gorm:"column:player_state"`
+	PlayerState string `json:"playerState" gorm:"column:player_state"` // wait, ready, play, end
 }
 
 type Cards struct {
