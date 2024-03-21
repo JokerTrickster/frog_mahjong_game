@@ -16,11 +16,11 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		//로깅 초기 세팅
 		startTime := time.Now()
+		requestID := random.String(32)
+		c.Set("rID", requestID)
+		c.Set("startTime", startTime)
 		req := c.Request()
 		url := req.URL.Path
-		requestID := random.String(32)
-
-		c.Set("requestID", requestID)
 		if req.Method == "GET" && url == "/health" {
 			return next(c)
 		}

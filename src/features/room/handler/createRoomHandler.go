@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
+	mw "main/middleware"
 	"main/utils"
 	"net/http"
 
@@ -19,7 +18,7 @@ func NewCreateRoomHandler(c *echo.Echo, useCase _interface.ICreateRoomUseCase) _
 	handler := &CreateRoomHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/room/create", handler.Create)
+	c.POST("/v0.1/room/create", handler.Create, mw.TokenChecker)
 	return handler
 }
 
@@ -41,14 +40,12 @@ func NewCreateRoomHandler(c *echo.Echo, useCase _interface.ICreateRoomUseCase) _
 // @Failure 500 {object} error
 // @Tags room
 func (d *CreateRoomHandler) Create(c echo.Context) error {
-	ctx := context.Background()
+	ctx, uID, email := utils.CtxGenerate(c)
 	req := &request.ReqCreate{}
-	uID, email, err := utils.ParseAccessToken(c.Request().Header.Get("tkn"))
-	fmt.Println(email, uID, err)
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err = d.UseCase.Create(ctx, uID, email, req)
+	err := d.UseCase.Create(ctx, uID, email, req)
 	if err != nil {
 		return err
 	}

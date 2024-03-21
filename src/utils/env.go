@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 type envStruct struct {
@@ -22,6 +25,15 @@ func InitVarNames() []string {
 	result = append(result, "ENV")
 	result = append(result, "IS_LOCAL")
 	return result
+}
+
+type CtxValues struct {
+	Method    string
+	Url       string
+	UserID    uint
+	StartTime time.Time
+	RequestID string
+	Email     string
 }
 
 // 사용할 환경 변수 값들 초기화해주는 함수
@@ -69,4 +81,22 @@ func EpochToTime(date int64) time.Time {
 
 func EpochToTimeMillis(t int64) time.Time {
 	return time.Unix(t/1000, t%1000*1000000)
+}
+
+func CtxGenerate(c echo.Context) (context.Context, uint, string) {
+	userID, _ := c.Get("uID").(uint)
+	requestID, _ := c.Get("rID").(string)
+	startTime, _ := c.Get("startTime").(time.Time)
+	email, _ := c.Get("email").(string)
+	req := c.Request()
+	ctx := context.WithValue(req.Context(), "key", &CtxValues{
+		Method:    req.Method,
+		Url:       req.URL.Path,
+		UserID:    userID,
+		RequestID: requestID,
+		StartTime: startTime,
+		Email:     email,
+	})
+	return ctx, userID, email
+
 }
