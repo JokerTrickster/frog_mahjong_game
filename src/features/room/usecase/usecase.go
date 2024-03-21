@@ -1,13 +1,15 @@
 package usecase
 
 import (
+	"context"
 	"main/features/room/model/request"
 	"main/utils/db/mysql"
 )
 
-func CreateRoomDTO(req *request.ReqCreate, email string) mysql.Rooms {
+func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (mysql.Rooms, error) {
+
 	result := mysql.Rooms{
-		CurrentCount: 0,
+		CurrentCount: 1,
 		MaxCount:     req.MaxCount,
 		MinCount:     req.MinCount,
 		Name:         req.Name,
@@ -17,15 +19,16 @@ func CreateRoomDTO(req *request.ReqCreate, email string) mysql.Rooms {
 	if req.Password != "" {
 		result.Password = req.Password
 	}
-	return result
+	return result, nil
 }
 
-func CreateRoomUserDTO(uID uint, roomID int) mysql.RoomUsers {
-	return mysql.RoomUsers{
+func CreateRoomUserDTO(uID uint, roomID int) (mysql.RoomUsers, error) {
+	result := mysql.RoomUsers{
 		UserID:      int(uID),
 		RoomID:      roomID,
 		Score:       0,
 		CardCount:   0,
 		PlayerState: "ready",
 	}
+	return result, nil
 }

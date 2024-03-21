@@ -23,14 +23,20 @@ func (d *CreateRoomUseCase) Create(c context.Context, uID uint, email string, re
 	fmt.Println(ctx)
 
 	// room create
-	roomDTO := CreateRoomDTO(req, email)
+	roomDTO, err := CreateRoomDTO(ctx, req, email)
+	if err != nil {
+		return err
+	}
 	roomID, err := d.Repository.InsertOneRoom(ctx, roomDTO)
 	if err != nil {
 		return err
 	}
 
 	// room user create
-	roomUserDTO := CreateRoomUserDTO(uID, roomID)
+	roomUserDTO, err := CreateRoomUserDTO(uID, roomID)
+	if err != nil {
+		return err
+	}
 	err = d.Repository.InsertOneRoomUser(ctx, roomUserDTO)
 	if err != nil {
 		return err
