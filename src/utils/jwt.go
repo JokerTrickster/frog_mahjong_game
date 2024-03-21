@@ -85,7 +85,7 @@ func GenerateRefreshToken(email string, now time.Time, userID uint) (string, err
 	return refreshToken, nil
 }
 
-func ParseAccessToken(tokenString string) (uint, string, error) {
+func ValidateAndParseAccessToken(tokenString string) (uint, string, error) {
 	// Parse the token
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return AccessTokenSecretKey, nil
