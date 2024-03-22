@@ -88,7 +88,7 @@ func TestCreateRoomUserDTO(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			//given
 			//when
-			_, err := CreateRoomUserDTO(tt.uID, tt.roomID)
+			_, err := CreateRoomUserDTO(tt.uID, tt.roomID, "ready")
 			//then
 			assert.Equal(t, tt.err, err)
 		})

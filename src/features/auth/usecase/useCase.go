@@ -12,6 +12,6 @@ func CreateSignupUser(req *request.ReqSignup) mysql.Users {
 		Password: req.Password,
 		Score:    30,
 		RoomID:   1,
-		State:    "ready",
+		State:    "logout",
 	}
 }

@@ -22,7 +22,7 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqSignin) (r
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 	// user check
-	user, err := d.Repository.FindOneUser(ctx, req.Email, req.Password)
+	user, err := d.Repository.FindOneAndUpdateUser(ctx, req.Email, req.Password)
 	if err != nil {
 		return response.ResSignin{}, err
 	}

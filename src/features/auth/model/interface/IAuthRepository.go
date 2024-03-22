@@ -11,5 +11,5 @@ type ISignupAuthRepository interface {
 }
 
 type ISigninAuthRepository interface {
-	FindOneUser(ctx context.Context, email, password string) (mysql.Users, error)
+	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error)
 }

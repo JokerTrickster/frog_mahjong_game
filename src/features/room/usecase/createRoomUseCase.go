@@ -20,7 +20,6 @@ func NewCreateRoomUseCase(repo _interface.ICreateRoomRepository, timeout time.Du
 func (d *CreateRoomUseCase) Create(c context.Context, uID uint, email string, req *request.ReqCreate) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
 
 	// room create
 	roomDTO, err := CreateRoomDTO(ctx, req, email)
@@ -33,10 +32,11 @@ func (d *CreateRoomUseCase) Create(c context.Context, uID uint, email string, re
 	}
 
 	// room user create
-	roomUserDTO, err := CreateRoomUserDTO(uID, roomID)
+	roomUserDTO, err := CreateRoomUserDTO(uID, roomID, "ready")
 	if err != nil {
 		return err
 	}
+	fmt.Println(roomUserDTO)
 	err = d.Repository.InsertOneRoomUser(ctx, roomUserDTO)
 	if err != nil {
 		return err
