@@ -8,7 +8,7 @@ type Users struct {
 	Email    string `json:"email" gorm:"uniqueIndex;column:email"`
 	Password string `json:"password" gorm:"column:password"`
 	Score    int    `json:"score" gorm:"column:score"`
-	State    string `json:"state" gorm:"column:state"`
+	State    string `json:"state" gorm:"column:state"` //logout, wait, play
 	RoomID   int    `json:"roomID" gorm:"column:room_id"`
 }
 
@@ -19,7 +19,7 @@ type Rooms struct {
 	MinCount     int    `json:"minCount" gorm:"column:min_count"`
 	Name         string `json:"name" gorm:"column:name"`
 	Password     string `json:"password" gorm:"column:password"`
-	State        string `json:"state" gorm:"column:state"`
+	State        string `json:"state" gorm:"column:state"` //wait, play, end
 	Owner        string `json:"owner" gorm:"column:owner"`
 }
 

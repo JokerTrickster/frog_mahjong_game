@@ -44,6 +44,8 @@ const (
 	ErrBadParameter         = ErrType("PARAM_BAD")
 	ErrAuthFailed           = ErrType("AUTH_FAILED")
 	ErrUserNotExist         = ErrType("USER_NOT_EXIST")
+	ErrRoomNotExisted       = ErrType("ROOM_NOT_EXISTED")
+	ErrRoomImpossibleJoin   = ErrType("ROOM_IMPOSSIBLE_JOIN")
 	ErrNotFound             = ErrType("NOT_FOUND")
 	ErrAuthInActive         = ErrType("AUTH_INACTIVE")
 	ErrUserAlreadyExisted   = ErrType("USER_ALREADY_EXISTED")
@@ -60,6 +62,7 @@ const (
 
 // 에러 타입에 따라서 httpCode 맵핑
 var ErrHttpCode = map[string]int{
+	"ROOM_IMPOSSIBLE_JOIN":    http.StatusBadRequest,
 	"PARAM_BAD":               http.StatusBadRequest,
 	"NOT_FOUND":               http.StatusNotFound,
 	"AUTH_FAILED":             http.StatusUnauthorized,
@@ -75,6 +78,7 @@ var ErrHttpCode = map[string]int{
 	"INVALID_AUTH_CODE":       http.StatusBadRequest,
 	"EXPIRED_AUTH_CODE":       http.StatusBadRequest,
 	"USER_NOT_EXIST":          http.StatusBadRequest,
+	"ROOM_NOT_EXISTED":        http.StatusBadRequest,
 }
 
 func ErrorParsing(data string) Err {
