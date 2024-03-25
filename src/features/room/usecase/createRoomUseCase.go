@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
 	"time"
@@ -36,7 +35,6 @@ func (d *CreateRoomUseCase) Create(c context.Context, uID uint, email string, re
 	if err != nil {
 		return err
 	}
-	fmt.Println(roomUserDTO)
 	err = d.Repository.InsertOneRoomUser(ctx, roomUserDTO)
 	if err != nil {
 		return err

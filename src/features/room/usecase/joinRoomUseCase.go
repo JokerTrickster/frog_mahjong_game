@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/room/model/errors"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
@@ -28,7 +27,6 @@ func (d *JoinRoomUseCase) Join(c context.Context, uID uint, email string, req *r
 	if err != nil {
 		return err
 	}
-	fmt.Println(roomDTO)
 	if roomDTO.CurrentCount == roomDTO.MaxCount {
 		return utils.ErrorMsg(ctx, utils.ErrRoomImpossibleJoin, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient)
 	}
