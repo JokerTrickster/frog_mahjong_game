@@ -14,12 +14,12 @@ type ISigninAuthRepository struct {
 	mock.Mock
 }
 
-// FindOneUser provides a mock function with given fields: ctx, email, password
-func (_m *ISigninAuthRepository) FindOneUser(ctx context.Context, email string, password string) (mysql.Users, error) {
+// FindOneAndUpdateUser provides a mock function with given fields: ctx, email, password
+func (_m *ISigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email string, password string) (mysql.Users, error) {
 	ret := _m.Called(ctx, email, password)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FindOneUser")
+		panic("no return value specified for FindOneAndUpdateUser")
 	}
 
 	var r0 mysql.Users

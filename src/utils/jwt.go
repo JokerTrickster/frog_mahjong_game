@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -108,6 +109,6 @@ func ValidateAndParseAccessToken(tokenString string) (uint, string, error) {
 	// Extract email and userID
 	email := claims.Email
 	userID := claims.UserID
-
+	fmt.Println(userID, email)
 	return userID, email, nil
 }

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"main/features/room/model/request"
 	"main/utils/db/mysql"
 )
@@ -22,13 +23,14 @@ func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (m
 	return result, nil
 }
 
-func CreateRoomUserDTO(uID uint, roomID int) (mysql.RoomUsers, error) {
+func CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUsers, error) {
 	result := mysql.RoomUsers{
 		UserID:      int(uID),
 		RoomID:      roomID,
 		Score:       0,
 		CardCount:   0,
-		PlayerState: "ready",
+		PlayerState: playerState,
 	}
+	fmt.Println(result)
 	return result, nil
 }

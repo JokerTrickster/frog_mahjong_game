@@ -13,14 +13,21 @@ import (
 func NewSigninAuthRepository(gormDB *gorm.DB) _interface.ISigninAuthRepository {
 	return &SigninAuthRepository{GormDB: gormDB}
 }
-func (g *SigninAuthRepository) FindOneUser(ctx context.Context, email, password string) (mysql.Users, error) {
+func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error) {
 	var user mysql.Users
-	result := g.GormDB.WithContext(ctx).Where("email = ? AND password = ?", email, password).First(&user)
+	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
+	result := g.GormDB.WithContext(ctx).Model(&mysql.Users{}).Where("email = ? and password = ? and state = ?", email, password, "logout").Updates(mysql.Users{State: "wait", RoomID: 1})
+	if result.Error != nil {
+		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
+	}
 	if result.RowsAffected == 0 {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
-	if result.Error != nil {
-		return mysql.Users{}, result.Error
+
+	// 변경된 사용자 정보를 가져옵니다.
+	err := g.GormDB.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return mysql.Users{}, err
 	}
 	return user, nil
 }

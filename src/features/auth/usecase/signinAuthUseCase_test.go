@@ -33,9 +33,9 @@ func TestSigninAuthUseCase_Signin(t *testing.T) {
 			//given
 			mockSigninAuthRepository := new(mocks.ISigninAuthRepository)
 			if tt.err != nil {
-				mockSigninAuthRepository.On("FindOneUser", mock.Anything, mock.Anything, mock.Anything).Return(mysql.Users{}, tt.err) //mock
+				mockSigninAuthRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(mysql.Users{}, tt.err) //mock
 			} else {
-				mockSigninAuthRepository.On("FindOneUser", mock.Anything, mock.Anything, mock.Anything).Return(mysql.Users{Email: tt.req.Email, Password: tt.req.Password}, nil) //mock
+				mockSigninAuthRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(mysql.Users{Email: tt.req.Email, Password: tt.req.Password}, nil) //mock
 			}
 			us := NewSigninAuthUseCase(mockSigninAuthRepository, 8*time.Second)
 
