@@ -21,7 +21,7 @@
 백엔드 : 조현준 / Golang & AWS & RDBMS
 
 ### 일정
-
+[프로젝트 일정 링크 클릭](https://github.com/users/JokerTrickster/projects/1/views/2)
 
 ### 프로젝트 문서들
 [링크 클릭](https://drive.google.com/drive/folders/1km1pTM_KVxDrc0HCSJ-pdL-DT5wblw1D?usp=drive_link)
