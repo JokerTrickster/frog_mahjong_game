@@ -25,18 +25,18 @@ type Rooms struct {
 
 type RoomUsers struct {
 	gorm.Model
-	UserID      int    `json:"userID" gorm:"column:user_id"`
-	RoomID      int    `json:"roomID" gorm:"column:room_id"`
-	Score       int    `json:"score" gorm:"column:score"`
-	CardCount   int    `json:"cardCount" gorm:"column:card_count"`
-	PlayerState string `json:"playerState" gorm:"column:player_state"` // wait, ready, play, end
+	UserID         int    `json:"userID" gorm:"column:user_id"`
+	RoomID         int    `json:"roomID" gorm:"column:room_id"`
+	Score          int    `json:"score" gorm:"column:score"`
+	OwnedCardCount int    `json:"ownedCardCount" gorm:"column: owned_card_count"`
+	PlayerState    string `json:"playerState" gorm:"column:player_state"` // wait, ready, play, end
 }
 
 type Cards struct {
 	gorm.Model
 	RoomID int    `json:"roomID" gorm:"column:room_id"`
 	UserID int    `json:"userID" gorm:"column:user_id"`
-	Name   string `json:"name" gorm:"column:name"`
-	Color  string `json:"color" gorm:"column:color"`
-	State  string `json:"state" gorm:"column:state"`
+	Name   string `json:"name" gorm:"column:name"`   // 1, 2, 3, 4, 5, 6, 7, 8, 9, 중, 발
+	Color  string `json:"color" gorm:"column:color"` // red, green, normal
+	State  string `json:"state" gorm:"column:state"` // owned, discarded, none
 }
