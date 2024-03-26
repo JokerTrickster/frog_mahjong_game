@@ -16,3 +16,7 @@ type IJoinRoomUseCase interface {
 type IOutRoomUseCase interface {
 	Out(c context.Context, uID uint, req *request.ReqOut) error
 }
+
+type IReadyRoomUseCase interface {
+	Ready(c context.Context, uID uint, req *request.ReqReady) error
+}

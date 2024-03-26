@@ -13,3 +13,7 @@ type IJoinRoomHandler interface {
 type IOutRoomHandler interface {
 	Out(c echo.Context) error
 }
+
+type IReadyRoomHandler interface {
+	Ready(c echo.Context) error
+}
