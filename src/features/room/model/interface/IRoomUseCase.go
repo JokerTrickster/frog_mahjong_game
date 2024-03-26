@@ -12,3 +12,7 @@ type ICreateRoomUseCase interface {
 type IJoinRoomUseCase interface {
 	Join(c context.Context, uID uint, email string, req *request.ReqJoin) error
 }
+
+type IOutRoomUseCase interface {
+	Out(c context.Context, uID uint, req *request.ReqOut) error
+}

@@ -28,7 +28,7 @@ type RoomUsers struct {
 	UserID         int    `json:"userID" gorm:"column:user_id"`
 	RoomID         int    `json:"roomID" gorm:"column:room_id"`
 	Score          int    `json:"score" gorm:"column:score"`
-	OwnedCardCount int    `json:"ownedCardCount" gorm:"column: owned_card_count"`
+	OwnedCardCount int    `json:"ownedCardCount" gorm:"column:owned_card_count"`
 	PlayerState    string `json:"playerState" gorm:"column:player_state"` // wait(대기중), ready(준비 완료), play(플레이할 차례), play_wait(다음 차례 대기)
 }
 

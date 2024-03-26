@@ -9,3 +9,7 @@ type ICreateRoomHandler interface {
 type IJoinRoomHandler interface {
 	Join(c echo.Context) error
 }
+
+type IOutRoomHandler interface {
+	Out(c echo.Context) error
+}
