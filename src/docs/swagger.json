@@ -219,6 +219,52 @@
                     }
                 }
             }
+        },
+        "/v0.1/room/ready": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "게임 준비 상태 변경",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqReady"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -261,6 +307,17 @@
         "request.ReqOut": {
             "type": "object",
             "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.ReqReady": {
+            "type": "object",
+            "properties": {
+                "playerState": {
+                    "type": "string"
+                },
                 "roomID": {
                     "type": "integer"
                 }

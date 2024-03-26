@@ -22,9 +22,9 @@ func NewReadyRoomHandler(c *echo.Echo, useCase _interface.IReadyRoomUseCase) _in
 	return handler
 }
 
-// 방 나가기
-// @RReadyer /v0.1/room/ready [post]
-// @Summary 방 나가기
+// 게임 준비 상태 변경
+// @Router /v0.1/room/ready [post]
+// @Summary 게임 준비 상태 변경
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
