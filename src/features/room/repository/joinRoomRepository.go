@@ -35,8 +35,11 @@ func (g *JoinRoomRepository) FindOneAndUpdateRoom(ctx context.Context, roomID ui
 }
 
 func (g *JoinRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uint, roomID uint) error {
-	//
-	result := g.GormDB.WithContext(ctx).Model(&mysql.Users{}).Where("id = ? and  deleted_at = ? and state = ?", uID, nil, "wait").Updates(mysql.Users{State: "play", RoomID: int(roomID)})
+	user := mysql.Users{
+		RoomID: int(roomID),
+		State:  "play",
+	}
+	result := g.GormDB.WithContext(ctx).Model(&user).Where("id = ? and state = ?", uID, "wait").Updates(user)
 	if result.Error != nil {
 		return result.Error
 	}
