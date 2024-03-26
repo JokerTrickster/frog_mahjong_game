@@ -14,6 +14,24 @@ type ICreateRoomRepository struct {
 	mock.Mock
 }
 
+// FindOneAndUpdateUser provides a mock function with given fields: ctx, uID, roomID
+func (_m *ICreateRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uint, roomID uint) error {
+	ret := _m.Called(ctx, uID, roomID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindOneAndUpdateUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) error); ok {
+		r0 = rf(ctx, uID, roomID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // InsertOneRoom provides a mock function with given fields: ctx, roomDTO
 func (_m *ICreateRoomRepository) InsertOneRoom(ctx context.Context, roomDTO mysql.Rooms) (int, error) {
 	ret := _m.Called(ctx, roomDTO)

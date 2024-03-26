@@ -14,6 +14,17 @@ import (
 func NewCreateRoomRepository(gormDB *gorm.DB) _interface.ICreateRoomRepository {
 	return &CreateRoomRepository{GormDB: gormDB}
 }
+func (g *CreateRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uint, roomID uint) error {
+	user := mysql.Users{
+		RoomID: int(roomID),
+		State:  "play",
+	}
+	result := g.GormDB.WithContext(ctx).Model(user).Where("id = ?", uID).Updates(user)
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+	}
+	return nil
+}
 func (g *CreateRoomRepository) InsertOneRoom(ctx context.Context, roomDTO mysql.Rooms) (int, error) {
 	//방 인원이 최대 인원이 최소 인원보다 많거나 같고, 최대 인원이 2명 이상이거나 최소 인원이 2명 이상이어야 한다.
 	if ((roomDTO.MaxCount >= roomDTO.MinCount) && (roomDTO.MaxCount >= 2 || roomDTO.MinCount >= 2)) == false {

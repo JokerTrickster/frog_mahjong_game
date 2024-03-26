@@ -25,11 +25,11 @@ func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (m
 
 func CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUsers, error) {
 	result := mysql.RoomUsers{
-		UserID:      int(uID),
-		RoomID:      roomID,
-		Score:       0,
-		CardCount:   0,
-		PlayerState: playerState,
+		UserID:         int(uID),
+		RoomID:         roomID,
+		Score:          0,
+		OwnedCardCount: 0,
+		PlayerState:    playerState,
 	}
 	fmt.Println(result)
 	return result, nil

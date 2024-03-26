@@ -11,4 +11,5 @@ import (
 func NewRoomHandler(c *echo.Echo) {
 	NewCreateRoomHandler(c, usecase.NewCreateRoomUseCase(repository.NewCreateRoomRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewJoinRoomHandler(c, usecase.NewJoinRoomUseCase(repository.NewJoinRoomRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewOutRoomHandler(c, usecase.NewOutRoomUseCase(repository.NewOutRoomRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

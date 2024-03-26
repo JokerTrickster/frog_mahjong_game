@@ -40,5 +40,11 @@ func (d *CreateRoomUseCase) Create(c context.Context, uID uint, email string, re
 		return err
 	}
 
+	// user 정보 변경 room id와 state 변경
+	err = d.Repository.FindOneAndUpdateUser(ctx, uID, uint(roomID))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

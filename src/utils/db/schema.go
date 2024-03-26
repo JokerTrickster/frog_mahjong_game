@@ -21,12 +21,12 @@ type Rooms struct {
 }
 
 type RoomUsers struct {
-	ID          int    `json:"id"`
-	UserID      int    `json:"userID"`
-	RoomID      int    `json:"roomID"`
-	Score       int    `json:"score"`
-	CardCount   int    `json:"cardCount"`
-	PlayerState string `json:"playerState"` // wait, ready, play, end
+	ID             int    `json:"id"`
+	UserID         int    `json:"userID"`
+	RoomID         int    `json:"roomID"`
+	Score          int    `json:"score"`          // 유저 점수
+	OwnedCardCount int    `json:"ownedCardCount"` // 소유된 카드 수
+	PlayerState    string `json:"playerState"`    // wait, ready, play, end
 }
 
 type Cards struct {
@@ -34,6 +34,6 @@ type Cards struct {
 	RoomID int    `json:"roomID"` //방 아이디 (어느 방에 있는 카드인지)
 	UserID int    `json:"userID"` //유저 아이디 (소유하고 있는 유저 아이디)
 	Name   string `json:"name"`   //카드 이름 (1,2,3,4,5,6,7,8,9,중,발)
-	Color  string `json:"color"`  //카드 색깔 (레드, 그린, 일반)
-	State  string `json:"state"`  //카드 상태 (바닥에 놓여있다, 손에 들고 있다, 유저 앞에 놓여있다.)
+	Color  string `json:"color"`  //카드 색깔 (red, green, normal)
+	State  string `json:"state"`  //카드 상태 (owned, discarded, none)
 }
