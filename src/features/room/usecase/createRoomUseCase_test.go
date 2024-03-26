@@ -34,13 +34,12 @@ func TestCreateRoomUseCase_Create(t *testing.T) {
 			//given
 			mockCreateRoomRepository := new(mocks.ICreateRoomRepository)
 			if tt.err == nil {
-				mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(1, nil)  //mock
-				mockCreateRoomRepository.On("InsertOneRoomUser", mock.Anything, mock.Anything).Return(nil) //mock
-			} else {
-				mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(0, tt.err) //mock
-				mockCreateRoomRepository.On("InsertOneRoomUser", mock.Anything, mock.Anything).Return(nil)   //mock
-
+				mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(1, nil) //mock
 			}
+
+			mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(0, tt.err) //mock
+			mockCreateRoomRepository.On("InsertOneRoomUser", mock.Anything, mock.Anything).Return(nil)   //mock
+			mockCreateRoomRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			us := NewCreateRoomUseCase(mockCreateRoomRepository, 8*time.Second)
 			//when
 			err := us.Create(context.TODO(), 1, "ryan@gmail.com", &tt.req)
