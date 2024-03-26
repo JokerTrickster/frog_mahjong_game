@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	_errors "main/features/room/model/errors"
 	_interface "main/features/room/model/interface"
 	"main/utils"
 	"main/utils/db/mysql"
@@ -16,7 +17,7 @@ func NewOutRoomRepository(gormDB *gorm.DB) _interface.IOutRoomRepository {
 func (g *OutRoomRepository) FindOneAndDeleteRoomUser(ctx context.Context, uID uint, roomID uint) error {
 	result := g.GormDB.WithContext(ctx).Where("user_id = ? and room_id = ?", uID, roomID).Delete(&mysql.RoomUsers{})
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), _errors.ErrRoomUserNotFound.Error(), utils.ErrFromClient)
 	}
 	return nil
 }
