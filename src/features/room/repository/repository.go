@@ -13,3 +13,7 @@ type JoinRoomRepository struct {
 type OutRoomRepository struct {
 	GormDB *gorm.DB
 }
+
+type ReadyRoomRepository struct {
+	GormDB *gorm.DB
+}
