@@ -14,9 +14,13 @@ func NewSigninAuthRepository(gormDB *gorm.DB) _interface.ISigninAuthRepository {
 	return &SigninAuthRepository{GormDB: gormDB}
 }
 func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error) {
-	var user mysql.Users
+	user := mysql.Users{
+		Email:  email,
+		State:  "wait",
+		RoomID: 1,
+	}
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
-	result := g.GormDB.WithContext(ctx).Model(&mysql.Users{}).Where("email = ? and password = ? and state = ?", email, password, "logout").Updates(mysql.Users{State: "wait", RoomID: 1})
+	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ? and password = ? and state = ?", email, password, "logout").Updates(user)
 	if result.Error != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
