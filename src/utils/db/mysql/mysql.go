@@ -3,7 +3,6 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -32,7 +31,8 @@ func InitMySQL() error {
 	// MySQL에 연결
 	MysqlDB, err := sql.Open("mysql", connectionString)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Failed to connect to MySQL!")
+		fmt.Println(err)
 		return err
 	}
 	fmt.Println("Connected to MySQL!")
@@ -40,7 +40,8 @@ func InitMySQL() error {
 	// MySQL 연결 테스트
 	err = MysqlDB.Ping()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Ping to MySQL failed!")
+		fmt.Println(err)
 		return err
 	}
 	fmt.Println("Ping to MySQL!")
