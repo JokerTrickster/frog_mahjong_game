@@ -37,15 +37,6 @@ func InitMySQL() error {
 	}
 	fmt.Println("Connected to MySQL!")
 
-	// MySQL 연결 테스트
-	err = MysqlDB.Ping()
-	if err != nil {
-		fmt.Println("Ping to MySQL failed!")
-		fmt.Println(err)
-		return err
-	}
-	fmt.Println("Ping to MySQL!")
-
 	/*
 		GORM perform write (create/update/delete) operations run inside a transaction to ensure data consistency,
 		you can disable it during initialization if it is not required, you will gain about 30%+ performance improvement after that
