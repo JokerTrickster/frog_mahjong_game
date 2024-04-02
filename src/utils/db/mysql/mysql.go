@@ -32,8 +32,8 @@ func InitMySQL() error {
 	MysqlDB, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		fmt.Println("Failed to connect to MySQL!")
-		fmt.Println(err)
-		return err
+		fmt.Sprintln("에러 메시지 %s", err)
+
 	}
 	fmt.Println("Connected to MySQL!")
 
@@ -47,7 +47,8 @@ func InitMySQL() error {
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
-		return err
+		fmt.Println("Failed to connect to Gorm MySQL!")
+		fmt.Sprintln("에러 메시지 %s", err)
 	}
 	return nil
 }
