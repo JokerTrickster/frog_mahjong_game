@@ -35,7 +35,7 @@ CREATE TABLE room_users (
     user_id INT,
     room_id INT,
     score INT,
-    card_count INT,
+    owned_card_count INT,
     player_state VARCHAR(50),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
@@ -51,8 +51,7 @@ CREATE TABLE cards (
     name VARCHAR(255),
     color VARCHAR(50),
     state VARCHAR(50),
-    FOREIGN KEY (room_id) REFERENCES rooms(id),
-	FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
 alter table users ADD CONSTRAINT fk_room_id FOREIGN KEY (room_id) REFERENCES rooms(id);
