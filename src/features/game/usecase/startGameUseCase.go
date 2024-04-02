@@ -28,9 +28,12 @@ func (d *StartGameUseCase) Start(c context.Context, email string, req *request.R
 	}
 
 	// 방에 있는 유저들이 모두 레디 상태인지 확인
-	err = d.Repository.CheckReady(ctx, req.RoomID)
+	roomUsers, err := d.Repository.CheckReady(ctx, req.RoomID)
 	if err != nil {
 		return err
+	}
+	if allReady := CheckRoomUsersReady(roomUsers); !allReady {
+		return fmt.Errorf("not all users are ready")
 	}
 
 	// room user 데이터 변경 (대기 -> 플레이)

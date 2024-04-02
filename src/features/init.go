@@ -2,6 +2,7 @@ package features
 
 import (
 	authHandler "main/features/auth/handler"
+	gameHandler "main/features/game/handler"
 	roomHandler "main/features/room/handler"
 	"net/http"
 
@@ -16,6 +17,7 @@ func InitHandler(e *echo.Echo) error {
 	//인증 핸들러 초기화
 	authHandler.NewAuthHandler(e)
 	roomHandler.NewRoomHandler(e)
+	gameHandler.NewGameHandler(e)
 
 	return nil
 }
