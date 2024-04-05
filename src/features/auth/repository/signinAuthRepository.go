@@ -31,7 +31,7 @@ func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, 
 	// 변경된 사용자 정보를 가져옵니다.
 	err := g.GormDB.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
-		return mysql.Users{}, err
+		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), err.Error(), utils.ErrFromInternal)
 	}
 	return user, nil
 }

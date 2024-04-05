@@ -22,9 +22,9 @@ func NewDoraGameHandler(c *echo.Echo, useCase _interface.IDoraGameUseCase) _inte
 	return handler
 }
 
-// 게임 시작
+// 도라 선택하기
 // @Router /v0.1/game/dora [post]
-// @Summary 게임 시작
+// @Summary 도라 선택하기
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류

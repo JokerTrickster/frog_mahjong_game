@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/room/model/errors"
 	_interface "main/features/room/model/interface"
 	"main/utils"
@@ -32,20 +31,20 @@ func (g *CreateRoomRepository) InsertOneRoom(ctx context.Context, roomDTO mysql.
 	}
 	result := g.GormDB.WithContext(ctx).Create(&roomDTO)
 	if result.RowsAffected == 0 {
-		return 0, fmt.Errorf("failed room insert one")
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return 0, result.Error
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return int(roomDTO.ID), nil
 }
 func (g *CreateRoomRepository) InsertOneRoomUser(ctx context.Context, roomUserDTO mysql.RoomUsers) error {
 	result := g.GormDB.WithContext(ctx).Create(&roomUserDTO)
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("failed room user insert one")
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room user insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return nil
 }

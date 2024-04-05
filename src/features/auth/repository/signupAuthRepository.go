@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
 	"main/utils"
@@ -26,10 +25,10 @@ func (g *SignupAuthRepository) UserCheckByEmail(ctx context.Context, email strin
 func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Users) error {
 	result := g.GormDB.WithContext(ctx).Create(&user)
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("failed user insert one")
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed user insert", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return nil
 }
