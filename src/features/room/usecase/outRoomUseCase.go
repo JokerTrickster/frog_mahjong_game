@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
 	"time"
@@ -20,7 +19,6 @@ func NewOutRoomUseCase(repo _interface.IOutRoomRepository, timeout time.Duration
 func (d *OutRoomUseCase) Out(c context.Context, uID uint, req *request.ReqOut) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
 
 	// roomID에 해당하는 userID를 삭제한다.
 	err := d.Repository.FindOneAndDeleteRoomUser(ctx, uID, req.RoomID)

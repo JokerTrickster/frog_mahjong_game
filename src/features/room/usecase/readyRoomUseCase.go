@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
 	"time"
@@ -20,7 +19,6 @@ func NewReadyRoomUseCase(repo _interface.IReadyRoomRepository, timeReady time.Du
 func (d *ReadyRoomUseCase) Ready(c context.Context, uID uint, req *request.ReqReady) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeReady)
 	defer cancel()
-	fmt.Println(ctx)
 
 	// room user에 player state 를 변경한다.
 	err := d.Repository.FindOneAndUpdateRoomUser(ctx, uID, req)

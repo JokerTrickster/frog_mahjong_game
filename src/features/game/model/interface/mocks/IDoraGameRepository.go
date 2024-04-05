@@ -14,12 +14,12 @@ type IDoraGameRepository struct {
 	mock.Mock
 }
 
-// CheckOwner provides a mock function with given fields: c, userID, roomID
-func (_m *IDoraGameRepository) CheckOwner(c context.Context, userID int, roomID int) error {
+// CheckFirstPlayer provides a mock function with given fields: c, userID, roomID
+func (_m *IDoraGameRepository) CheckFirstPlayer(c context.Context, userID int, roomID int) error {
 	ret := _m.Called(c, userID, roomID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CheckOwner")
+		panic("no return value specified for CheckFirstPlayer")
 	}
 
 	var r0 error

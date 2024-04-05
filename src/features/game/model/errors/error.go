@@ -7,4 +7,5 @@ var (
 	ErrBadRequest         = errors.New("bad request")
 	ErrNotAllUsersReady   = errors.New("not all users are ready")
 	ErrNotOwner           = errors.New("owner did not request start")
+	ErrNotFirstPlayer     = errors.New("not first player")
 )

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/game/model/interface"
 	"main/features/game/model/request"
 	"time"
@@ -20,10 +19,8 @@ func NewDoraGameUseCase(repo _interface.IDoraGameRepository, timeout time.Durati
 func (d *DoraGameUseCase) Dora(c context.Context, userID int, req *request.ReqDora) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
-
 	// 선플레이어가 도라를 선택했는지 체크
-	err := d.Repository.CheckOwner(ctx, userID, req.RoomID)
+	err := d.Repository.CheckFirstPlayer(ctx, userID, req.RoomID)
 	if err != nil {
 		return err
 	}

@@ -41,9 +41,16 @@ func (g *StartGameRepository) CheckReady(c context.Context, roomID uint) ([]mysq
 // 방 유저 데이터 업데이트
 func (g *StartGameRepository) UpdateRoomUser(c context.Context, updateRoomUsers []mysql.RoomUsers) error {
 
-	err := g.GormDB.Model(&updateRoomUsers).Where("room_id = ?", updateRoomUsers[0].RoomID).Updates(&updateRoomUsers)
-	if err.Error != nil {
-		return err.Error
+	// 각 사용자 정보를 순회하며 각각 업데이트
+	for _, user := range updateRoomUsers {
+		err := g.GormDB.Model(&mysql.RoomUsers{}).
+			Where("room_id = ? AND user_id = ?", user.RoomID, user.UserID).
+			Updates(user).
+			Error
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

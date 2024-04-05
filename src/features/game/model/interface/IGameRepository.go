@@ -15,6 +15,6 @@ type IStartGameRepository interface {
 }
 
 type IDoraGameRepository interface {
-	CheckOwner(c context.Context, userID int, roomID int) error
+	CheckFirstPlayer(c context.Context, userID int, roomID int) error
 	UpdateDoraCard(c context.Context, req *request.ReqDora) error
 }
