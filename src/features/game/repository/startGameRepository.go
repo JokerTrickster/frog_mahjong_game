@@ -38,15 +38,14 @@ func (g *StartGameRepository) CheckReady(c context.Context, roomID uint) ([]mysq
 	return roomUsers, nil
 }
 
-// 방 유저들 상태 업데이트 (ready -> play)
-func (g *StartGameRepository) UpdateRoomUser(c context.Context, roomID uint, state string) error {
-	roomUsers := mysql.RoomUsers{
-		PlayerState: state,
+// 방 유저 데이터 업데이트
+func (g *StartGameRepository) UpdateRoomUser(c context.Context, updateRoomUsers []mysql.RoomUsers) error {
+
+	err := g.GormDB.Model(&updateRoomUsers).Where("room_id = ?", updateRoomUsers[0].RoomID).Updates(&updateRoomUsers)
+	if err.Error != nil {
+		return err.Error
 	}
-	err := g.GormDB.Model(&roomUsers).Where("room_id = ? and player_state = ?", roomID, "ready").Updates(roomUsers).Error
-	if err != nil {
-		return err
-	}
+
 	return nil
 }
 
