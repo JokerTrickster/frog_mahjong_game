@@ -1,6 +1,9 @@
 package usecase
 
-import "main/utils/db/mysql"
+import (
+	"main/utils/db/mysql"
+	"math/rand"
+)
 
 /*
 					card 구성
@@ -57,4 +60,22 @@ func CheckRoomUsersReady(roomUsers []mysql.RoomUsers) bool {
 		}
 	}
 	return true
+}
+
+func StartUpdateRoomUsers(roomUsers []mysql.RoomUsers) ([]mysql.RoomUsers, error) {
+	visited := make(map[int]bool, len(roomUsers)+1)
+
+	for i := range roomUsers {
+		roomUsers[i].PlayerState = "play"
+		for {
+			// 플레이 순번을 인원수에 맞게 랜덤으로 생성하되 중복되지 않게 생성
+			random := rand.Intn(len(roomUsers)) + 1
+			if !visited[random] {
+				roomUsers[i].TurnNumber = random
+				visited[random] = true
+				break
+			}
+		}
+	}
+	return roomUsers, nil
 }

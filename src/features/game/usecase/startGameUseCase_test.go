@@ -153,7 +153,7 @@ func TestStartGameUseCase_Start(t *testing.T) {
 			mockStartGameRepository := new(mocks.IStartGameRepository)
 			mockStartGameRepository.On("CheckOwner", mock.Anything, mock.Anything, mock.Anything).Return(tt.err)
 			mockStartGameRepository.On("CheckReady", mock.Anything, mock.Anything).Return(tt.roomUserDTO, nil)
-			mockStartGameRepository.On("UpdateRoomUser", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockStartGameRepository.On("UpdateRoomUser", mock.Anything, mock.Anything).Return(nil)
 			mockStartGameRepository.On("UpdateRoom", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			mockStartGameRepository.On("CreateCards", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
@@ -229,6 +229,50 @@ func TestCheckRoomUsersReady(t *testing.T) {
 
 			// Then
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// StartUpdateRoomUsers 함수에 대한 테스트 코드 작성합니다.
+// 테스트 케이스:
+// - 모든 유저에 게임 순번이 랜덤으로 생성된 경우
+// 테스트 경로: src/features/game/usecase/startGameUseCase_test.go
+
+func TestStartUpdateRoomUsers(t *testing.T) {
+	tests := []struct {
+		name     string
+		roomUser []mysql.RoomUsers
+	}{
+		{
+			name: "all users have random game order",
+			roomUser: []mysql.RoomUsers{
+				{
+					UserID:         1,
+					RoomID:         1,
+					PlayerState:    "ready",
+					Score:          0,
+					OwnedCardCount: 0,
+				},
+				{
+					UserID:         2,
+					RoomID:         1,
+					PlayerState:    "ready",
+					Score:          0,
+					OwnedCardCount: 0,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// When
+			got, _ := StartUpdateRoomUsers(tt.roomUser)
+
+			// Then
+			for i := range got {
+				assert.NotZero(t, got[i].TurnNumber)
+			}
 		})
 	}
 }

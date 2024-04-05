@@ -36,8 +36,13 @@ func (d *StartGameUseCase) Start(c context.Context, email string, req *request.R
 		return fmt.Errorf("not all users are ready")
 	}
 
+	// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
+	updatedRoomUsers, err := StartUpdateRoomUsers(roomUsers)
+	if err != nil {
+		return err
+	}
 	// room user 데이터 변경 (대기 -> 플레이)
-	err = d.Repository.UpdateRoomUser(ctx, req.RoomID, req.State)
+	err = d.Repository.UpdateRoomUser(ctx, updatedRoomUsers)
 	if err != nil {
 		return err
 	}
