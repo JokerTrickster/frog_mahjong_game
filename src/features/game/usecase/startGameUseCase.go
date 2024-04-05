@@ -20,7 +20,6 @@ func NewStartGameUseCase(repo _interface.IStartGameRepository, timeout time.Dura
 func (d *StartGameUseCase) Start(c context.Context, email string, req *request.ReqStart) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
 	// 방장이 게임 시작 요청했는지 체크
 	err := d.Repository.CheckOwner(ctx, email, req.RoomID)
 	if err != nil {
@@ -36,8 +35,14 @@ func (d *StartGameUseCase) Start(c context.Context, email string, req *request.R
 		return fmt.Errorf("not all users are ready")
 	}
 
+	// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
+	updatedRoomUsers, err := StartUpdateRoomUsers(roomUsers)
+	if err != nil {
+		return err
+	}
+	fmt.Println(updatedRoomUsers)
 	// room user 데이터 변경 (대기 -> 플레이)
-	err = d.Repository.UpdateRoomUser(ctx, req.RoomID, req.State)
+	err = d.Repository.UpdateRoomUser(ctx, updatedRoomUsers)
 	if err != nil {
 		return err
 	}

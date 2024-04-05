@@ -10,4 +10,5 @@ import (
 
 func NewGameHandler(c *echo.Echo) {
 	NewStartGameHandler(c, usecase.NewStartGameUseCase(repository.NewStartGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewDoraGameHandler(c, usecase.NewDoraGameUseCase(repository.NewDoraGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

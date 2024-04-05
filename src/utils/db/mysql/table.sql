@@ -37,6 +37,7 @@ CREATE TABLE room_users (
     score INT,
     owned_card_count INT,
     player_state VARCHAR(50),
+    turn_number INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );

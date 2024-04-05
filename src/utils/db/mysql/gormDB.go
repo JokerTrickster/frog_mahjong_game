@@ -30,6 +30,7 @@ type RoomUsers struct {
 	Score          int    `json:"score" gorm:"column:score"`
 	OwnedCardCount int    `json:"ownedCardCount" gorm:"column:owned_card_count"`
 	PlayerState    string `json:"playerState" gorm:"column:player_state"` // wait(대기중), ready(준비 완료), play(플레이할 차례), play_wait(다음 차례 대기)
+	TurnNumber     int    `json:"turnNumber" gorm:"column:turn_number"`   // 1, 2, 3, 4 ....
 }
 
 type Cards struct {
@@ -38,5 +39,5 @@ type Cards struct {
 	UserID int    `json:"userID" gorm:"column:user_id"`
 	Name   string `json:"name" gorm:"column:name"`   // 1, 2, 3, 4, 5, 6, 7, 8, 9, 중, 발
 	Color  string `json:"color" gorm:"column:color"` // red, green, normal
-	State  string `json:"state" gorm:"column:state"` // owned, discarded, none
+	State  string `json:"state" gorm:"column:state"` // owned, discarded, none, dora
 }
