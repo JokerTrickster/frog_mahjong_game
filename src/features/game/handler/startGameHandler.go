@@ -28,6 +28,7 @@ func NewStartGameHandler(c *echo.Echo, useCase _interface.IStartGameUseCase) _in
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
+// @Description NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
 // @Description
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패

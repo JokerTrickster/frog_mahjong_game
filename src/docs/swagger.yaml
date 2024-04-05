@@ -89,9 +89,8 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
-
-        ■ errCode with 400
         USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -124,8 +123,7 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
-
-        ■ errCode with 400
+        USER_NOT_EXIST : 유저가 존재하지 않음
         USER_ALREADY_EXISTED : 유저가 이미 존재
 
         ■ errCode with 500
@@ -159,6 +157,8 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -188,7 +188,7 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: 게임 시작
+      summary: 도라 선택하기
       tags:
       - game
   /v0.1/game/start:
@@ -196,6 +196,7 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -233,10 +234,16 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 참
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
       parameters:
       - description: accessToken
         in: header
@@ -270,10 +277,16 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 참
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
       parameters:
       - description: accessToken
         in: header
@@ -307,10 +320,16 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 참
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
       parameters:
       - description: accessToken
         in: header
@@ -344,10 +363,16 @@ paths:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 참
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
       parameters:
       - description: accessToken
         in: header

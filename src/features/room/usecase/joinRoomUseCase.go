@@ -28,7 +28,7 @@ func (d *JoinRoomUseCase) Join(c context.Context, uID uint, email string, req *r
 		return err
 	}
 	if roomDTO.CurrentCount == roomDTO.MaxCount {
-		return utils.ErrorMsg(ctx, utils.ErrRoomImpossibleJoin, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrRoomFull, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient)
 	}
 	// 방 유저 정보를 생성한다.
 	roomUserDTO, err := CreateRoomUserDTO(uID, int(req.RoomID), "wait")

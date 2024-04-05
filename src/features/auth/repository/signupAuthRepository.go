@@ -19,7 +19,7 @@ func (g *SignupAuthRepository) UserCheckByEmail(ctx context.Context, email strin
 	if result.RowsAffected == 0 {
 		return nil
 	} else {
-		return utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserAlreadyExisted.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrUserAlreadyExisted, utils.Trace(), _errors.ErrUserAlreadyExisted.Error(), utils.ErrFromClient)
 	}
 }
 func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Users) error {

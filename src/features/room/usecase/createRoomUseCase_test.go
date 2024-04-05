@@ -27,7 +27,7 @@ func TestCreateRoomUseCase_Create(t *testing.T) {
 		err  error
 	}{
 		{"success1", request.ReqCreate{Name: "test", MaxCount: 4, MinCount: 2, Password: "test"}, nil},
-		{"fail1", request.ReqCreate{Name: "test", MaxCount: 1, MinCount: 2, Password: ""}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotExist, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)},
+		{"fail1", request.ReqCreate{Name: "test", MaxCount: 1, MinCount: 2, Password: ""}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

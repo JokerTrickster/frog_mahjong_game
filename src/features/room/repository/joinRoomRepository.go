@@ -20,7 +20,7 @@ func (g *JoinRoomRepository) FindOneRoom(ctx context.Context, req *request.ReqJo
 	roomDTO := mysql.Rooms{}
 	result := g.GormDB.WithContext(ctx).Where("id = ? and password = ?", req.RoomID, req.Password).First(&roomDTO)
 	if result.Error != nil {
-		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomImpossibleJoin, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
+		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
 	}
 	return roomDTO, nil
 }

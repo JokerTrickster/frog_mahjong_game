@@ -26,7 +26,7 @@ func TestSigninAuthUseCase_Signin(t *testing.T) {
 		err  error
 	}{
 		{"success1", request.ReqSignin{Email: "ryan@breathings.co.kr", Password: "asdASD123"}, response.ResSignin{AccessToken: "test", RefreshToken: "test"}, nil},
-		{"fail1", request.ReqSignin{Email: "ryan@breathings.co.kr", Password: "asdasdasd"}, response.ResSignin{}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotExist, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)},
+		{"fail1", request.ReqSignin{Email: "ryan@breathings.co.kr", Password: "asdasdasd"}, response.ResSignin{}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
