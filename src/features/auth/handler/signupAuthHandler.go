@@ -28,8 +28,7 @@ func NewSignupAuthHandler(c *echo.Echo, useCase _interface.ISignupAuthUseCase) _
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
-// @Description
-// @Description ■ errCode with 400
+// @Description USER_NOT_EXIST : 유저가 존재하지 않음
 // @Description USER_ALREADY_EXISTED : 유저가 이미 존재
 // @Description
 // @Description ■ errCode with 500

@@ -71,7 +71,7 @@ func TestJoinRoomUseCase_Join(t *testing.T) {
 				Score:          0,
 				OwnedCardCount: 0,
 			},
-			err: utils.ErrorMsg(context.TODO(), utils.ErrRoomImpossibleJoin, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient),
+			err: utils.ErrorMsg(context.TODO(), utils.ErrRoomFull, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient),
 		},
 	}
 	for _, tt := range tests {

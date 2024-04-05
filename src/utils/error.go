@@ -40,45 +40,64 @@ const (
 	ErrFromNaver    = IErrFrom("naver")
 )
 
+// basic error
 const (
-	ErrBadParameter         = ErrType("PARAM_BAD")
-	ErrAuthFailed           = ErrType("AUTH_FAILED")
-	ErrUserNotExist         = ErrType("USER_NOT_EXIST")
-	ErrRoomNotExisted       = ErrType("ROOM_NOT_EXISTED")
-	ErrRoomImpossibleJoin   = ErrType("ROOM_IMPOSSIBLE_JOIN")
-	ErrNotFound             = ErrType("NOT_FOUND")
-	ErrAuthInActive         = ErrType("AUTH_INACTIVE")
-	ErrUserAlreadyExisted   = ErrType("USER_ALREADY_EXISTED")
-	ErrBadToken             = ErrType("TOKEN_BAD")
-	ErrAuthPolicyViolation  = ErrType("POLICY_VIOLATION")
-	ErrInternalServer       = ErrType("INTERNAL_SERVER")
-	ErrInternalDB           = ErrType("INTERNAL_DB")
-	ErrPartner              = ErrType("PARTNER")
-	ErrNotMatchedLoginInfo  = ErrType("NOT_MATCHED_LOGIN_INFO")
-	ErrNotMatchedSignupInfo = ErrType("NOT_MATCHED_SIGNUP_INFO")
-	ErrInvalidAuthCode      = ErrType("INVALID_AUTH_CODE")
-	ErrExpiredAuthCode      = ErrType("EXPIRED_AUTH_CODE")
+	ErrBadParameter   = ErrType("PARAM_BAD")
+	ErrNotFound       = ErrType("NOT_FOUND")
+	ErrBadToken       = ErrType("TOKEN_BAD")
+	ErrInternalServer = ErrType("INTERNAL_SERVER")
+	ErrInternalDB     = ErrType("INTERNAL_DB")
+	ErrPartner        = ErrType("PARTNER")
 )
 
-// 에러 타입에 따라서 httpCode 맵핑
+// game error
+const (
+	ErrNotAllUsersReady = ErrType("NOT_ALL_USERS_READY")
+	ErrNotOwner         = ErrType("NOT_OWNER")
+	ErrNotFirstPlayer   = ErrType("NOT_FIRST_PLAYER")
+)
+
+// room error
+const (
+	ErrUserNotFound       = ErrType("USER_NOT_FOUND")
+	ErrInvalidAccessToken = ErrType("INVALID_ACCESS_TOKEN")
+	ErrUserAlreadyExisted = ErrType("USER_ALREADY_EXISTED")
+	ErrBadRequest         = ErrType("BAD_REQUEST")
+	ErrRoomNotFound       = ErrType("ROOM_NOT_FOUND")
+	ErrRoomFull           = ErrType("ROOM_FULL")
+	ErrPlayerStateFailed  = ErrType("PLAYER_STATE_CHANGE_FAILED")
+	ErrRoomUserNotFound   = ErrType("ROOM_USER_NOT_FOUND")
+)
+
+// auth error
+
+// basic , game, room, auth error mapping
 var ErrHttpCode = map[string]int{
-	"ROOM_IMPOSSIBLE_JOIN":    http.StatusBadRequest,
-	"PARAM_BAD":               http.StatusBadRequest,
-	"NOT_FOUND":               http.StatusNotFound,
-	"AUTH_FAILED":             http.StatusUnauthorized,
-	"AUTH_INACTIVE":           http.StatusForbidden,
-	"USER_ALREADY_EXISTED":    http.StatusBadRequest,
-	"TOKEN_BAD":               http.StatusUnauthorized,
-	"POLICY_VIOLATION":        http.StatusUnauthorized,
-	"INTERNAL_SERVER":         http.StatusInternalServerError,
-	"INTERNAL_DB":             http.StatusInternalServerError,
-	"PARTNER":                 http.StatusInternalServerError,
-	"NOT_MATCHED_LOGIN_INFO":  http.StatusBadRequest,
-	"NOT_MATCHED_SIGNUP_INFO": http.StatusBadRequest,
-	"INVALID_AUTH_CODE":       http.StatusBadRequest,
-	"EXPIRED_AUTH_CODE":       http.StatusBadRequest,
-	"USER_NOT_EXIST":          http.StatusBadRequest,
-	"ROOM_NOT_EXISTED":        http.StatusBadRequest,
+	//400
+	"PARAM_BAD":            http.StatusBadRequest,
+	"USER_ALREADY_EXISTED": http.StatusBadRequest,
+	"BAD_REQUEST":          http.StatusBadRequest,
+	"NOT_ALL_USERS_READY":  http.StatusBadRequest,
+	"NOT_OWNER":            http.StatusBadRequest,
+	"NOT_FIRST_PLAYER":     http.StatusBadRequest,
+	"ROOM_NOT_FOUND":       http.StatusBadRequest,
+	"ROOM_USER_NOT_FOUND":  http.StatusBadRequest,
+	"USER_NOT_FOUND":       http.StatusBadRequest,
+	"ROOM_FULL":            http.StatusBadRequest,
+
+	//401
+	"TOKEN_BAD":            http.StatusUnauthorized,
+	"INVALID_ACCESS_TOKEN": http.StatusUnauthorized,
+	//403
+	"PARTNER": http.StatusForbidden,
+
+	//404
+	"NOT_FOUND": http.StatusNotFound,
+
+	//500
+	"INTERNAL_SERVER":            http.StatusInternalServerError,
+	"INTERNAL_DB":                http.StatusInternalServerError,
+	"PLAYER_STATE_CHANGE_FAILED": http.StatusInternalServerError,
 }
 
 func ErrorParsing(data string) Err {

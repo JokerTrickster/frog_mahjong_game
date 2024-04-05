@@ -22,12 +22,14 @@ func NewDoraGameHandler(c *echo.Echo, useCase _interface.IDoraGameUseCase) _inte
 	return handler
 }
 
-// 게임 시작
+// 도라 선택하기
 // @Router /v0.1/game/dora [post]
-// @Summary 게임 시작
+// @Summary 도라 선택하기
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
+// @Description NOT_OWNER : 방장이 시작 요청을 하지 않음
+// @Description NOT_FIRST_PLAYER : 첫 플레이어가 아님
 // @Description
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패

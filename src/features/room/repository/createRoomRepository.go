@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/room/model/errors"
 	_interface "main/features/room/model/interface"
 	"main/utils"
@@ -28,24 +27,24 @@ func (g *CreateRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uin
 func (g *CreateRoomRepository) InsertOneRoom(ctx context.Context, roomDTO mysql.Rooms) (int, error) {
 	//방 인원이 최대 인원이 최소 인원보다 많거나 같고, 최대 인원이 2명 이상이거나 최소 인원이 2명 이상이어야 한다.
 	if ((roomDTO.MaxCount >= roomDTO.MinCount) && (roomDTO.MaxCount >= 2 || roomDTO.MinCount >= 2)) == false {
-		return 0, utils.ErrorMsg(ctx, utils.ErrUserNotExist, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)
+		return 0, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)
 	}
 	result := g.GormDB.WithContext(ctx).Create(&roomDTO)
 	if result.RowsAffected == 0 {
-		return 0, fmt.Errorf("failed room insert one")
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return 0, result.Error
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return int(roomDTO.ID), nil
 }
 func (g *CreateRoomRepository) InsertOneRoomUser(ctx context.Context, roomUserDTO mysql.RoomUsers) error {
 	result := g.GormDB.WithContext(ctx).Create(&roomUserDTO)
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("failed room user insert one")
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room user insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return nil
 }

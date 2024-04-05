@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/room/model/errors"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
@@ -21,7 +20,7 @@ func (g *JoinRoomRepository) FindOneRoom(ctx context.Context, req *request.ReqJo
 	roomDTO := mysql.Rooms{}
 	result := g.GormDB.WithContext(ctx).Where("id = ? and password = ?", req.RoomID, req.Password).First(&roomDTO)
 	if result.Error != nil {
-		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomImpossibleJoin, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
+		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
 	}
 	return roomDTO, nil
 }
@@ -29,7 +28,7 @@ func (g *JoinRoomRepository) FindOneRoom(ctx context.Context, req *request.ReqJo
 func (g *JoinRoomRepository) FindOneAndUpdateRoom(ctx context.Context, roomID uint) error {
 	result := g.GormDB.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count + 1"))
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return nil
 }
@@ -41,7 +40,7 @@ func (g *JoinRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uint,
 	}
 	result := g.GormDB.WithContext(ctx).Model(&user).Where("id = ? and state = ?", uID, "wait").Updates(user)
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 
 	return nil
@@ -50,10 +49,10 @@ func (g *JoinRoomRepository) FindOneAndUpdateUser(ctx context.Context, uID uint,
 func (g *JoinRoomRepository) InsertOneRoomUser(ctx context.Context, roomUserDTO mysql.RoomUsers) error {
 	result := g.GormDB.WithContext(ctx).Create(&roomUserDTO)
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("failed room user insert one")
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room user insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return result.Error
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
 	}
 	return nil
 }

@@ -2,8 +2,9 @@ package repository
 
 import (
 	"context"
-	"errors"
+	_errors "main/features/game/model/errors"
 	_interface "main/features/game/model/interface"
+	"main/utils"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -18,10 +19,10 @@ func (g *StartGameRepository) CheckOwner(c context.Context, email string, roomID
 	room := mysql.Rooms{}
 	err := g.GormDB.Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return err
+		return utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)
 	}
 	if room.Owner != email {
-		return errors.New("you are not the owner of this room")
+		return utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrNotOwner.Error(), utils.ErrFromClient)
 	}
 	return nil
 }
@@ -32,7 +33,7 @@ func (g *StartGameRepository) CheckReady(c context.Context, roomID uint) ([]mysq
 	roomUsers := make([]mysql.RoomUsers, 0)
 	err := g.GormDB.Where("room_id = ?", roomID).Find(&roomUsers).Error
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrNotAllUsersReady.Error(), utils.ErrFromClient)
 	}
 
 	return roomUsers, nil
@@ -45,11 +46,10 @@ func (g *StartGameRepository) UpdateRoomUser(c context.Context, updateRoomUsers 
 	for _, user := range updateRoomUsers {
 		err := g.GormDB.Model(&mysql.RoomUsers{}).
 			Where("room_id = ? AND user_id = ?", user.RoomID, user.UserID).
-			Updates(user).
-			Error
+			Updates(user)
 
-		if err != nil {
-			return err
+		if err.Error != nil {
+			return utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), err.Error.Error(), utils.ErrFromMysqlDB)
 		}
 	}
 
@@ -58,9 +58,9 @@ func (g *StartGameRepository) UpdateRoomUser(c context.Context, updateRoomUsers 
 
 // 방 상태 업데이트 (wait -> play)
 func (g *StartGameRepository) UpdateRoom(c context.Context, roomID uint, state string) error {
-	err := g.GormDB.Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", "play").Error
-	if err != nil {
-		return err
+	err := g.GormDB.Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", "play")
+	if err.Error != nil {
+		return utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), err.Error.Error(), utils.ErrFromMysqlDB)
 	}
 
 	return nil
@@ -68,9 +68,9 @@ func (g *StartGameRepository) UpdateRoom(c context.Context, roomID uint, state s
 
 // 카드 데이터 생성
 func (g *StartGameRepository) CreateCards(c context.Context, roomID uint, cards []mysql.Cards) error {
-	err := g.GormDB.Create(&cards).Error
-	if err != nil {
-		return err
+	err := g.GormDB.Create(&cards)
+	if err.Error != nil {
+		return utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), err.Error.Error(), utils.ErrFromMysqlDB)
 	}
 
 	return nil
