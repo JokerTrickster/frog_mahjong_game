@@ -23,3 +23,7 @@ type IDiscardGameUseCase interface {
 type INextTurnGameUseCase interface {
 	NextTurn(c context.Context, req *request.ReqNextTurn) error
 }
+
+type ILoanGameUseCase interface {
+	Loan(c context.Context, req *request.ReqLoan) error
+}

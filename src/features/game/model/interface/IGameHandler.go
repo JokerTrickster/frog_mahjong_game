@@ -21,3 +21,7 @@ type IDiscardGameHandler interface {
 type INextTurnGameHandler interface {
 	NextTurn(c echo.Context) error
 }
+
+type ILoanGameHandler interface {
+	Loan(c echo.Context) error
+}
