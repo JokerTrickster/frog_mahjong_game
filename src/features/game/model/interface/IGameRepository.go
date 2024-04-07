@@ -22,3 +22,9 @@ type IOwnershipGameRepository interface {
 	UpdateCardState(c context.Context, req *request.ReqOwnership) error
 	UpdateRoomUserCardCount(c context.Context, req *request.ReqOwnership) error
 }
+
+type IDiscardGameRepository interface {
+	PlayerCheckTurn(c context.Context, req *request.ReqDiscard) (mysql.RoomUsers, error)
+	UpdateCardStateDiscard(c context.Context, req *request.ReqDiscard) error
+	UpdateRoomUser(c context.Context, updateRoomUser mysql.RoomUsers) error
+}

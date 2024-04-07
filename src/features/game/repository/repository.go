@@ -13,3 +13,7 @@ type DoraGameRepository struct {
 type OwnershipGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type DiscardGameRepository struct {
+	GormDB *gorm.DB
+}
