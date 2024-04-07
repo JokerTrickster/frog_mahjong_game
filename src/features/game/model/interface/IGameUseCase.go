@@ -19,3 +19,7 @@ type IOwnershipGameUseCase interface {
 type IDiscardGameUseCase interface {
 	Discard(c context.Context, userID int, req *request.ReqDiscard) error
 }
+
+type INextTurnGameUseCase interface {
+	NextTurn(c context.Context, req *request.ReqNextTurn) error
+}

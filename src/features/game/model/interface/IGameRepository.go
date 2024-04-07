@@ -28,3 +28,6 @@ type IDiscardGameRepository interface {
 	UpdateCardStateDiscard(c context.Context, req *request.ReqDiscard) error
 	UpdateRoomUser(c context.Context, updateRoomUser mysql.RoomUsers) error
 }
+
+type INextTurnGameRepository interface {
+}
