@@ -18,3 +18,7 @@ type IDoraGameRepository interface {
 	CheckFirstPlayer(c context.Context, userID int, roomID int) error
 	UpdateDoraCard(c context.Context, req *request.ReqDora) error
 }
+type IOwnershipGameRepository interface {
+	UpdateCardState(c context.Context, req *request.ReqOwnership) error
+	UpdateRoomUserCardCount(c context.Context, req *request.ReqOwnership) error
+}

@@ -12,3 +12,6 @@ type IStartGameUseCase interface {
 type IDoraGameUseCase interface {
 	Dora(c context.Context, userID int, req *request.ReqDora) error
 }
+type IOwnershipGameUseCase interface {
+	Ownership(c context.Context, req *request.ReqOwnership) error
+}

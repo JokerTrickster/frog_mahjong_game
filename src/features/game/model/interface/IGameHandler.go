@@ -9,3 +9,7 @@ type IStartGameHandler interface {
 type IDoraGameHandler interface {
 	Dora(c echo.Context) error
 }
+
+type IOwnershipGameHandler interface {
+	Ownership(c echo.Context) error
+}

@@ -93,6 +93,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/game/card/ownership": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "카드 소유하기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqOwnership"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/game/dora": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -371,6 +417,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "request.Card": {
+            "type": "object",
+            "properties": {
+                "cardID": {
+                    "type": "integer"
+                },
+                "roomID": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqCreate": {
             "type": "object",
             "required": [
@@ -432,6 +495,17 @@ const docTemplate = `{
             "properties": {
                 "roomID": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.ReqOwnership": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Card"
+                    }
                 }
             }
         },

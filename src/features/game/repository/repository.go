@@ -9,3 +9,7 @@ type StartGameRepository struct {
 type DoraGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type OwnershipGameRepository struct {
+	GormDB *gorm.DB
+}
