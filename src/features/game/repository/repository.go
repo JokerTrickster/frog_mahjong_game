@@ -17,3 +17,7 @@ type OwnershipGameRepository struct {
 type DiscardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type NextTurnGameRepository struct {
+	GormDB *gorm.DB
+}

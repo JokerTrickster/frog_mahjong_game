@@ -17,3 +17,7 @@ type IOwnershipGameHandler interface {
 type IDiscardGameHandler interface {
 	Discard(c echo.Context) error
 }
+
+type INextTurnGameHandler interface {
+	NextTurn(c echo.Context) error
+}
