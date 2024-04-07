@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"main/features/game/model/request"
 	"main/utils/db/mysql"
 	"math/rand"
 )
@@ -78,4 +79,10 @@ func StartUpdateRoomUsers(roomUsers []mysql.RoomUsers) ([]mysql.RoomUsers, error
 		}
 	}
 	return roomUsers, nil
+}
+
+func CreateUpdateRoomUser(roomUser mysql.RoomUsers, req *request.ReqDiscard) mysql.RoomUsers {
+	roomUser.OwnedCardCount -= 1
+	roomUser.PlayerState = "play_wait"
+	return roomUser
 }

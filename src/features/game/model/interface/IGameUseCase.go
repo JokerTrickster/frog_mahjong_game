@@ -15,3 +15,7 @@ type IDoraGameUseCase interface {
 type IOwnershipGameUseCase interface {
 	Ownership(c context.Context, req *request.ReqOwnership) error
 }
+
+type IDiscardGameUseCase interface {
+	Discard(c context.Context, userID int, req *request.ReqDiscard) error
+}

@@ -13,3 +13,7 @@ type IDoraGameHandler interface {
 type IOwnershipGameHandler interface {
 	Ownership(c echo.Context) error
 }
+
+type IDiscardGameHandler interface {
+	Discard(c echo.Context) error
+}
