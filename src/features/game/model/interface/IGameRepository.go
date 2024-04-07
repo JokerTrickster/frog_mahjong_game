@@ -30,4 +30,5 @@ type IDiscardGameRepository interface {
 }
 
 type INextTurnGameRepository interface {
+	UpdatePlayerNextTurn(c context.Context, req *request.ReqNextTurn) error
 }

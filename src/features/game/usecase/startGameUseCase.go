@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/game/model/interface"
 	"main/features/game/model/request"
+	"main/utils"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func (d *StartGameUseCase) Start(c context.Context, email string, req *request.R
 		return err
 	}
 	if allReady := CheckRoomUsersReady(roomUsers); !allReady {
-		return fmt.Errorf("not all users are ready")
+		return utils.ErrorMsg(ctx, utils.ErrBadRequest, utils.Trace(), "All users are not ready", utils.ErrFromClient)
 	}
 
 	// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
@@ -40,7 +40,6 @@ func (d *StartGameUseCase) Start(c context.Context, email string, req *request.R
 	if err != nil {
 		return err
 	}
-	fmt.Println(updatedRoomUsers)
 	// room user 데이터 변경 (대기 -> 플레이)
 	err = d.Repository.UpdateRoomUser(ctx, updatedRoomUsers)
 	if err != nil {
