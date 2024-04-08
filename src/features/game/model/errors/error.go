@@ -9,4 +9,6 @@ var (
 	ErrNotOwner           = errors.New("owner did not request start")
 	ErrNotFirstPlayer     = errors.New("not first player")
 	ErrNotLoanCard        = errors.New("not loan card")
+	ErrNotEnoughCard      = errors.New("not enough card")
+	ErrNotEnoughCondition = errors.New("not enough condition to score calculate")
 )

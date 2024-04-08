@@ -11,7 +11,7 @@ import (
 	"gopkg.in/go-playground/assert.v1"
 )
 
-// TestOwnershipGameUseCase_Dora 함수는 OwnershipGameUseCase 의 Ownership 메서드를 테스트합니다.
+// TestOwnershipGameUseCase_Ownership 함수는 OwnershipGameUseCase 의 Ownership 메서드를 테스트합니다.
 // 테이블 기반 테스트를 사용하여 여러 시나리오를 테스트합니다.
 // given-when-then 패턴을 사용하여 테스트를 작성합니다.
 // 테스트 케이스:

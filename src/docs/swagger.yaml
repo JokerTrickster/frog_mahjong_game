@@ -97,6 +97,15 @@ definitions:
       roomID:
         type: integer
     type: object
+  request.ReqScoreCalculate:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/request.ScoreCard'
+        type: array
+      roomID:
+        type: integer
+    type: object
   request.ReqSignin:
     properties:
       email:
@@ -122,6 +131,26 @@ definitions:
         type: integer
       state:
         type: string
+    type: object
+  request.ScoreCard:
+    properties:
+      cardID:
+        type: integer
+      color:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+    type: object
+  response.ResScoreCalculate:
+    properties:
+      bonuses:
+        items:
+          type: string
+        type: array
+      score:
+        type: integer
     type: object
   response.ResSignin:
     properties:
@@ -395,6 +424,44 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 다음 턴 넘기기
+      tags:
+      - game
+  /v0.1/game/score/calculate:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqScoreCalculate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResScoreCalculate'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 점수 계산하기
       tags:
       - game
   /v0.1/game/start:

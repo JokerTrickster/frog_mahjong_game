@@ -56,6 +56,8 @@ const (
 	ErrNotOwner         = ErrType("NOT_OWNER")
 	ErrNotFirstPlayer   = ErrType("NOT_FIRST_PLAYER")
 	ErrNotLoanCard      = ErrType("NOT_LOAN_CARD")
+	ErrNotEnoughCard    = ErrType("NOT_ENOUGH_CARD")
+	ErrNotEnoughCond    = ErrType("NOT_ENOUGH_CONDITION")
 )
 
 // room error
@@ -86,6 +88,8 @@ var ErrHttpCode = map[string]int{
 	"USER_NOT_FOUND":       http.StatusBadRequest,
 	"ROOM_FULL":            http.StatusBadRequest,
 	"NOT_LOAN_CARD":        http.StatusBadRequest,
+	"NOT_ENOUGH_CARD":      http.StatusBadRequest,
+	"NOT_ENOUGH_CONDITION": http.StatusBadRequest,
 
 	//401
 	"TOKEN_BAD":            http.StatusUnauthorized,

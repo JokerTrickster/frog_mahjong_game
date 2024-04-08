@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	_interface "main/features/game/model/interface"
+	"main/features/game/model/response"
 
 	"main/features/game/model/request"
 
@@ -38,7 +39,7 @@ func NewScoreCalculateGameHandler(c *echo.Echo, useCase _interface.IScoreCalcula
 // @Param tkn header string true "accessToken"
 // @Param json body request.ReqScoreCalculate true "json body"
 // @Produce json
-// @Success 200 {object} boolean
+// @Success 200 {object} response.ResScoreCalculate
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags game
@@ -48,9 +49,13 @@ func (d *ScoreCalculateGameHandler) ScoreCalculate(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err := d.UseCase.ScoreCalculate(ctx, userID, req)
+	score, bonuses, err := d.UseCase.ScoreCalculate(ctx, userID, req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	res := response.ResScoreCalculate{
+		Score:   score,
+		Bonuses: bonuses,
+	}
+	return c.JSON(http.StatusOK, res)
 }

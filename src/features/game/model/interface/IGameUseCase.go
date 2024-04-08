@@ -29,5 +29,5 @@ type ILoanGameUseCase interface {
 }
 
 type IScoreCalculateGameUseCase interface {
-	ScoreCalculate(c context.Context, userID uint, req *request.ReqScoreCalculate) error
+	ScoreCalculate(c context.Context, userID uint, req *request.ReqScoreCalculate) (int, []string, error)
 }
