@@ -25,3 +25,7 @@ type INextTurnGameHandler interface {
 type ILoanGameHandler interface {
 	Loan(c echo.Context) error
 }
+
+type IScoreCalculateGameHandler interface {
+	ScoreCalculate(c echo.Context) error
+}

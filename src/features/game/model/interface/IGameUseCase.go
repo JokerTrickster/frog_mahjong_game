@@ -27,3 +27,7 @@ type INextTurnGameUseCase interface {
 type ILoanGameUseCase interface {
 	Loan(c context.Context, userID uint, req *request.ReqLoan) error
 }
+
+type IScoreCalculateGameUseCase interface {
+	ScoreCalculate(c context.Context, userID uint, req *request.ReqScoreCalculate) error
+}

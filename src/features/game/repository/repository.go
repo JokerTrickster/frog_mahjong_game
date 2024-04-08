@@ -25,3 +25,7 @@ type NextTurnGameRepository struct {
 type LoanGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ScoreCalculateGameRepository struct {
+	GormDB *gorm.DB
+}
