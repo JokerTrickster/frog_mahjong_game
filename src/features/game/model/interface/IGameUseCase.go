@@ -25,5 +25,5 @@ type INextTurnGameUseCase interface {
 }
 
 type ILoanGameUseCase interface {
-	Loan(c context.Context, req *request.ReqLoan) error
+	Loan(c context.Context, userID uint, req *request.ReqLoan) error
 }
