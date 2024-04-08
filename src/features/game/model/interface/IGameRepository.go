@@ -32,3 +32,9 @@ type IDiscardGameRepository interface {
 type INextTurnGameRepository interface {
 	UpdatePlayerNextTurn(c context.Context, req *request.ReqNextTurn) error
 }
+
+type ILoanGameRepository interface {
+	CheckLoan(c context.Context, req *request.ReqLoan) error
+	Loan(c context.Context, req *request.ReqLoan) error
+	UpdateRoomUserCardCount(c context.Context, userID uint, roomID uint) error
+}

@@ -21,3 +21,7 @@ type DiscardGameRepository struct {
 type NextTurnGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type LoanGameRepository struct {
+	GormDB *gorm.DB
+}

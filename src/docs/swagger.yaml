@@ -58,6 +58,15 @@ definitions:
     required:
     - roomID
     type: object
+  request.ReqLoan:
+    properties:
+      loanCardID:
+        type: integer
+      loanUserID:
+        type: integer
+      roomID:
+        type: integer
+    type: object
   request.ReqNextTurn:
     properties:
       playerState:
@@ -307,6 +316,46 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 도라 선택하기
+      tags:
+      - game
+  /v0.1/game/loan:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+        NOT_LOAN_CARD : 론할 수 없는 카드
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqLoan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 론 하기
       tags:
       - game
   /v0.1/game/next-turn:
