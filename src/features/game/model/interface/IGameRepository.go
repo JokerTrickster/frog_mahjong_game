@@ -38,3 +38,8 @@ type ILoanGameRepository interface {
 	Loan(c context.Context, req *request.ReqLoan) error
 	UpdateRoomUserCardCount(c context.Context, userID uint, roomID uint) error
 }
+
+type IScoreCalculateGameRepository interface {
+	CheckCardCount(c context.Context, userID uint, req *request.ReqScoreCalculate) error
+	GetDoraCard(c context.Context, req *request.ReqScoreCalculate) (mysql.Cards, error)
+}
