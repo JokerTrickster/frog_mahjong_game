@@ -284,3 +284,10 @@ func IsCheckedDora(card request.ScoreCard, doraCard mysql.Cards) bool {
 	}
 	return false
 }
+
+func IsCheckedWinRequest(roomUser mysql.RoomUsers) bool {
+	if (roomUser.PlayerState == "play" || roomUser.PlayerState == "loan") && roomUser.OwnedCardCount == 6 {
+		return true
+	}
+	return false
+}

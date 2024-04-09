@@ -46,9 +46,9 @@ func (d *WinRequestGameHandler) WinRequest(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err := d.UseCase.WinRequest(ctx, req)
+	result, err := d.UseCase.WinRequest(ctx, req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	return c.JSON(http.StatusOK, result)
 }

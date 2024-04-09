@@ -33,5 +33,5 @@ type IScoreCalculateGameUseCase interface {
 }
 
 type IWinRequestGameUseCase interface {
-	WinRequest(c context.Context, req *request.ReqWinRequest) error
+	WinRequest(c context.Context, req *request.ReqWinRequest) (bool, error)
 }

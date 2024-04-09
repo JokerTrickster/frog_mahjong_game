@@ -45,4 +45,5 @@ type IScoreCalculateGameRepository interface {
 }
 
 type IWinRequestGameRepository interface {
+	GetRoomUser(c context.Context, userID uint, roomID uint) (mysql.RoomUsers, error)
 }
