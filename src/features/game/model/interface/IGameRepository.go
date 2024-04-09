@@ -43,3 +43,6 @@ type IScoreCalculateGameRepository interface {
 	CheckCardCount(c context.Context, userID uint, req *request.ReqScoreCalculate) error
 	GetDoraCard(c context.Context, req *request.ReqScoreCalculate) (mysql.Cards, error)
 }
+
+type IWinRequestGameRepository interface {
+}

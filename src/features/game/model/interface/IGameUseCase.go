@@ -31,3 +31,7 @@ type ILoanGameUseCase interface {
 type IScoreCalculateGameUseCase interface {
 	ScoreCalculate(c context.Context, userID uint, req *request.ReqScoreCalculate) (int, []string, error)
 }
+
+type IWinRequestGameUseCase interface {
+	WinRequest(c context.Context, req *request.ReqWinRequest) error
+}
