@@ -27,7 +27,7 @@ func (d *WinRequestGameUseCase) WinRequest(c context.Context, req *request.ReqWi
 	}
 
 	// 현재 플레이 상태가 play or loan 인지 체크 및 카드 수가 6장인지 체크 후 5점이상이면 true, 아니면 false
-	if IsCheckedWinRequest(roomUser) {
+	if IsCheckedWinRequest(roomUser,req.Score) {
 		return true, nil
 	}
 

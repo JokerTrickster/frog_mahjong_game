@@ -934,3 +934,71 @@ func TestIsCheckedSameCard(t *testing.T) {
 		})
 	}
 }
+
+// 테이블 기반 테스트를 사용하여 여러 시나리오를 테스트합니다.
+// when-then 패턴을 사용하여 테스트를 작성합니다.
+// src/features/game/usecase/usecase.go 파일의 IsCheckedWinRequest 함수를 테스트코드를 작성합니다.
+// 매개변수 mysql.RoomUsers, score int 를 받아서 승리 요청이 가능한지 확인하는 함수입니다.
+// 테스트 케이스:
+// - 플레이 상태가 play이고 소유 카드가 6장이며 점수가 10점인 경우
+// - 플레이 상태가 loan이고 소유 카드가 6장이며 점수가 5점인 경우
+// - 플레이 상태가 play-wait이고 소유 카드가 5장이며 점수가 5점인 경우
+// - 플레이 상태가 play-wait이고 소유 카드가 5장이며 점수가 0점인 경우
+// 테스트 경로: src/features/game/usecase/usecase_test.go
+
+func TestIsCheckedWinRequest(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		roomUser mysql.RoomUsers
+		score    int
+		want     bool
+	}{
+		{
+			name: "플레이 상태가 play이고 소유 카드가 6장이며 점수가 10점인 경우",
+			roomUser: mysql.RoomUsers{
+				PlayerState:    "play",
+				OwnedCardCount: 6,
+			},
+			score: 10,
+			want:  true,
+		},
+		{
+			name: "플레이 상태가 loan이고 소유 카드가 6장이며 점수가 5점인 경우",
+			roomUser: mysql.RoomUsers{
+				PlayerState:    "loan",
+				OwnedCardCount: 6,
+			},
+			score: 5,
+			want:  true,
+		},
+		{
+			name: "플레이 상태가 play-wait이고 소유 카드가 5장이며 점수가 5점인 경우",
+			roomUser: mysql.RoomUsers{
+				PlayerState:    "play-wait",
+				OwnedCardCount: 5,
+			},
+			score: 5,
+			want:  false,
+		},
+		{
+			name: "플레이 상태가 play-wait이고 소유 카드가 5장이며 점수가 0점인 경우",
+			roomUser: mysql.RoomUsers{
+				PlayerState:    "play-wait",
+				OwnedCardCount: 5,
+			},
+			score: 0,
+			want:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// when
+			got := IsCheckedWinRequest(tt.roomUser, tt.score)
+
+			// then
+			assert.Equal(t, got, tt.want)
+		})
+	}
+}

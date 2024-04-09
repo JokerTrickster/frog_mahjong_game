@@ -37,6 +37,7 @@ func TestWinRequestGameUseCase_WinRequest(t *testing.T) {
 			req: &request.ReqWinRequest{
 				UserID: 1,
 				RoomID: 1,
+				Score:  5,
 			},
 			roomUser: mysql.RoomUsers{
 				UserID:         1,
@@ -52,6 +53,7 @@ func TestWinRequestGameUseCase_WinRequest(t *testing.T) {
 			req: &request.ReqWinRequest{
 				UserID: 1,
 				RoomID: 1,
+				Score:  15,
 			},
 			roomUser: mysql.RoomUsers{
 				UserID:         1,
@@ -67,6 +69,7 @@ func TestWinRequestGameUseCase_WinRequest(t *testing.T) {
 			req: &request.ReqWinRequest{
 				UserID: 1,
 				RoomID: 1,
+				Score:  4,
 			},
 			roomUser: mysql.RoomUsers{
 				UserID:         1,
