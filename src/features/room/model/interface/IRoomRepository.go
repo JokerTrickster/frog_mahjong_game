@@ -28,3 +28,5 @@ type IOutRoomRepository interface {
 type IReadyRoomRepository interface {
 	FindOneAndUpdateRoomUser(ctx context.Context, uID uint, req *request.ReqReady) error
 }
+type IListRoomRepository interface {
+}

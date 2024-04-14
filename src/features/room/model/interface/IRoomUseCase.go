@@ -20,3 +20,7 @@ type IOutRoomUseCase interface {
 type IReadyRoomUseCase interface {
 	Ready(c context.Context, uID uint, req *request.ReqReady) error
 }
+
+type IListRoomUseCase interface {
+	List(c context.Context, page int, pageSize int) error
+}
