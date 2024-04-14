@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
+	"main/features/room/model/response"
 	"time"
 )
 
@@ -16,10 +16,23 @@ func NewListRoomUseCase(repo _interface.IListRoomRepository, timeList time.Durat
 	return &ListRoomUseCase{Repository: repo, ContextTimeList: timeList}
 }
 
-func (d *ListRoomUseCase) List(c context.Context, page, pageSize int) error {
+func (d *ListRoomUseCase) List(c context.Context, page, pageSize int) (response.ResListRoom, error) {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeList)
 	defer cancel()
-	fmt.Println(ctx)
+	rooms, err := d.Repository.FindRoomList(ctx, page, pageSize)
+	if err != nil {
+		return response.ResListRoom{}, err
+	}
+	total, err := d.Repository.CountRoomList(ctx)
+	if err != nil {
+		return response.ResListRoom{}, err
+	}
 
-	return nil
+	//create res
+	res, err := CreateResListRoom(rooms, total)
+	if err != nil {
+		return response.ResListRoom{}, err
+	}
+
+	return res, nil
 }

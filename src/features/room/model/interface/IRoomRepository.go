@@ -29,4 +29,6 @@ type IReadyRoomRepository interface {
 	FindOneAndUpdateRoomUser(ctx context.Context, uID uint, req *request.ReqReady) error
 }
 type IListRoomRepository interface {
+	FindRoomList(ctx context.Context, page int, pageSize int) ([]mysql.Rooms, error)
+	CountRoomList(ctx context.Context) (int, error)
 }

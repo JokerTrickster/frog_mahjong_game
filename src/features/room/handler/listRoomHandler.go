@@ -3,7 +3,6 @@ package handler
 import (
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/request"
-	mw "main/middleware"
 	"main/utils"
 	"net/http"
 
@@ -18,7 +17,7 @@ func NewListRoomHandler(c *echo.Echo, useCase _interface.IListRoomUseCase) _inte
 	handler := &ListRoomHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/room", handler.List, mw.TokenChecker)
+	c.GET("/v0.1/room", handler.List)
 	return handler
 }
 
@@ -38,10 +37,10 @@ func NewListRoomHandler(c *echo.Echo, useCase _interface.IListRoomUseCase) _inte
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
-// @Param tkn header string true "accessToken"
-// @Param json body request.ReqList true "json body"
+// @Param page query int false "조회할 페이지. 0부터 시작, 누락시 0으로 처리"
+// @Param pageSize query int false "페이지당 알림 개수. 누락시 10으로 처리 "
 // @Produce json
-// @Success 200 {object} boolean
+// @Success 200 {object} response.ResListRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags room
@@ -51,9 +50,12 @@ func (d *ListRoomHandler) List(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err := d.UseCase.List(ctx, req.Page, req.PageSize)
+	if req.PageSize < 1 {
+		req.PageSize = 10
+	}
+	res, err := d.UseCase.List(ctx, req.Page, req.PageSize)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	return c.JSON(http.StatusOK, res)
 }
