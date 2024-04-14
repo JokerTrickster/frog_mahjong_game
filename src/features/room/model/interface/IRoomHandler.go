@@ -17,3 +17,7 @@ type IOutRoomHandler interface {
 type IReadyRoomHandler interface {
 	Ready(c echo.Context) error
 }
+
+type IListRoomHandler interface {
+	List(c echo.Context) error
+}

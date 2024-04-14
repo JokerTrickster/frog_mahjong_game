@@ -17,3 +17,7 @@ type OutRoomRepository struct {
 type ReadyRoomRepository struct {
 	GormDB *gorm.DB
 }
+
+type ListRoomRepository struct {
+	GormDB *gorm.DB
+}

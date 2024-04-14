@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/room/model/request"
+	"main/features/room/model/response"
 )
 
 type ICreateRoomUseCase interface {
@@ -19,4 +20,8 @@ type IOutRoomUseCase interface {
 
 type IReadyRoomUseCase interface {
 	Ready(c context.Context, uID uint, req *request.ReqReady) error
+}
+
+type IListRoomUseCase interface {
+	List(c context.Context, page int, pageSize int) (response.ResListRoom, error)
 }
