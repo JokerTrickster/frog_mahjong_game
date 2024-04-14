@@ -16,6 +16,14 @@
 
 ### 아키텍처
 
+- DB 스키마
+
+<img width="897" alt="스크린샷 2024-04-14 오후 6 37 27" src="https://github.com/JokerTrickster/frog_mahjong_game/assets/140731661/d5916c1f-3d5b-498e-bb2b-1c3fa5bf35f1">
+
+- 인프라 구성도
+
+![KakaoTalk_Photo_2024-04-14-18-41-11](https://github.com/JokerTrickster/frog_mahjong_game/assets/140731661/74245fc3-d3cb-4d06-a9c3-022ec4514c8f)
+
 
 ### 역할 및 기술
 백엔드 : 조현준 / Golang & AWS & RDBMS
