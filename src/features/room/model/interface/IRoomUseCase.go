@@ -25,3 +25,7 @@ type IReadyRoomUseCase interface {
 type IListRoomUseCase interface {
 	List(c context.Context, page int, pageSize int) (response.ResListRoom, error)
 }
+
+type ILogoutRoomUseCase interface {
+	Logout(c context.Context, uID uint) error
+}

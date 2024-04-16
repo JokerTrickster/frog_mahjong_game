@@ -32,3 +32,6 @@ type IListRoomRepository interface {
 	FindRoomList(ctx context.Context, page int, pageSize int) ([]mysql.Rooms, error)
 	CountRoomList(ctx context.Context) (int, error)
 }
+
+type ILogoutRoomRepository interface {
+}
