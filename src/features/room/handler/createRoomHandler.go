@@ -55,5 +55,5 @@ func (d *CreateRoomHandler) Create(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	return c.JSON(http.StatusCreated, true)
 }
