@@ -12,17 +12,17 @@ definitions:
     type: object
   request.ReqCreate:
     properties:
-      max_count:
+      maxCount:
         type: integer
-      min_count:
+      minCount:
         type: integer
       name:
         type: string
       password:
         type: string
     required:
-    - max_count
-    - min_count
+    - maxCount
+    - minCount
     - name
     type: object
   request.ReqDiscard:

@@ -709,15 +709,15 @@ const docTemplate = `{
         "request.ReqCreate": {
             "type": "object",
             "required": [
-                "max_count",
-                "min_count",
+                "maxCount",
+                "minCount",
                 "name"
             ],
             "properties": {
-                "max_count": {
+                "maxCount": {
                     "type": "integer"
                 },
-                "min_count": {
+                "minCount": {
                     "type": "integer"
                 },
                 "name": {
