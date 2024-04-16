@@ -13,3 +13,7 @@ type ISignupAuthUseCase interface {
 type ISigninAuthUseCase interface {
 	Signin(c context.Context, req *request.ReqSignin) (response.ResSignin, error)
 }
+
+type ILogoutAuthUseCase interface {
+	Logout(c context.Context, uID uint) error
+}

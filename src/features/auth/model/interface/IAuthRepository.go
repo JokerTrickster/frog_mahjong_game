@@ -13,3 +13,7 @@ type ISignupAuthRepository interface {
 type ISigninAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error)
 }
+
+type ILogoutAuthRepository interface {
+	FindOneAndUpdateUser(ctx context.Context, uID uint) error
+}
