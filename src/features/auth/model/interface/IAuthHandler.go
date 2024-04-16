@@ -9,3 +9,7 @@ type ISignupAuthHandler interface {
 type ISigninAuthHandler interface {
 	Signin(c echo.Context) error
 }
+
+type ILogoutAuthHandler interface {
+	Logout(c echo.Context) error
+}

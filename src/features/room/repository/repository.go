@@ -21,6 +21,3 @@ type ReadyRoomRepository struct {
 type ListRoomRepository struct {
 	GormDB *gorm.DB
 }
-type LogoutRoomRepository struct {
-	GormDB *gorm.DB
-}
