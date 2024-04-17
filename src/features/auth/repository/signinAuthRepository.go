@@ -44,7 +44,7 @@ func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, 
 		RoomID: 1,
 	}
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
-	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ? and password = ? and state = ?", email, password, "logout").Updates(user)
+	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ? and password = ? ", email, password).Updates(user)
 	if result.Error != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
