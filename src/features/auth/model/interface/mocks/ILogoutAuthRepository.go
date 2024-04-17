@@ -13,6 +13,24 @@ type ILogoutAuthRepository struct {
 	mock.Mock
 }
 
+// DeleteToken provides a mock function with given fields: ctx, uID
+func (_m *ILogoutAuthRepository) DeleteToken(ctx context.Context, uID uint) error {
+	ret := _m.Called(ctx, uID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteToken")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, uID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindOneAndUpdateUser provides a mock function with given fields: ctx, uID
 func (_m *ILogoutAuthRepository) FindOneAndUpdateUser(ctx context.Context, uID uint) error {
 	ret := _m.Called(ctx, uID)

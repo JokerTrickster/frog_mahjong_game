@@ -36,6 +36,7 @@ func TestLogoutAuthUseCase_LogoutAuth(t *testing.T) {
 			//given
 			mockLogoutAuthRepository := new(mocks.ILogoutAuthRepository)
 			mockLogoutAuthRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything).Return(tt.err) //mock
+			mockLogoutAuthRepository.On("DeleteToken", mock.Anything, mock.Anything).Return(tt.err)          //mock
 			us := NewLogoutAuthUseCase(mockLogoutAuthRepository, 8*time.Second)
 
 			//when
