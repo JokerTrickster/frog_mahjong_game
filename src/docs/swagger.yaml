@@ -208,6 +208,34 @@ definitions:
       refreshToken:
         type: string
     type: object
+  response.ResUserListRoom:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/response.User'
+        type: array
+    type: object
+  response.User:
+    properties:
+      ownedCardCount:
+        type: integer
+      playerState:
+        type: string
+      roomID:
+        type: integer
+      roomUserID:
+        type: integer
+      score:
+        type: integer
+      turnNumber:
+        type: integer
+      userEmail:
+        type: string
+      userID:
+        type: integer
+      userName:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -833,6 +861,48 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 게임 준비 상태 변경
+      tags:
+      - room
+  /v0.1/room/user:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 참
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 방 ID
+        in: query
+        name: roomID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResUserListRoom'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 룸 유저 정보 가져오기
       tags:
       - room
 swagger: "2.0"

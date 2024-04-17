@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/response"
 	"time"
@@ -20,6 +19,10 @@ func NewUserListRoomUseCase(repo _interface.IUserListRoomRepository, timeUserLis
 func (d *UserListRoomUseCase) UserList(c context.Context, roomID uint) (response.ResUserListRoom, error) {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeUserList)
 	defer cancel()
-	fmt.Println(ctx)
-	return response.ResUserListRoom{}, nil
+
+	userList, err := d.Repository.FindRoomUser(ctx, roomID)
+	if err != nil {
+		return response.ResUserListRoom{}, err
+	}
+	return response.ResUserListRoom{Users: userList}, nil
 }

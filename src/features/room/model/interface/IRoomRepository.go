@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/room/model/request"
+	"main/features/room/model/response"
 	"main/utils/db/mysql"
 )
 
@@ -33,4 +34,5 @@ type IListRoomRepository interface {
 	CountRoomList(ctx context.Context) (int, error)
 }
 type IUserListRoomRepository interface {
+	FindRoomUser(ctx context.Context, roomID uint) ([]response.User, error)
 }
