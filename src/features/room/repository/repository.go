@@ -21,3 +21,7 @@ type ReadyRoomRepository struct {
 type ListRoomRepository struct {
 	GormDB *gorm.DB
 }
+
+type UserListRoomRepository struct {
+	GormDB *gorm.DB
+}
