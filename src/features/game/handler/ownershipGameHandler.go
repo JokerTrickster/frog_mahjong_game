@@ -46,7 +46,7 @@ func (d *OwnershipGameHandler) Ownership(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqOwnership{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Ownership(ctx, req)
 	if err != nil {

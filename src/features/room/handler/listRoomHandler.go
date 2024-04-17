@@ -48,7 +48,7 @@ func (d *ListRoomHandler) List(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqList{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	if req.PageSize < 1 {
 		req.PageSize = 10

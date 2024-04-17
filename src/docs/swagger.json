@@ -561,7 +561,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/response.ResCreateRoom"
                         }
                     },
                     "400": {
@@ -607,7 +607,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/response.ResJoinRoom"
                         }
                     },
                     "400": {
@@ -980,6 +980,22 @@
                 },
                 "state": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ResCreateRoom": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ResJoinRoom": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
                 }
             }
         },

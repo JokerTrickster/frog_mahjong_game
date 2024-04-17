@@ -44,7 +44,7 @@ func (d *WinRequestGameHandler) WinRequest(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqWinRequest{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	result, err := d.UseCase.WinRequest(ctx, req)
 	if err != nil {

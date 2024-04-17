@@ -47,7 +47,7 @@ func (d *ScoreCalculateGameHandler) ScoreCalculate(c echo.Context) error {
 	ctx, userID, _ := utils.CtxGenerate(c)
 	req := &request.ReqScoreCalculate{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	score, bonuses, err := d.UseCase.ScoreCalculate(ctx, userID, req)
 	if err != nil {

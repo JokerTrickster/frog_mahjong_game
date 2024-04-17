@@ -46,7 +46,7 @@ func (d *NextTurnGameHandler) NextTurn(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqNextTurn{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.NextTurn(ctx, req)
 	if err != nil {
