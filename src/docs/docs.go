@@ -1110,6 +1110,9 @@ const docTemplate = `{
                 "ownedCardCount": {
                     "type": "integer"
                 },
+                "owner": {
+                    "type": "boolean"
+                },
                 "playerState": {
                     "type": "string"
                 },

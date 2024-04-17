@@ -24,5 +24,11 @@ func (d *UserListRoomUseCase) UserList(c context.Context, roomID uint) (response
 	if err != nil {
 		return response.ResUserListRoom{}, err
 	}
-	return response.ResUserListRoom{Users: userList}, nil
+	// 방장이 누구인지 체d
+	rooms, err := d.Repository.FindOneRoom(ctx, roomID)
+	if err != nil {
+		return response.ResUserListRoom{}, err
+	}
+	res := CreateResUserListRoom(userList, rooms)
+	return res, nil
 }
