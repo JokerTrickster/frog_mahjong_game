@@ -28,7 +28,18 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqSignin) (r
 	}
 
 	// token create
-	accessToken, refreshToken, err := utils.GenerateToken(user.Email, user.ID)
+	accessToken, _, refreshToken, refreshTknExpiredAt, err := utils.GenerateToken(user.Email, user.ID)
+	if err != nil {
+		return response.ResSignin{}, err
+	}
+
+	// 기존 토큰 제거
+	err = d.Repository.DeleteToken(ctx, user.ID)
+	if err != nil {
+		return response.ResSignin{}, err
+	}
+	// token db save
+	err = d.Repository.SaveToken(ctx, user.ID, accessToken, refreshToken, refreshTknExpiredAt)
 	if err != nil {
 		return response.ResSignin{}, err
 	}

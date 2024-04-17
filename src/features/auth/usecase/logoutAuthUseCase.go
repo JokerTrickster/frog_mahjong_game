@@ -23,5 +23,11 @@ func (d *LogoutAuthUseCase) Logout(c context.Context, uID uint) error {
 		return err
 	}
 
+	// 토큰 제거
+	err = d.Repository.DeleteToken(ctx, uID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

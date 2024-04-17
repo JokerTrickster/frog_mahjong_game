@@ -12,8 +12,11 @@ type ISignupAuthRepository interface {
 
 type ISigninAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error)
+	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
+	DeleteToken(ctx context.Context, uID uint) error
 }
 
 type ILogoutAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, uID uint) error
+	DeleteToken(ctx context.Context, uID uint) error
 }

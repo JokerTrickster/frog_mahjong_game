@@ -9,7 +9,7 @@ import (
 )
 
 type JwtCustomClaims struct {
-	createTime int64  `json:"createTime"`
+	CreateTime int64  `json:"createTime"`
 	UserID     uint   `json:"userID"`
 	Email      string `json:"email"`
 	jwt.StandardClaims
@@ -31,27 +31,28 @@ func InitJwt() error {
 	return nil
 }
 
-func GenerateToken(email string, userID uint) (string, string, error) {
+func GenerateToken(email string, userID uint) (string, int64, string, int64, error) {
 	now := time.Now()
-	accessToken, err := GenerateAccessToken(email, now, userID)
+	accessToken, accessTknExpiredAt, err := GenerateAccessToken(email, now, userID)
 	if err != nil {
-		return "", "", err
+		return "", 0, "", 0, err
 	}
-	refreshToken, err := GenerateRefreshToken(email, now, userID)
+	refreshToken, refreshTknExpiredAt, err := GenerateRefreshToken(email, now, userID)
 	if err != nil {
-		return "", "", err
+		return "", 0, "", 0, err
 	}
-	return accessToken, refreshToken, nil
+	return accessToken, accessTknExpiredAt, refreshToken, refreshTknExpiredAt, nil
 }
 
-func GenerateAccessToken(email string, now time.Time, userID uint) (string, error) {
+func GenerateAccessToken(email string, now time.Time, userID uint) (string, int64, error) {
 	// Set custom claims
+	expiredAt := now.Add(time.Hour * AccessTokenExpiredTime).Unix()
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
 		email,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * AccessTokenExpiredTime).Unix(),
+			ExpiresAt: expiredAt,
 		},
 	}
 
@@ -60,18 +61,19 @@ func GenerateAccessToken(email string, now time.Time, userID uint) (string, erro
 	// Generate encoded token and send it as response.
 	accessToken, err := token.SignedString(AccessTokenSecretKey)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return accessToken, nil
+	return accessToken, expiredAt, nil
 }
 
-func GenerateRefreshToken(email string, now time.Time, userID uint) (string, error) {
+func GenerateRefreshToken(email string, now time.Time, userID uint) (string, int64, error) {
+	expiredAt := now.Add(time.Hour * RefreshTokenExpiredTime).Unix()
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
 		email,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * RefreshTokenExpiredTime).Unix(),
+			ExpiresAt: expiredAt,
 		},
 	}
 
@@ -80,9 +82,9 @@ func GenerateRefreshToken(email string, now time.Time, userID uint) (string, err
 	// Generate encoded token and send it as response.
 	refreshToken, err := token.SignedString(RefreshTokenSecretKey)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return refreshToken, nil
+	return refreshToken, expiredAt, nil
 }
 
 func ValidateAndParseAccessToken(tokenString string) (uint, string, error) {

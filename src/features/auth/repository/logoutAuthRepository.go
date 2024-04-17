@@ -12,6 +12,16 @@ import (
 func NewLogoutAuthRepository(gormDB *gorm.DB) _interface.ILogoutAuthRepository {
 	return &LogoutAuthRepository{GormDB: gormDB}
 }
+func (d *LogoutAuthRepository) DeleteToken(ctx context.Context, uID uint) error {
+	token := mysql.Tokens{
+		UserID: uID,
+	}
+	result := d.GormDB.Model(&token).Where("user_id = ?", uID).Delete(&token)
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), result.Error.Error(), utils.ErrFromInternal)
+	}
+	return nil
+}
 
 func (d *LogoutAuthRepository) FindOneAndUpdateUser(ctx context.Context, uID uint) error {
 	user := mysql.Users{

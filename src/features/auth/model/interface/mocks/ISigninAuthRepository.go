@@ -14,6 +14,24 @@ type ISigninAuthRepository struct {
 	mock.Mock
 }
 
+// DeleteToken provides a mock function with given fields: ctx, uID
+func (_m *ISigninAuthRepository) DeleteToken(ctx context.Context, uID uint) error {
+	ret := _m.Called(ctx, uID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteToken")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, uID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindOneAndUpdateUser provides a mock function with given fields: ctx, email, password
 func (_m *ISigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email string, password string) (mysql.Users, error) {
 	ret := _m.Called(ctx, email, password)
@@ -40,6 +58,24 @@ func (_m *ISigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email
 	}
 
 	return r0, r1
+}
+
+// SaveToken provides a mock function with given fields: ctx, uID, accessToken, refreshToken, refreshTknExpiredAt
+func (_m *ISigninAuthRepository) SaveToken(ctx context.Context, uID uint, accessToken string, refreshToken string, refreshTknExpiredAt int64) error {
+	ret := _m.Called(ctx, uID, accessToken, refreshToken, refreshTknExpiredAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveToken")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string, string, int64) error); ok {
+		r0 = rf(ctx, uID, accessToken, refreshToken, refreshTknExpiredAt)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // NewISigninAuthRepository creates a new instance of ISigninAuthRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
