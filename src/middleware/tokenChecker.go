@@ -22,11 +22,11 @@ func TokenChecker(next echo.HandlerFunc) echo.HandlerFunc {
 		// verify & get Data
 		uID, email, err := utils.ValidateAndParseAccessToken(accessToken)
 		if err != nil {
-			return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), "invalid access token", utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrBadToken, utils.Trace(), "invalid access token", utils.ErrFromClient)
 		}
 		// db에서 유효한 토큰인지 체크
 		if CheckDBAccessToken(uID, accessToken) != nil {
-			return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), "invalid access token", utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrBadToken, utils.Trace(), "invalid access token", utils.ErrFromClient)
 		}
 
 		// set token data to Context
