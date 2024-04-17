@@ -44,7 +44,7 @@ func (d *SigninAuthHandler) Signin(c echo.Context) error {
 	ctx := context.Background()
 	req := &request.ReqSignin{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	res, err := d.UseCase.Signin(ctx, req)
 	if err != nil {

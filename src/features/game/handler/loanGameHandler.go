@@ -46,7 +46,7 @@ func (d *LoanGameHandler) Loan(c echo.Context) error {
 	ctx, userID, _ := utils.CtxGenerate(c)
 	req := &request.ReqLoan{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Loan(ctx, userID, req)
 	if err != nil {

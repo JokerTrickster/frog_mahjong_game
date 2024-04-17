@@ -49,7 +49,7 @@ func (d *ReadyRoomHandler) Ready(c echo.Context) error {
 	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqReady{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Ready(ctx, uID, req)
 	if err != nil {

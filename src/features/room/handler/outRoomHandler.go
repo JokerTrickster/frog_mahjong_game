@@ -49,7 +49,7 @@ func (d *OutRoomHandler) Out(c echo.Context) error {
 	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqOut{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Out(ctx, uID, req)
 	if err != nil {

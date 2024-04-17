@@ -44,7 +44,7 @@ func (d *SignupAuthHandler) Signup(c echo.Context) error {
 	ctx := context.Background()
 	req := &request.ReqSignup{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Signup(ctx, req)
 	if err != nil {

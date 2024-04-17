@@ -45,7 +45,7 @@ func (d *DoraGameHandler) Dora(c echo.Context) error {
 	ctx, userID, _ := utils.CtxGenerate(c)
 	req := &request.ReqDora{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Dora(ctx, int(userID), req)
 	if err != nil {

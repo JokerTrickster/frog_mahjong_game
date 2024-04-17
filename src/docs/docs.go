@@ -572,7 +572,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/response.ResCreateRoom"
                         }
                     },
                     "400": {
@@ -618,7 +618,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/response.ResJoinRoom"
                         }
                     },
                     "400": {
@@ -991,6 +991,22 @@ const docTemplate = `{
                 },
                 "state": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ResCreateRoom": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ResJoinRoom": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
                 }
             }
         },

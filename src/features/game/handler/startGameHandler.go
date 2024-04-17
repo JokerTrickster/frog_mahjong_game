@@ -44,7 +44,7 @@ func (d *StartGameHandler) Start(c echo.Context) error {
 	ctx, _, email := utils.CtxGenerate(c)
 	req := &request.ReqStart{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	err := d.UseCase.Start(ctx, email, req)
 	if err != nil {

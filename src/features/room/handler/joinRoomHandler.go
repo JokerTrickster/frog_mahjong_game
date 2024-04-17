@@ -49,7 +49,7 @@ func (d *JoinRoomHandler) Join(c echo.Context) error {
 	ctx, uID, email := utils.CtxGenerate(c)
 	req := &request.ReqJoin{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return err
 	}
 	res, err := d.UseCase.Join(ctx, uID, email, req)
 	if err != nil {
