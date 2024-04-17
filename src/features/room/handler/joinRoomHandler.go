@@ -41,7 +41,7 @@ func NewJoinRoomHandler(c *echo.Echo, useCase _interface.IJoinRoomUseCase) _inte
 // @Param tkn header string true "accessToken"
 // @Param json body request.ReqJoin true "json body"
 // @Produce json
-// @Success 200 {object} boolean
+// @Success 200 {object} response.ResJoinRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags room
@@ -51,9 +51,9 @@ func (d *JoinRoomHandler) Join(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err := d.UseCase.Join(ctx, uID, email, req)
+	res, err := d.UseCase.Join(ctx, uID, email, req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	return c.JSON(http.StatusOK, res)
 }

@@ -7,6 +7,7 @@ import (
 	"context"
 	"main/features/room/model/interface/mocks"
 	"main/features/room/model/request"
+	"main/features/room/model/response"
 	"main/utils"
 	"testing"
 	"time"
@@ -24,17 +25,18 @@ func TestCreateRoomUseCase_Create(t *testing.T) {
 	tests := []struct {
 		name string
 		req  request.ReqCreate
+		res  response.ResCreateRoom
 		err  error
 	}{
-		{"success1", request.ReqCreate{Name: "test", MaxCount: 4, MinCount: 2, Password: "test"}, nil},
-		{"fail1", request.ReqCreate{Name: "test", MaxCount: 1, MinCount: 2, Password: ""}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)},
+		{"success1", request.ReqCreate{Name: "test", MaxCount: 4, MinCount: 2, Password: "test"}, response.ResCreateRoom{RoomID: 5}, nil},
+		{"fail1", request.ReqCreate{Name: "test", MaxCount: 1, MinCount: 2, Password: ""}, response.ResCreateRoom{RoomID: 0}, utils.ErrorMsg(context.TODO(), utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			//given
 			mockCreateRoomRepository := new(mocks.ICreateRoomRepository)
 			if tt.err == nil {
-				mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(1, nil) //mock
+				mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(5, nil) //mock
 			}
 
 			mockCreateRoomRepository.On("InsertOneRoom", mock.Anything, mock.Anything).Return(0, tt.err) //mock
@@ -42,9 +44,10 @@ func TestCreateRoomUseCase_Create(t *testing.T) {
 			mockCreateRoomRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			us := NewCreateRoomUseCase(mockCreateRoomRepository, 8*time.Second)
 			//when
-			err := us.Create(context.TODO(), 1, "ryan@gmail.com", &tt.req)
+			res, err := us.Create(context.TODO(), 1, "ryan@gmail.com", &tt.req)
 			//then
 			assert.Equal(t, tt.err, err)
+			assert.Equal(t, tt.res, res)
 		})
 	}
 }

@@ -41,7 +41,7 @@ func NewCreateRoomHandler(c *echo.Echo, useCase _interface.ICreateRoomUseCase) _
 // @Param tkn header string true "accessToken"
 // @Param json body request.ReqCreate true "json body"
 // @Produce json
-// @Success 200 {object} boolean
+// @Success 200 {object} response.ResCreateRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags room
@@ -51,9 +51,9 @@ func (d *CreateRoomHandler) Create(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err := d.UseCase.Create(ctx, uID, email, req)
+	res, err := d.UseCase.Create(ctx, uID, email, req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, true)
+	return c.JSON(http.StatusCreated, res)
 }

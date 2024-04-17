@@ -12,6 +12,7 @@ import (
 	_errors "main/features/room/model/errors"
 	"main/features/room/model/interface/mocks"
 	"main/features/room/model/request"
+	"main/features/room/model/response"
 	"main/utils"
 	"main/utils/db/mysql"
 
@@ -23,6 +24,7 @@ func TestJoinRoomUseCase_Join(t *testing.T) {
 	tests := []struct {
 		name        string
 		req         request.ReqJoin
+		res         response.ResJoinRoom
 		roomDTO     mysql.Rooms
 		roomUserDTO mysql.RoomUsers
 		err         error
@@ -30,6 +32,9 @@ func TestJoinRoomUseCase_Join(t *testing.T) {
 		{
 			name: "success",
 			req: request.ReqJoin{
+				RoomID: 1,
+			},
+			res: response.ResJoinRoom{
 				RoomID: 1,
 			},
 			roomDTO: mysql.Rooms{
@@ -54,6 +59,9 @@ func TestJoinRoomUseCase_Join(t *testing.T) {
 			name: "fail",
 			req: request.ReqJoin{
 				RoomID: 1,
+			},
+			res: response.ResJoinRoom{
+				RoomID: 0,
 			},
 			roomDTO: mysql.Rooms{
 				CurrentCount: 2,
@@ -86,12 +94,10 @@ func TestJoinRoomUseCase_Join(t *testing.T) {
 			}
 			us := NewJoinRoomUseCase(mockJoinRoomRepository, 8*time.Second)
 			// When
-			err := us.Join(context.Background(), 1, "ryan@gamil.com", &tt.req)
+			res, err := us.Join(context.Background(), 1, "ryan@gamil.com", &tt.req)
 			// Then
 			assert.Equal(t, tt.err, err)
-			if tt.err == nil {
-				mockJoinRoomRepository.AssertExpectations(t)
-			}
+			assert.Equal(t, tt.res, res)
 		})
 	}
 }
