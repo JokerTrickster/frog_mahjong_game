@@ -712,6 +712,50 @@
                     }
                 }
             }
+        },
+        "/v0.1/room/user": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "룸 유저 정보 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "방 ID",
+                        "name": "roomID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResUserListRoom"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1034,6 +1078,49 @@
                     "type": "string"
                 },
                 "refreshToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ResUserListRoom": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.User"
+                    }
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "ownedCardCount": {
+                    "type": "integer"
+                },
+                "playerState": {
+                    "type": "string"
+                },
+                "roomID": {
+                    "type": "integer"
+                },
+                "roomUserID": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "turnNumber": {
+                    "type": "integer"
+                },
+                "userEmail": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "userName": {
                     "type": "string"
                 }
             }

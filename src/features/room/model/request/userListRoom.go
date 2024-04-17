@@ -1,5 +1,5 @@
 package request
 
 type ReqUserList struct {
-	RoomID uint `json:"roomID"`
+	RoomID uint `query:"roomID"`
 }

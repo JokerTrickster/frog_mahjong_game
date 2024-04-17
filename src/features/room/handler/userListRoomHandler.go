@@ -22,9 +22,9 @@ func NewUserListRoomHandler(c *echo.Echo, useCase _interface.IUserListRoomUseCas
 	return handler
 }
 
-// 게임 준비 상태 변경
+// 룸 유저 정보 가져오기
 // @Router /v0.1/room/user [get]
-// @Summary 게임 준비 상태 변경
+// @Summary 룸 유저 정보 가져오기
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
@@ -39,7 +39,7 @@ func NewUserListRoomHandler(c *echo.Echo, useCase _interface.IUserListRoomUseCas
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
 // @Param tkn header string true "accessToken"
-// @Param json body request.ReqUserList true "json body"
+// @Param roomID query uint true "방 ID"
 // @Produce json
 // @Success 200 {object} response.ResUserListRoom
 // @Failure 400 {object} error
