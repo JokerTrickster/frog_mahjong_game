@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/room/model/request"
+	"main/features/room/model/response"
 	"main/utils/db/mysql"
 )
 
@@ -31,4 +32,7 @@ type IReadyRoomRepository interface {
 type IListRoomRepository interface {
 	FindRoomList(ctx context.Context, page int, pageSize int) ([]mysql.Rooms, error)
 	CountRoomList(ctx context.Context) (int, error)
+}
+type IUserListRoomRepository interface {
+	FindRoomUser(ctx context.Context, roomID uint) ([]response.User, error)
 }

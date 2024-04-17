@@ -25,3 +25,7 @@ type IReadyRoomUseCase interface {
 type IListRoomUseCase interface {
 	List(c context.Context, page int, pageSize int) (response.ResListRoom, error)
 }
+
+type IUserListRoomUseCase interface {
+	UserList(c context.Context, roomID uint) (response.ResUserListRoom, error)
+}

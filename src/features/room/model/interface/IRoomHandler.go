@@ -21,3 +21,7 @@ type IReadyRoomHandler interface {
 type IListRoomHandler interface {
 	List(c echo.Context) error
 }
+
+type IUserListRoomHandler interface {
+	UserList(c echo.Context) error
+}
