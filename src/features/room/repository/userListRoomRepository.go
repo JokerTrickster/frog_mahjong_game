@@ -5,6 +5,7 @@ import (
 	_interface "main/features/room/model/interface"
 	"main/features/room/model/response"
 	"main/utils"
+	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 )
@@ -24,4 +25,13 @@ func (d *UserListRoomRepository) FindRoomUser(ctx context.Context, roomID uint) 
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
 	}
 	return roomUserList, nil
+}
+
+func (d *UserListRoomRepository) FindOneRoom(ctx context.Context, roomID uint) (mysql.Rooms, error) {
+	room := mysql.Rooms{}
+	err := d.GormDB.Table("rooms").Where("id = ?", roomID).Scan(&room).Error
+	if err != nil {
+		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+	}
+	return room, nil
 }

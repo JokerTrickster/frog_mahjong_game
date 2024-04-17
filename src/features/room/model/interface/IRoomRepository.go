@@ -35,4 +35,5 @@ type IListRoomRepository interface {
 }
 type IUserListRoomRepository interface {
 	FindRoomUser(ctx context.Context, roomID uint) ([]response.User, error)
+	FindOneRoom(ctx context.Context, roomID uint) (mysql.Rooms, error)
 }

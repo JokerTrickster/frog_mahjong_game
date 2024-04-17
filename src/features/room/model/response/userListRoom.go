@@ -13,4 +13,5 @@ type User struct {
 	Score          int    `json:"score" gorm:"column:score"`
 	UserName       string `json:"userName" gorm:"column:user_name"`
 	UserEmail      string `json:"userEmail" gorm:"column:user_email"`
+	Owner          bool   `json:"owner"`
 }

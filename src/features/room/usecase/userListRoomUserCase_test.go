@@ -6,11 +6,13 @@ import (
 	"main/features/room/model/interface/mocks"
 	"main/features/room/model/response"
 	"main/utils"
+	"main/utils/db/mysql"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
 	"gopkg.in/go-playground/assert.v1"
+	"gorm.io/gorm"
 )
 
 // TestUserListRoomeUseCase_Discard 함수는 UserListRoomUseCase 의 UserList 메서드를 테스트합니다.
@@ -18,6 +20,7 @@ import (
 // given-when-then 패턴을 사용하여 테스트를 작성합니다.
 // 매개변수는 roomID uint
 // 응답은 response.ResUserListRoom, error
+// 테스트 매개변수 : name, roomID, userList, room, err
 // 테스트 케이스:
 // 1. roomID 가 33 인 경우 유저가 2명 존재항는 경우
 // 2. roomID 가 34 인 경우 유저가 0명 존재하는 경우
@@ -29,6 +32,7 @@ func TestUserListRoomUseCase_UserList(t *testing.T) {
 		name     string
 		roomID   uint
 		userList []response.User
+		room     mysql.Rooms
 		err      error
 	}{
 		{
@@ -45,6 +49,7 @@ func TestUserListRoomUseCase_UserList(t *testing.T) {
 					Score:          1,
 					UserName:       "test1",
 					UserEmail:      "test1",
+					Owner:          true,
 				},
 				{
 					UserID:         2,
@@ -56,7 +61,19 @@ func TestUserListRoomUseCase_UserList(t *testing.T) {
 					Score:          2,
 					UserName:       "test2",
 					UserEmail:      "test2",
+					Owner:          false,
 				},
+			},
+			room: mysql.Rooms{
+				Model: gorm.Model{
+					ID: 33,
+				},
+				CurrentCount: 2,
+				MaxCount:     4,
+				MinCount:     2,
+				Name:         "test",
+				State:        "wait",
+				Owner:        "test1",
 			},
 			err: nil,
 		},
@@ -72,6 +89,7 @@ func TestUserListRoomUseCase_UserList(t *testing.T) {
 			//given
 			mockRoomRepository := new(mocks.IUserListRoomRepository)
 			mockRoomRepository.On("FindRoomUser", mock.Anything, mock.Anything).Return(tt.userList, tt.err)
+			mockRoomRepository.On("FindOneRoom", mock.Anything, mock.Anything).Return(tt.room, nil)
 			us := NewUserListRoomUseCase(mockRoomRepository, time.Second*8)
 			//when
 			_, err := us.UserList(context.TODO(), tt.roomID)

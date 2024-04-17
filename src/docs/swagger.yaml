@@ -219,6 +219,8 @@ definitions:
     properties:
       ownedCardCount:
         type: integer
+      owner:
+        type: boolean
       playerState:
         type: string
       roomID:

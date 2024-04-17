@@ -8,6 +8,19 @@ import (
 	"main/utils/db/mysql"
 )
 
+func CreateResUserListRoom(userList []response.User, rooms mysql.Rooms) response.ResUserListRoom {
+	res := response.ResUserListRoom{}
+	for i := 0; i < len(userList); i++ {
+		if userList[i].UserEmail == rooms.Owner {
+			userList[i].Owner = true
+		} else {
+			userList[i].Owner = false
+		}
+	}
+	res.Users = userList
+	return res
+}
+
 func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (mysql.Rooms, error) {
 
 	result := mysql.Rooms{
