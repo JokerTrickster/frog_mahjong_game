@@ -1141,7 +1141,18 @@ const docTemplate = `{
             }
         },
         "response.ResGetUser": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
         },
         "response.ResJoinRoom": {
             "type": "object",

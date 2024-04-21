@@ -186,6 +186,13 @@ definitions:
         type: integer
     type: object
   response.ResGetUser:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      userID:
+        type: integer
     type: object
   response.ResJoinRoom:
     properties:
