@@ -4,6 +4,7 @@ import (
 	authHandler "main/features/auth/handler"
 	gameHandler "main/features/game/handler"
 	roomHandler "main/features/room/handler"
+	userHandler "main/features/users/handler"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -18,6 +19,7 @@ func InitHandler(e *echo.Echo) error {
 	authHandler.NewAuthHandler(e)
 	roomHandler.NewRoomHandler(e)
 	gameHandler.NewGameHandler(e)
+	userHandler.NewUsersHandler(e)
 
 	return nil
 }

@@ -185,6 +185,8 @@ definitions:
       roomID:
         type: integer
     type: object
+  response.ResGetUser:
+    type: object
   response.ResJoinRoom:
     properties:
       roomID:
@@ -955,4 +957,41 @@ paths:
       summary: 룸 유저 정보 가져오기
       tags:
       - room
+  /v0.1/users/{userID}:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 유저 아이디
+        in: query
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGetUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 가져오기
+      tags:
+      - user
 swagger: "2.0"
