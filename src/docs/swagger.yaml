@@ -710,16 +710,16 @@ paths:
       summary: 게임 승리 요청
       tags:
       - game
-  /v0.1/room:
+  /v0.1/rooms:
     get:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -749,17 +749,17 @@ paths:
           schema: {}
       summary: 방 목록 가져오기
       tags:
-      - room
-  /v0.1/room/create:
+      - Rooms
+  /v0.1/rooms/create:
     post:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -792,17 +792,17 @@ paths:
           schema: {}
       summary: 방 생성
       tags:
-      - room
-  /v0.1/room/join:
+      - Rooms
+  /v0.1/rooms/join:
     post:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -835,17 +835,17 @@ paths:
           schema: {}
       summary: 방 참여
       tags:
-      - room
-  /v0.1/room/out:
+      - Rooms
+  /v0.1/rooms/out:
     post:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -878,17 +878,17 @@ paths:
           schema: {}
       summary: 방 나가기
       tags:
-      - room
-  /v0.1/room/ready:
+      - Rooms
+  /v0.1/rooms/ready:
     post:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -921,17 +921,17 @@ paths:
           schema: {}
       summary: 게임 준비 상태 변경
       tags:
-      - room
-  /v0.1/room/user:
+      - Rooms
+  /v0.1/rooms/user:
     get:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
         USER_NOT_FOUND : 유저를 찾을 수 없음
         USER_ALREADY_EXISTED : 이미 존재하는 유저
-        ROOM_NOT_FOUND : 방을 찾을 수 없음
-        ROOM_FULL : 방이 꽉 참
-        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -945,7 +945,7 @@ paths:
         type: string
       - description: 방 ID
         in: query
-        name: roomID
+        name: RoomID
         required: true
         type: integer
       produces:
@@ -963,7 +963,7 @@ paths:
           schema: {}
       summary: 룸 유저 정보 가져오기
       tags:
-      - room
+      - Rooms
   /v0.1/users/{userID}:
     get:
       description: |-
