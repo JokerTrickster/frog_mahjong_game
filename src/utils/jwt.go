@@ -1,8 +1,10 @@
 package utils
 
 import (
-	"errors"
+	"fmt"
 	"time"
+
+	"context"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4/middleware"
@@ -82,29 +84,36 @@ func GenerateRefreshToken(email string, now time.Time, userID uint) (string, int
 	// Generate encoded token and send it as response.
 	refreshToken, err := token.SignedString(RefreshTokenSecretKey)
 	if err != nil {
-		return "", 0, err
+		return "", 0, ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to generate refresh token - %v", err), ErrFromInternal)
 	}
 	return refreshToken, expiredAt, nil
 }
-
-func ValidateAndParseAccessToken(tokenString string) (uint, string, error) {
+func VerifyToken(tokenString string) error {
 	// Parse the token
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return AccessTokenSecretKey, nil
 	})
 	if err != nil {
-		return 0, "", err
+		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v", token), ErrFromClient)
 	}
 
 	// Check token validity
 	if !token.Valid {
-		return 0, "", errors.New("invalid token")
+		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("invalid token - %v", token), ErrFromClient)
 	}
-
+	return nil
+}
+func ParseToken(tokenString string) (uint, string, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return AccessTokenSecretKey, nil
+	})
+	if err != nil {
+		return 0, "", ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v", token), ErrFromClient)
+	}
 	// Extract claims
 	claims, ok := token.Claims.(*JwtCustomClaims)
 	if !ok {
-		return 0, "", errors.New("failed to parse claims")
+		return 0, "", ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to extract claims - %v", token), ErrFromClient)
 	}
 
 	// Extract email and userID

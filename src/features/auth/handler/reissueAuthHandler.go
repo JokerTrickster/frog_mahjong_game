@@ -36,7 +36,7 @@ func NewReissueAuthHandler(c *echo.Echo, useCase _interface.IReissueAuthUseCase)
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param json body request.ReqReissue true "액세스 토큰, 리프레시 토큰"
 // @Produce json
-// @Success 200 {object} int
+// @Success 200 {object} response.ResReissue
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags auth
@@ -46,9 +46,9 @@ func (d *ReissueAuthHandler) Reissue(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return err
 	}
-	err := d.UseCase.Reissue(ctx, req)
+	res, err := d.UseCase.Reissue(ctx, req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	return c.JSON(http.StatusOK, res)
 }

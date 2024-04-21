@@ -19,5 +19,5 @@ type ILogoutAuthUseCase interface {
 }
 
 type IReissueAuthUseCase interface {
-	Reissue(c context.Context, req *request.ReqReissue) error
+	Reissue(c context.Context, req *request.ReqReissue) (response.ResReissue, error)
 }

@@ -20,10 +20,15 @@ func TokenChecker(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// verify & get Data
-		uID, email, err := utils.ValidateAndParseAccessToken(accessToken)
+		err := utils.VerifyToken(accessToken)
 		if err != nil {
-			return utils.ErrorMsg(ctx, utils.ErrBadToken, utils.Trace(), "invalid access token", utils.ErrFromClient)
+			return err
 		}
+		uID, email, err := utils.ParseToken(accessToken)
+		if err != nil {
+			return err
+		}
+
 		// db에서 유효한 토큰인지 체크
 		if CheckDBAccessToken(uID, accessToken) != nil {
 			return utils.ErrorMsg(ctx, utils.ErrBadToken, utils.Trace(), "invalid access token", utils.ErrFromClient)
