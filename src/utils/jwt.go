@@ -20,8 +20,8 @@ var RefreshTokenSecretKey []byte
 var JwtConfig middleware.JWTConfig
 
 const (
-	AccessTokenExpiredTime  = 1
-	RefreshTokenExpiredTime = 24 * 7
+	AccessTokenExpiredTime  = 1 * 24 //hours
+	RefreshTokenExpiredTime = 24 * 7 //hours
 )
 
 func InitJwt() error {
