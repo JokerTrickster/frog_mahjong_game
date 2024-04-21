@@ -20,3 +20,8 @@ type ILogoutAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, uID uint) error
 	DeleteToken(ctx context.Context, uID uint) error
 }
+
+type IReissueAuthRepository interface {
+	SaveToken(ctx context.Context, token mysql.Tokens) error
+	DeleteToken(ctx context.Context, uID uint) error
+}

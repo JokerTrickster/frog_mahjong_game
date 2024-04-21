@@ -14,3 +14,7 @@ type SigninAuthRepository struct {
 type LogoutAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type ReissueAuthRepository struct {
+	GormDB *gorm.DB
+}
