@@ -20,3 +20,6 @@ type ILogoutAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, uID uint) error
 	DeleteToken(ctx context.Context, uID uint) error
 }
+
+type IReissueAuthRepository interface {
+}

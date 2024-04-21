@@ -17,3 +17,7 @@ type ISigninAuthUseCase interface {
 type ILogoutAuthUseCase interface {
 	Logout(c context.Context, uID uint) error
 }
+
+type IReissueAuthUseCase interface {
+	Reissue(c context.Context, req *request.ReqReissue) error
+}

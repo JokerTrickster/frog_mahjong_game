@@ -13,3 +13,7 @@ type ISigninAuthHandler interface {
 type ILogoutAuthHandler interface {
 	Logout(c echo.Context) error
 }
+
+type IReissueAuthHandler interface {
+	Reissue(c echo.Context) error
+}
