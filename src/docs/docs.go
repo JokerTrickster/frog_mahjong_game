@@ -537,14 +537,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room": {
+        "/v0.1/rooms": {
             "get": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "방 목록 가져오기",
                 "parameters": [
@@ -579,14 +579,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room/create": {
+        "/v0.1/rooms/create": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "방 생성",
                 "parameters": [
@@ -625,14 +625,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room/join": {
+        "/v0.1/rooms/join": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "방 참여",
                 "parameters": [
@@ -671,14 +671,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room/out": {
+        "/v0.1/rooms/out": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "방 나가기",
                 "parameters": [
@@ -717,14 +717,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room/ready": {
+        "/v0.1/rooms/ready": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "게임 준비 상태 변경",
                 "parameters": [
@@ -763,14 +763,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/room/user": {
+        "/v0.1/rooms/user": {
             "get": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 참\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "room"
+                    "Rooms"
                 ],
                 "summary": "룸 유저 정보 가져오기",
                 "parameters": [
@@ -784,7 +784,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "방 ID",
-                        "name": "roomID",
+                        "name": "RoomID",
                         "in": "query",
                         "required": true
                     }
