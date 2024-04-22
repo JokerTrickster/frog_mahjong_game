@@ -19,12 +19,12 @@ func NewNextTurnGameHandler(c *echo.Echo, useCase _interface.INextTurnGameUseCas
 		UseCase: useCase,
 	}
 
-	c.POST("/v0.1/game/next-turn", handler.NextTurn, mw.TokenChecker)
+	c.PUT("/v0.1/game/next-turn", handler.NextTurn, mw.TokenChecker)
 	return handler
 }
 
 // 다음 턴 넘기기
-// @Router /v0.1/game/next-turn [post]
+// @Router /v0.1/game/next-turn [put]
 // @Summary 다음 턴 넘기기
 // @Description
 // @Description ■ errCode with 400

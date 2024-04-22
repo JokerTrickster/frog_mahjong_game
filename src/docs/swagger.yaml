@@ -299,7 +299,7 @@ paths:
       tags:
       - auth
   /v0.1/auth/reissue:
-    post:
+    put:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -401,7 +401,7 @@ paths:
       tags:
       - auth
   /v0.1/game/card/discard:
-    post:
+    put:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -479,7 +479,7 @@ paths:
       tags:
       - game
   /v0.1/game/dora:
-    post:
+    put:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -558,7 +558,7 @@ paths:
       tags:
       - game
   /v0.1/game/next-turn:
-    post:
+    put:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -837,7 +837,7 @@ paths:
       tags:
       - Rooms
   /v0.1/rooms/out:
-    post:
+    put:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -880,7 +880,7 @@ paths:
       tags:
       - Rooms
   /v0.1/rooms/ready:
-    post:
+    patch:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류

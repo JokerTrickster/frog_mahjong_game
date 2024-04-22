@@ -18,12 +18,12 @@ func NewReissueAuthHandler(c *echo.Echo, useCase _interface.IReissueAuthUseCase)
 	handler := &ReissueAuthHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/auth/reissue", handler.Reissue)
+	c.PUT("/v0.1/auth/reissue", handler.Reissue)
 	return handler
 }
 
 // 액세스 토큰 재발급
-// @Router /v0.1/auth/reissue [post]
+// @Router /v0.1/auth/reissue [put]
 // @Summary 액세스 토큰 재발급
 // @Description
 // @Description ■ errCode with 400
