@@ -18,12 +18,12 @@ func NewDoraGameHandler(c *echo.Echo, useCase _interface.IDoraGameUseCase) _inte
 	handler := &DoraGameHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/game/dora", handler.Dora, mw.TokenChecker)
+	c.PUT("/v0.1/game/dora", handler.Dora, mw.TokenChecker)
 	return handler
 }
 
 // 도라 선택하기
-// @Router /v0.1/game/dora [post]
+// @Router /v0.1/game/dora [put]
 // @Summary 도라 선택하기
 // @Description
 // @Description ■ errCode with 400

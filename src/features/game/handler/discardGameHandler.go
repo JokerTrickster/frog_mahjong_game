@@ -18,12 +18,12 @@ func NewDiscardGameHandler(c *echo.Echo, useCase _interface.IDiscardGameUseCase)
 	handler := &DiscardGameHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/game/card/discard", handler.Discard, mw.TokenChecker)
+	c.PUT("/v0.1/game/card/discard", handler.Discard, mw.TokenChecker)
 	return handler
 }
 
 // 카드 버리기
-// @Router /v0.1/game/card/discard [post]
+// @Router /v0.1/game/card/discard [put]
 // @Summary 카드 버리기
 // @Description
 // @Description ■ errCode with 400

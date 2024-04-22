@@ -18,12 +18,12 @@ func NewReadyRoomsHandler(c *echo.Echo, useCase _interface.IReadyRoomsUseCase) _
 	handler := &ReadyRoomsHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/rooms/ready", handler.Ready, mw.TokenChecker)
+	c.PATCH("/v0.1/rooms/ready", handler.Ready, mw.TokenChecker)
 	return handler
 }
 
 // 게임 준비 상태 변경
-// @Router /v0.1/rooms/ready [post]
+// @Router /v0.1/rooms/ready [patch]
 // @Summary 게임 준비 상태 변경
 // @Description
 // @Description ■ errCode with 400

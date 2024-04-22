@@ -18,12 +18,12 @@ func NewOutRoomsHandler(c *echo.Echo, useCase _interface.IOutRoomsUseCase) _inte
 	handler := &OutRoomsHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/rooms/out", handler.Out, mw.TokenChecker)
+	c.PUT("/v0.1/rooms/out", handler.Out, mw.TokenChecker)
 	return handler
 }
 
 // 방 나가기
-// @Router /v0.1/rooms/out [post]
+// @Router /v0.1/rooms/out [put]
 // @Summary 방 나가기
 // @Description
 // @Description ■ errCode with 400
