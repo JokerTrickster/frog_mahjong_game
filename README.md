@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/JokerTrickster/frog_mahjong_game/badge.svg)](https://coveralls.io/github/JokerTrickster/frog_mahjong_game)
+
 # 개굴작 보드게임
 
 ### 프로젝트 설명
