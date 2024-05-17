@@ -5,33 +5,84 @@ import (
 	"testing"
 	"time"
 
-	_errors "main/features/rooms/model/errors"
 	"main/features/rooms/model/interface/mocks"
 	"main/features/rooms/model/request"
-	"main/utils"
+	"main/utils/db/mysql"
 
 	"github.com/stretchr/testify/mock"
 	"gopkg.in/go-playground/assert.v1"
+	"gorm.io/gorm"
 )
 
 func TestOutRoomsUseCase_Out(t *testing.T) {
 	testCases := []struct {
-		name string
-		uID  uint
-		req  *request.ReqOut
-		err  error
+		name        string
+		uID         uint
+		roomDTO     mysql.Rooms
+		roomUserDTO mysql.RoomUsers
+		userDTO     mysql.Users
+		req         *request.ReqOut
+		err         error
 	}{
 		{
-			name: "Test Case 1 success",
+			name: "Test Case 1 Success 방 인원이 0명인 경우",
 			uID:  1,
-			req:  &request.ReqOut{},
-			err:  nil,
+			roomDTO: mysql.Rooms{
+				Model: gorm.Model{
+					ID: 2,
+				},
+				CurrentCount: 0,
+			},
+			roomUserDTO: mysql.RoomUsers{},
+			userDTO:     mysql.Users{},
+			req:         &request.ReqOut{},
+			err:         nil,
 		},
 		{
-			name: "Test Case 2 Failed",
+			name: "Test Case 2 Success 방 인원이 1명인 경우",
 			uID:  2,
-			req:  &request.ReqOut{},
-			err:  utils.ErrorMsg(context.TODO(), utils.ErrBadParameter, utils.Trace(), _errors.ErrRoomUserNotFound.Error(), utils.ErrFromClient),
+			roomDTO: mysql.Rooms{
+				Model: gorm.Model{
+					ID: 3,
+				},
+				CurrentCount: 1,
+			},
+			roomUserDTO: mysql.RoomUsers{
+				UserID: 2,
+				RoomID: 3,
+			},
+			userDTO: mysql.Users{
+				Model: gorm.Model{
+					ID: 2,
+				},
+				RoomID: 3,
+				Email:  "test@gmail.com",
+			},
+			req: &request.ReqOut{},
+			err: nil,
+		},
+		{
+			name: "Test Case 2 Success 방 인원이 3명인 경우",
+			uID:  2,
+			roomDTO: mysql.Rooms{
+				Model: gorm.Model{
+					ID: 3,
+				},
+				CurrentCount: 1,
+			},
+			roomUserDTO: mysql.RoomUsers{
+				UserID: 2,
+				RoomID: 3,
+			},
+			userDTO: mysql.Users{
+				Model: gorm.Model{
+					ID: 2,
+				},
+				RoomID: 3,
+				Email:  "test@gmail.com",
+			},
+			req: &request.ReqOut{},
+			err: nil,
 		},
 	}
 
@@ -40,8 +91,15 @@ func TestOutRoomsUseCase_Out(t *testing.T) {
 			//given
 			mockOutRoomRepository := new(mocks.IOutRoomsRepository)
 			mockOutRoomRepository.On("FindOneAndDeleteRoomUser", mock.Anything, mock.Anything, mock.Anything).Return(tc.err) //mock
-			mockOutRoomRepository.On("FindOneAndUpdateRoom", mock.Anything, mock.Anything).Return(nil)
+			mockOutRoomRepository.On("FindOneAndUpdateRoom", mock.Anything, mock.Anything).Return(tc.roomDTO, nil)
 			mockOutRoomRepository.On("FindOneAndUpdateUser", mock.Anything, mock.Anything).Return(nil)
+			if tc.roomDTO.CurrentCount == 0 {
+				mockOutRoomRepository.On("FindOneAndDeleteRoom", mock.Anything, mock.Anything).Return(nil)
+			} else {
+				mockOutRoomRepository.On("FindOneRoomUser", mock.Anything, mock.Anything).Return(tc.roomUserDTO, nil)
+				mockOutRoomRepository.On("FindOneUser", mock.Anything, mock.Anything).Return(tc.userDTO, nil)
+				mockOutRoomRepository.On("ChangeRoomOnwer", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			}
 
 			us := NewOutRoomsUseCase(mockOutRoomRepository, 8*time.Second)
 			//when

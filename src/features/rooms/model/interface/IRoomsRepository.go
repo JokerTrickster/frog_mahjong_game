@@ -22,8 +22,12 @@ type IJoinRoomsRepository interface {
 
 type IOutRoomsRepository interface {
 	FindOneAndDeleteRoomUser(ctx context.Context, uID uint, RoomID uint) error
-	FindOneAndUpdateRoom(ctx context.Context, RoomID uint) error
+	FindOneAndUpdateRoom(ctx context.Context, RoomID uint) (mysql.Rooms, error)
 	FindOneAndUpdateUser(ctx context.Context, uID uint) error
+	FindOneAndDeleteRoom(ctx context.Context, RoomID uint) error
+	FindOneRoomUser(ctx context.Context, RoomID uint) (mysql.RoomUsers, error)
+	ChangeRoomOnwer(ctx context.Context, RoomID uint, owner string) error
+	FindOneUser(ctx context.Context, uID uint) (mysql.Users, error)
 }
 
 type IReadyRoomsRepository interface {
