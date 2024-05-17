@@ -13,23 +13,67 @@ import (
 func NewOutRoomsRepository(gormDB *gorm.DB) _interface.IOutRoomsRepository {
 	return &OutRoomsRepository{GormDB: gormDB}
 }
+func (g *OutRoomsRepository) FindOneUser(ctx context.Context, uID uint) (mysql.Users, error) {
+	var user mysql.Users
+	result := g.GormDB.WithContext(ctx).Where("id = ?", uID).First(&user)
+	if result.Error != nil {
+		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+	}
+	return user, nil
+}
+
+func (g *OutRoomsRepository) ChangeRoomOnwer(ctx context.Context, RoomID uint, owner string) error {
+	var room mysql.Rooms
+	result := g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Update("owner", owner)
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+	}
+	return nil
+}
+
+func (g *OutRoomsRepository) FindOneRoomUser(ctx context.Context, RoomID uint) (mysql.RoomUsers, error) {
+	var roomUser mysql.RoomUsers
+	result := g.GormDB.WithContext(ctx).Where("room_id = ?", RoomID).First(&roomUser)
+	if result.Error != nil {
+		return mysql.RoomUsers{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+	}
+	return roomUser, nil
+}
+
+// 방 삭제
+func (g *OutRoomsRepository) FindOneAndDeleteRoom(ctx context.Context, RoomID uint) error {
+	var room mysql.Rooms
+	result := g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Delete(&room)
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
+	}
+	return nil
+}
+
+//
 
 func (g *OutRoomsRepository) FindOneAndDeleteRoomUser(ctx context.Context, uID uint, RoomsID uint) error {
-	result := g.GormDB.WithContext(ctx).Where("user_id = ? and Rooms_id = ?", uID, RoomsID).Delete(&mysql.RoomUsers{})
+	result := g.GormDB.WithContext(ctx).Where("user_id = ? and room_id = ?", uID, RoomsID).Delete(&mysql.RoomUsers{})
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), _errors.ErrRoomUserNotFound.Error(), utils.ErrFromClient)
 	}
 	return nil
 }
 
-func (g *OutRoomsRepository) FindOneAndUpdateRoom(ctx context.Context, RoomID uint) error {
+func (g *OutRoomsRepository) FindOneAndUpdateRoom(ctx context.Context, RoomID uint) (mysql.Rooms, error) {
 	// 방 인원 -1
-	result := g.GormDB.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count - 1"))
+	var room mysql.Rooms
+	result := g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).First(&room)
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
-
+		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
 	}
-	return nil
+	room.CurrentCount--
+	result = g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Updates(room)
+	if result.Error != nil {
+		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+	}
+
+	return room, nil
 }
 
 func (g *OutRoomsRepository) FindOneAndUpdateUser(ctx context.Context, uID uint) error {
