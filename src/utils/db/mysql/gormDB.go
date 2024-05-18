@@ -28,7 +28,7 @@ type Rooms struct {
 	Name         string `json:"name" gorm:"column:name"`
 	Password     string `json:"password" gorm:"column:password"`
 	State        string `json:"state" gorm:"column:state"` //wait, play, end
-	Owner        string `json:"owner" gorm:"column:owner"`
+	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
 }
 
 type RoomUsers struct {

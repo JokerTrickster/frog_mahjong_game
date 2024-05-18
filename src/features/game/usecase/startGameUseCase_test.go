@@ -26,7 +26,7 @@ func TestStartGameUseCase_Start(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		email       string
+		uID         uint
 		req         request.ReqStart
 		roomDTO     mysql.Rooms
 		roomUserDTO []mysql.RoomUsers
@@ -34,8 +34,8 @@ func TestStartGameUseCase_Start(t *testing.T) {
 		err         error
 	}{
 		{
-			name:  "game start success",
-			email: "ryan@gmail.com",
+			name: "game start success",
+			uID:  1,
 			req: request.ReqStart{
 				RoomID: 1,
 				State:  "play",
@@ -47,7 +47,7 @@ func TestStartGameUseCase_Start(t *testing.T) {
 				Name:         "test",
 				Password:     "",
 				State:        "wait",
-				Owner:        "ryan@gamil.com",
+				OwnerID:      1,
 			},
 			roomUserDTO: []mysql.RoomUsers{
 				{
@@ -111,8 +111,8 @@ func TestStartGameUseCase_Start(t *testing.T) {
 			}, err: nil,
 		},
 		{
-			name:  "owner did not request start",
-			email: "joker@gmail.com",
+			name: "owner did not request start",
+			uID:  1,
 			req: request.ReqStart{
 				RoomID: 1,
 				State:  "play",
@@ -124,7 +124,7 @@ func TestStartGameUseCase_Start(t *testing.T) {
 				Name:         "test",
 				Password:     "",
 				State:        "wait",
-				Owner:        "ryan@gmail.com",
+				OwnerID:      2,
 			},
 			roomUserDTO: []mysql.RoomUsers{
 				{
@@ -160,7 +160,7 @@ func TestStartGameUseCase_Start(t *testing.T) {
 			uc := NewStartGameUseCase(mockStartGameRepository, 8*time.Second)
 
 			// When
-			err := uc.Start(context.Background(), tt.email, &tt.req)
+			err := uc.Start(context.Background(), tt.uID, &tt.req)
 
 			// Then
 			assert.Equal(t, tt.err, err)

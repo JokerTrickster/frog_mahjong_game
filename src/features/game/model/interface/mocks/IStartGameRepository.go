@@ -14,17 +14,17 @@ type IStartGameRepository struct {
 	mock.Mock
 }
 
-// CheckOwner provides a mock function with given fields: c, email, roomID
-func (_m *IStartGameRepository) CheckOwner(c context.Context, email string, roomID uint) error {
-	ret := _m.Called(c, email, roomID)
+// CheckOwner provides a mock function with given fields: c, uID, roomID
+func (_m *IStartGameRepository) CheckOwner(c context.Context, uID uint, roomID uint) error {
+	ret := _m.Called(c, uID, roomID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckOwner")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, uint) error); ok {
-		r0 = rf(c, email, roomID)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) error); ok {
+		r0 = rf(c, uID, roomID)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -22,7 +22,21 @@ CREATE TABLE users (
 	room_id INT
 );
   
-  CREATE TABLE rooms (
+--   CREATE TABLE rooms (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP NULL DEFAULT NULL,
+--     current_count INT,
+--     max_count INT,
+--     min_count INT,
+--     name VARCHAR(255),
+--     password VARCHAR(255),
+--     state VARCHAR(50),
+--     owner VARCHAR(255)
+-- );
+
+CREATE TABLE rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -33,7 +47,8 @@ CREATE TABLE users (
     name VARCHAR(255),
     password VARCHAR(255),
     state VARCHAR(50),
-    owner VARCHAR(255)
+    owner_id INT,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
 

@@ -15,13 +15,13 @@ func NewStartGameRepository(gormDB *gorm.DB) _interface.IStartGameRepository {
 }
 
 // 방장이 시작했는지 체크
-func (g *StartGameRepository) CheckOwner(c context.Context, email string, roomID uint) error {
+func (g *StartGameRepository) CheckOwner(c context.Context, uID uint, roomID uint) error {
 	room := mysql.Rooms{}
 	err := g.GormDB.Where("id = ?", roomID).First(&room).Error
 	if err != nil {
 		return utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)
 	}
-	if room.Owner != email {
+	if room.OwnerID != int(uID) {
 		return utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrNotOwner.Error(), utils.ErrFromClient)
 	}
 	return nil

@@ -17,11 +17,11 @@ func NewStartGameUseCase(repo _interface.IStartGameRepository, timeout time.Dura
 	return &StartGameUseCase{Repository: repo, ContextTimeout: timeout}
 }
 
-func (d *StartGameUseCase) Start(c context.Context, email string, req *request.ReqStart) error {
+func (d *StartGameUseCase) Start(c context.Context, uID uint, req *request.ReqStart) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 	// 방장이 게임 시작 요청했는지 체크
-	err := d.Repository.CheckOwner(ctx, email, req.RoomID)
+	err := d.Repository.CheckOwner(ctx, uID, req.RoomID)
 	if err != nil {
 		return err
 	}

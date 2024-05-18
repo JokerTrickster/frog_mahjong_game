@@ -25,7 +25,7 @@ type Rooms struct {
 	Name         string `json:"name"`         //방 이름
 	Password     string `json:"password"`     //방 비밀번호 (옵셔널))
 	State        string `json:"state"`        //방 상태 (대기, 진행, 종료)
-	Owner        string `json:"owner"`        //방 주인
+	OwnerID      int    `json:"ownerID"`      //방 주인 아이디
 }
 
 type RoomUsers struct {

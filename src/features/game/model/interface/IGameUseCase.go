@@ -6,7 +6,7 @@ import (
 )
 
 type IStartGameUseCase interface {
-	Start(c context.Context, email string, req *request.ReqStart) error
+	Start(c context.Context, uID uint, req *request.ReqStart) error
 }
 
 type IDoraGameUseCase interface {
