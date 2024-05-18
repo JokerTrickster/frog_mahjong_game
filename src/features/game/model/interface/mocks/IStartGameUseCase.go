@@ -14,17 +14,17 @@ type IStartGameUseCase struct {
 	mock.Mock
 }
 
-// Start provides a mock function with given fields: c, email, req
-func (_m *IStartGameUseCase) Start(c context.Context, email string, req *request.ReqStart) error {
-	ret := _m.Called(c, email, req)
+// Start provides a mock function with given fields: c, uID, req
+func (_m *IStartGameUseCase) Start(c context.Context, uID uint, req *request.ReqStart) error {
+	ret := _m.Called(c, uID, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Start")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *request.ReqStart) error); ok {
-		r0 = rf(c, email, req)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, *request.ReqStart) error); ok {
+		r0 = rf(c, uID, req)
 	} else {
 		r0 = ret.Error(0)
 	}

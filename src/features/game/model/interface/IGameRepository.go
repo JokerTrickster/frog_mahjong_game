@@ -7,7 +7,7 @@ import (
 )
 
 type IStartGameRepository interface {
-	CheckOwner(c context.Context, email string, roomID uint) error
+	CheckOwner(c context.Context, uID uint, roomID uint) error
 	CheckReady(c context.Context, roomID uint) ([]mysql.RoomUsers, error)
 	UpdateRoomUser(c context.Context, updateRoomUsers []mysql.RoomUsers) error
 	UpdateRoom(c context.Context, roomID uint, state string) error

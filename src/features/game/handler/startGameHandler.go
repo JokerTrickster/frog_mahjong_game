@@ -41,12 +41,12 @@ func NewStartGameHandler(c *echo.Echo, useCase _interface.IStartGameUseCase) _in
 // @Failure 500 {object} error
 // @Tags game
 func (d *StartGameHandler) Start(c echo.Context) error {
-	ctx, _, email := utils.CtxGenerate(c)
+	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqStart{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		return err
 	}
-	err := d.UseCase.Start(ctx, email, req)
+	err := d.UseCase.Start(ctx, uID, req)
 	if err != nil {
 		return err
 	}
