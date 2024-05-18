@@ -56,18 +56,18 @@ func TestCreateRoomsUseCase_Create(t *testing.T) {
 // Path: src/features/rooms/usecase/createRoomUseCase_test.go
 func TestCreateRoomDTO(t *testing.T) {
 	tests := []struct {
-		name  string
-		req   request.ReqCreate
-		email string
-		err   error
+		name string
+		req  request.ReqCreate
+		uID  uint
+		err  error
 	}{
-		{"success1", request.ReqCreate{Name: "test", MaxCount: 4, MinCount: 2, Password: ""}, "ryan@gmail.com", nil},
+		{"success1", request.ReqCreate{Name: "test", MaxCount: 4, MinCount: 2, Password: ""}, 1, nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			//given
 			//when
-			_, err := CreateRoomDTO(context.TODO(), &tt.req, tt.email)
+			_, err := CreateRoomDTO(context.TODO(), &tt.req, tt.uID)
 			//then
 			assert.Equal(t, tt.err, err)
 		})

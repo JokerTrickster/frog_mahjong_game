@@ -22,7 +22,7 @@ func (d *CreateRoomsUseCase) Create(c context.Context, uID uint, email string, r
 	defer cancel()
 
 	// Rooms create
-	RoomsDTO, err := CreateRoomDTO(ctx, req, email)
+	RoomsDTO, err := CreateRoomDTO(ctx, req, uID)
 	if err != nil {
 		return response.ResCreateRoom{}, err
 	}

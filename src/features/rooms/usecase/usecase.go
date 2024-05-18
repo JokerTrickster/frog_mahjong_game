@@ -11,7 +11,7 @@ import (
 func CreateResUserListRoom(userList []response.User, rooms mysql.Rooms) response.ResUserListRoom {
 	res := response.ResUserListRoom{}
 	for i := 0; i < len(userList); i++ {
-		if userList[i].UserEmail == rooms.Owner {
+		if userList[i].UserID == rooms.OwnerID {
 			userList[i].Owner = true
 		} else {
 			userList[i].Owner = false
@@ -21,7 +21,7 @@ func CreateResUserListRoom(userList []response.User, rooms mysql.Rooms) response
 	return res
 }
 
-func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (mysql.Rooms, error) {
+func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, uID uint) (mysql.Rooms, error) {
 
 	result := mysql.Rooms{
 		CurrentCount: 1,
@@ -29,7 +29,7 @@ func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, email string) (m
 		MinCount:     req.MinCount,
 		Name:         req.Name,
 		State:        "wait",
-		Owner:        email,
+		OwnerID:      int(uID),
 	}
 	if req.Password != "" {
 		result.Password = req.Password
@@ -59,7 +59,7 @@ func CreateResListRoom(rooms []mysql.Rooms, total int) (response.ResListRoom, er
 			MinCount:     rooms[i].MinCount,
 			Name:         rooms[i].Name,
 			State:        rooms[i].State,
-			Owner:        rooms[i].Owner,
+			OwnerID:      rooms[i].OwnerID,
 			Created:      utils.TimeToEpochMillis(rooms[i].CreatedAt),
 		}
 		RoomList = append(RoomList, room)

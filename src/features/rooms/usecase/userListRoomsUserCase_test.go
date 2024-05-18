@@ -73,7 +73,7 @@ func TestUserListRoosmUseCase_UserList(t *testing.T) {
 				MinCount:     2,
 				Name:         "test",
 				State:        "wait",
-				Owner:        "test1",
+				OwnerID:      1,
 			},
 			err: nil,
 		},
