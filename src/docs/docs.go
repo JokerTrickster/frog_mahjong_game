@@ -1121,8 +1121,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner": {
-                    "type": "string"
+                "ownerID": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string"

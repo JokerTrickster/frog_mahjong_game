@@ -44,7 +44,7 @@ func TestJoinRoomsUseCase_Join(t *testing.T) {
 				Name:         "test",
 				Password:     "",
 				State:        "wait",
-				Owner:        "ryan",
+				OwnerID:      1,
 			},
 			roomUserDTO: mysql.RoomUsers{
 				UserID:         1,
@@ -70,7 +70,7 @@ func TestJoinRoomsUseCase_Join(t *testing.T) {
 				Name:         "test",
 				Password:     "",
 				State:        "wait",
-				Owner:        "ryan",
+				OwnerID:      1,
 			},
 			roomUserDTO: mysql.RoomUsers{
 				UserID:         1,
