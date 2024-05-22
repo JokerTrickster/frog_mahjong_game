@@ -796,6 +796,43 @@
                 }
             }
         },
+        "/v0.1/users": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "유저 정보 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResListUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/users/{userID}": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -842,6 +879,61 @@
         }
     },
     "definitions": {
+        "main_features_rooms_model_response.User": {
+            "type": "object",
+            "properties": {
+                "ownedCardCount": {
+                    "type": "integer"
+                },
+                "owner": {
+                    "type": "boolean"
+                },
+                "playerState": {
+                    "type": "string"
+                },
+                "roomID": {
+                    "type": "integer"
+                },
+                "roomUserID": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "turnNumber": {
+                    "type": "integer"
+                },
+                "userEmail": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "main_features_users_model_response.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.Card": {
             "type": "object",
             "properties": {
@@ -1165,6 +1257,20 @@
                 }
             }
         },
+        "response.ResListUser": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main_features_users_model_response.User"
+                    }
+                }
+            }
+        },
         "response.ResReissue": {
             "type": "object",
             "properties": {
@@ -1207,43 +1313,8 @@
                 "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.User"
+                        "$ref": "#/definitions/main_features_rooms_model_response.User"
                     }
-                }
-            }
-        },
-        "response.User": {
-            "type": "object",
-            "properties": {
-                "ownedCardCount": {
-                    "type": "integer"
-                },
-                "owner": {
-                    "type": "boolean"
-                },
-                "playerState": {
-                    "type": "string"
-                },
-                "roomID": {
-                    "type": "integer"
-                },
-                "roomUserID": {
-                    "type": "integer"
-                },
-                "score": {
-                    "type": "integer"
-                },
-                "turnNumber": {
-                    "type": "integer"
-                },
-                "userEmail": {
-                    "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
-                },
-                "userName": {
-                    "type": "string"
                 }
             }
         }

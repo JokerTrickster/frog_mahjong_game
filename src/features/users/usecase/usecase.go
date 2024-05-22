@@ -12,3 +12,21 @@ func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
 		Name:   userDTO.Name,
 	}
 }
+
+func CreateResListUser(users []mysql.Users, total int) response.ResListUser {
+	res := response.ResListUser{}
+	UserList := make([]response.User, 0, len(users))
+	for i := 0; i < len(users); i++ {
+		user := response.User{
+			UserID: int(users[i].ID),
+			Name:   users[i].Name,
+			Email:  users[i].Email,
+			State:  users[i].State,
+			Score:  users[i].Score,
+		}
+		UserList = append(UserList, user)
+	}
+	res.Users = UserList
+	res.Total = total
+	return res
+}
