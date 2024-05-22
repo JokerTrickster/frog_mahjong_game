@@ -10,4 +10,5 @@ import (
 
 func NewUsersHandler(c *echo.Echo) {
 	NewGetUsersHandler(c, usecase.NewGetUsersUseCase(repository.NewGetUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewListUsersHandler(c, usecase.NewListUsersUseCase(repository.NewListUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

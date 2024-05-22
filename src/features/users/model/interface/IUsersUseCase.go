@@ -8,3 +8,7 @@ import (
 type IGetUsersUseCase interface {
 	Get(c context.Context, userID int) (response.ResGetUser, error)
 }
+
+type IListUsersUseCase interface {
+	List(c context.Context) (response.ResListUser, error)
+}
