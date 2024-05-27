@@ -50,7 +50,7 @@ jobs:
     runs-on: self-hosted
     needs: [merge, test]
     env:
-      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
+      REPO_DOMAIN: 730335282594.dkr.ecr.ap-northeast-2.amazonaws.com
       REPO_URL: frog
       CLUSTER_NAME: frog
       REGION: us-east-1
