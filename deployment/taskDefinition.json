@@ -80,8 +80,8 @@
             "privileged": false
         }
     ],
-    "taskRoleArn": "arn:aws:iam::590184071739:role/dev_frog_default_task_role",
-    "executionRoleArn": "arn:aws:iam::590184071739:role/dev_frog_default_task_execution_role",
+    "taskRoleArn": "arn:aws:iam::730335282594:role/dev_frog_default_task_role",
+    "executionRoleArn": "arn:aws:iam::730335282594:role/dev_frog_default_task_execution_role",
     "networkMode": "awsvpc",
     "volumes": [],
     "placementConstraints": [],
