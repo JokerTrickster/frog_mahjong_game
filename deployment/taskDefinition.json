@@ -4,7 +4,7 @@
         {
             "image": "__REPO_DOMAIN__/__REPO_URL__@__IMAGE_DIGEST__",
             "name": "__ENV___frog",
-            "cpu": 2048,
+            "cpu": 1024,
             "memoryReservation": __MEM__,
             "environment": [
                 {
