@@ -19,6 +19,22 @@ func AwsSsmGetParam(path string) (string, error) {
 
 	return aws.ToString(param.Parameter.Value), nil
 }
+func AwsSsmGetParams(paths []string) ([]string, error) {
+	ctx := context.TODO()
+	params, err := AwsClientSsm.GetParameters(ctx, &ssm.GetParametersInput{
+		Names:          paths,
+		WithDecryption: PointerTrue(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	var values []string
+	for _, param := range params.Parameters {
+		values = append(values, aws.ToString(param.Value))
+	}
+	return values, nil
+
+}
 
 func PointerTrue() *bool {
 	t := true

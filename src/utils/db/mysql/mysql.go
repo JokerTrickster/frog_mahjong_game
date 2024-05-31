@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	_aws "main/utils/aws"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
@@ -18,15 +20,31 @@ var GormMysqlDB *gorm.DB
 const DBTimeOut = 8 * time.Second
 
 func InitMySQL() error {
-	// MySQL 연결 문자열
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		os.Getenv("MYSQL_USER"),
-		os.Getenv("MYSQL_PASSWORD"),
-		os.Getenv("MYSQL_HOST"),
-		os.Getenv("MYSQL_PORT"),
-		os.Getenv("MYSQL_DATABASE"),
-	)
-	fmt.Println(connectionString)
+	var connectionString string
+	var err error
+	isLocal := os.Getenv("IS_LOCAL")
+	if isLocal == "true" {
+		// MySQL 연결 문자열
+		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			os.Getenv("MYSQL_USER"),
+			os.Getenv("MYSQL_PASSWORD"),
+			os.Getenv("MYSQL_HOST"),
+			os.Getenv("MYSQL_PORT"),
+			os.Getenv("MYSQL_DATABASE"),
+		)
+	} else {
+		dbInfos, err := _aws.AwsSsmGetParams([]string{"dev_mysql_user", "dev_mysql_password", "dev_mysql_host", "dev_mysql_port", "dev_mysql_db"})
+		if err != nil {
+			return err
+		}
+		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			dbInfos[4], //user
+			dbInfos[2], //port
+			dbInfos[1], //password
+			dbInfos[3], //host
+			dbInfos[0], //db name
+		)
+	}
 
 	// MySQL에 연결
 	MysqlDB, err := sql.Open("mysql", connectionString)
