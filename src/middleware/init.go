@@ -14,6 +14,8 @@ import (
 var Store = sessions.NewCookieStore([]byte("secret"))
 
 func InitMiddleware(e *echo.Echo) error {
+	e.Use(middleware.Recover())
+
 	//cors 미들웨어 설정
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},

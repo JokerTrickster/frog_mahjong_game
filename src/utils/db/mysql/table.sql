@@ -1,4 +1,4 @@
-CREATE TABLE TOKENS (
+CREATE TABLE tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -6,7 +6,7 @@ CREATE TABLE TOKENS (
     refresh_expired_at INT,
     user_id INT,
     access_token VARCHAR(255),
-    refresh_token VARCHAR(255),
+    refresh_token VARCHAR(255)
 );
 
 CREATE TABLE users (
@@ -22,20 +22,6 @@ CREATE TABLE users (
 	room_id INT
 );
   
---   CREATE TABLE rooms (
---     id INT AUTO_INCREMENT PRIMARY KEY,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     deleted_at TIMESTAMP NULL DEFAULT NULL,
---     current_count INT,
---     max_count INT,
---     min_count INT,
---     name VARCHAR(255),
---     password VARCHAR(255),
---     state VARCHAR(50),
---     owner VARCHAR(255)
--- );
-
 CREATE TABLE rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -47,8 +33,7 @@ CREATE TABLE rooms (
     name VARCHAR(255),
     password VARCHAR(255),
     state VARCHAR(50),
-    owner_id INT,
-    FOREIGN KEY (owner_id) REFERENCES users(id)
+    owner_id INT
 );
 
 
@@ -80,8 +65,7 @@ CREATE TABLE cards (
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-alter table users ADD CONSTRAINT fk_room_id FOREIGN KEY (room_id) REFERENCES rooms(id);
 
 # rooms 대기방 생성
-INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner)
-VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', '');	
+INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
+VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
