@@ -86,7 +86,7 @@ jobs:
           echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
           echo "TASK_DEFINITION_NAME=${GITHUB_REF#refs/heads/}_frog" >> $GITHUB_OUTPUT
           echo "SERVICE_NAME=${GITHUB_REF#refs/heads/}_frog" >> $GITHUB_OUTPUT
-          echo "MEM=512" >> $GITHUB_OUTPUT
+          echo "MEM=412" >> $GITHUB_OUTPUT
        
       - name: login to ECR
         run: |
