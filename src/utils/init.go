@@ -17,7 +17,7 @@ func InitServer() error {
 		return err
 	}
 	if err := _aws.InitAws(); err != nil {
-		fmt.Sprintf("cors 초기화 에러 : %s", err.Error())
+		fmt.Sprintf("aws 초기화 에러 : %s", err.Error())
 		return err
 	}
 

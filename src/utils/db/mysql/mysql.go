@@ -45,13 +45,12 @@ func InitMySQL() error {
 			dbInfos[0], //db name
 		)
 	}
-
+	fmt.Println(connectionString)
 	// MySQL에 연결
 	MysqlDB, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		fmt.Println("Failed to connect to MySQL!")
 		fmt.Sprintln("에러 메시지 %s", err)
-
 	}
 	fmt.Println("Connected to MySQL!")
 
