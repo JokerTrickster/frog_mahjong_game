@@ -32,14 +32,12 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 		if c.Response().Status == 404 {
 			err = utils.ErrorMsg(context.TODO(), utils.ErrNotFound, "", fmt.Sprintf("Invalid url call : %s", url), utils.ErrFromClient)
 		}
-		fmt.Println(err)
 		if err != nil {
 			resError = ErrorParsing(err.Error())
 			resCode = resError.HttpCode
 		} else {
 			resCode = c.Response().Status
 		}
-
 		// 로깅
 		logging := utils.Log{}
 		logging.MakeLog("", url, req.Method, startTime, resCode, requestID)

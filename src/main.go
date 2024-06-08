@@ -33,7 +33,7 @@ func main() {
 		swaggerDocs.SwaggerInfo.Host = "localhost:8080"
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	} else {
-		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.breathings.net", utils.Env.Env, "frog")
+		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.jokertrickster.com", utils.Env.Env, "frog")
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
 	e.HideBanner = true
