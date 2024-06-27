@@ -34,4 +34,5 @@ type IGoogleOauthCallbackAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.GoogleOauthCallbackSQLQuery) (*mysql.Users, error)
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
+	CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error)
 }

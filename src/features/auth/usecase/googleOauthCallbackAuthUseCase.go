@@ -2,11 +2,14 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"main/features/auth/model/entity"
 	_interface "main/features/auth/model/interface"
 	"main/features/auth/model/response"
 	"main/utils"
+	"main/utils/db/mysql"
 	"time"
 )
 
@@ -27,18 +30,29 @@ func (d *GoogleOauthCallbackAuthUseCase) GoogleOauthCallback(c context.Context, 
 	if err != nil {
 		return response.GoogleOauthCallbackRes{}, err
 	}
-	fmt.Println(data)
+	var googleUser entity.GoogleUser
+
+	// JSON 파싱
+	if err := json.Unmarshal(data, &googleUser); err != nil {
+		log.Fatalf("Error parsing JSON: %v", err)
+	}
+
 	sqlEntity := &entity.GoogleOauthCallbackSQLQuery{}
+	var user *mysql.Users
 	//유저 체크 후 있으면 로그인 처리
-	user, err := d.Repository.FindOneAndUpdateUser(ctx, sqlEntity)
+	user, err = d.Repository.FindOneAndUpdateUser(ctx, sqlEntity)
 	if err != nil {
 		return response.GoogleOauthCallbackRes{}, err
 	}
-
+	fmt.Println(user)
 	//유저가 없으면 새로 생성한다.
 	if user == nil {
 		//유저 생성
-
+		userCreateSQLEntity := CreateUserSQL(googleUser.Email)
+		user, err = d.Repository.CreateUser(ctx, userCreateSQLEntity)
+		if err != nil {
+			return response.GoogleOauthCallbackRes{}, err
+		}
 	}
 
 	//토큰 생성

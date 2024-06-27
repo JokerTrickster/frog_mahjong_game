@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"main/utils/aws"
 
 	"golang.org/x/oauth2"
@@ -19,7 +18,6 @@ func InitGoogleOauth() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(clientID, clientSecret)
 	GoogleConfig = oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,

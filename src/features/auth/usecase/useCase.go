@@ -4,13 +4,23 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"io/ioutil"
 	"main/features/auth/model/request"
 	"main/utils"
 	"main/utils/db/mysql"
 	"net/http"
 )
+
+func CreateUserSQL(email string) *mysql.Users {
+	return &mysql.Users{
+		Name:     email,
+		Email:    email,
+		State:    "wait",
+		Score:    30,
+		RoomID:   1,
+		Provider: "google",
+	}
+}
 
 func CreateTokenDTO(uID uint, accessToken string, accessTknExpiredAt int64, refreshToken string, refreshTknExpiredAt int64) mysql.Tokens {
 	return mysql.Tokens{
@@ -29,6 +39,7 @@ func CreateSignupUser(req *request.ReqSignup) mysql.Users {
 		Score:    30,
 		RoomID:   1,
 		State:    "logout",
+		Provider: "email",
 	}
 }
 
@@ -50,23 +61,21 @@ func GenerateStateOauthCookie(ctx context.Context) string {
 	return state
 }
 
-func getGoogleUserInfo(ctx context.Context, accessToken string) (string, error) {
-	fmt.Println("accessToken: ", accessToken)
+func getGoogleUserInfo(ctx context.Context, accessToken string) ([]byte, error) {
 	token, err := utils.GoogleConfig.Exchange(ctx, accessToken)
-	fmt.Println(token)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token.AccessToken)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(content), nil
+	return content, nil
 }
