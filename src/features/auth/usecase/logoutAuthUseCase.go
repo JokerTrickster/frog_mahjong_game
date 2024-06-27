@@ -7,16 +7,16 @@ import (
 )
 
 type LogoutAuthUseCase struct {
-	Repository        _interface.ILogoutAuthRepository
-	ContextTimeLogout time.Duration
+	Repository     _interface.ILogoutAuthRepository
+	ContextTimeout time.Duration
 }
 
-func NewLogoutAuthUseCase(repo _interface.ILogoutAuthRepository, timeLogout time.Duration) _interface.ILogoutAuthUseCase {
-	return &LogoutAuthUseCase{Repository: repo, ContextTimeLogout: timeLogout}
+func NewLogoutAuthUseCase(repo _interface.ILogoutAuthRepository, timeout time.Duration) _interface.ILogoutAuthUseCase {
+	return &LogoutAuthUseCase{Repository: repo, ContextTimeout: timeout}
 }
 
 func (d *LogoutAuthUseCase) Logout(c context.Context, uID uint) error {
-	ctx, cancel := context.WithTimeout(c, d.ContextTimeLogout)
+	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 	err := d.Repository.FindOneAndUpdateUser(ctx, uID)
 	if err != nil {

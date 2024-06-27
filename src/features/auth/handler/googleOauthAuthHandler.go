@@ -2,11 +2,10 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/auth/model/interface"
-	"main/features/auth/model/request"
 	"main/utils"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,12 +18,12 @@ func NewGoogleOauthAuthHandler(c *echo.Echo, useCase _interface.IGoogleOauthAuth
 	handler := &GoogleOauthAuthHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/auth/google", handler.GoogleOauth)
+	c.GET("/v0.1/auth/google", handler.GoogleOauth)
 	return handler
 }
 
 // google oauth 로그인
-// @Router /v0.1/auth/google [post]
+// @Router /v0.1/auth/google [get]
 // @Summary google oauth 로그인
 // @Description
 // @Description ■ errCode with 400
@@ -35,7 +34,6 @@ func NewGoogleOauthAuthHandler(c *echo.Echo, useCase _interface.IGoogleOauthAuth
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
-// @Param json body request.ReqGoogleOauth true "json body"
 // @Produce json
 // @Success 200 {object} bool
 // @Failure 400 {object} error
@@ -43,14 +41,14 @@ func NewGoogleOauthAuthHandler(c *echo.Echo, useCase _interface.IGoogleOauthAuth
 // @Tags auth
 func (d *GoogleOauthAuthHandler) GoogleOauth(c echo.Context) error {
 	ctx := context.Background()
-	req := &request.ReqGoogleOauth{}
-	if err := utils.ValidateReq(c, req); err != nil {
-		return err
-	}
-	fmt.Println(req.Credential)
-	err := d.UseCase.GoogleOauth(ctx)
+	state, err := d.UseCase.GoogleOauth(ctx)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, true)
+	cookie := new(http.Cookie)
+	cookie.Name = "state"
+	cookie.Value = state
+	cookie.Expires = time.Now().Add(1 * time.Minute)
+	c.SetCookie(cookie)
+	return c.Redirect(http.StatusTemporaryRedirect, utils.GoogleConfig.AuthCodeURL(state))
 }

@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/auth/model/entity"
 	"main/utils/db/mysql"
 )
 
@@ -27,4 +28,10 @@ type IReissueAuthRepository interface {
 }
 
 type IGoogleOauthAuthRepository interface {
+}
+
+type IGoogleOauthCallbackAuthRepository interface {
+	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.GoogleOauthCallbackSQLQuery) (*mysql.Users, error)
+	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
+	DeleteToken(ctx context.Context, uID uint) error
 }

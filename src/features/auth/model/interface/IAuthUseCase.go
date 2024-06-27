@@ -23,5 +23,9 @@ type IReissueAuthUseCase interface {
 }
 
 type IGoogleOauthAuthUseCase interface {
-	GoogleOauth(c context.Context) error
+	GoogleOauth(c context.Context) (string, error)
+}
+
+type IGoogleOauthCallbackAuthUseCase interface {
+	GoogleOauthCallback(c context.Context, code string) (response.GoogleOauthCallbackRes, error)
 }

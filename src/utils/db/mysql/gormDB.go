@@ -18,6 +18,7 @@ type Users struct {
 	Score    int    `json:"score" gorm:"column:score"`
 	State    string `json:"state" gorm:"column:state"` //logout, wait, play
 	RoomID   int    `json:"roomID" gorm:"column:room_id"`
+	Provider string `json:"provider" gorm:"column:provider"`
 }
 
 type Rooms struct {

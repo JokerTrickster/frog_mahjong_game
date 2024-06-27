@@ -21,6 +21,11 @@ func InitServer() error {
 		return err
 	}
 
+	if err := InitGoogleOauth(); err != nil {
+		fmt.Sprintf("google oauth 초기화 에러 : %s", err.Error())
+		return err
+	}
+
 	// if err := postgresql.InitPostgreSQL(); err != nil {
 	// 	fmt.Sprintf("db 초기화 에러 : %s", err.Error())
 	// 	return err

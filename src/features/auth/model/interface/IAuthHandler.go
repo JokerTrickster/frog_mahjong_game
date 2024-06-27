@@ -21,3 +21,6 @@ type IReissueAuthHandler interface {
 type IGoogleOauthAuthHandler interface {
 	GoogleOauth(c echo.Context) error
 }
+type IGoogleOauthCallbackAuthHandler interface {
+	GoogleOauthCallback(c echo.Context) error
+}

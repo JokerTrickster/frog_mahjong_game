@@ -13,6 +13,7 @@ import (
 func NewSigninAuthRepository(gormDB *gorm.DB) _interface.ISigninAuthRepository {
 	return &SigninAuthRepository{GormDB: gormDB}
 }
+
 func (g *SigninAuthRepository) DeleteToken(ctx context.Context, uID uint) error {
 	token := mysql.Tokens{
 		UserID: uID,

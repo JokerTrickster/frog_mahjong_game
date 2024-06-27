@@ -2,23 +2,22 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	_interface "main/features/auth/model/interface"
 	"time"
 )
 
 type GoogleOauthAuthUseCase struct {
-	Repository             _interface.IGoogleOauthAuthRepository
-	ContextTimeGoogleOauth time.Duration
+	Repository     _interface.IGoogleOauthAuthRepository
+	ContextTimeout time.Duration
 }
 
-func NewGoogleOauthAuthUseCase(repo _interface.IGoogleOauthAuthRepository, timeGoogleOauth time.Duration) _interface.IGoogleOauthAuthUseCase {
-	return &GoogleOauthAuthUseCase{Repository: repo, ContextTimeGoogleOauth: timeGoogleOauth}
+func NewGoogleOauthAuthUseCase(repo _interface.IGoogleOauthAuthRepository, timeout time.Duration) _interface.IGoogleOauthAuthUseCase {
+	return &GoogleOauthAuthUseCase{Repository: repo, ContextTimeout: timeout}
 }
 
-func (d *GoogleOauthAuthUseCase) GoogleOauth(c context.Context) error {
-	ctx, cancel := context.WithTimeout(c, d.ContextTimeGoogleOauth)
+func (d *GoogleOauthAuthUseCase) GoogleOauth(c context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-	fmt.Println(ctx)
-	return nil
+	state := GenerateStateOauthCookie(ctx)
+	return state, nil
 }
