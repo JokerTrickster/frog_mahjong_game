@@ -21,3 +21,7 @@ type ILogoutAuthUseCase interface {
 type IReissueAuthUseCase interface {
 	Reissue(c context.Context, req *request.ReqReissue) (response.ResReissue, error)
 }
+
+type IGoogleOauthAuthUseCase interface {
+	GoogleOauth(c context.Context) error
+}

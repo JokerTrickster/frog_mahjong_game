@@ -18,3 +18,7 @@ type LogoutAuthRepository struct {
 type ReissueAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type GoogleOauthAuthRepository struct {
+	GormDB *gorm.DB
+}

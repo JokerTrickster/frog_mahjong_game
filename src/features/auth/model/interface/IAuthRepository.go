@@ -25,3 +25,6 @@ type IReissueAuthRepository interface {
 	SaveToken(ctx context.Context, token mysql.Tokens) error
 	DeleteToken(ctx context.Context, uID uint) error
 }
+
+type IGoogleOauthAuthRepository interface {
+}

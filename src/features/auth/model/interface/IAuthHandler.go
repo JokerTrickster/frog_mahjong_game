@@ -17,3 +17,7 @@ type ILogoutAuthHandler interface {
 type IReissueAuthHandler interface {
 	Reissue(c echo.Context) error
 }
+
+type IGoogleOauthAuthHandler interface {
+	GoogleOauth(c echo.Context) error
+}
