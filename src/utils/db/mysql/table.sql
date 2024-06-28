@@ -20,6 +20,7 @@ CREATE TABLE users (
     score INT,
     state VARCHAR(50),
 	room_id INT
+    provider VARCHAR(50),
 );
   
 CREATE TABLE rooms (

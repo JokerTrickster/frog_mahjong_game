@@ -22,3 +22,6 @@ type ReissueAuthRepository struct {
 type GoogleOauthAuthRepository struct {
 	GormDB *gorm.DB
 }
+type GoogleOauthCallbackAuthRepository struct {
+	GormDB *gorm.DB
+}

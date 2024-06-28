@@ -16,6 +16,7 @@ type Users struct {
 	Score    int    `json:"score"`
 	State    string `json:"state"`
 	RoomID   int    `json:"roomID"`
+	Provider string `json:"provider"` // google, kakao, naver, email
 }
 type Rooms struct {
 	ID           int    `json:"id"`

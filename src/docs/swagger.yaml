@@ -85,11 +85,6 @@ definitions:
       roomID:
         type: integer
     type: object
-  request.ReqGoogleOauth:
-    properties:
-      credential:
-        type: string
-    type: object
   request.ReqJoin:
     properties:
       password:
@@ -200,6 +195,13 @@ definitions:
       state:
         type: string
     type: object
+  response.GoogleOauthCallbackRes:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
   response.ListRoom:
     properties:
       created:
@@ -292,7 +294,7 @@ info:
   contact: {}
 paths:
   /v0.1/auth/google:
-    post:
+    get:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
@@ -302,13 +304,6 @@ paths:
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
-      parameters:
-      - description: json body
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/request.ReqGoogleOauth'
       produces:
       - application/json
       responses:
@@ -323,6 +318,33 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: google oauth 로그인
+      tags:
+      - auth
+  /v0.1/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GoogleOauthCallbackRes'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
       tags:
       - auth
   /v0.1/auth/logout:
@@ -357,40 +379,6 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 로그아웃 하기
-      tags:
-      - auth
-  /v0.1/auth/reissue:
-    put:
-      description: |-
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        USER_NOT_EXIST : 유저가 존재하지 않음
-        USER_ALREADY_EXISTED : 유저가 이미 존재
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      parameters:
-      - description: 액세스 토큰, 리프레시 토큰
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/request.ReqReissue'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.ResReissue'
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: 액세스 토큰 재발급
       tags:
       - auth
   /v0.1/auth/signin:
@@ -459,6 +447,40 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 회원 가입
+      tags:
+      - auth
+  /v0.1/auth/token/reissue:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 액세스 토큰, 리프레시 토큰
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqReissue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResReissue'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 액세스 토큰 재발급
       tags:
       - auth
   /v0.1/game/card/discard:
