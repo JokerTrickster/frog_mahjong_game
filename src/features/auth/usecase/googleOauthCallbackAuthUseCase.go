@@ -26,12 +26,13 @@ func (d *GoogleOauthCallbackAuthUseCase) GoogleOauthCallback(c context.Context, 
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 
+	fmt.Println("code", code)
 	data, err := getGoogleUserInfo(ctx, code)
 	if err != nil {
 		return response.GoogleOauthCallbackRes{}, err
 	}
 	var googleUser entity.GoogleUser
-
+	fmt.Println("?")
 	// JSON 파싱
 	if err := json.Unmarshal(data, &googleUser); err != nil {
 		log.Fatalf("Error parsing JSON: %v", err)
@@ -44,7 +45,6 @@ func (d *GoogleOauthCallbackAuthUseCase) GoogleOauthCallback(c context.Context, 
 	if err != nil {
 		return response.GoogleOauthCallbackRes{}, err
 	}
-	fmt.Println(user)
 	//유저가 없으면 새로 생성한다.
 	if user == nil {
 		//유저 생성
