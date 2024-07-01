@@ -2,6 +2,7 @@ package features
 
 import (
 	authHandler "main/features/auth/handler"
+	chatHandler "main/features/chat/handler"
 	gameHandler "main/features/game/handler"
 	roomsHandler "main/features/rooms/handler"
 	userHandler "main/features/users/handler"
@@ -20,6 +21,7 @@ func InitHandler(e *echo.Echo) error {
 	roomsHandler.NewRoomsHandler(e)
 	gameHandler.NewGameHandler(e)
 	userHandler.NewUsersHandler(e)
+	chatHandler.NewChatHandler(e)
 
 	return nil
 }

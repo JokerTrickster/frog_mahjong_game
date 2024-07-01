@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ws</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <style>
+        * {
+            text-align: center;
+        }
+
+        #chat {
+            font-size: large;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>가가-가가 라이브</h1>
+        <textarea rows="20" cols="50" id="chat" readonly="readonly"></textarea><br>
+        <input type="text" id="username" value="" size="10" placeholder="닉네임 입력">
+        <input type="text" id="message" size="30" placeholder="내용"><input type="button" value="전송"
+            onclick="myOnClick()">
+    </div>
+</body>
+<script>
+    var ws = new WebSocket('ws://localhost:8080/v0.1/chat/message');
+    ws.onopen = (event) => {
+        let sendData = { event: "OPEN" , username: "ryan" };
+        ws.send(JSON.stringify(sendData));
+    }
+
+    ws.onmessage = (event) => {
+        console.log(event.data);
+        let recData = JSON.parse(event.data);
+        let now = new Date();
+        const top = $('#chat').prop('scrollHeight');
+        console.log(recData.event);
+        switch (recData.event) {
+            case "OPEN":
+                $('#chat').val($('#chat').val() + "[" + now.getHours() + "시" + now.getMinutes() + "분] --- 새로운 사용자가 접속했습니다. ---\n");
+                $('#chat').scrollTop(top);
+                notify("새로운 사용자 접속")
+                break;
+            case "MESSAGE":
+                $('#chat').val($('#chat').val() + "[" + now.getHours() + "시" + now.getMinutes() + "분] " + recData.username + ": " + recData.message + '\n');
+                $('#chat').scrollTop(top);
+                notify("새로운 메시지 도착")
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    $("#message").keydown(function (key) {
+        if (key.keyCode == 13) {
+            myOnClick();
+        }
+    });
+
+    function myOnClick() {
+        if ($('#username').val() != "" && $('#message').val() != "") {
+            let sendData = { username: $('#username').val(), message: $('#message').val(), event: "MESSAGE" };
+            ws.send(JSON.stringify(sendData));
+            $('#message').val('');
+        }
+    }
+</script>
+
+</html>

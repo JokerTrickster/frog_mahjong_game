@@ -50,3 +50,10 @@ type Cards struct {
 	Color  string `json:"color" gorm:"column:color"` // red, green, normal
 	State  string `json:"state" gorm:"column:state"` // owned, discard, none
 }
+
+type Chat struct {
+	gorm.Model
+	UserID int    `json:"userID" gorm:"column:user_id"`
+	Name   string `json:"name" gorm:"column:name"`
+	Secret string `json:"secret" gorm:"column:secret"`
+}
