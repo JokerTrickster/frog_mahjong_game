@@ -19,8 +19,8 @@ CREATE TABLE users (
     password VARCHAR(255),
     score INT,
     state VARCHAR(50),
-	room_id INT
-    provider VARCHAR(50),
+	room_id INT,
+    provider VARCHAR(50)
 );
   
 CREATE TABLE rooms (
@@ -66,6 +66,17 @@ CREATE TABLE cards (
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
+#chat table create
+
+CREATE TABLE chats (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    name varchar(255),
+    secret varchar(255)
+);
 
 # rooms 대기방 생성
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)

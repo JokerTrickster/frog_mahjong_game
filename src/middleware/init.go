@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmt"
 	"main/utils"
-	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/sessions"
@@ -23,11 +22,12 @@ func InitMiddleware(e *echo.Echo) error {
 	}))
 
 	//API sever timeout 24s
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Skipper:      middleware.DefaultTimeoutConfig.Skipper,
-		ErrorMessage: "timeout",
-		Timeout:      24 * time.Second,
-	}))
+	// TODO: websocket 연결안되는 이슈 확인 필요
+	// e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+	// 	Skipper:      middleware.DefaultTimeoutConfig.Skipper,
+	// 	ErrorMessage: "timeout",
+	// 	Timeout:      24 * time.Second,
+	// }))
 
 	//Logger : 로깅 미들웨어
 	e.Use(Logger)
