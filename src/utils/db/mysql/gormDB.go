@@ -51,7 +51,7 @@ type Cards struct {
 	State  string `json:"state" gorm:"column:state"` // owned, discard, none
 }
 
-type Chat struct {
+type Chats struct {
 	gorm.Model
 	UserID int    `json:"userID" gorm:"column:user_id"`
 	Name   string `json:"name" gorm:"column:name"`

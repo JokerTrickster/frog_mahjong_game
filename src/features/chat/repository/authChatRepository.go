@@ -12,7 +12,7 @@ func NewAuthChatRepository(gormDB *gorm.DB) _interface.IAuthChatRepository {
 	return &AuthChatRepository{GormDB: gormDB}
 }
 
-func (d *AuthChatRepository) InsertOneChat(ctx context.Context, chatDTO *mysql.Chat) error {
+func (d *AuthChatRepository) InsertOneChat(ctx context.Context, chatDTO *mysql.Chats) error {
 	err := d.GormDB.Create(&chatDTO).Error
 	if err != nil {
 		return err

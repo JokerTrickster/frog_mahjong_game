@@ -6,7 +6,7 @@ import (
 )
 
 type IMessageChatUseCase interface {
-	Message(c context.Context, secret string) (*mysql.Chat, error)
+	Message(c context.Context, secret string) (*mysql.Chats, error)
 }
 
 type IAuthChatUseCase interface {

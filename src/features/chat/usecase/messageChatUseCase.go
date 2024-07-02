@@ -16,7 +16,7 @@ func NewMessageChatUseCase(repo _interface.IMessageChatRepository, timeout time.
 	return &MessageChatUseCase{Repository: repo, ContextTimeout: timeout}
 }
 
-func (d *MessageChatUseCase) Message(c context.Context, secret string) (*mysql.Chat, error) {
+func (d *MessageChatUseCase) Message(c context.Context, secret string) (*mysql.Chats, error) {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 
