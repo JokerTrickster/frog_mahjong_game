@@ -67,6 +67,10 @@ func InitMySQL() error {
 		fmt.Println("Failed to connect to Gorm MySQL!")
 		fmt.Sprintln("에러 메시지 %s", err)
 	}
+
+	// gen 패키지를 사용하여 쿼리를 생성할 때 사용할 DB를 설정
+	// SetDefault(GormMysqlDB)
+
 	return nil
 }
 
