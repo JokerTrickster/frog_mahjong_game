@@ -35,6 +35,8 @@ func InitServer() error {
 		fmt.Sprintf("db 초기화 에러 : %s", err.Error())
 		return err
 	}
+
+	// websocket 고루틴 시작
 	go HandleMessages()
 
 	return nil
