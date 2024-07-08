@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"main/utils/aws"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -30,8 +32,11 @@ func InitGoogleOauth() error {
 
 func getClientID() (string, error) {
 	if Env.IsLocal {
-		return Env.GoogleClientID, nil
-
+		clientID, ok := os.LookupEnv("GOOGLE_CLIENT_ID")
+		if !ok {
+			return "", fmt.Errorf("GOOGLE_CLIENT_ID not found")
+		}
+		return clientID, nil
 	} else {
 		ClientID, err := aws.AwsSsmGetParam("google_client_id")
 		if err != nil {
@@ -43,7 +48,12 @@ func getClientID() (string, error) {
 
 func getClientSecret() (string, error) {
 	if Env.IsLocal {
-		return Env.GoogleClientSecret, nil
+
+		clientSecret, ok := os.LookupEnv("GOOGLE_CLIENT_SECRET")
+		if !ok {
+			return "", fmt.Errorf("GOOGLE_CLIENT_ID not found")
+		}
+		return clientSecret, nil
 
 	} else {
 		ClientID, err := aws.AwsSsmGetParam("google_client_secret")

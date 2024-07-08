@@ -26,8 +26,6 @@ func InitVarNames() []string {
 	result = append(result, "PORT")
 	result = append(result, "ENV")
 	result = append(result, "IS_LOCAL")
-	result = append(result, "GOOGLE_CLIENT_ID")
-	result = append(result, "GOOGLE_CLIENT_SECRET")
 	return result
 }
 
@@ -48,11 +46,9 @@ func InitEnv() error {
 		return err
 	}
 	Env = envStruct{
-		Port:               envs["PORT"],
-		Env:                envs["ENV"],
-		IsLocal:            envIsLocal(envs["IS_LOCAL"]),
-		GoogleClientID:     envs["GOOGLE_CLIENT_ID"],
-		GoogleClientSecret: envs["GOOGLE_CLIENT_SECRET"],
+		Port:    envs["PORT"],
+		Env:     envs["ENV"],
+		IsLocal: envIsLocal(envs["IS_LOCAL"]),
 	}
 	return nil
 }
