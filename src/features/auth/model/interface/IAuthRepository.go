@@ -41,3 +41,9 @@ type IRequestPasswordAuthRepository interface {
 	FindOneUserByEmail(ctx context.Context, email string) error
 	InsertAuthCode(ctx context.Context, userAuthDTO mysql.UserAuths) error
 }
+
+type IValidatePasswordAuthRepository interface {
+	CheckAuthCode(ctx context.Context, email, code string) error
+	UpdatePassword(ctx context.Context, user mysql.Users) error
+	DeleteAuthCode(ctx context.Context, email string) error
+}

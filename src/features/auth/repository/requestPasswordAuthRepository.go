@@ -20,9 +20,8 @@ func (g *RequestPasswordAuthRepository) FindOneUserByEmail(ctx context.Context, 
 	result := g.GormDB.WithContext(ctx).Where("email = ?", email).First(&user)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
-	} else {
-		return utils.ErrorMsg(ctx, utils.ErrUserAlreadyExisted, utils.Trace(), _errors.ErrUserAlreadyExisted.Error(), utils.ErrFromClient)
-	}
+	} 
+	return nil
 }
 
 // 이메일로 찾아서 있으면 업데이트하고 없으면 삽입한다.
