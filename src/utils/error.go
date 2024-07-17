@@ -73,6 +73,9 @@ const (
 )
 
 // auth error
+const (
+	ErrCodeNotFound = ErrType("CODE_NOT_FOUND")
+)
 
 // basic , game, room, auth error mapping
 var ErrHttpCode = map[string]int{
@@ -90,10 +93,12 @@ var ErrHttpCode = map[string]int{
 	"NOT_LOAN_CARD":        http.StatusBadRequest,
 	"NOT_ENOUGH_CARD":      http.StatusBadRequest,
 	"NOT_ENOUGH_CONDITION": http.StatusBadRequest,
+	"CODE_NOT_FOUND":       http.StatusBadRequest,
 
 	//401
 	"TOKEN_BAD":            http.StatusUnauthorized,
 	"INVALID_ACCESS_TOKEN": http.StatusUnauthorized,
+
 	//403
 	"PARTNER": http.StatusForbidden,
 

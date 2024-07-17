@@ -57,3 +57,10 @@ type Chats struct {
 	Name   string `json:"name" gorm:"column:name"`
 	Secret string `json:"secret" gorm:"column:secret"`
 }
+
+type UserAuths struct {
+	gorm.Model
+	Email    string `json:"email" gorm:"column:email"`
+	AuthCode string `json:"authCode" gorm:"column:auth_code"`
+	Type     string `json:"type" gorm:"column:type"`
+}

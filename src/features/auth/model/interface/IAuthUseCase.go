@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/auth/model/entity"
 	"main/features/auth/model/request"
 	"main/features/auth/model/response"
 )
@@ -28,4 +29,12 @@ type IGoogleOauthAuthUseCase interface {
 
 type IGoogleOauthCallbackAuthUseCase interface {
 	GoogleOauthCallback(c context.Context, code string) (response.GoogleOauthCallbackRes, error)
+}
+
+type IRequestPasswordAuthUseCase interface {
+	RequestPassword(c context.Context, entity entity.RequestPasswordAuthEntity) (string, error)
+}
+
+type IValidatePasswordAuthUseCase interface {
+	ValidatePassword(c context.Context, entity entity.ValidatePasswordAuthEntity) error
 }
