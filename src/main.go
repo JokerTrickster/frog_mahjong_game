@@ -48,5 +48,6 @@ func main() {
 	e.HideBanner = true
 	e.Logger.Fatal(e.Start(":" + utils.Env.Port))
 	// e.Logger.Fatal(e.Start(":8080"))
+
 	return
 }
