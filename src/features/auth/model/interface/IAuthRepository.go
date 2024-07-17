@@ -36,3 +36,8 @@ type IGoogleOauthCallbackAuthRepository interface {
 	DeleteToken(ctx context.Context, uID uint) error
 	CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error)
 }
+
+type IRequestPasswordAuthRepository interface {
+	FindOneUserByEmail(ctx context.Context, email string) error
+	InsertAuthCode(ctx context.Context, userAuthDTO mysql.UserAuths) error
+}

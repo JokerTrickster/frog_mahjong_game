@@ -78,6 +78,16 @@ CREATE TABLE chats (
     secret varchar(255)
 );
 
+CREATE TABLE user_auths (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    auth_code VARCHAR(255),
+    email VARCHAR(255),
+    type VARCHAR(100),
+);
+
 # rooms 대기방 생성
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
 VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	

@@ -11,6 +11,16 @@ import (
 	"net/http"
 )
 
+// 영문 + 숫자 6글자 랜덤값 생성
+func GeneratePasswordAuthCode() (string, error) {
+	b := make([]byte, 6)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
+}
+
 func CreateUserSQL(email string) *mysql.Users {
 	return &mysql.Users{
 		Name:     email,

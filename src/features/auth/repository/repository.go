@@ -25,3 +25,7 @@ type GoogleOauthAuthRepository struct {
 type GoogleOauthCallbackAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type RequestPasswordAuthRepository struct {
+	GormDB *gorm.DB
+}
