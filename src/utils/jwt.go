@@ -94,28 +94,28 @@ func VerifyToken(tokenString string) error {
 		return AccessTokenSecretKey, nil
 	})
 	if err != nil {
-		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v", token), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v err - %v", token, err.Error()), ErrFromClient)
 	}
 
 	// Check token validity
 	if !token.Valid {
-		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("invalid token - %v", token), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("invalid token - %v ", token), ErrFromClient)
 	}
 	return nil
 }
 func ParseToken(tokenString string) (uint, string, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, _ := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return AccessTokenSecretKey, nil
 	})
-	if err != nil {
-		return 0, "", ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v", token), ErrFromClient)
-	}
+	// if err != nil {
+	// 	return 0, "", ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to parse token - %v", token), ErrFromClient)
+	// }
 	// Extract claims
 	claims, ok := token.Claims.(*JwtCustomClaims)
 	if !ok {
 		return 0, "", ErrorMsg(context.TODO(), ErrBadToken, Trace(), fmt.Sprintf("failed to extract claims - %v", token), ErrFromClient)
 	}
-
+	fmt.Println("claims: ", claims)
 	// Extract email and userID
 	email := claims.Email
 	userID := claims.UserID
