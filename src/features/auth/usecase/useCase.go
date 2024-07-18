@@ -54,9 +54,21 @@ func CreateSignupUser(req *request.ReqSignup) mysql.Users {
 }
 
 func VerifyAccessAndRefresh(req *request.ReqReissue) error {
-	if err := utils.VerifyToken(req.AccessToken); err != nil {
+	// if err := utils.VerifyToken(req.AccessToken); err != nil {
+	// 	return err
+	// }
+	accessTokenUserID, accessTokenEmail, err := utils.ParseToken(req.AccessToken)
+	if err != nil {
 		return err
 	}
+	refresdhTokenUserID, refreshTokenEmail, err := utils.ParseToken(req.RefreshToken)
+	if err != nil {
+		return err
+	}
+	if accessTokenUserID != refresdhTokenUserID || accessTokenEmail != refreshTokenEmail {
+		return utils.ErrorMsg(context.TODO(), utils.ErrBadParameter, utils.Trace(), "access token and refresh token are not matched", utils.ErrFromClient)
+	}
+
 	if err := utils.VerifyToken(req.RefreshToken); err != nil {
 		return err
 	}
