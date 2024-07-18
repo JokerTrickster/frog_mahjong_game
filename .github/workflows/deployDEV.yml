@@ -53,6 +53,7 @@ jobs:
     - name: Run Unit tests
       run: |
         cd src/features
+        export CGO_ENABLED=1
         go test -race -covermode atomic -coverprofile=covprofile ./...
         cd ../..
     - name: Install goveralls
