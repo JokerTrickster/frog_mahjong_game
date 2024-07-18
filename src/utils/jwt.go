@@ -22,8 +22,8 @@ var RefreshTokenSecretKey []byte
 var JwtConfig middleware.JWTConfig
 
 const (
-	AccessTokenExpiredTime  = 1 * 24 //hours
-	RefreshTokenExpiredTime = 24 * 7 //hours
+	AccessTokenExpiredTime  = 3 //hours
+	RefreshTokenExpiredTime = 5 //hours
 )
 
 func InitJwt() error {
@@ -48,7 +48,7 @@ func GenerateToken(email string, userID uint) (string, int64, string, int64, err
 
 func GenerateAccessToken(email string, now time.Time, userID uint) (string, int64, error) {
 	// Set custom claims
-	expiredAt := now.Add(time.Hour * AccessTokenExpiredTime).Unix()
+	expiredAt := now.Add(time.Minute * AccessTokenExpiredTime).Unix()
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
@@ -69,7 +69,7 @@ func GenerateAccessToken(email string, now time.Time, userID uint) (string, int6
 }
 
 func GenerateRefreshToken(email string, now time.Time, userID uint) (string, int64, error) {
-	expiredAt := now.Add(time.Hour * RefreshTokenExpiredTime).Unix()
+	expiredAt := now.Add(time.Minute * RefreshTokenExpiredTime).Unix()
 	claims := &JwtCustomClaims{
 		TimeToEpochMillis(now),
 		userID,
