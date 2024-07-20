@@ -188,7 +188,7 @@ const docTemplate = `{
         },
         "/v0.1/auth/signin": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\nUSER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재\nPASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
                 "produces": [
                     "application/json"
                 ],
@@ -227,14 +227,14 @@ const docTemplate = `{
         },
         "/v0.1/auth/signup": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\nUSER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재\nPASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "회원 가입",
+                "summary": "이메일 회원 가입",
                 "parameters": [
                     {
                         "description": "이름, 이메일, 비밀번호",

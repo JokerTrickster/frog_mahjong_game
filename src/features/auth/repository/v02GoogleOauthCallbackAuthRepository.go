@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/auth/model/entity"
 	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
@@ -46,17 +45,17 @@ func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.
 		State:  "wait",
 		RoomID: 1,
 	}
+	//구글로 로그인할 때는 이메일로 가입되어 있어도 로그인 되도록 한다.
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
-	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ? and provider = ? ", entity.Email, "google").Updates(user)
+	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?", entity.Email).Updates(user)
 	if result.Error != nil {
-		fmt.Println(result.Error.Error())
 		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 	// 변경된 사용자 정보를 가져옵니다.
-	err := g.GormDB.WithContext(ctx).Where("email = ? and provider = ?", entity.Email, "google").First(&user).Error
+	err := g.GormDB.WithContext(ctx).Where("email = ?", entity.Email).First(&user).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), err.Error(), utils.ErrFromInternal)
 	}
