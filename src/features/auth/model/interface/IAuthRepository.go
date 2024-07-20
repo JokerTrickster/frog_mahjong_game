@@ -47,3 +47,10 @@ type IValidatePasswordAuthRepository interface {
 	UpdatePassword(ctx context.Context, user mysql.Users) error
 	DeleteAuthCode(ctx context.Context, email string) error
 }
+
+type IV02GoogleOauthCallbackAuthRepository interface {
+	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.V02GoogleOauthCallbackSQLQuery) (*mysql.Users, error)
+	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
+	DeleteToken(ctx context.Context, uID uint) error
+	CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error)
+}
