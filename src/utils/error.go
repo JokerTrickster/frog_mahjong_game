@@ -62,38 +62,42 @@ const (
 
 // room error
 const (
-	ErrUserNotFound       = ErrType("USER_NOT_FOUND")
-	ErrInvalidAccessToken = ErrType("INVALID_ACCESS_TOKEN")
-	ErrUserAlreadyExisted = ErrType("USER_ALREADY_EXISTED")
-	ErrBadRequest         = ErrType("BAD_REQUEST")
-	ErrRoomNotFound       = ErrType("ROOM_NOT_FOUND")
-	ErrRoomFull           = ErrType("ROOM_FULL")
-	ErrPlayerStateFailed  = ErrType("PLAYER_STATE_CHANGE_FAILED")
-	ErrRoomUserNotFound   = ErrType("ROOM_USER_NOT_FOUND")
+	ErrUserNotFound             = ErrType("USER_NOT_FOUND")
+	ErrInvalidAccessToken       = ErrType("INVALID_ACCESS_TOKEN")
+	ErrUserAlreadyExisted       = ErrType("USER_ALREADY_EXISTED")
+	ErrUserGoogleAlreadyExisted = ErrType("USER_GOOGLE_ALREADY_EXISTED")
+	ErrBadRequest               = ErrType("BAD_REQUEST")
+	ErrRoomNotFound             = ErrType("ROOM_NOT_FOUND")
+	ErrRoomFull                 = ErrType("ROOM_FULL")
+	ErrPlayerStateFailed        = ErrType("PLAYER_STATE_CHANGE_FAILED")
+	ErrRoomUserNotFound         = ErrType("ROOM_USER_NOT_FOUND")
 )
 
 // auth error
 const (
-	ErrCodeNotFound = ErrType("CODE_NOT_FOUND")
+	ErrCodeNotFound     = ErrType("CODE_NOT_FOUND")
+	ErrPasswordNotMatch = ErrType("PASSWORD_NOT_MATCH")
 )
 
 // basic , game, room, auth error mapping
 var ErrHttpCode = map[string]int{
 	//400
-	"PARAM_BAD":            http.StatusBadRequest,
-	"USER_ALREADY_EXISTED": http.StatusBadRequest,
-	"BAD_REQUEST":          http.StatusBadRequest,
-	"NOT_ALL_USERS_READY":  http.StatusBadRequest,
-	"NOT_OWNER":            http.StatusBadRequest,
-	"NOT_FIRST_PLAYER":     http.StatusBadRequest,
-	"ROOM_NOT_FOUND":       http.StatusBadRequest,
-	"ROOM_USER_NOT_FOUND":  http.StatusBadRequest,
-	"USER_NOT_FOUND":       http.StatusBadRequest,
-	"ROOM_FULL":            http.StatusBadRequest,
-	"NOT_LOAN_CARD":        http.StatusBadRequest,
-	"NOT_ENOUGH_CARD":      http.StatusBadRequest,
-	"NOT_ENOUGH_CONDITION": http.StatusBadRequest,
-	"CODE_NOT_FOUND":       http.StatusBadRequest,
+	"PARAM_BAD":                   http.StatusBadRequest,
+	"USER_ALREADY_EXISTED":        http.StatusBadRequest,
+	"BAD_REQUEST":                 http.StatusBadRequest,
+	"NOT_ALL_USERS_READY":         http.StatusBadRequest,
+	"NOT_OWNER":                   http.StatusBadRequest,
+	"NOT_FIRST_PLAYER":            http.StatusBadRequest,
+	"ROOM_NOT_FOUND":              http.StatusBadRequest,
+	"ROOM_USER_NOT_FOUND":         http.StatusBadRequest,
+	"USER_NOT_FOUND":              http.StatusBadRequest,
+	"ROOM_FULL":                   http.StatusBadRequest,
+	"NOT_LOAN_CARD":               http.StatusBadRequest,
+	"NOT_ENOUGH_CARD":             http.StatusBadRequest,
+	"NOT_ENOUGH_CONDITION":        http.StatusBadRequest,
+	"CODE_NOT_FOUND":              http.StatusBadRequest,
+	"USER_GOOGLE_ALREADY_EXISTED": http.StatusBadRequest,
+	"PASSWORD_NOT_MATCH":          http.StatusBadRequest,
 
 	//401
 	"TOKEN_BAD":            http.StatusUnauthorized,

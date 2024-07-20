@@ -22,14 +22,16 @@ func NewSignupAuthHandler(c *echo.Echo, useCase _interface.ISignupAuthUseCase) _
 	return handler
 }
 
-// 회원 가입
+// 이메일 회원 가입
 // @Router /v0.1/auth/signup [post]
-// @Summary 회원 가입
+// @Summary 이메일 회원 가입
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
 // @Description USER_NOT_EXIST : 유저가 존재하지 않음
 // @Description USER_ALREADY_EXISTED : 유저가 이미 존재
+// @Description USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+// @Description PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
 // @Description
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
