@@ -30,3 +30,7 @@ type IRequestPasswordAuthHandler interface {
 type IValidatePasswordAuthHandler interface {
 	ValidatePassword(c echo.Context) error
 }
+
+type IV02GoogleOauthCallbackAuthHandler interface {
+	V02GoogleOauthCallback(c echo.Context) error
+}

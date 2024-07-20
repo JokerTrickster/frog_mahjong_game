@@ -306,6 +306,13 @@ definitions:
           $ref: '#/definitions/main_features_rooms_model_response.User'
         type: array
     type: object
+  response.ResV02GoogleOauthCallback:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -1260,4 +1267,37 @@ paths:
       summary: 유저 정보 가져오기
       tags:
       - user
+  /v0.2/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResV02GoogleOauthCallback'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
+      tags:
+      - auth
 swagger: "2.0"

@@ -38,3 +38,7 @@ type IRequestPasswordAuthUseCase interface {
 type IValidatePasswordAuthUseCase interface {
 	ValidatePassword(c context.Context, entity entity.ValidatePasswordAuthEntity) error
 }
+
+type IV02GoogleOauthCallbackAuthUseCase interface {
+	V02GoogleOauthCallback(c context.Context, code string) (response.ResV02GoogleOauthCallback, error)
+}
