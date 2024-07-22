@@ -23,9 +23,9 @@ func InitAws() error {
 	AwsClientSsm = ssm.NewFromConfig(awsConfig)
 	awsClientSes = sesv2.NewFromConfig(awsConfig)
 
-	// err = InitAwsSes()
-	// if err != nil {
-	// 	return err
-	// }
+	err = InitAwsSes()
+	if err != nil {
+		return err
+	}
 	return nil
 }

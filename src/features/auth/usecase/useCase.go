@@ -2,23 +2,28 @@ package usecase
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/base64"
 	"io/ioutil"
 	"main/features/auth/model/request"
 	"main/utils"
 	"main/utils/db/mysql"
 	"net/http"
+	"time"
+
+	"golang.org/x/exp/rand"
 )
 
-// 영문 + 숫자 6글자 랜덤값 생성
-func GeneratePasswordAuthCode() (string, error) {
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// 랜덤 값 생성 함수
+func GeneratePasswordAuthCode() string {
+	seed := rand.NewSource(uint64(time.Now().UnixNano()))
+	r := rand.New(seed)
 	b := make([]byte, 6)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
+	for i := range b {
+		b[i] = charset[r.Intn(len(charset))]
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+	return string(b)
 }
 
 func CreateUserSQL(email string) *mysql.Users {

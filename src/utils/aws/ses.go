@@ -3,14 +3,11 @@ package aws
 import (
 	"context"
 	"encoding/json"
-	"time"
-
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
-	"golang.org/x/exp/rand"
 )
 
 type emailType string
@@ -27,18 +24,9 @@ type sesMailData struct {
 	templateData string
 }
 
-var deepUrlLink string
-var deepUrlRedirectSignup string
-var deepUrlRedirectPassword string
-
 func EmailSendPassword(email string, validateCode string) {
 
-	// 랜덤 값 생성
-	randomValue := generateRandomValue(6)
-
-	fmt.Println("여기옴? ", randomValue)
-
-	emailSend(email, validateCode, emailTypePassword, randomValue)
+	emailSend(email, validateCode, emailTypePassword, validateCode)
 }
 
 func emailSend(email string, validateCode string, mailType emailType, randomValue string) {
@@ -77,8 +65,8 @@ func InitAwsSes() error {
 			_, err := awsClientSes.SendEmail(context.TODO(), &sesv2.SendEmailInput{
 				Content: &types.EmailContent{
 					Template: &types.Template{
-						// TemplateData: aws.String(mailReq.templateData),
-						TemplateName: aws.String("MyTemplate"),
+						TemplateData: aws.String(mailReq.templateData),
+						TemplateName: aws.String("password"),
 					},
 				},
 				Destination: &types.Destination{
@@ -92,6 +80,7 @@ func InitAwsSes() error {
 			})
 			if err != nil {
 				if mailReq.failCount < 3 {
+					fmt.Println("Error sending email:", err)
 					mailReq.failCount += 1
 					sesMailReqChan <- mailReq
 				}
@@ -99,17 +88,4 @@ func InitAwsSes() error {
 		}
 	}()
 	return nil
-}
-
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-// 랜덤 값 생성 함수
-func generateRandomValue(length int) string {
-	seed := rand.NewSource(uint64(time.Now().UnixNano()))
-	r := rand.New(seed)
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[r.Intn(len(charset))]
-	}
-	return string(b)
 }

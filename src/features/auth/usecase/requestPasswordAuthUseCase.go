@@ -4,6 +4,7 @@ import (
 	"context"
 	"main/features/auth/model/entity"
 	_interface "main/features/auth/model/interface"
+	"main/utils/aws"
 	"main/utils/db/mysql"
 
 	"time"
@@ -29,11 +30,8 @@ func (d *RequestPasswordAuthUseCase) RequestPassword(c context.Context, e entity
 	}
 
 	// 2. 비밀번호 재설정 토큰 생성
-	authCode, err := GeneratePasswordAuthCode()
+	authCode := GeneratePasswordAuthCode()
 
-	if err != nil {
-		return "", err
-	}
 	// 3. 토큰 저장
 	userAuthDTO := mysql.UserAuths{
 		Email:    e.Email,
@@ -44,6 +42,7 @@ func (d *RequestPasswordAuthUseCase) RequestPassword(c context.Context, e entity
 		return "", err
 	}
 	//TODO 4. 추후 이메일 전송
+	aws.EmailSendPassword(e.Email, authCode)
 
 	return authCode, nil
 }
