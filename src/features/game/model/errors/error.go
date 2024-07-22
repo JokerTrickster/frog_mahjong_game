@@ -11,4 +11,5 @@ var (
 	ErrNotLoanCard        = errors.New("not loan card")
 	ErrNotEnoughCard      = errors.New("not enough card")
 	ErrNotEnoughCondition = errors.New("not enough condition to score calculate")
+	ErrInvalidGoogleCode  = errors.New("invalid google code")
 )

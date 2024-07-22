@@ -23,9 +23,13 @@ func InitGoogleOauth() error {
 	GoogleConfig = oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  "http://localhost:8080/v0.1/auth/google/callback",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
+	}
+	if Env.IsLocal {
+		GoogleConfig.RedirectURL = "http://localhost:8080/v0.1/auth/google/callback"
+	} else {
+		GoogleConfig.RedirectURL = fmt.Sprintf("https://%s-frog-api.jokertrickster.com/v0.1/auth/google/callback", Env.Env)
 	}
 	return nil
 }

@@ -24,7 +24,7 @@ func NewV02GoogleOauthCallbackAuthHandler(c *echo.Echo, useCase _interface.IV02G
 }
 
 // google oauth 로그인 콜백
-// @Router /v0.2/auth/google/callback  [get]
+// @Router /v0.2/auth/google/callback [get]
 // @Summary google oauth 로그인 콜백
 // @Description
 // @Description ■ errCode with 400

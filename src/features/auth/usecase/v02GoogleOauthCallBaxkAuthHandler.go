@@ -24,7 +24,6 @@ func NewV02GoogleOauthCallbackAuthUseCase(repo _interface.IV02GoogleOauthCallbac
 func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Context, code string) (response.ResV02GoogleOauthCallback, error) {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
-
 	data, err := getGoogleUserInfo(ctx, code)
 	if err != nil {
 		return response.ResV02GoogleOauthCallback{}, err
