@@ -44,7 +44,7 @@ func NewUserListRoomsHandler(c *echo.Echo, useCase _interface.IUserListRoomsUseC
 // @Success 200 {object} response.ResUserListRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *UserListRoomsHandler) UserList(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqUserList{}

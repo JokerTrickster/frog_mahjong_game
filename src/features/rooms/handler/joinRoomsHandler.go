@@ -44,7 +44,7 @@ func NewJoinRoomsHandler(c *echo.Echo, useCase _interface.IJoinRoomsUseCase) _in
 // @Success 200 {object} response.ResJoinRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *JoinRoomsHandler) Join(c echo.Context) error {
 	ctx, uID, email := utils.CtxGenerate(c)
 	req := &request.ReqJoin{}

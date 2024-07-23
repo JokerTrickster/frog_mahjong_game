@@ -43,7 +43,7 @@ func NewListRoomsHandler(c *echo.Echo, useCase _interface.IListRoomsUseCase) _in
 // @Success 200 {object} response.ResListRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *ListRoomsHandler) List(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqList{}

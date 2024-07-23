@@ -17,9 +17,9 @@ func NewUserListRoomsRepository(gormDB *gorm.DB) _interface.IUserListRoomsReposi
 func (d *UserListRoomsRepository) FindRoomUser(ctx context.Context, RoomsID uint) ([]response.User, error) {
 	RoomUserList := make([]response.User, 0)
 	err := d.GormDB.Table("users").
-		Joins("LEFT JOIN Room_users ON users.id = Room_users.user_id").
-		Select("users.id AS user_id, Room_users.id AS Room_user_id, Room_users.player_state, Room_users.turn_number, Room_users.owned_card_count, Room_users.Room_id, Room_users.score, users.name AS user_name, users.email AS user_email").
-		Where("Room_users.Rooms_id = ?", RoomsID).
+		Joins("LEFT JOIN room_users ON users.id = room_users.user_id").
+		Select("users.id AS user_id, room_users.id AS room_user_id, room_users.player_state, room_users.turn_number, room_users.owned_card_count, room_users.Room_id, room_users.score, users.name AS user_name, users.email AS user_email").
+		Where("room_users.room_id = ?", RoomsID).
 		Scan(&RoomUserList).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
@@ -29,7 +29,7 @@ func (d *UserListRoomsRepository) FindRoomUser(ctx context.Context, RoomsID uint
 
 func (d *UserListRoomsRepository) FindOneRoom(ctx context.Context, RoomID uint) (mysql.Rooms, error) {
 	Room := mysql.Rooms{}
-	err := d.GormDB.Table("Rooms").Where("id = ?", RoomID).Scan(&Room).Error
+	err := d.GormDB.Table("rooms").Where("id = ?", RoomID).Scan(&Room).Error
 	if err != nil {
 		return mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
 	}

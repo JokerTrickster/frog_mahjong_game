@@ -44,7 +44,7 @@ func NewCreateRoomsHandler(c *echo.Echo, useCase _interface.ICreateRoomsUseCase)
 // @Success 200 {object} response.ResCreateRoom
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *CreateRoomsHandler) Create(c echo.Context) error {
 	ctx, uID, email := utils.CtxGenerate(c)
 	req := &request.ReqCreate{}

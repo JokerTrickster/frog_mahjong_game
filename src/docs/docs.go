@@ -743,7 +743,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "방 목록 가져오기",
                 "parameters": [
@@ -785,7 +785,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "방 생성",
                 "parameters": [
@@ -831,7 +831,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "방 참여",
                 "parameters": [
@@ -877,7 +877,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "방 나가기",
                 "parameters": [
@@ -923,7 +923,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "게임 준비 상태 변경",
                 "parameters": [
@@ -969,7 +969,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Rooms"
+                    "rooms"
                 ],
                 "summary": "룸 유저 정보 가져오기",
                 "parameters": [

@@ -49,7 +49,7 @@ func (g *JoinRoomsRepository) FindOneAndUpdateUser(ctx context.Context, uID uint
 func (g *JoinRoomsRepository) InsertOneRoomUser(ctx context.Context, RoomUserDTO mysql.RoomUsers) error {
 	result := g.GormDB.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed Room user insert one", utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room user insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)

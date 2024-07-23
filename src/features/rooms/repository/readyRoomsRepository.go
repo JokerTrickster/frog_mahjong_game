@@ -20,7 +20,7 @@ func (g *ReadyRoomsRepository) FindOneAndUpdateRoomUser(ctx context.Context, uID
 	RoomUser := mysql.RoomUsers{
 		PlayerState: req.PlayerState,
 	}
-	err := g.GormDB.Model(&RoomUser).Where("user_id = ? AND Room_id = ?", uID, req.RoomID).Updates(RoomUser).Error
+	err := g.GormDB.Model(&RoomUser).Where("user_id = ? AND room_id = ?", uID, req.RoomID).Updates(RoomUser).Error
 	if err != nil {
 		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), _errors.ErrPlayerStateFailed.Error(), utils.ErrFromClient)
 	}

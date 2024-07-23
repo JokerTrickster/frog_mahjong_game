@@ -31,7 +31,7 @@ func (g *CreateRoomsRepository) InsertOneRoom(ctx context.Context, RoomDTO mysql
 	}
 	result := g.GormDB.WithContext(ctx).Create(&RoomDTO)
 	if result.RowsAffected == 0 {
-		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed Room insert one", utils.ErrFromMysqlDB)
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
 		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
@@ -41,7 +41,7 @@ func (g *CreateRoomsRepository) InsertOneRoom(ctx context.Context, RoomDTO mysql
 func (g *CreateRoomsRepository) InsertOneRoomUser(ctx context.Context, RoomUserDTO mysql.RoomUsers) error {
 	result := g.GormDB.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed Rooms user insert one", utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed rooms user insert one", utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)

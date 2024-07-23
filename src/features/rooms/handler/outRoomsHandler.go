@@ -44,7 +44,7 @@ func NewOutRoomsHandler(c *echo.Echo, useCase _interface.IOutRoomsUseCase) _inte
 // @Success 200 {object} boolean
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *OutRoomsHandler) Out(c echo.Context) error {
 	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqOut{}

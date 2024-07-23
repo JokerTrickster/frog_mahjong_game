@@ -44,7 +44,7 @@ func NewReadyRoomsHandler(c *echo.Echo, useCase _interface.IReadyRoomsUseCase) _
 // @Success 200 {object} boolean
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags Rooms
+// @Tags rooms
 func (d *ReadyRoomsHandler) Ready(c echo.Context) error {
 	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqReady{}
