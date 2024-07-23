@@ -22,9 +22,9 @@ func (g *OutRoomsRepository) FindOneUser(ctx context.Context, uID uint) (mysql.U
 	return user, nil
 }
 
-func (g *OutRoomsRepository) ChangeRoomOnwer(ctx context.Context, RoomID uint, owner string) error {
+func (g *OutRoomsRepository) ChangeRoomOnwer(ctx context.Context, RoomID uint, ownerID uint) error {
 	var room mysql.Rooms
-	result := g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Update("owner", owner)
+	result := g.GormDB.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Update("owner_id", ownerID)
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
 	}
@@ -53,7 +53,8 @@ func (g *OutRoomsRepository) FindOneAndDeleteRoom(ctx context.Context, RoomID ui
 //
 
 func (g *OutRoomsRepository) FindOneAndDeleteRoomUser(ctx context.Context, uID uint, RoomsID uint) error {
-	result := g.GormDB.WithContext(ctx).Where("user_id = ? and room_id = ?", uID, RoomsID).Delete(&mysql.RoomUsers{})
+	var roomUser mysql.RoomUsers
+	result := g.GormDB.WithContext(ctx).Model(&roomUser).Where("user_id = ? and room_id = ?", uID, RoomsID).Delete(&mysql.RoomUsers{})
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), _errors.ErrRoomUserNotFound.Error(), utils.ErrFromClient)
 	}

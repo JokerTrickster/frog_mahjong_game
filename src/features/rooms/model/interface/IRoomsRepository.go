@@ -26,7 +26,7 @@ type IOutRoomsRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, uID uint) error
 	FindOneAndDeleteRoom(ctx context.Context, RoomID uint) error
 	FindOneRoomUser(ctx context.Context, RoomID uint) (mysql.RoomUsers, error)
-	ChangeRoomOnwer(ctx context.Context, RoomID uint, owner string) error
+	ChangeRoomOnwer(ctx context.Context, RoomID uint, ownerID uint) error
 	FindOneUser(ctx context.Context, uID uint) (mysql.Users, error)
 }
 

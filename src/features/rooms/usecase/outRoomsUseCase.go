@@ -30,7 +30,7 @@ func (d *OutRoomsUseCase) Out(c context.Context, uID uint, req *request.ReqOut) 
 	if err != nil {
 		return err
 	}
-	// user에 Rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
+	// user에 rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
 	err = d.Repository.FindOneAndUpdateUser(ctx, uID)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (d *OutRoomsUseCase) Out(c context.Context, uID uint, req *request.ReqOut) 
 
 		//방장으로 변경하기 위해 업데이트해야 될 부분들
 		// rooms -> owner 변경
-		err = d.Repository.ChangeRoomOnwer(ctx, req.RoomID, userDTO.Email)
+		err = d.Repository.ChangeRoomOnwer(ctx, req.RoomID, userDTO.ID)
 		if err != nil {
 			return err
 		}
