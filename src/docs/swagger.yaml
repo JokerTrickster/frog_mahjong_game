@@ -235,7 +235,7 @@ definitions:
       ownerID:
         type: integer
       password:
-        type: string
+        type: boolean
       state:
         type: string
     type: object
@@ -1183,7 +1183,7 @@ paths:
         type: string
       - description: 방 ID
         in: query
-        name: RoomID
+        name: roomID
         required: true
         type: integer
       produces:
