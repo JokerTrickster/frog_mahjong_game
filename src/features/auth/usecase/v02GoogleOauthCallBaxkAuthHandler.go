@@ -34,7 +34,9 @@ func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Con
 		log.Fatalf("Error parsing JSON: %v", err)
 	}
 
-	sqlEntity := &entity.V02GoogleOauthCallbackSQLQuery{}
+	sqlEntity := &entity.V02GoogleOauthCallbackSQLQuery{
+		Email: googleUser.Email,
+	}
 	var user *mysql.Users
 	//유저 체크 후 있으면 로그인 처리
 	user, err = d.Repository.FindOneAndUpdateUser(ctx, sqlEntity)

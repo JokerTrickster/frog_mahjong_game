@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/auth/model/entity"
 	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
@@ -49,7 +48,6 @@ func (g *GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.Con
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
 	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?  ", entity.Email).Updates(&user)
 	if result.Error != nil {
-		fmt.Println(result.Error.Error())
 		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
 	if result.RowsAffected == 0 {

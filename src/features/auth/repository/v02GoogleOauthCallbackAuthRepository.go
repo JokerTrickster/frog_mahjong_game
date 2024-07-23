@@ -40,14 +40,13 @@ func (g *V02GoogleOauthCallbackAuthRepository) SaveToken(ctx context.Context, uI
 }
 
 func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.Context, entity *entity.V02GoogleOauthCallbackSQLQuery) (*mysql.Users, error) {
-	user := mysql.Users{
+	user := &mysql.Users{
 		Email:  entity.Email,
 		State:  "wait",
 		RoomID: 1,
 	}
-	//구글로 로그인할 때는 이메일로 가입되어 있어도 로그인 되도록 한다.
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
-	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?", entity.Email).Updates(user)
+	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?  ", entity.Email).Updates(&user)
 	if result.Error != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
@@ -59,7 +58,7 @@ func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), err.Error(), utils.ErrFromInternal)
 	}
-	return &user, nil
+	return user, nil
 }
 
 func (g *V02GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error) {
