@@ -60,7 +60,11 @@ func CreateResListRoom(rooms []mysql.Rooms, total int) (response.ResListRoom, er
 			Name:         rooms[i].Name,
 			State:        rooms[i].State,
 			OwnerID:      rooms[i].OwnerID,
+			Password:     false,
 			Created:      utils.TimeToEpochMillis(rooms[i].CreatedAt),
+		}
+		if rooms[i].Password != "" {
+			room.Password = true
 		}
 		RoomList = append(RoomList, room)
 	}

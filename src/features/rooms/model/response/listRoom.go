@@ -13,6 +13,6 @@ type ListRoom struct {
 	MaxCount     int    `json:"maxCount"`
 	MinCount     int    `json:"minCount"`
 	State        string `json:"state"`
-	Password     string `json:"password,omitempty"`
+	Password     bool   `json:"password"`
 	OwnerID      int    `json:"ownerID"`
 }

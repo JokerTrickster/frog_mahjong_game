@@ -972,7 +972,7 @@
                     {
                         "type": "integer",
                         "description": "방 ID",
-                        "name": "RoomID",
+                        "name": "roomID",
                         "in": "query",
                         "required": true
                     }
@@ -1478,7 +1478,7 @@
                     "type": "integer"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "state": {
                     "type": "string"

@@ -983,7 +983,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "방 ID",
-                        "name": "RoomID",
+                        "name": "roomID",
                         "in": "query",
                         "required": true
                     }
@@ -1489,7 +1489,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "state": {
                     "type": "string"

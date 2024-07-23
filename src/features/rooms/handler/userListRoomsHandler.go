@@ -39,7 +39,7 @@ func NewUserListRoomsHandler(c *echo.Echo, useCase _interface.IUserListRoomsUseC
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
 // @Param tkn header string true "accessToken"
-// @Param RoomID query uint true "방 ID"
+// @Param roomID query uint true "방 ID"
 // @Produce json
 // @Success 200 {object} response.ResUserListRoom
 // @Failure 400 {object} error
