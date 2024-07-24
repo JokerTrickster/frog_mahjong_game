@@ -16,10 +16,10 @@ type ICreateRoomsRepository interface {
 }
 
 type IJoinRoomsRepository interface {
-	FindOneRoom(ctx context.Context, req *request.ReqJoin) (mysql.Rooms, error)
-	FindOneAndUpdateRoom(ctx context.Context, RoomID uint) error
-	FindOneAndUpdateUser(ctx context.Context, uID uint, RoomsID uint) error
-	InsertOneRoomUser(ctx context.Context, RoomUserDTO mysql.RoomUsers) error
+	FindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqJoin) (mysql.Rooms, error)
+	FindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error
+	FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomsID uint) error
+	InsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error
 }
 
 type IOutRoomsRepository interface {
