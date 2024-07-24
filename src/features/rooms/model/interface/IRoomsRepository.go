@@ -5,6 +5,8 @@ import (
 	"main/features/rooms/model/request"
 	"main/features/rooms/model/response"
 	"main/utils/db/mysql"
+
+	"gorm.io/gorm"
 )
 
 type ICreateRoomsRepository interface {
@@ -21,13 +23,13 @@ type IJoinRoomsRepository interface {
 }
 
 type IOutRoomsRepository interface {
-	FindOneAndDeleteRoomUser(ctx context.Context, uID uint, RoomID uint) error
-	FindOneAndUpdateRoom(ctx context.Context, RoomID uint) (mysql.Rooms, error)
-	FindOneAndUpdateUser(ctx context.Context, uID uint) error
-	FindOneAndDeleteRoom(ctx context.Context, RoomID uint) error
-	FindOneRoomUser(ctx context.Context, RoomID uint) (mysql.RoomUsers, error)
-	ChangeRoomOnwer(ctx context.Context, RoomID uint, ownerID uint) error
-	FindOneUser(ctx context.Context, uID uint) (mysql.Users, error)
+	FindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error
+	FindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB,RoomID uint) (mysql.Rooms, error)
+	FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB,uID uint) error
+	FindOneAndDeleteRoom(ctx context.Context,tx *gorm.DB, RoomID uint) error
+	FindOneRoomUser(ctx context.Context, tx *gorm.DB,RoomID uint) (mysql.RoomUsers, error)
+	ChangeRoomOnwer(ctx context.Context,tx *gorm.DB, RoomID uint, ownerID uint) error
+	FindOneUser(ctx context.Context,tx *gorm.DB,uID uint) (mysql.Users, error)
 }
 
 type IReadyRoomsRepository interface {

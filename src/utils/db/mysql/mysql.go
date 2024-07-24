@@ -61,7 +61,7 @@ func InitMySQL() error {
 	GormMysqlDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: MysqlDB,
 	}), &gorm.Config{
-		SkipDefaultTransaction: true,
+		SkipDefaultTransaction: false,
 	})
 	if err != nil {
 		fmt.Println("Failed to connect to Gorm MySQL!")
@@ -98,4 +98,26 @@ func TimeStringToEpoch(t string) int64 {
 
 func TimeToEpoch(t time.Time) int64 {
 	return t.Unix()
+}
+
+// 트랜잭션 처리 미들웨어
+func Transaction(db *gorm.DB, fc func(tx *gorm.DB) error) (err error) {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			err = fmt.Errorf("panic occurred: %v", r)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	if err = tx.Error; err != nil {
+		return err
+	}
+
+	err = fc(tx)
+	return
 }
