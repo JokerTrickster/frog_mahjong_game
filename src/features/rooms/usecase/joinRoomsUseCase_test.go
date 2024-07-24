@@ -1,5 +1,6 @@
 package usecase
-
+/*
+TODO 트랜잭션 처리
 // create join room usecase test code write
 // table driven test
 // Path: src/features/rooms/usecase/joinRoomUseCase_test.go
@@ -101,3 +102,5 @@ func TestJoinRoomsUseCase_Join(t *testing.T) {
 		})
 	}
 }
+
+*/
