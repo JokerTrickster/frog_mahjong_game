@@ -5,7 +5,10 @@ import (
 	_interface "main/features/rooms/model/interface"
 	"main/features/rooms/model/request"
 	"main/features/rooms/model/response"
+	"main/utils/db/mysql"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type CreateRoomsUseCase struct {
@@ -20,36 +23,39 @@ func NewCreateRoomsUseCase(repo _interface.ICreateRoomsRepository, timeout time.
 func (d *CreateRoomsUseCase) Create(c context.Context, uID uint, email string, req *request.ReqCreate) (response.ResCreateRoom, error) {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
+	var res response.ResCreateRoom
+	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+		// Rooms create
+		RoomsDTO, err := CreateRoomDTO(ctx, req, uID)
+		if err != nil {
+			return err
+		}
+		RoomID, err := d.Repository.InsertOneRoom(ctx,tx, RoomsDTO)
+		if err != nil {
+			return err
+		}
 
-	// Rooms create
-	RoomsDTO, err := CreateRoomDTO(ctx, req, uID)
-	if err != nil {
-		return response.ResCreateRoom{}, err
-	}
-	RoomID, err := d.Repository.InsertOneRoom(ctx, RoomsDTO)
-	if err != nil {
-		return response.ResCreateRoom{}, err
-	}
+		// Rooms user create
+		RoomsUserDTO, err := CreateRoomUserDTO(uID, RoomID, "ready")
+		if err != nil {
+			return err
+		}
+		err = d.Repository.InsertOneRoomUser(ctx,tx, RoomsUserDTO)
+		if err != nil {
+			return err
+		}
 
-	// Rooms user create
-	RoomsUserDTO, err := CreateRoomUserDTO(uID, RoomID, "ready")
-	if err != nil {
-		return response.ResCreateRoom{}, err
-	}
-	err = d.Repository.InsertOneRoomUser(ctx, RoomsUserDTO)
-	if err != nil {
-		return response.ResCreateRoom{}, err
-	}
+		// user 정보 변경 Rooms id와 state 변경
+		err = d.Repository.FindOneAndUpdateUser(ctx,tx, uID, uint(RoomID))
+		if err != nil {
+			return err
+		}
 
-	// user 정보 변경 Rooms id와 state 변경
-	err = d.Repository.FindOneAndUpdateUser(ctx, uID, uint(RoomID))
-	if err != nil {
-		return response.ResCreateRoom{}, err
-	}
+		res = response.ResCreateRoom{
+			RoomID: RoomID,
+		}
+		return nil
+	})
 
-	res := response.ResCreateRoom{
-		RoomID: RoomID,
-	}
-
-	return res, nil
+	return res, err
 }

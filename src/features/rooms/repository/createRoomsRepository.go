@@ -13,23 +13,23 @@ import (
 func NewCreateRoomsRepository(gormDB *gorm.DB) _interface.ICreateRoomsRepository {
 	return &CreateRoomsRepository{GormDB: gormDB}
 }
-func (g *CreateRoomsRepository) FindOneAndUpdateUser(ctx context.Context, uID uint, RoomID uint) error {
+func (g *CreateRoomsRepository) FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error {
 	user := mysql.Users{
 		RoomID: int(RoomID),
 		State:  "play",
 	}
-	result := g.GormDB.WithContext(ctx).Model(user).Where("id = ?", uID).Updates(user)
+	result := tx.WithContext(ctx).Model(user).Where("id = ?", uID).Updates(user)
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
 	}
 	return nil
 }
-func (g *CreateRoomsRepository) InsertOneRoom(ctx context.Context, RoomDTO mysql.Rooms) (int, error) {
+func (g *CreateRoomsRepository) InsertOneRoom(ctx context.Context, tx *gorm.DB, RoomDTO mysql.Rooms) (int, error) {
 	//방 인원이 최대 인원이 최소 인원보다 많거나 같고, 최대 인원이 2명 이상이거나 최소 인원이 2명 이상이어야 한다.
 	if ((RoomDTO.MaxCount >= RoomDTO.MinCount) && (RoomDTO.MaxCount >= 2 || RoomDTO.MinCount >= 2)) == false {
 		return 0, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest.Error(), utils.ErrFromClient)
 	}
-	result := g.GormDB.WithContext(ctx).Create(&RoomDTO)
+	result := tx.WithContext(ctx).Create(&RoomDTO)
 	if result.RowsAffected == 0 {
 		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed room insert one", utils.ErrFromMysqlDB)
 	}
@@ -38,8 +38,8 @@ func (g *CreateRoomsRepository) InsertOneRoom(ctx context.Context, RoomDTO mysql
 	}
 	return int(RoomDTO.ID), nil
 }
-func (g *CreateRoomsRepository) InsertOneRoomUser(ctx context.Context, RoomUserDTO mysql.RoomUsers) error {
-	result := g.GormDB.WithContext(ctx).Create(&RoomUserDTO)
+func (g *CreateRoomsRepository) InsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error {
+	result := tx.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed rooms user insert one", utils.ErrFromMysqlDB)
 	}

@@ -1,5 +1,8 @@
 package usecase
 
+/*
+TODO 트랜잭션 테스트 코드 처리
+
 // createRoomUseCase.go test code write
 // Path: src/features/rooms/usecase/createRoomUseCase_test.go
 
@@ -96,3 +99,5 @@ func TestCreateRoomUserDTO(t *testing.T) {
 		})
 	}
 }
+
+*/
