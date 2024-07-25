@@ -5,6 +5,9 @@ import "gorm.io/gorm"
 type CreateRoomsRepository struct {
 	GormDB *gorm.DB
 }
+type V02CreateRoomsRepository struct {
+	GormDB *gorm.DB
+}
 
 type JoinRoomsRepository struct {
 	GormDB *gorm.DB

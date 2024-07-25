@@ -37,6 +37,20 @@ func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, uID uint) (mysql
 	return result, nil
 }
 
+func V02CreateRoomDTO(ctx context.Context, req *request.ReqV02Create, uID uint) (mysql.Rooms, error) {
+
+	result := mysql.Rooms{
+		CurrentCount: 1,
+		MaxCount:     2,
+		MinCount:     2,
+		Name:         "test",
+		State:        "wait",
+		OwnerID:      int(uID),
+	}
+
+	return result, nil
+}
+
 func CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUsers, error) {
 	result := mysql.RoomUsers{
 		UserID:         int(uID),
@@ -48,6 +62,16 @@ func CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUser
 	return result, nil
 }
 
+func V02CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUsers, error) {
+	result := mysql.RoomUsers{
+		UserID:         int(uID),
+		RoomID:         roomID,
+		Score:          0,
+		OwnedCardCount: 0,
+		PlayerState:    playerState,
+	}
+	return result, nil
+}
 func CreateResListRoom(rooms []mysql.Rooms, total int) (response.ResListRoom, error) {
 	res := response.ResListRoom{}
 	RoomList := make([]response.ListRoom, 0, len(rooms))
