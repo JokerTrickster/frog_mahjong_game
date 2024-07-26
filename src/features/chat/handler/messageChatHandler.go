@@ -2,7 +2,6 @@ package handler
 
 import (
 	"log"
-	"net/http"
 
 	_interface "main/features/chat/model/interface"
 
@@ -69,5 +68,5 @@ func (d *MessageChatHandler) Message(c echo.Context) error {
 		msg.Username = initialMsg.Username
 		utils.Broadcast <- msg
 	}
-	return c.JSON(http.StatusOK, true)
+	return nil
 }

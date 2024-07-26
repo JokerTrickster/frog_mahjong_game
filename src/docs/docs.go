@@ -1139,8 +1139,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "accessToken",
                         "name": "tkn",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     }
                 ],
                 "responses": {

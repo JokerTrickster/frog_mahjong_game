@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	_interface "main/features/rooms/model/interface"
 	"main/features/rooms/model/request"
 	"main/utils"
-	"net/http"
 
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
 
@@ -38,7 +39,7 @@ func NewV02CreateRoomsHandler(c *echo.Echo, useCase _interface.IV02CreateRoomsUs
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
-// @Param tkn header string true "accessToken"
+// @Param tkn header string false "accessToken"
 // @Produce json
 // @Success 200 {object} boolean
 // @Failure 400 {object} error
@@ -47,36 +48,51 @@ func NewV02CreateRoomsHandler(c *echo.Echo, useCase _interface.IV02CreateRoomsUs
 func (d *V02CreateRoomsHandler) V02Create(c echo.Context) error {
 	ws, err := utils.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return nil
 	}
 
 	req := &request.ReqV02Create{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		return err
+		fmt.Println(err)
+		return nil
 	}
+
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return nil
 	}
+
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return nil
 	}
 
 	defer ws.Close()
 	var initialMsg utils.WSMessage
 	err = ws.ReadJSON(&initialMsg)
 	if err != nil {
-		log.Printf("error: %v", err)
-		return err
+		fmt.Println(err)
+		return nil
 	}
+
 	roomID := initialMsg.RoomID
+	// 첫 번째 레벨 맵 초기화
+	if utils.WSClients == nil {
+		utils.WSClients = make(map[uint]map[*websocket.Conn]utils.WSClient)
+	}
+
+	// 두 번째 레벨 맵 초기화
+	if utils.WSClients[roomID] == nil {
+		utils.WSClients[roomID] = make(map[*websocket.Conn]utils.WSClient)
+	}
 	utils.WSClients[roomID][ws] = utils.WSClient{
 		RoomID: roomID,
 		UserID: userID,
 		Conn:   ws,
 	}
-
 	for {
 		var msg utils.WSMessage
 		err := ws.ReadJSON(&msg)
@@ -89,5 +105,5 @@ func (d *V02CreateRoomsHandler) V02Create(c echo.Context) error {
 		utils.WSBroadcast <- msg
 	}
 
-	return c.JSON(http.StatusOK, true)
+	return nil
 }

@@ -1323,7 +1323,6 @@ paths:
       - description: accessToken
         in: header
         name: tkn
-        required: true
         type: string
       produces:
       - application/json
