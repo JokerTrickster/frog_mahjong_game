@@ -12,7 +12,9 @@ type V02CreateRoomsRepository struct {
 type JoinRoomsRepository struct {
 	GormDB *gorm.DB
 }
-
+type V02JoinRoomsRepository struct {
+	GormDB *gorm.DB
+}
 type OutRoomsRepository struct {
 	GormDB *gorm.DB
 }

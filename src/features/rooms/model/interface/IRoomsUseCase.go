@@ -16,7 +16,9 @@ type IV02CreateRoomsUseCase interface {
 type IJoinRoomsUseCase interface {
 	Join(c context.Context, uID uint, email string, req *request.ReqJoin) (response.ResJoinRoom, error)
 }
-
+type IV02JoinRoomsUseCase interface {
+	V02Join(c context.Context) error
+}
 type IOutRoomsUseCase interface {
 	Out(c context.Context, uID uint, req *request.ReqOut) error
 }

@@ -13,6 +13,9 @@ type IJoinRoomsHandler interface {
 	Join(c echo.Context) error
 }
 
+type IV02JoinRoomsHandler interface {
+	V02Join(c echo.Context) error
+}
 type IOutRoomsHandler interface {
 	Out(c echo.Context) error
 }
