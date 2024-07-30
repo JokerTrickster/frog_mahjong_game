@@ -9,11 +9,16 @@ import (
 type ICreateRoomsUseCase interface {
 	Create(c context.Context, uID uint, email string, req *request.ReqCreate) (response.ResCreateRoom, error)
 }
+type IV02CreateRoomsUseCase interface {
+	V02Create(c context.Context, uID uint, email string, req *request.ReqV02Create) (response.ResV02CreateRoom, error)
+}
 
 type IJoinRoomsUseCase interface {
 	Join(c context.Context, uID uint, email string, req *request.ReqJoin) (response.ResJoinRoom, error)
 }
-
+type IV02JoinRoomsUseCase interface {
+	V02Join(c context.Context) error
+}
 type IOutRoomsUseCase interface {
 	Out(c context.Context, uID uint, req *request.ReqOut) error
 }

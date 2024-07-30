@@ -17,7 +17,7 @@ CREATE TABLE users (
     name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
     password VARCHAR(255),
-    score INT,
+    coin INT,
     state VARCHAR(50),
 	room_id INT,
     provider VARCHAR(50)
