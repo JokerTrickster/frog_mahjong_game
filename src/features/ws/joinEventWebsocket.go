@@ -71,6 +71,9 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 			Name:        roomUser.User.Name,
 			Email:       roomUser.User.Email,
 		}
+		if roomUser.Room.OwnerID == roomUser.UserID{
+			user.IsOwner = true
+		}
 		roomUsersMsg.Users = append(roomUsersMsg.Users, user)
 	}
 	// 구조체를 JSON 문자열로 변환 (마샬링)
