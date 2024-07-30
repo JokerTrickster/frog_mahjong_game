@@ -36,9 +36,5 @@ func InitServer() error {
 		return err
 	}
 
-	// websocket 고루틴 시작
-	go HandleMessages()
-	go WSHandleMessages()
-
 	return nil
 }

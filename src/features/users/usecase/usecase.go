@@ -22,7 +22,7 @@ func CreateResListUser(users []mysql.Users, total int) response.ResListUser {
 			Name:   users[i].Name,
 			Email:  users[i].Email,
 			State:  users[i].State,
-			Score:  users[i].Score,
+			Coin:   users[i].Coin,
 		}
 		UserList = append(UserList, user)
 	}

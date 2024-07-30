@@ -10,5 +10,5 @@ type User struct {
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	State  string `json:"state"`
-	Score  int    `json:"score"`
+	Coin   int    `json:"coin"`
 }

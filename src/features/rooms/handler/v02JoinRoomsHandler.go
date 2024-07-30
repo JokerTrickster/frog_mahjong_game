@@ -39,7 +39,6 @@ func NewV02JoinRoomsHandler(c *echo.Echo, useCase _interface.IV02JoinRoomsUseCas
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
-// @Param tkn header string false "accessToken"
 // @Produce json
 // @Success 200 {object} boolean
 // @Failure 400 {object} error
@@ -104,6 +103,9 @@ func (d *V02JoinRoomsHandler) V02Join(c echo.Context) error {
 			break
 		}
 		msg.RoomID = roomID
+		if req.Password != "" {
+			msg.Message = req.Password
+		}
 		utils.WSBroadcast <- msg
 	}
 

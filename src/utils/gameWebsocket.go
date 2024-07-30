@@ -9,9 +9,12 @@ import (
 )
 
 var (
-	WSUpgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
-		return true
-	}}
+	WSUpgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		}}
 	WSClients   = make(map[uint]map[*websocket.Conn]WSClient)
 	WSBroadcast = make(chan WSMessage)
 )
@@ -27,6 +30,46 @@ type WSMessage struct {
 	Event   string `json:"event"`
 	RoomID  uint   `json:"roomID"`
 	UserID  uint   `json:"userID"`
+}
+
+/*
+유저 ID
+
+	이메일
+	이름
+	유저 상태 : ready or not ready
+	방장인지 여부 :
+	가지고 있는 패 정보들 :
+	버린 패 정보들 :
+	현재 보유하고 있는 코인 :
+*/
+type RoomUsers struct {
+	Users []User
+}
+type User struct {
+	ID             uint   `json:"id"`
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	PlayerState    string `json:"playerState"`
+	IsOwner        bool   `json:"isOwner"`
+	Cards          []Card `json:"cards"`
+	DiscardedCards []Card `json:"discardedCards"`
+	Coin           int    `json:"coin"`
+}
+
+/*
+카드 ID
+이름 : oen, two, three, four, five, six, seven, eight, nine , chung, bal
+색깔 : green, red, normal
+상태 : 버려진 패 or 소유하고 있는 패 or 가운데 놓여져 있는 패
+유저 ID
+*/
+type Card struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name"`
+	Color  string `json:"color"`
+	State  string `json:"state"`
+	UserID uint   `json:"userID"`
 }
 
 func WSHandleMessages() {
@@ -51,19 +94,15 @@ func WSHandleMessages() {
 			}
 		case "JOIN": // 방 참여
 			//유저 상태를 변경한다. (대기실 -> 방으로 이동)
+
 			if clients, ok := WSClients[msg.RoomID]; ok {
 				for client := range clients {
-					if msg.UserID == clients[client].UserID {
+					msg.Message = "방에 참여했습니다."
+					err := client.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error: %v", err)
 						client.Close()
 						delete(clients, client)
-					} else {
-						msg.Message = "방을 나갔습니다."
-						err := client.WriteJSON(msg)
-						if err != nil {
-							log.Printf("error: %v", err)
-							client.Close()
-							delete(clients, client)
-						}
 					}
 				}
 			}

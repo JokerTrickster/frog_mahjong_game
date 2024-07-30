@@ -15,7 +15,7 @@ type Users struct {
 	Name     string `json:"name" gorm:"column:name"`
 	Email    string `json:"email" gorm:"uniqueIndex;column:email"`
 	Password string `json:"password" gorm:"column:password"`
-	Score    int    `json:"score" gorm:"column:score"`
+	Coin     int    `json:"coin" gorm:"column:coin"`
 	State    string `json:"state" gorm:"column:state"` //logout, wait, play
 	RoomID   int    `json:"roomID" gorm:"column:room_id"`
 	Provider string `json:"provider" gorm:"column:provider"`
