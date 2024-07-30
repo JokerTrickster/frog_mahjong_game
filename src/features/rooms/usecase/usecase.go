@@ -24,7 +24,7 @@ func CreateResUserListRoom(userList []response.User, rooms mysql.Rooms) response
 func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, uID uint) (mysql.Rooms, error) {
 
 	result := mysql.Rooms{
-		CurrentCount: 1,
+		CurrentCount: 0,
 		MaxCount:     req.MaxCount,
 		MinCount:     req.MinCount,
 		Name:         req.Name,

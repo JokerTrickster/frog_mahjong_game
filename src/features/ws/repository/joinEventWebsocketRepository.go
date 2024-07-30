@@ -42,7 +42,7 @@ func JoinFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID
 		RoomID: int(RoomID),
 		State:  "play",
 	}
-	result := tx.WithContext(ctx).Model(&user).Where("id = ? and state = ?", uID, "wait").Updates(user)
+	result := tx.WithContext(ctx).Model(&user).Where("id = ?", uID).Updates(user)
 	if result.Error != nil {
 		return errors.New("유저 정보 업데이트 실패")
 	}
