@@ -3,9 +3,18 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
+	"main/features/ws/model/entity"
 	"main/utils/db/mysql"
 )
 
+func ReadyFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := mysql.GormMysqlDB.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		log.Fatalf("RoomUsers 조회 에러: %s", err)
+	}
+	return roomUsers, nil
+}
 func ReadyFindOneAndUpdateRoomUser(ctx context.Context, uID, roomID uint) error {
 	// Rooms user에 player state 를 변경한다.
 	RoomUser := mysql.RoomUsers{

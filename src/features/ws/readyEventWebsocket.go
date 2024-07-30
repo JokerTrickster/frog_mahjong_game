@@ -21,7 +21,7 @@ func ReadyEventWebsocket(msg *entity.WSMessage) {
 
 	// 메시지 생성
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.CloseFindAllRoomUsers(ctx, uint(msg.RoomID))
+	preloadUsers, err := repository.ReadyFindAllRoomUsers(ctx, uint(msg.RoomID))
 	if err != nil {
 		log.Println(err)
 	}
