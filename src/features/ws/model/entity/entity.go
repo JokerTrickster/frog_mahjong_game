@@ -43,18 +43,25 @@ type WSMessage struct {
 	버린 패 정보들 :
 	현재 보유하고 있는 코인 :
 */
-type TRoomUsers struct {
-	Users []User
+type RoomInfo struct {
+	Users    []*User   `json:"users"`    // 유저 정보
+	GameInfo *GameInfo `json:"gameInfo"` // 게임 정보
 }
 type User struct {
-	ID             uint   `json:"id"`
-	Email          string `json:"email"`
-	Name           string `json:"name"`
-	PlayerState    string `json:"playerState"`
-	IsOwner        bool   `json:"isOwner"`
-	Cards          []Card `json:"cards"`
-	DiscardedCards []Card `json:"discardedCards"`
-	Coin           int    `json:"coin"`
+	ID             uint    `json:"id"`
+	Email          string  `json:"email"`
+	Name           string  `json:"name"`
+	PlayerState    string  `json:"playerState"`
+	IsOwner        bool    `json:"isOwner"`
+	Cards          []*Card `json:"cards"`
+	DiscardedCards []*Card `json:"discardedCards"`
+	Coin           int     `json:"coin"`
+	TurnNumber     int     `json:"turnNumber"`
+}
+type GameInfo struct {
+	PlayTurn int   `json:"playTurn"`
+	Dora     *Card `json:"dora"`     // 도라
+	AllReady bool  `json:"allReady"` // 게임 시작 여부
 }
 
 /*

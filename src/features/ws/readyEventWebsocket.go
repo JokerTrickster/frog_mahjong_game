@@ -25,7 +25,8 @@ func ReadyEventWebsocket(msg *entity.WSMessage) {
 	if err != nil {
 		log.Println(err)
 	}
-	roomUsersMsg := entity.TRoomUsers{}
+	roomInfoMsg := entity.RoomInfo{}
+	allReady := true
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
 			ID:          uint(roomUser.UserID),
@@ -36,11 +37,20 @@ func ReadyEventWebsocket(msg *entity.WSMessage) {
 		}
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
+		} else {
+			if roomUser.PlayerState == "wait" {
+				allReady = false
+			}
 		}
-		roomUsersMsg.Users = append(roomUsersMsg.Users, user)
+		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
+	roomInfoMsg.GameInfo = &entity.GameInfo{
+		PlayTurn: 1,
+		AllReady: allReady,
+	}
+
 	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomUsersMsg)
+	jsonData, err := json.Marshal(roomInfoMsg)
 	if err != nil {
 		log.Fatalf("JSON 마샬링 에러: %s", err)
 	}

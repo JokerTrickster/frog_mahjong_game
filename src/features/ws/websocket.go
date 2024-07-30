@@ -2,7 +2,6 @@ package ws
 
 import (
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 )
 
@@ -21,32 +20,8 @@ func WSHandleMessages() {
 		case "READY_CANCEL": // 게임 준비를 취소
 			ReadyCancelEventWebsocket(&msg)
 		case "START": // 게임 시작
-			// 모든 플레이어에게 게임 시작을 알리고
-			// 게임 준비를 한다.
+			StartEventWebsocket(&msg)
 
-			if clients, ok := entity.WSClients[msg.RoomID]; ok {
-				for client := range clients {
-
-					msg.Message = "게임 시작"
-					err := client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		case "MESSAGE": // 메시지 전송
-			if clients, ok := entity.WSClients[msg.RoomID]; ok {
-				for client := range clients {
-					err := client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
 		}
 	}
 }

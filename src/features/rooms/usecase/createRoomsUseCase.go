@@ -35,22 +35,6 @@ func (d *CreateRoomsUseCase) Create(c context.Context, uID uint, email string, r
 			return err
 		}
 
-		// // Rooms user create
-		// RoomsUserDTO, err := CreateRoomUserDTO(uID, RoomID, "ready")
-		// if err != nil {
-		// 	return err
-		// }
-		// err = d.Repository.InsertOneRoomUser(ctx, tx, RoomsUserDTO)
-		// if err != nil {
-		// 	return err
-		// }
-
-		// // user 정보 변경 Rooms id와 state 변경
-		// err = d.Repository.FindOneAndUpdateUser(ctx, tx, uID, uint(RoomID))
-		// if err != nil {
-		// 	return err
-		// }
-
 		res = response.ResCreateRoom{
 			RoomID: RoomID,
 		}

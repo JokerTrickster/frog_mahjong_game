@@ -30,6 +30,7 @@ type Rooms struct {
 	Password     string `json:"password" gorm:"column:password"`
 	State        string `json:"state" gorm:"column:state"` //wait, play, end
 	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
+	PlayTurn     int    `json:"playTurn" gorm:"column:play_turn"`
 }
 
 type RoomUsers struct {
