@@ -31,7 +31,7 @@ const (
 	continuous = "continuous"
 )
 
-var cardNames = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "중", "발"}
+var cardNames = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "chung", "bal"}
 
 func CreateInitCards(roomID uint) []mysql.Cards {
 	cards := make([]mysql.Cards, 0)
@@ -53,9 +53,9 @@ func CreateInitCards(roomID uint) []mysql.Cards {
 					card.Color = green
 				}
 			}
-			if card.Name == "중" {
+			if card.Name == "chung" {
 				card.Color = green
-			} else if card.Name == "발" {
+			} else if card.Name == "bal" {
 				card.Color = red
 			}
 

@@ -28,9 +28,10 @@ CREATE TABLE rooms (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
-    current_count INT,
-    max_count INT,
-    min_count INT,
+    current_count INT default 0,
+    play_turn int default 0,
+    max_count INT default 2,
+    min_count INT default 2,
     name VARCHAR(255),
     password VARCHAR(255),
     state VARCHAR(50),
@@ -48,7 +49,7 @@ CREATE TABLE room_users (
     score INT,
     owned_card_count INT,
     player_state VARCHAR(50),
-    turn_number INT,
+    turn_number INT default 0,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
@@ -85,7 +86,7 @@ CREATE TABLE user_auths (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     auth_code VARCHAR(255),
     email VARCHAR(255),
-    type VARCHAR(100),
+    type VARCHAR(100)
 );
 
 # rooms 대기방 생성

@@ -30,6 +30,7 @@ func CreateRoomDTO(ctx context.Context, req *request.ReqCreate, uID uint) (mysql
 		Name:         req.Name,
 		State:        "wait",
 		OwnerID:      int(uID),
+		PlayTurn:     0,
 	}
 	if req.Password != "" {
 		result.Password = req.Password
