@@ -25,7 +25,7 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방 참여 가능한지 체크
-		RoomDTO, err := repository.FindOneRoom(ctx, tx, &req)
+		RoomDTO, err := repository.JoinFindOneRoom(ctx, tx, &req)
 		if err != nil {
 			return err
 		}
@@ -37,18 +37,18 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		err = repository.InsertOneRoomUser(ctx, tx, RoomUserDTO)
+		err = repository.JoinInsertOneRoomUser(ctx, tx, RoomUserDTO)
 		if err != nil {
 			return err
 		}
 		// 방 현재 인원을 증가시킨다.
-		err = repository.FindOneAndUpdateRoom(ctx, tx, req.RoomID)
+		err = repository.JoinFindOneAndUpdateRoom(ctx, tx, req.RoomID)
 		if err != nil {
 			return err
 		}
 
 		//유저 정보를 업데이트 한다.
-		err = repository.FindOneAndUpdateUser(ctx, tx, uID, req.RoomID)
+		err = repository.JoinFindOneAndUpdateUser(ctx, tx, uID, req.RoomID)
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 
 	// 메시지 생성
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.FindAllRoomUsers(ctx, uint(msg.RoomID))
+	preloadUsers, err := repository.JoinFindAllRoomUsers(ctx, uint(msg.RoomID))
 	if err != nil {
 		log.Println(err)
 	}

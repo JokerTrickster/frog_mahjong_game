@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func FindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
+func JoinFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
 	if err := mysql.GormMysqlDB.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		log.Fatalf("RoomUsers 조회 에러: %s", err)
@@ -19,7 +19,7 @@ func FindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, err
 	return roomUsers, nil
 }
 
-func FindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
+func JoinFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
 	// 방 참여 가능한지 체크
 	RoomDTO := mysql.Rooms{}
 	result := tx.WithContext(ctx).Where("id = ? and password = ?", req.RoomID, req.Password).First(&RoomDTO)
@@ -29,7 +29,7 @@ func FindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysq
 	return RoomDTO, nil
 }
 
-func FindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
+func JoinFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
 	result := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1"))
 	if result.Error != nil {
 		return errors.New("방 인원 증가 실패")
@@ -37,7 +37,7 @@ func FindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
 	return nil
 }
 
-func FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error {
+func JoinFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error {
 	user := mysql.Users{
 		RoomID: int(RoomID),
 		State:  "play",
@@ -50,7 +50,7 @@ func FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uin
 	return nil
 }
 
-func InsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error {
+func JoinInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error {
 	result := tx.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
 		return errors.New("방 유저 정보 생성 실패")
