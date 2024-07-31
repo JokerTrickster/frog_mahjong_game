@@ -44,8 +44,14 @@ type WSMessage struct {
 	현재 보유하고 있는 코인 :
 */
 type RoomInfo struct {
-	Users    []*User   `json:"users"`    // 유저 정보
-	GameInfo *GameInfo `json:"gameInfo"` // 게임 정보
+	Users     []*User    `json:"users"`     // 유저 정보
+	GameInfo  *GameInfo  `json:"gameInfo"`  // 게임 정보
+	ErrorInfo *ErrorInfo `json:"errorInfo"` // 에러 정보
+}
+
+type ErrorInfo struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 type User struct {
 	ID             uint    `json:"id"`

@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
@@ -23,6 +22,8 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	if msg.Message != "" {
 		req.Password = msg.Message
 	}
+	//비즈니스 로직
+	roomInfoMsg := entity.RoomInfo{}
 
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// RoomsID에 해당하는 userID를 삭제한다.
@@ -73,7 +74,12 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 		}
 		return nil
 	})
-	fmt.Println(err)
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
 
 	// 메시지 생성
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
@@ -81,7 +87,6 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	if err != nil {
 		log.Println(err)
 	}
-	roomInfoMsg := entity.RoomInfo{}
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
 			ID:          uint(roomUser.UserID),

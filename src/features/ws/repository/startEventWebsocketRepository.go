@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -13,10 +13,10 @@ func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) er
 	room := mysql.Rooms{}
 	err := tx.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return errors.New("방 정보를 찾을 수 없습니다.")
+		return fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
 	}
 	if room.OwnerID != int(uID) {
-		return errors.New("방장만 게임을 시작할 수 있습니다.")
+		return fmt.Errorf("방장만 게임을 시작할 수 있습니다.")
 	}
 	return nil
 }
@@ -27,7 +27,7 @@ func StartCheckReady(ctx context.Context, tx *gorm.DB, roomID uint) ([]mysql.Roo
 	roomUsers := make([]mysql.RoomUsers, 0)
 	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Find(&roomUsers).Error
 	if err != nil {
-		return nil, errors.New("모든 유저가 준비하지 않았습니다.")
+		return nil, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", err)
 	}
 
 	return roomUsers, nil
@@ -43,7 +43,7 @@ func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mys
 			Updates(user)
 
 		if err.Error != nil {
-			return errors.New("유저 정보 업데이트 실패")
+			return fmt.Errorf("방 유저 정보 업데이트 실패: %v", err.Error)
 		}
 	}
 
@@ -54,7 +54,7 @@ func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mys
 func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, state string) error {
 	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", "play")
 	if err.Error != nil {
-		return errors.New("방 상태 업데이트 실패")
+		return fmt.Errorf("방 상태 업데이트 실패: %v", err.Error)
 	}
 
 	return nil
@@ -64,7 +64,7 @@ func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, state string
 func StartCreateCards(ctx context.Context, tx *gorm.DB, roomID uint, cards []mysql.Cards) error {
 	err := tx.WithContext(ctx).Create(&cards)
 	if err.Error != nil {
-		return errors.New("카드 데이터 생성 실패")
+		return fmt.Errorf("카드 정보 생성 실패: %v", err.Error)
 	}
 
 	return nil

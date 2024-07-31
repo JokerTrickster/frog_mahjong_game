@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/repository"
@@ -20,6 +19,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 
 	// 비즈니스 로직
+	roomInfoMsg := entity.RoomInfo{}
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 방장이 게임 시작 요청했는지 체크
@@ -63,7 +63,12 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 
 		return nil
 	})
-	fmt.Println(err)
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
 
 	// 메시지 생성
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
@@ -71,7 +76,6 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	if err != nil {
 		log.Println(err)
 	}
-	roomInfoMsg := entity.RoomInfo{}
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
@@ -106,13 +110,26 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		for client := range clients {
-			//나머지 유저에게 메시지 전달
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
+		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+		if err != nil {
+			for client := range clients {
+				if clients[client].UserID == msg.UserID {
+					err := client.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error: %v", err)
+						client.Close()
+						delete(clients, client)
+					}
+				}
+			}
+		} else {
+			for client := range clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					delete(clients, client)
+				}
 			}
 		}
 	}

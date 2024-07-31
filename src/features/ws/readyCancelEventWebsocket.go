@@ -14,9 +14,15 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 	uID := msg.UserID
 	roomID := msg.RoomID
 
+	// 비즈니스 로직
+	roomInfoMsg := entity.RoomInfo{}
 	err := repository.ReadyCancelFindOneAndUpdateRoomUser(ctx, uID, roomID)
+
 	if err != nil {
-		log.Println(err)
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
 	}
 
 	// 메시지 생성
@@ -25,7 +31,6 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 	if err != nil {
 		log.Println(err)
 	}
-	roomInfoMsg := entity.RoomInfo{}
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
 			ID:          uint(roomUser.UserID),
@@ -56,13 +61,26 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		for client := range clients {
-			//나머지 유저에게 메시지 전달
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
+		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+		if err != nil {
+			for client := range clients {
+				if clients[client].UserID == msg.UserID {
+					err := client.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error: %v", err)
+						client.Close()
+						delete(clients, client)
+					}
+				}
+			}
+		} else {
+			for client := range clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					delete(clients, client)
+				}
 			}
 		}
 	}

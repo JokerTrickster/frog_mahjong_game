@@ -2,8 +2,7 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
+	"fmt"
 	"main/features/ws/model/entity"
 	"main/utils/db/mysql"
 )
@@ -11,7 +10,7 @@ import (
 func ReadyCancelFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
 	if err := mysql.GormMysqlDB.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		log.Fatalf("RoomUsers 조회 에러: %s", err)
+		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
 	}
 	return roomUsers, nil
 }
@@ -22,7 +21,7 @@ func ReadyCancelFindOneAndUpdateRoomUser(ctx context.Context, uID, roomID uint) 
 	}
 	err := mysql.GormMysqlDB.Model(&RoomUser).Where("user_id = ? AND room_id = ?", uID, roomID).Updates(RoomUser).Error
 	if err != nil {
-		return errors.New("플레이어 상태 변경 실패")
+		return fmt.Errorf("방 유저 정보 업데이트 실패: %v", err)
 	}
 	return nil
 }
