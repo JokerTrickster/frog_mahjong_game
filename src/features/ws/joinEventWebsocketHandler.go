@@ -27,6 +27,8 @@ import (
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+// @Param tkn query string true "access token"
+// @Param roomID query string true "room id"
 // @Produce json
 // @Success 200 {object} boolean
 // @Failure 400 {object} error
@@ -65,6 +67,7 @@ func join(c echo.Context) error {
 		return nil
 	}
 
+	initialMsg.UserID = userID
 	roomID := initialMsg.RoomID
 	// 첫 번째 레벨 맵 초기화
 	if entity.WSClients == nil {
@@ -91,6 +94,7 @@ func join(c echo.Context) error {
 			break
 		}
 		msg.RoomID = roomID
+		msg.UserID = userID
 		if req.Password != "" {
 			msg.Message = req.Password
 		}

@@ -880,6 +880,22 @@ const docTemplate = `{
                     "ws"
                 ],
                 "summary": "방 참여 (ws)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "access token",
+                        "name": "tkn",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "room id",
+                        "name": "roomID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1679,6 +1695,9 @@ const docTemplate = `{
                 },
                 "refreshToken": {
                     "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },
@@ -1701,6 +1720,9 @@ const docTemplate = `{
                 },
                 "refreshToken": {
                     "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         }
