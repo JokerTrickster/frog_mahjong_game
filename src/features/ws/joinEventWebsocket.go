@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
@@ -30,9 +31,20 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		if RoomDTO.Password != req.Password {
+			return fmt.Errorf("비밀번호가 일치하지 않습니다.")
+		}
+
 		if RoomDTO.CurrentCount == RoomDTO.MaxCount {
+			return fmt.Errorf("방이 꽉 찼습니다.")
+		}
+		// TODO 기존에 방 유저 정보가 있는지 가져온다.
+		// 유저 정보가 있으면 삭제하고 방 인원수를 감소시킨다.
+		err = repository.JoinFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
+		if err != nil {
 			return err
 		}
+
 		// 방 유저 정보를 생성한다.
 		RoomUserDTO, err := CreateRoomUserDTO(uID, int(req.RoomID), "wait")
 		if err != nil {
