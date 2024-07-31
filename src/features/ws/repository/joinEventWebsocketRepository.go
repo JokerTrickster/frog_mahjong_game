@@ -21,7 +21,7 @@ func JoinFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers,
 func JoinFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
 	// 방 참여 가능한지 체크
 	RoomDTO := mysql.Rooms{}
-	result := tx.WithContext(ctx).Where("id = ? and password = ?", req.RoomID, req.Password).First(&RoomDTO)
+	result := tx.WithContext(ctx).Where("id = ?", req.RoomID).First(&RoomDTO)
 	if result.Error != nil {
 		return mysql.Rooms{}, fmt.Errorf("방 정보를 찾을 수 없습니다. %v", result.Error)
 	}
@@ -56,6 +56,23 @@ func JoinInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.R
 	}
 	if result.Error != nil {
 		return fmt.Errorf("방 유저 정보 생성 실패: %v", result.Error)
+	}
+	return nil
+}
+
+func JoinFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID, roomID uint) error {
+	result := tx.WithContext(ctx).Where("user_id = ? and room_id = ?", uID, roomID).Delete(&mysql.RoomUsers{})
+	// 방 유저 정보가 없는 경우
+	if result.RowsAffected == 0 {
+		return nil
+	} else {
+		result2 := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
+		if result2.Error != nil {
+			return fmt.Errorf("방 인원수 업데이트 실패: %v", result.Error)
+		}
+	}
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete room user: %v", result.Error)
 	}
 	return nil
 }
