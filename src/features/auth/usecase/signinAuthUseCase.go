@@ -48,6 +48,7 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqSignin) (r
 	res := response.ResSignin{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		UserID:       user.ID,
 	}
 
 	return res, nil

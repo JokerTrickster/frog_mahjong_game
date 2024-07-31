@@ -298,6 +298,8 @@ definitions:
         type: string
       refreshToken:
         type: string
+      userID:
+        type: integer
     type: object
   response.ResUserListRoom:
     properties:
@@ -312,6 +314,8 @@ definitions:
         type: string
       refreshToken:
         type: string
+      userID:
+        type: integer
     type: object
 info:
   contact: {}
@@ -1089,6 +1093,17 @@ paths:
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
         PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: access token
+        in: query
+        name: tkn
+        required: true
+        type: string
+      - description: room id
+        in: query
+        name: roomID
+        required: true
+        type: string
       produces:
       - application/json
       responses:

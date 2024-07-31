@@ -75,6 +75,7 @@ func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Con
 	res := response.ResV02GoogleOauthCallback{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		UserID:       user.ID,
 	}
 
 	return res, nil
