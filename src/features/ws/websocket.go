@@ -35,6 +35,8 @@ func WSHandleMessages() {
 			ReadyCancelEventWebsocket(&msg)
 		case "START": // 게임 시작
 			StartEventWebsocket(&msg)
+		case "DORA":
+			DoraEventWebsocket(&msg)
 
 		}
 	}

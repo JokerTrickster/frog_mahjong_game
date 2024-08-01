@@ -9,16 +9,16 @@ import (
 )
 
 // 방장이 시작했는지 체크
-func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) error {
+func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) (uint, error) {
 	room := mysql.Rooms{}
 	err := tx.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
+		return 0, fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
 	}
 	if room.OwnerID != int(uID) {
-		return fmt.Errorf("방장만 게임을 시작할 수 있습니다.")
+		return 0, fmt.Errorf("방장만 게임을 시작할 수 있습니다.")
 	}
-	return nil
+	return uint(room.OwnerID), nil
 }
 
 // 방 유저들이 모두 준비했는지 체크

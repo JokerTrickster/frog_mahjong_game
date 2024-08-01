@@ -71,14 +71,12 @@ type GameInfo struct {
 }
 
 /*
-카드 ID
 이름 : oen, two, three, four, five, six, seven, eight, nine , chung, bal
 색깔 : green, red, normal
 상태 : 버려진 패 or 소유하고 있는 패 or 가운데 놓여져 있는 패
 유저 ID
 */
 type Card struct {
-	ID     uint   `json:"id"`
 	Name   string `json:"name"`
 	Color  string `json:"color"`
 	State  string `json:"state"`
