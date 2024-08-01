@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	// WriteWait is the time allowed to write a message to the client.
+	// 클라이언트에 메시지를 쓸 수 있는 시간입니다.
 	WriteWait = 10 * time.Second
 
-	// PongWait is the time allowed to read the next pong message from the client.
-	PongWait = 60 * time.Second
+	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
+	PongWait = 40 * time.Second
 
-	// PingPeriod is the time period to send pings. Must be less than PongWait.
+	// 핑을 보낼 수 있는 기간입니다. (PongWait 보다 작아야 된다.)
 	PingPeriod = (PongWait * 9) / 10
 )
 
