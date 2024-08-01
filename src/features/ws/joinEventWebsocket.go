@@ -110,7 +110,7 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 	//방 유저들에게 메시지 전달
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if err != nil {
+		if roomInfoMsg.ErrorInfo != nil || err != nil {
 			for client := range clients {
 				if clients[client].UserID == msg.UserID {
 					err := client.WriteJSON(msg)

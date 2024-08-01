@@ -3,6 +3,20 @@ package ws
 import (
 	"fmt"
 	"main/features/ws/model/entity"
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+const (
+	// WriteWait is the time allowed to write a message to the client.
+	WriteWait = 10 * time.Second
+
+	// PongWait is the time allowed to read the next pong message from the client.
+	PongWait = 60 * time.Second
+
+	// PingPeriod is the time period to send pings. Must be less than PongWait.
+	PingPeriod = (PongWait * 9) / 10
 )
 
 func WSHandleMessages() {
@@ -22,6 +36,29 @@ func WSHandleMessages() {
 		case "START": // 게임 시작
 			StartEventWebsocket(&msg)
 
+		}
+	}
+}
+
+// HandlePingPong manages PING/PONG messages to keep the connection alive.
+func HandlePingPong(conn *websocket.Conn) {
+	// Setting up the Pong handler
+	conn.SetReadDeadline(time.Now().Add(PongWait))
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(PongWait))
+		return nil
+	})
+
+	ticker := time.NewTicker(PingPeriod)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
+				fmt.Println("Error sending ping:", err)
+				return
+			}
 		}
 	}
 }

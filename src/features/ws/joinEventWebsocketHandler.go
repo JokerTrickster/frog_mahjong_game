@@ -84,6 +84,7 @@ func join(c echo.Context) error {
 		Conn:   ws,
 	}
 	entity.WSBroadcast <- initialMsg
+	go HandlePingPong(ws)
 
 	for {
 		var msg entity.WSMessage
