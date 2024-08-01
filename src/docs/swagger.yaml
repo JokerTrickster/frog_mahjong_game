@@ -1,4 +1,15 @@
 definitions:
+  main_features_game_model_request.Card:
+    properties:
+      cardID:
+        type: integer
+      roomID:
+        type: integer
+      state:
+        type: string
+      userID:
+        type: integer
+    type: object
   main_features_rooms_model_response.User:
     properties:
       ownedCardCount:
@@ -30,17 +41,6 @@ definitions:
         type: string
       name:
         type: string
-      state:
-        type: string
-      userID:
-        type: integer
-    type: object
-  request.Card:
-    properties:
-      cardID:
-        type: integer
-      roomID:
-        type: integer
       state:
         type: string
       userID:
@@ -123,7 +123,7 @@ definitions:
     properties:
       cards:
         items:
-          $ref: '#/definitions/request.Card'
+          $ref: '#/definitions/main_features_game_model_request.Card'
         type: array
     type: object
   request.ReqReady:

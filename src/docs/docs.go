@@ -1234,6 +1234,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main_features_game_model_request.Card": {
+            "type": "object",
+            "properties": {
+                "cardID": {
+                    "type": "integer"
+                },
+                "roomID": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "main_features_rooms_model_response.User": {
             "type": "object",
             "properties": {
@@ -1280,23 +1297,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "state": {
-                    "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "request.Card": {
-            "type": "object",
-            "properties": {
-                "cardID": {
-                    "type": "integer"
-                },
-                "roomID": {
-                    "type": "integer"
                 },
                 "state": {
                     "type": "string"
@@ -1424,7 +1424,7 @@ const docTemplate = `{
                 "cards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/request.Card"
+                        "$ref": "#/definitions/main_features_game_model_request.Card"
                     }
                 }
             }
