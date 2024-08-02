@@ -35,12 +35,12 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg := entity.RoomInfo{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 선플레이어가 도라를 선택했는지 체크
-		err := repository.CheckFirstPlayer(ctx, tx, uID, roomID)
+		err := repository.DoraCheckFirstPlayer(ctx, tx, uID, roomID)
 		if err != nil {
 			return err
 		}
 		// 카드 업데이트
-		err = repository.UpdateDoraCard(ctx, tx, &doraEntity)
+		err = repository.DoraUpdateDoraCard(ctx, tx, &doraEntity)
 		if err != nil {
 			return err
 		}

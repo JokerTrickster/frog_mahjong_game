@@ -85,12 +85,13 @@ type Card struct {
 
 type RoomUsers struct {
 	gorm.Model
-	UserID         int         `json:"userID" gorm:"column:user_id"`
-	RoomID         int         `json:"roomID" gorm:"column:room_id"`
-	Score          int         `json:"score" gorm:"column:score"`
-	OwnedCardCount int         `json:"ownedCardCount" gorm:"column:owned_card_count"`
-	PlayerState    string      `json:"playerState" gorm:"column:player_state"`
-	TurnNumber     int         `json:"turnNumber" gorm:"column:turn_number"`
-	User           mysql.Users `gorm:"foreignKey:UserID"`
-	Room           mysql.Rooms `gorm:"foreignKey:RoomID"`
+	UserID         int           `json:"userID" gorm:"column:user_id"`
+	RoomID         int           `json:"roomID" gorm:"column:room_id"`
+	Score          int           `json:"score" gorm:"column:score"`
+	OwnedCardCount int           `json:"ownedCardCount" gorm:"column:owned_card_count"`
+	PlayerState    string        `json:"playerState" gorm:"column:player_state"`
+	TurnNumber     int           `json:"turnNumber" gorm:"column:turn_number"`
+	User           mysql.Users   `gorm:"foreignKey:UserID"`
+	Room           mysql.Rooms   `gorm:"foreignKey:RoomID"`
+	Cards          []mysql.Cards `gorm:"foreignKey:UserID;references:UserID"`
 }

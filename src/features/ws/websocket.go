@@ -37,7 +37,8 @@ func WSHandleMessages() {
 			StartEventWebsocket(&msg)
 		case "DORA":
 			DoraEventWebsocket(&msg)
-
+		case "IMPORT_CARDS":
+			ImportCardsEventWebsocket(&msg)
 		}
 	}
 }
