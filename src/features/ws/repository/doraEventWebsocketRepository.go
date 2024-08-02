@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID uint) error {
+func DoraCheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID uint) error {
 	var roomUsers mysql.RoomUsers
 	err := tx.Model(&roomUsers).Where("user_id = ? AND room_id = ? and turn_number = ?", userID, roomID, 1).First(&roomUsers)
 	if err.Error != nil {
@@ -19,7 +19,7 @@ func CheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID uint) 
 	return nil
 }
 
-func UpdateDoraCard(c context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
+func DoraUpdateDoraCard(c context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
 
 	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and name = ? and color = ?", entity.RoomID, entity.Name, entity.Color).Update("state", entity.State)
 	if err.Error != nil {
