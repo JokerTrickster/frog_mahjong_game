@@ -61,14 +61,16 @@ var cardNames = []string{"one", "two", "three", "four", "five", "six", "seven", 
 
 func CreateInitCards(roomID uint) []mysql.Cards {
 	cards := make([]mysql.Cards, 0)
-
+	cardID := 1
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 11; j++ {
 			card := mysql.Cards{
 				RoomID: int(roomID),
 				Name:   cardNames[j],
 				State:  "none",
+				CardID: cardID,
 			}
+			cardID++
 			if i == 0 {
 				card.Color = red
 			} else {

@@ -21,7 +21,7 @@ func DoraCheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID ui
 
 func DoraUpdateDoraCard(c context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
 
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and name = ? and color = ?", entity.RoomID, entity.Name, entity.Color).Update("state", entity.State)
+	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ?", entity.RoomID, entity.CardID).Update("state", "dora")
 	if err.Error != nil {
 		return fmt.Errorf("도라 카드 업데이트 실패 %v", err.Error)
 	}

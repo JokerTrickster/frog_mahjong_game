@@ -30,9 +30,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	}
 	for _, card := range req.Cards {
 		importCardsEntity.Cards = append(importCardsEntity.Cards, &mysql.Cards{
-			Name:   card.Name,
-			Color:  card.Color,
-			State:  card.State,
+			CardID: int(card.CardID),
 			RoomID: int(roomID),
 			UserID: int(uID),
 		})
@@ -85,16 +83,12 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 		for _, card := range roomUser.Cards {
 			if card.State == "owned" {
 				user.Cards = append(user.Cards, &entity.Card{
-					Name:   card.Name,
-					Color:  card.Color,
-					State:  card.State,
+					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
 			} else if card.State == "discard" {
 				user.DiscardedCards = append(user.DiscardedCards, &entity.Card{
-					Name:   card.Name,
-					Color:  card.Color,
-					State:  card.State,
+					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
 			}
@@ -107,16 +101,14 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	}
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: 1,
+		PlayTurn: req.PlayTurn,
 		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}
-	doraCardInfo.Name = doraDTO.Name
-	doraCardInfo.Color = doraDTO.Color
-	doraCardInfo.State = doraDTO.State
+	doraCardInfo.CardID = uint(doraDTO.CardID)
 	roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)

@@ -77,10 +77,8 @@ type GameInfo struct {
 유저 ID
 */
 type Card struct {
-	Name   string `json:"name"`
-	Color  string `json:"color"`
-	State  string `json:"state"`
-	UserID uint   `json:"userID"`
+	CardID uint `json:"cardID"`
+	UserID uint `json:"userID"`
 }
 
 type RoomUsers struct {

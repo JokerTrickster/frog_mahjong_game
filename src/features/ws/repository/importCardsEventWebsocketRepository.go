@@ -28,7 +28,7 @@ func ImportCardsUpdateCardState(c context.Context, tx *gorm.DB, entity *entity.W
 	// 카드 상태 업데이트
 	// room_id, card_id, state로 찾고 카드 업데이트할 때 트랜잭션 처리해줘
 	for _, card := range entity.Cards {
-		err := tx.Model(&mysql.Cards{}).Where("room_id = ? and name = ? and color = ? and state = ?", card.RoomID, card.Name, card.Color, "none").Updates(&mysql.Cards{State: card.State, UserID: card.UserID}).Error
+		err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ? and state = ?", card.RoomID, card.CardID, "none").Updates(&mysql.Cards{State: "owned", UserID: card.UserID}).Error
 		if err != nil {
 			return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
 		}

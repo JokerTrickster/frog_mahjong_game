@@ -61,6 +61,7 @@ CREATE TABLE cards (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     room_id INT,
 	user_id INT,
+    card_id INT,
     name VARCHAR(255),
     color VARCHAR(50),
     state VARCHAR(50),
