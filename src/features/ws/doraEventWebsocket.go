@@ -26,9 +26,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	}
 	doraEntity := entity.WSDoraEntity{
 		RoomID: roomID,
-		Name:   req.Cards[0].Name,
-		Color:  req.Cards[0].Color,
-		State:  req.Cards[0].State,
+		CardID: req.Cards[0].CardID,
 	}
 
 	// 비즈니스 로직
@@ -82,16 +80,14 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	}
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: 1,
+		PlayTurn: req.PlayTurn,
 		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}
-	doraCardInfo.Name = doraEntity.Name
-	doraCardInfo.Color = doraEntity.Color
-	doraCardInfo.State = doraEntity.State
+	doraCardInfo.CardID = doraEntity.CardID
 	roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)

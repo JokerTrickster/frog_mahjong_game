@@ -1,11 +1,10 @@
 package request
 
 type ReqWSImportCards struct {
-	Cards []Card `json:"cards"`
+	Cards    []Card `json:"cards"`
+	PlayTurn int    `json:"playTurn"`
 }
 
 type ImportCards struct {
-	Name  string `json:"name"`
-	Color string `json:"color"`
-	State string `json:"state"`
+	CardID uint `json:"cardID"`
 }

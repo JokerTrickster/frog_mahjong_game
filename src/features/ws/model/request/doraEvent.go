@@ -1,11 +1,10 @@
 package request
 
 type ReqWSDora struct {
-	Cards []Card `json:"cards"`
+	Cards    []Card `json:"cards"`
+	PlayTurn int    `json:"playTurn"`
 }
 
 type Card struct {
-	Name  string `json:"name"`
-	Color string `json:"color"`
-	State string `json:"state"`
+	CardID uint `json:"cardID"`
 }
