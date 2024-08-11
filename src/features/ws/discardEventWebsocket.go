@@ -99,9 +99,11 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
+	//게임턴 계산
+	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: req.PlayTurn + 1,
+		PlayTurn: playTurn,
 		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo

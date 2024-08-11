@@ -41,6 +41,8 @@ func WSHandleMessages() {
 			ImportCardsEventWebsocket(&msg)
 		case "DISCARD":
 			DiscardCardsEventWebsocket(&msg)
+		case "IMPORT_SINGLE_CARD":
+			ImportSingleCardEventWebsocket(&msg)
 		}
 	}
 }
