@@ -99,9 +99,12 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
+	//게임턴 계산
+	playerCount := len(entity.WSClients[msg.RoomID])
+	playTurn := CalcPlayTurn(req.PlayTurn, playerCount)
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: req.PlayTurn,
+		PlayTurn: playTurn,
 		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
