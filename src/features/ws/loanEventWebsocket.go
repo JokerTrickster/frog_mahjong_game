@@ -1,0 +1,119 @@
+package ws
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"main/features/ws/model/entity"
+	"main/features/ws/model/request"
+	"main/features/ws/repository"
+	"main/utils/db/mysql"
+
+	"gorm.io/gorm"
+)
+
+func LoanEventWebsocket(msg *entity.WSMessage) {
+	ctx := context.Background()
+	uID := msg.UserID
+	roomID := msg.RoomID
+
+	//string to struct
+	req := request.ReqWSLoan{}
+	err := json.Unmarshal([]byte(msg.Message), &req)
+	if err != nil {
+		log.Fatalf("JSON 언마샬링 에러: %s", err)
+	}
+	loanEntity := entity.WSLoanEntity{
+		RoomID:       roomID,
+		CardID:       req.CardID,
+		TargetUserID: req.TargetUserID,
+		UserID:       uID,
+	}
+
+	// 비즈니스 로직
+	roomInfoMsg := entity.RoomInfo{}
+	doraDTO := &mysql.Cards{}
+	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+		// loan 가능한지 체크 (마지막으로 버려진 카드인지 체크)
+		err := repository.LoanCheckLoan(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+
+		// loan 하기 (상대방이 버린 카드를 가져온다)
+		err = repository.LoanCardLoan(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+
+		// 룸 유저 카드 수와 상태값을 변경한다.
+		err = repository.LoanUpdateRoomUserCardCount(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+		//dora 카드 가져오기
+		doraDTO, err = repository.LoanCardFindOneDora(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
+	// 메시지 생성
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, req.PlayTurn)
+
+	//론한 유저에 대한 정보를 게임정보에 저장한다.
+	LoanInfo := entity.LoanInfo{
+		CardID:       int(req.CardID),
+		UserID:       uID,
+		TargetUserID: req.TargetUserID,
+	}
+	roomInfoMsg.GameInfo.LoanInfo = &LoanInfo
+
+	//도라 카드 정보 저장
+	doraCardInfo := entity.Card{}
+	doraCardInfo.CardID = uint(doraDTO.CardID)
+	roomInfoMsg.GameInfo.Dora = &doraCardInfo
+
+	// 구조체를 JSON 문자열로 변환 (마샬링)
+	jsonData, err := json.Marshal(roomInfoMsg)
+	if err != nil {
+		log.Fatalf("JSON 마샬링 에러: %s", err)
+	}
+
+	// JSON 바이트 배열을 문자열로 변환
+	jsonString := string(jsonData)
+	msg.Message = jsonString
+
+	//유저들에게 메시지 전송한다.
+	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+		if roomInfoMsg.ErrorInfo != nil || err != nil {
+			for client := range clients {
+				if clients[client].UserID == msg.UserID {
+					err := client.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error: %v", err)
+						client.Close()
+						delete(clients, client)
+					}
+				}
+			}
+		} else {
+			for client := range clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					delete(clients, client)
+				}
+			}
+		}
+	}
+}
