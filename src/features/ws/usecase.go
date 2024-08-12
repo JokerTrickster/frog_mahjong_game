@@ -3,9 +3,11 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/repository"
+	"main/utils/db/mysql"
 )
 
 func CalcPlayTurn(playTurn, playerCount int) int {
@@ -52,8 +54,8 @@ func CreateRoomInfoMSG(ctx context.Context, roomID uint, playTurn int) *entity.R
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: playTurn,
-		AllReady: true,
+		PlayTurn: 1,
+		AllReady: false,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	return &roomInfoMsg
@@ -67,4 +69,11 @@ func JsonToByte(roomInfoMsg *entity.RoomInfo) []byte {
 		log.Fatalf("JSON 마샬링 에러: %s", err)
 	}
 	return jsonData
+}
+
+func CalcScore(cards []*mysql.Cards, score int) error {
+	if score >= 5 {
+		return nil
+	}
+	return fmt.Errorf("점수가 부족합니다.")
 }
