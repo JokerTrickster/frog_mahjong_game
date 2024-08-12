@@ -26,7 +26,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	}
 	doraEntity := entity.WSDoraEntity{
 		RoomID: roomID,
-		CardID: req.Cards[0].CardID,
+		CardID: uint(req.CardID),
 	}
 
 	// 비즈니스 로직

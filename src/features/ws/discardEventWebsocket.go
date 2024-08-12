@@ -27,13 +27,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	DiscardCardsEntity := entity.WSDiscardCardsEntity{
 		RoomID: roomID,
 		UserID: uID,
-	}
-	for _, card := range req.Cards {
-		DiscardCardsEntity.Cards = append(DiscardCardsEntity.Cards, &mysql.Cards{
-			CardID: int(card.CardID),
-			RoomID: int(roomID),
-			UserID: int(uID),
-		})
+		CardID: uint(req.CardID),
 	}
 
 	// 비즈니스 로직
