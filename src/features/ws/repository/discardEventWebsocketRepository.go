@@ -29,22 +29,18 @@ func DiscardCardsFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysq
 func DiscardCardsUpdateCardState(c context.Context, tx *gorm.DB, entity *entity.WSDiscardCardsEntity) error {
 	// 카드 상태 업데이트
 	// room_id, card_id, state로 찾고 카드 업데이트할 때 트랜잭션 처리해줘
-	for _, card := range entity.Cards {
-		err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ? and state = ?", card.RoomID, card.CardID, "owned").Updates(&mysql.Cards{State: "discard", UserID: card.UserID}).Error
-		if err != nil {
-			return fmt.Errorf("카드 버리기 상태 업데이트 실패 %v", err.Error())
-		}
+	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ? and state = ?", entity.RoomID, entity.CardID, "owned").Updates(&mysql.Cards{State: "discard", UserID: int(entity.UserID)}).Error
+	if err != nil {
+		return fmt.Errorf("카드 버리기 상태 업데이트 실패 %v", err.Error())
 	}
 	return nil
 }
 
 func DiscardCardsUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, entity *entity.WSDiscardCardsEntity) error {
 	// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
-	for _, card := range entity.Cards {
-		err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", card.RoomID, card.UserID).Update("owned_card_count", gorm.Expr("owned_card_count - 1")).Error
-		if err != nil {
-			return fmt.Errorf("방 유저 카드 카운트 업데이트 실패 %v", err.Error())
-		}
+	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count - 1")).Error
+	if err != nil {
+		return fmt.Errorf("방 유저 카드 카운트 업데이트 실패 %v", err.Error())
 	}
 	return nil
 }
