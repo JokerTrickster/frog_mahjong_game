@@ -45,6 +45,8 @@ func WSHandleMessages() {
 			ImportSingleCardEventWebsocket(&msg)
 		case "LOAN":
 			LoanEventWebsocket(&msg)
+		case "FAILED_LOAN":
+			FailedLoanEventWebsocket(&msg)
 		}
 	}
 }

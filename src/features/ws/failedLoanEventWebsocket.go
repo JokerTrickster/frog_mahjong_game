@@ -1,0 +1,119 @@
+package ws
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"main/features/ws/model/entity"
+	"main/features/ws/model/request"
+	"main/features/ws/repository"
+	"main/utils/db/mysql"
+
+	"gorm.io/gorm"
+)
+
+func FailedLoanEventWebsocket(msg *entity.WSMessage) {
+	ctx := context.Background()
+	uID := msg.UserID
+	roomID := msg.RoomID
+
+	//string to struct
+	req := request.ReqWSFailedLoan{}
+	err := json.Unmarshal([]byte(msg.Message), &req)
+	if err != nil {
+		log.Fatalf("JSON 언마샬링 에러: %s", err)
+	}
+	loanEntity := entity.WSLoanEntity{
+		RoomID:       roomID,
+		CardID:       req.CardID,
+		TargetUserID: req.TargetUserID,
+		UserID:       uID,
+	}
+
+	// 비즈니스 로직
+	roomInfoMsg := entity.RoomInfo{}
+	doraDTO := &mysql.Cards{}
+	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+		// 소유하고 있는 카드인지 체크
+		err := repository.FailedLoanCheckCard(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+
+		// 카드 정보를 롤백한다.
+		err = repository.FailedLoanRollbackCard(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+
+		// 패널티를 부여한다. (코인 차감)
+		penaltyCoin := (len(entity.WSClients[msg.RoomID]) - 1) * 2
+		err = repository.FailedLoanPenalty(ctx, tx, &loanEntity, penaltyCoin)
+		if err != nil {
+			return err
+		}
+
+		// 모든 플레이어에게 코인 추가
+		err = repository.FailedLoanAddCoin(ctx, tx, &loanEntity)
+		if err != nil {
+			return err
+		}
+
+		//dora 카드 가져오기
+		doraDTO, err = repository.LoanCardFindOneDora(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
+	// 메시지 생성
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, req.PlayTurn)
+
+	//도라 카드 정보 저장
+	doraCardInfo := entity.Card{}
+	doraCardInfo.CardID = uint(doraDTO.CardID)
+	roomInfoMsg.GameInfo.Dora = &doraCardInfo
+
+	// 구조체를 JSON 문자열로 변환 (마샬링)
+	jsonData, err := json.Marshal(roomInfoMsg)
+	if err != nil {
+		log.Fatalf("JSON 마샬링 에러: %s", err)
+	}
+
+	// JSON 바이트 배열을 문자열로 변환
+	jsonString := string(jsonData)
+	msg.Message = jsonString
+
+	//유저들에게 메시지 전송한다.
+	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+		if roomInfoMsg.ErrorInfo != nil || err != nil {
+			for client := range clients {
+				if clients[client].UserID == msg.UserID {
+					err := client.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error: %v", err)
+						client.Close()
+						delete(clients, client)
+					}
+				}
+			}
+		} else {
+			for client := range clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					delete(clients, client)
+				}
+			}
+		}
+	}
+}
