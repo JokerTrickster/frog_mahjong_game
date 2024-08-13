@@ -34,6 +34,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	doraDTO := &mysql.Cards{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 소유하고 있는 카드인지 체크
 		err := repository.FailedLoanCheckCard(ctx, tx, &loanEntity)
@@ -66,6 +67,11 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
+		preloadUsers, err = repository.FailedLoanFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -75,7 +81,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 		}
 	}
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, req.PlayTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn)
 
 	//도라 카드 정보 저장
 	doraCardInfo := entity.Card{}

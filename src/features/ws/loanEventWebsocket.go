@@ -34,6 +34,7 @@ func LoanEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	doraDTO := &mysql.Cards{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// loan 가능한지 체크 (마지막으로 버려진 카드인지 체크)
 		err := repository.LoanCheckLoan(ctx, tx, &loanEntity)
@@ -57,6 +58,10 @@ func LoanEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		preloadUsers, err = repository.LoanFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})
@@ -67,7 +72,7 @@ func LoanEventWebsocket(msg *entity.WSMessage) {
 		}
 	}
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, req.PlayTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn)
 
 	//론한 유저에 대한 정보를 게임정보에 저장한다.
 	LoanInfo := entity.LoanInfo{

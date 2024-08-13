@@ -18,6 +18,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 방장이 게임 시작 요청했는지 체크
@@ -52,13 +53,22 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
+		// 기존 카드가 있다면 모두 제거한다.
+		err = repository.StartDeleteCards(ctx, tx, roomID)
+		if err != nil{
+			return err
+		}
+
 		// cards 데이터 생성
 		cards := CreateInitCards(roomID)
 		err = repository.StartCreateCards(ctx, tx, roomID, cards)
 		if err != nil {
 			return err
 		}
-
+		preloadUsers, err = repository.StartFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
@@ -69,7 +79,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
