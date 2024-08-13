@@ -9,6 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
+func DoraFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	}
+	return roomUsers, nil
+}
 func DoraCheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID uint) error {
 	var roomUsers mysql.RoomUsers
 	err := tx.Model(&roomUsers).Where("user_id = ? AND room_id = ? and turn_number = ?", userID, roomID, 1).First(&roomUsers)

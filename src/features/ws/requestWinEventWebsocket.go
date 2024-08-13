@@ -37,6 +37,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보 체크 (소유하고 있는지 체크)
 		cards, err := repository.RequestWinFindAllCards(ctx, tx, &requestWinEntity)
@@ -90,6 +91,10 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		preloadUsers, err = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})
@@ -101,7 +106,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)

@@ -3,10 +3,32 @@ package repository
 import (
 	"context"
 	"fmt"
+	"main/features/ws/model/entity"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 )
+
+func StartFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	}
+	return roomUsers, nil
+}
+
+func StartDeleteCards(ctx context.Context, tx *gorm.DB, roomID uint) error {
+	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Delete(&mysql.Cards{})
+	if err.Error != nil {
+		if err.Error == gorm.ErrRecordNotFound {
+			return nil
+		}
+		return fmt.Errorf("카드 삭제 실패 %v", err.Error)
+	}
+	return nil
+}
 
 // 방장이 시작했는지 체크
 func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) (uint, error) {

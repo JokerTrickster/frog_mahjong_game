@@ -14,6 +14,7 @@ func ReadyEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
 	err := repository.ReadyFindOneAndUpdateRoomUser(ctx, uID, roomID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
@@ -21,9 +22,16 @@ func ReadyEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 		}
 	}
-
+	preloadUsers, err = repository.ReadyFindAllRoomUsers(ctx, roomID)
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
+	
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {

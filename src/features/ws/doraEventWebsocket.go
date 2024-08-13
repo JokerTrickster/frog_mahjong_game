@@ -32,6 +32,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 선플레이어가 도라를 선택했는지 체크
 		err := repository.DoraCheckFirstPlayer(ctx, tx, uID, roomID)
@@ -43,6 +44,11 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		preloadUsers, err = repository.DoraFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
@@ -53,32 +59,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.ReadyFindAllRoomUsers(ctx, uint(msg.RoomID))
-	if err != nil {
-		log.Println(err)
-	}
-	//유저 정보 저장
-	for _, roomUser := range preloadUsers {
-		user := entity.User{
-			ID:          uint(roomUser.UserID),
-			PlayerState: roomUser.PlayerState,
-			Coin:        roomUser.User.Coin,
-			Name:        roomUser.User.Name,
-			Email:       roomUser.User.Email,
-			TurnNumber:  roomUser.TurnNumber,
-		}
-		if roomUser.Room.OwnerID == roomUser.UserID {
-			user.IsOwner = true
-		}
-		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
-	}
-	//게임 정보 저장
-	gameInfo := entity.GameInfo{
-		PlayTurn: req.PlayTurn,
-		AllReady: true,
-	}
-	roomInfoMsg.GameInfo = &gameInfo
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

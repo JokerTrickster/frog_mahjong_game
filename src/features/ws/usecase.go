@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
-	"main/features/ws/repository"
 	"main/utils/db/mysql"
 )
 
@@ -14,14 +12,8 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 	return (playTurn % playerCount) + 1
 }
 
-func CreateRoomInfoMSG(ctx context.Context, roomID uint, playTurn int) *entity.RoomInfo {
+func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, playTurn int) *entity.RoomInfo {
 	roomInfoMsg := entity.RoomInfo{}
-
-	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.ImportSingleCardFindAllRoomUsers(ctx, roomID)
-	if err != nil {
-		log.Println(err)
-	}
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		user := entity.User{

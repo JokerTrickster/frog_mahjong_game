@@ -15,8 +15,15 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
 	err := repository.ReadyCancelFindOneAndUpdateRoomUser(ctx, uID, roomID)
-
+	if err != nil {
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: 500,
+			Msg:  err.Error(),
+		}
+	}
+	preloadUsers, err = repository.ReadyCancelFindAllRoomUsers(ctx, roomID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
@@ -25,7 +32,7 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)

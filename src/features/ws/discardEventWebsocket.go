@@ -34,6 +34,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	doraDTO := &mysql.Cards{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
 		err := repository.DiscardCardsUpdateCardState(ctx, tx, &DiscardCardsEntity)
@@ -50,6 +51,10 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		preloadUsers, err = repository.DiscardCardsFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
@@ -62,7 +67,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	// 메시지 생성
 	//게임턴 계산
 	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, playTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

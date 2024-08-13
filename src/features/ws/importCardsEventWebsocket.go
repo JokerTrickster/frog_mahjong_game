@@ -40,6 +40,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	doraDTO := &mysql.Cards{}
+	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
 		err := repository.ImportCardsUpdateCardState(ctx, tx, &importCardsEntity)
@@ -56,6 +57,10 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
+		preloadUsers, err = repository.ImportCardsFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
@@ -69,7 +74,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 
 	//게임턴 계산
 	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, playTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

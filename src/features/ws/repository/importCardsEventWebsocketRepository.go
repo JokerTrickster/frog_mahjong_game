@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func ImportCardsFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
+func ImportCardsFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := mysql.GormMysqlDB.Preload("User").Preload("Room").Preload("Cards", "room_id = ?", roomID).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+	if err := tx.Preload("User").Preload("Room").Preload("Cards", "room_id = ?", roomID).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
 	}
 	return roomUsers, nil
