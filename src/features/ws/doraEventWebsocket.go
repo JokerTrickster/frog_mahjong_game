@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
@@ -50,12 +51,6 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 		}
 	}
-	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-		}
-	}
 
 	// 메시지 생성
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
@@ -89,16 +84,12 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	doraCardInfo := entity.Card{}
 	doraCardInfo.CardID = doraEntity.CardID
 	roomInfoMsg.GameInfo.Dora = &doraCardInfo
-
 	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomInfoMsg)
+	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		log.Fatalf("JSON 마샬링 에러: %s", err)
+		fmt.Println(err)
 	}
-
-	// JSON 바이트 배열을 문자열로 변환
-	jsonString := string(jsonData)
-	msg.Message = jsonString
+	msg.Message = message
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {

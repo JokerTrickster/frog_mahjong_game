@@ -54,21 +54,22 @@ func CreateRoomInfoMSG(ctx context.Context, roomID uint, playTurn int) *entity.R
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn: 1,
-		AllReady: false,
+		PlayTurn: playTurn,
+		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	return &roomInfoMsg
 
 }
 
-func JsonToByte(roomInfoMsg *entity.RoomInfo) []byte {
+func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	jsonData, err := json.Marshal(roomInfoMsg)
 	if err != nil {
-		log.Fatalf("JSON 마샬링 에러: %s", err)
+		return "", fmt.Errorf("JSON 마샬링 에러: %s", err)
 	}
-	return jsonData
+
+	return string(jsonData), nil
 }
 
 func CalcScore(cards []*mysql.Cards, score int) error {

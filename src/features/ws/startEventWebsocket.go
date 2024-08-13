@@ -2,9 +2,7 @@ package ws
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"log"
+	"fmt"
 	"main/features/ws/model/entity"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
@@ -34,7 +32,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		if allReady := CheckRoomUsersReady(roomUsers, ownerID); !allReady {
-			return errors.New("모든 유저가 준비하지 않았습니다.")
+			return fmt.Errorf("모든 유저가 준비하지 않았습니다.")
 		}
 
 		// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
@@ -71,42 +69,14 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.ReadyFindAllRoomUsers(ctx, uint(msg.RoomID))
-	if err != nil {
-		log.Println(err)
-	}
-	//유저 정보 저장
-	for _, roomUser := range preloadUsers {
-		user := entity.User{
-			ID:          uint(roomUser.UserID),
-			PlayerState: roomUser.PlayerState,
-			Coin:        roomUser.User.Coin,
-			Name:        roomUser.User.Name,
-			Email:       roomUser.User.Email,
-			TurnNumber:  roomUser.TurnNumber,
-		}
-		if roomUser.Room.OwnerID == roomUser.UserID {
-			user.IsOwner = true
-		}
-		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
-	}
-	//게임 정보 저장
-	gameInfo := entity.GameInfo{
-		PlayTurn: 1,
-		AllReady: true,
-	}
-	roomInfoMsg.GameInfo = &gameInfo
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, 1)
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomInfoMsg)
+	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		log.Fatalf("JSON 마샬링 에러: %s", err)
+		fmt.Println(err)
 	}
-
-	// JSON 바이트 배열을 문자열로 변환
-	jsonString := string(jsonData)
-	msg.Message = jsonString
+	msg.Message = message
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
@@ -116,7 +86,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 				if clients[client].UserID == msg.UserID {
 					err := client.WriteJSON(msg)
 					if err != nil {
-						log.Printf("error: %v", err)
+						fmt.Printf("error: %v", err)
 						client.Close()
 						delete(clients, client)
 					}
@@ -126,7 +96,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			for client := range clients {
 				err := client.WriteJSON(msg)
 				if err != nil {
-					log.Printf("error: %v", err)
+					fmt.Printf("error: %v", err)
 					client.Close()
 					delete(clients, client)
 				}
