@@ -2,12 +2,15 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"main/features/game/model/entity"
 	_errors "main/features/game/model/errors"
 	"main/features/game/model/request"
 	"main/utils"
 	"main/utils/db/mysql"
 	"math/rand"
 	"strconv"
+	"strings"
 )
 
 /*
@@ -30,6 +33,19 @@ const (
 	same       = "same"
 	continuous = "continuous"
 )
+
+// 숫자 문자열과 대응하는 숫자를 맵으로 정의
+var numberMap = map[string]int{
+	"one":   1,
+	"two":   2,
+	"three": 3,
+	"four":  4,
+	"five":  5,
+	"six":   6,
+	"seven": 7,
+	"eight": 8,
+	"nine":  9,
+}
 
 var cardNames = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "chung", "bal"}
 
@@ -99,7 +115,7 @@ func CreateUpdateRoomUser(roomUser mysql.RoomUsers, req *request.ReqDiscard) mys
 	return roomUser
 }
 
-func ScoreCalculate(req *request.ReqScoreCalculate, doraCard mysql.Cards) (int, []string, error) {
+func ScoreCalculate(e *entity.ScoreCalculateEntity, doraCard mysql.Cards) (int, []string, error) {
 	// 카드의 점수를 계산한다.
 	score := 0
 	// 카드는 1,2,3,4,5,6,7,8,9,중,발 이 있다.
@@ -111,10 +127,10 @@ func ScoreCalculate(req *request.ReqScoreCalculate, doraCard mysql.Cards) (int, 
 
 	// 3개 카드가 모두 같은 카드인지 체크
 	for i := 0; i < 6; i += 3 {
-		if IsCheckedSameCard(req.Cards[i], req.Cards[i+1], req.Cards[i+2]) {
+		if IsCheckedSameCard(e.Cards[i], e.Cards[i+1], e.Cards[i+2]) {
 			score += 2
 			bonuses = append(bonuses, same)
-		} else if IsCheckedContinuousCard(req.Cards[i], req.Cards[i+1], req.Cards[i+2]) {
+		} else if IsCheckedContinuousCard(e.Cards[i], e.Cards[i+1], e.Cards[i+2]) {
 			score += 1
 			bonuses = append(bonuses, continuous)
 		} else {
@@ -128,16 +144,16 @@ func ScoreCalculate(req *request.ReqScoreCalculate, doraCard mysql.Cards) (int, 
 	// 3. 칭야오 : 모든 패가 1,9,중,발로만 이루어진 카드이면 15점
 
 	// 역만 보너스 점수 계산
-	if IsCheckedAllGreen(req.Cards) {
+	if IsCheckedAllGreen(e.Cards) {
 		return 10, []string{allGreen}, nil
-	} else if IsCheckedAllRed(req.Cards) {
+	} else if IsCheckedAllRed(e.Cards) {
 		return 20, []string{superRed}, nil
-	} else if IsCheckedChinYao(req.Cards) {
+	} else if IsCheckedChinYao(e.Cards) {
 		return 15, []string{chinYao}, nil
 	}
 	// 보너스 점수 계산
 	// 1. 적패 : color가 red이면 1점 추가
-	for _, card := range req.Cards {
+	for _, card := range e.Cards {
 		if IsCheckedRedCard(card) {
 			bonuses = append(bonuses, red)
 			score += 1
@@ -145,18 +161,18 @@ func ScoreCalculate(req *request.ReqScoreCalculate, doraCard mysql.Cards) (int, 
 	}
 
 	// 2. 탕야오 : 모든 패가 2~8 사이의 패로만 이루어진 카드이면 1점 추가
-	if IsCheckedTangYaoCard(req.Cards) {
+	if IsCheckedTangYaoCard(e.Cards) {
 		bonuses = append(bonuses, tangYao)
 		score += 1
 	}
 	// 3. 찬타 : 두 개의 몸통 모두 1/9/발/중을 포함하고 있을 때 2점 추가
-	if IsCheckedChanTa(req.Cards) {
+	if IsCheckedChanTa(e.Cards) {
 		bonuses = append(bonuses, chanTa)
 		score += 2
 	}
 
 	// 4. 도라 : dora 하나당 1점 추가
-	for _, card := range req.Cards {
+	for _, card := range e.Cards {
 		if IsCheckedDora(card, doraCard) {
 			bonuses = append(bonuses, dora)
 			score += 1
@@ -167,23 +183,31 @@ func ScoreCalculate(req *request.ReqScoreCalculate, doraCard mysql.Cards) (int, 
 }
 
 // 모두 이름이 같은 카드라면 true 아니라면 false
-func IsCheckedSameCard(card1, card2, card3 request.ScoreCard) bool {
+func IsCheckedSameCard(card1, card2, card3 entity.ScoreCalculateCard) bool {
 	if card1.Name == card2.Name && card2.Name == card3.Name {
 		return true
 	}
 	return false
 }
 
+// 문자열을 숫자로 변환하는 함수
+func convertToNumber(word string) int {
+	word = strings.ToLower(word) // 대소문자 구분을 없애기 위해 소문자로 변환
+	number, _ := numberMap[word]
+	return number
+}
+
 // 3개 카드가 연속된 숫자라면 true 아니라면 false
-func IsCheckedContinuousCard(card1, card2, card3 request.ScoreCard) bool {
+func IsCheckedContinuousCard(card1, card2, card3 entity.ScoreCalculateCard) bool {
 	// 카드가 숫자가 아니라면 false 반환
-	if !IsCheckedNumberCard([]request.ScoreCard{card1, card2, card3}) {
+	if !IsCheckedNumberCard([]entity.ScoreCalculateCard{card1, card2, card3}) {
 		return false
 	}
+
 	// 카드 이름을 int형으로 변경 후 연속된 숫자인지 체크
-	card1Int := ConvertStringToInt(card1.Name)
-	card2Int := ConvertStringToInt(card2.Name)
-	card3Int := ConvertStringToInt(card3.Name)
+	card1Int := convertToNumber(card1.Name)
+	card2Int := convertToNumber(card2.Name)
+	card3Int := convertToNumber(card3.Name)
 
 	if card1Int+1 == card2Int && card2Int+1 == card3Int {
 		return true
@@ -193,7 +217,7 @@ func IsCheckedContinuousCard(card1, card2, card3 request.ScoreCard) bool {
 }
 
 // 모든 카드가 green이면 true 아니라면 false
-func IsCheckedAllGreen(cards []request.ScoreCard) bool {
+func IsCheckedAllGreen(cards []entity.ScoreCalculateCard) bool {
 	for _, card := range cards {
 		if card.Color != green {
 			return false
@@ -203,7 +227,7 @@ func IsCheckedAllGreen(cards []request.ScoreCard) bool {
 }
 
 // 모든 카드가 red이면 true 아니라면 false
-func IsCheckedAllRed(cards []request.ScoreCard) bool {
+func IsCheckedAllRed(cards []entity.ScoreCalculateCard) bool {
 	for _, card := range cards {
 		if card.Color != red {
 			return false
@@ -213,9 +237,9 @@ func IsCheckedAllRed(cards []request.ScoreCard) bool {
 }
 
 // 모든 패가 1,9,중,발로만 이루어진 카드이면 true 아니라면 false
-func IsCheckedChinYao(cards []request.ScoreCard) bool {
+func IsCheckedChinYao(cards []entity.ScoreCalculateCard) bool {
 	for _, card := range cards {
-		if card.Name != "1" && card.Name != "9" && card.Name != "중" && card.Name != "발" {
+		if card.Name != "one" && card.Name != "nine" && card.Name != "chung" && card.Name != "bal" {
 			return false
 		}
 	}
@@ -223,9 +247,9 @@ func IsCheckedChinYao(cards []request.ScoreCard) bool {
 }
 
 // 카드가 1~9까지 숫자로만 이루어져 있는지 체크
-func IsCheckedNumberCard(cards []request.ScoreCard) bool {
+func IsCheckedNumberCard(cards []entity.ScoreCalculateCard) bool {
 	for _, card := range cards {
-		if card.Name == "중" || card.Name == "발" {
+		if card.Name == "chung" || card.Name == "bal" {
 			return false
 		}
 	}
@@ -234,12 +258,13 @@ func IsCheckedNumberCard(cards []request.ScoreCard) bool {
 
 // string을 int로 변환
 func ConvertStringToInt(s string) int {
+
 	i, _ := strconv.Atoi(s)
 	return i
 }
 
 // 1. 적패 : color가 red이면 1점 추가
-func IsCheckedRedCard(cards request.ScoreCard) bool {
+func IsCheckedRedCard(cards entity.ScoreCalculateCard) bool {
 	if cards.Color == red {
 		return true
 	}
@@ -247,9 +272,9 @@ func IsCheckedRedCard(cards request.ScoreCard) bool {
 }
 
 // 2. 탕야오 : 모든 패가 2~8 사이의 패로만 이루어진 카드라면 true 아니라면 false
-func IsCheckedTangYaoCard(cards []request.ScoreCard) bool {
+func IsCheckedTangYaoCard(cards []entity.ScoreCalculateCard) bool {
 	for _, card := range cards {
-		if card.Name == "1" || card.Name == "9" || card.Name == "중" || card.Name == "발" {
+		if card.Name == "one" || card.Name == "nine" || card.Name == "chung" || card.Name == "bal" {
 			return false
 		}
 	}
@@ -257,18 +282,18 @@ func IsCheckedTangYaoCard(cards []request.ScoreCard) bool {
 }
 
 // 3. 찬타 : index 0,1,2 / 3,4,5 모두 1/9/발 중을 포함하고 있을 때 true 아니라면 false
-func IsCheckedChanTa(cards []request.ScoreCard) bool {
+func IsCheckedChanTa(cards []entity.ScoreCalculateCard) bool {
 	result1 := false
 	result2 := false
-	if (cards[0].Name == "1" || cards[0].Name == "9" || cards[0].Name == "중" || cards[0].Name == "발") ||
-		(cards[1].Name == "1" || cards[1].Name == "9" || cards[1].Name == "중" || cards[1].Name == "발") ||
-		(cards[2].Name == "1" || cards[2].Name == "9" || cards[2].Name == "중" || cards[2].Name == "발") {
+	if (cards[0].Name == "one" || cards[0].Name == "nine" || cards[0].Name == "chung" || cards[0].Name == "bal") ||
+		(cards[1].Name == "one" || cards[1].Name == "nine" || cards[1].Name == "chung" || cards[1].Name == "bal") ||
+		(cards[2].Name == "one" || cards[2].Name == "nine" || cards[2].Name == "chung" || cards[2].Name == "bal") {
 		result1 = true
 	}
 
-	if (cards[3].Name == "1" || cards[3].Name == "9" || cards[3].Name == "중" || cards[3].Name == "발") ||
-		(cards[4].Name == "1" || cards[4].Name == "9" || cards[4].Name == "중" || cards[4].Name == "발") ||
-		(cards[5].Name == "1" || cards[5].Name == "9" || cards[5].Name == "중" || cards[5].Name == "발") {
+	if (cards[3].Name == "one" || cards[3].Name == "nine" || cards[3].Name == "chung" || cards[3].Name == "bal") ||
+		(cards[4].Name == "one" || cards[4].Name == "nine" || cards[4].Name == "chung" || cards[4].Name == "bal") ||
+		(cards[5].Name == "one" || cards[5].Name == "nine" || cards[5].Name == "chung" || cards[5].Name == "bal") {
 		result2 = true
 	}
 	if result1 && result2 {
@@ -278,7 +303,7 @@ func IsCheckedChanTa(cards []request.ScoreCard) bool {
 }
 
 // 4. 도라 : dora 하나당 1점 추가
-func IsCheckedDora(card request.ScoreCard, doraCard mysql.Cards) bool {
+func IsCheckedDora(card entity.ScoreCalculateCard, doraCard mysql.Cards) bool {
 	if card.Name == doraCard.Name && card.Color == doraCard.Color {
 		return true
 	}
@@ -292,4 +317,61 @@ func IsCheckedWinRequest(roomUser mysql.RoomUsers, score int) bool {
 		}
 	}
 	return false
+}
+
+func CreateScoreCalculateEntitySQL(userID uint, req *request.ReqScoreCalculate) *entity.ScoreCalculateEntitySQL {
+	entitySQL := &entity.ScoreCalculateEntitySQL{
+		UserID: userID,
+		RoomID: req.RoomID,
+	}
+	cards := make([]uint, 0)
+	for _, card := range req.Cards {
+		cards = append(cards, card.CardID)
+	}
+	entitySQL.Cards = cards
+	return entitySQL
+
+}
+
+func CardValidation(cardsDTO []mysql.Cards, cards []request.ScoreCard) error {
+	// 카드가 6장인지 체크
+	if len(cardsDTO) != 6 {
+		return utils.ErrorMsg(context.TODO(), utils.ErrBadParameter, utils.Trace(), _errors.ErrNotEnoughCard.Error(), utils.ErrFromClient)
+	}
+	// 보유하고 있는 카드와 전달받은 카드가 일치하는지 체크
+	sameCard := 0
+	for _, card := range cards {
+		for _, cardDTO := range cardsDTO {
+			if card.CardID == uint(cardDTO.CardID) {
+				sameCard++
+				break
+			}
+		}
+	}
+	if sameCard != 6 {
+		return utils.ErrorMsg(context.TODO(), utils.ErrBadParameter, utils.Trace(), _errors.ErrBadRequestCard.Error(), utils.ErrFromClient)
+	}
+
+	return nil
+}
+
+func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCard) *entity.ScoreCalculateEntity {
+	fmt.Println(cardsDTO)
+	result := &entity.ScoreCalculateEntity{
+		Cards: make([]entity.ScoreCalculateCard, 0),
+	}
+	for _, card := range cards {
+		for _, cardDTO := range cardsDTO {
+			if card.CardID == uint(cardDTO.CardID) {
+				result.Cards = append(result.Cards, entity.ScoreCalculateCard{
+					CardID: uint(cardDTO.CardID),
+					Name:   cardDTO.Name,
+					Color:  cardDTO.Color,
+				})
+				break
+			}
+		}
+	}
+
+	return result
 }

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	_errors "main/features/game/model/errors"
+	"main/features/game/model/entity"
 	_interface "main/features/game/model/interface"
 	"main/features/game/model/request"
 	"main/utils"
@@ -15,14 +15,15 @@ func NewScoreCalculateGameRepository(gormDB *gorm.DB) _interface.IScoreCalculate
 	return &ScoreCalculateGameRepository{GormDB: gormDB}
 }
 
-func (d *ScoreCalculateGameRepository) CheckCardCount(c context.Context, userID uint, req *request.ReqScoreCalculate) error {
-	// 카드가 6장 소유했는지 체크
-	var roomUser mysql.RoomUsers
-	err := d.GormDB.Model(&roomUser).Where("room_id = ? AND user_id = ?", req.RoomID, userID).First(&roomUser).Error
+// 카드 6장 소유했는지 체크하고 카드 정보를 가져온다.
+func (d *ScoreCalculateGameRepository) FindOwnedCards(c context.Context, entitySQL *entity.ScoreCalculateEntitySQL) ([]mysql.Cards, error) {
+	var cards []mysql.Cards
+	err := d.GormDB.Model(&cards).Where("room_id = ? and user_id = ? and state = ?", entitySQL.RoomID, entitySQL.UserID, "owned").Find(&cards).Error
 	if err != nil {
-		return utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), _errors.ErrNotEnoughCard.Error(), utils.ErrFromClient)
+		return nil, utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
 	}
-	return nil
+	return cards, nil
+
 }
 
 func (d *ScoreCalculateGameRepository) GetDoraCard(c context.Context, req *request.ReqScoreCalculate) (mysql.Cards, error) {

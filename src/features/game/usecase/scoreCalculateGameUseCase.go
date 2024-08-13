@@ -20,9 +20,15 @@ func (d *ScoreCalculateGameUseCase) ScoreCalculate(c context.Context, userID uin
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 
-	//카드가 6장 소유했는지 체크
-	err := d.Repository.CheckCardCount(ctx, userID, req)
+	//카드가 6장 소유했는지 체크하고 카드 정보를 가져온다.
+	entitySQL := CreateScoreCalculateEntitySQL(userID, req)
+	cardsDTO, err := d.Repository.FindOwnedCards(ctx, entitySQL)
 	if err != nil {
+		return 0, []string{}, err
+	}
+
+	//카드 검증을 한다.
+	if err := CardValidation(cardsDTO, req.Cards); err != nil {
 		return 0, []string{}, err
 	}
 
@@ -32,8 +38,11 @@ func (d *ScoreCalculateGameUseCase) ScoreCalculate(c context.Context, userID uin
 		return 0, []string{}, err
 	}
 
+	// 요청받은 카드 순서에 맞게 엔티티를 만든다.
+	entity := CreateScoreCalculateEntity(cardsDTO, req.Cards)
+
 	//전달받은 카드들의 점수를 계산한다.
-	score, bonuses, err := ScoreCalculate(req, doraCard)
+	score, bonuses, err := ScoreCalculate(entity, doraCard)
 	if err != nil {
 		return 0, []string{}, err
 	}

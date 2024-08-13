@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/game/model/entity"
 	"main/features/game/model/request"
 	"main/utils/db/mysql"
 )
@@ -40,7 +41,7 @@ type ILoanGameRepository interface {
 }
 
 type IScoreCalculateGameRepository interface {
-	CheckCardCount(c context.Context, userID uint, req *request.ReqScoreCalculate) error
+	FindOwnedCards(c context.Context, entitySQL *entity.ScoreCalculateEntitySQL) ([]mysql.Cards, error)
 	GetDoraCard(c context.Context, req *request.ReqScoreCalculate) (mysql.Cards, error)
 }
 

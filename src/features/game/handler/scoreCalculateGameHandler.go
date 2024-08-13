@@ -36,6 +36,15 @@ func NewScoreCalculateGameHandler(c *echo.Echo, useCase _interface.IScoreCalcula
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
+// @Description
+// @Description ■ bonus list
+// @Description same : 똑같은 카드로 구성
+// @Description continuous : 연속된 숫자 카드로 구성
+// @Description allGreen : 모두 그린 카드
+// @Description superRed : 모두 레드 카드
+// @Description tangYao :  2 ~ 8 사이의 카드로만 구성
+// @Description chanTa : 1,9,중,발 카드가 양쪽에 포함되어 있는 경우
+// @Description chinYao : 1,9,중,발 카드로만 구성
 // @Param tkn header string true "accessToken"
 // @Param json body request.ReqScoreCalculate true "json body"
 // @Produce json
