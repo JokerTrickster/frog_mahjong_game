@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
@@ -65,64 +66,21 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err := repository.ImportCardsFindAllRoomUsers(ctx, uint(msg.RoomID))
-	if err != nil {
-		log.Println(err)
-	}
-	//유저 정보 저장
-	for _, roomUser := range preloadUsers {
-		user := entity.User{
-			ID:          uint(roomUser.UserID),
-			PlayerState: roomUser.PlayerState,
-			Coin:        roomUser.User.Coin,
-			Name:        roomUser.User.Name,
-			Email:       roomUser.User.Email,
-			TurnNumber:  roomUser.TurnNumber,
-		}
-		for _, card := range roomUser.Cards {
-			if card.State == "owned" {
-				user.Cards = append(user.Cards, &entity.Card{
-					CardID: uint(card.CardID),
-					UserID: uint(card.UserID),
-				})
-			} else if card.State == "discard" {
-				user.DiscardedCards = append(user.DiscardedCards, &entity.Card{
-					CardID: uint(card.CardID),
-					UserID: uint(card.UserID),
-				})
-			}
-		}
 
-		if roomUser.Room.OwnerID == roomUser.UserID {
-			user.IsOwner = true
-		}
-		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
-	}
 	//게임턴 계산
-	playerCount := len(entity.WSClients[msg.RoomID])
-	playTurn := CalcPlayTurn(req.PlayTurn, playerCount)
-	//게임 정보 저장
-	gameInfo := entity.GameInfo{
-		PlayTurn: playTurn,
-		AllReady: true,
-	}
-	roomInfoMsg.GameInfo = &gameInfo
+	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, roomID, playTurn)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}
 	doraCardInfo.CardID = uint(doraDTO.CardID)
 	roomInfoMsg.GameInfo.Dora = &doraCardInfo
-
 	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomInfoMsg)
+	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		log.Fatalf("JSON 마샬링 에러: %s", err)
+		fmt.Println(err)
 	}
-
-	// JSON 바이트 배열을 문자열로 변환
-	jsonString := string(jsonData)
-	msg.Message = jsonString
+	msg.Message = message
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
@@ -132,7 +90,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 				if clients[client].UserID == msg.UserID {
 					err := client.WriteJSON(msg)
 					if err != nil {
-						log.Printf("error: %v", err)
+						fmt.Printf("error: %v", err)
 						client.Close()
 						delete(clients, client)
 					}
@@ -142,7 +100,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 			for client := range clients {
 				err := client.WriteJSON(msg)
 				if err != nil {
-					log.Printf("error: %v", err)
+					fmt.Printf("error: %v", err)
 					client.Close()
 					delete(clients, client)
 				}

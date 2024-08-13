@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
@@ -82,14 +83,11 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomInfoMsg)
+	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		log.Fatalf("JSON 마샬링 에러: %s", err)
+		fmt.Println(err)
 	}
-
-	// JSON 바이트 배열을 문자열로 변환
-	jsonString := string(jsonData)
-	msg.Message = jsonString
+	msg.Message = message
 
 	//유저들에게 메시지 전송한다.
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
