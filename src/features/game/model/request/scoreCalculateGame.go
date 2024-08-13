@@ -6,8 +6,5 @@ type ReqScoreCalculate struct {
 }
 
 type ScoreCard struct {
-	CardID uint   `json:"cardID"`
-	Color  string `json:"color"`
-	Name   string `json:"name"`
-	State  string `json:"state"`
+	CardID uint `json:"cardID"`
 }
