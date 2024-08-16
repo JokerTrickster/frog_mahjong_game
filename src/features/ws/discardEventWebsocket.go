@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
@@ -61,6 +62,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
 			Msg:  err.Error(),
+			Type: _errors.ErrInternalServer,
 		}
 	}
 
