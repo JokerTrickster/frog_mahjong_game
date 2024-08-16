@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
 
@@ -54,6 +55,7 @@ func AbnormalErrorHandling(roomID, userID uint) {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
 			Msg:  "상대방이 게임 도중 나가서 강제 종료됐습니다.",
+			Type: _errors.ErrAbnormalExit,
 		}
 		return nil
 
@@ -62,6 +64,7 @@ func AbnormalErrorHandling(roomID, userID uint) {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
 			Msg:  err.Error(),
+			Type: _errors.ErrInternalServer,
 		}
 	}
 

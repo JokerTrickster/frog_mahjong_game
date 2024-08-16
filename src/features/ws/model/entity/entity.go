@@ -52,6 +52,7 @@ type RoomInfo struct {
 type ErrorInfo struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
+	Type string `json:"type"`
 }
 type User struct {
 	ID             uint    `json:"id"`

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 )
 
@@ -21,6 +22,7 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
 			Msg:  err.Error(),
+			Type: _errors.ErrInternalServer,
 		}
 	}
 	preloadUsers, err = repository.ReadyCancelFindAllRoomUsers(ctx, roomID)
@@ -28,6 +30,7 @@ func ReadyCancelEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 			Code: 500,
 			Msg:  err.Error(),
+			Type: _errors.ErrInternalServer,
 		}
 	}
 
