@@ -76,6 +76,11 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
+		if roomInfoMsg.ErrorInfo.Msg == "방이 꽉 찼습니다." {
+			roomInfoMsg.ErrorInfo.Type = _errors.ErrRoomFull
+		} else if roomInfoMsg.ErrorInfo.Msg == "비밀번호가 일치하지 않습니다." {
+			roomInfoMsg.ErrorInfo.Type = _errors.ErrWrongPassword
+		}
 	}
 
 	// 메시지 생성
