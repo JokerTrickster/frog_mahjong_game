@@ -78,13 +78,14 @@ func join(c echo.Context) error {
 	if entity.WSClients[roomID] == nil {
 		entity.WSClients[roomID] = make(map[*websocket.Conn]entity.WSClient)
 	}
-	entity.WSClients[roomID][ws] = entity.WSClient{
+	wsClient := entity.WSClient{
 		RoomID: roomID,
 		UserID: userID,
 		Conn:   ws,
 	}
+	entity.WSClients[roomID][ws] = wsClient
 	entity.WSBroadcast <- initialMsg
-	go HandlePingPong(ws)
+	go HandlePingPong(&wsClient)
 
 	for {
 		var msg entity.WSMessage
