@@ -375,3 +375,4 @@ func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCar
 
 	return result
 }
+

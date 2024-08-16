@@ -74,7 +74,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 
 	//게임턴 계산
 	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

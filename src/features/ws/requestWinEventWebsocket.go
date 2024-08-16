@@ -106,7 +106,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)

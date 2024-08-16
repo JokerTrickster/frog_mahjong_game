@@ -59,7 +59,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

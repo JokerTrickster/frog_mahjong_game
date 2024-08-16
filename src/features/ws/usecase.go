@@ -12,7 +12,7 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 	return (playTurn % playerCount) + 1
 }
 
-func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, playTurn int) *entity.RoomInfo {
+func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, playTurn int, roomInfoError *entity.ErrorInfo) *entity.RoomInfo {
 	roomInfoMsg := entity.RoomInfo{}
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
@@ -50,6 +50,9 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		AllReady: true,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
+	if roomInfoError != nil {
+		roomInfoMsg.ErrorInfo = roomInfoError
+	}
 	return &roomInfoMsg
 
 }

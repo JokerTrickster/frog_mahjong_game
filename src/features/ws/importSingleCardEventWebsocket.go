@@ -57,7 +57,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-		preloadUsers, err = repository.ImportSingleCardFindAllRoomUsers(ctx,tx, roomID)
+		preloadUsers, err = repository.ImportSingleCardFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}
@@ -71,7 +71,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
 
 	//카드 정보 저장
 	doraCardInfo := entity.Card{}

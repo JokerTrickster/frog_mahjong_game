@@ -23,7 +23,6 @@ func WSHandleMessages() {
 
 	for {
 		msg := <-entity.WSBroadcast
-		fmt.Println("현재 방 인원수 : ", len(entity.WSClients[msg.RoomID]))
 		switch msg.Event {
 		case "JOIN": // 방 참여
 			JoinEventWebsocket(&msg)
@@ -56,24 +55,29 @@ func WSHandleMessages() {
 }
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
-func HandlePingPong(conn *websocket.Conn) {
+func HandlePingPong(wsClient *entity.WSClient) {
+	ws := wsClient.Conn
 	// Setting up the Pong handler
-	conn.SetReadDeadline(time.Now().Add(PongWait))
-	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(PongWait))
+	ws.SetReadDeadline(time.Now().Add(PongWait))
+	ws.SetPongHandler(func(string) error {
+		ws.SetReadDeadline(time.Now().Add(PongWait))
 		return nil
 	})
 
 	ticker := time.NewTicker(PingPeriod)
 	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ticker.C:
-			if err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
+			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Println("Error sending ping:", err)
+				//비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
+				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID)
+
 				return
 			}
+
 		}
+
 	}
 }

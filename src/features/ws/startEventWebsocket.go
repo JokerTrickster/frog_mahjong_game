@@ -55,7 +55,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 
 		// 기존 카드가 있다면 모두 제거한다.
 		err = repository.StartDeleteCards(ctx, tx, roomID)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 
@@ -79,7 +79,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
