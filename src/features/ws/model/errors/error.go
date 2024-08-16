@@ -7,4 +7,5 @@ var (
 	ErrAbnormalExit   = "ERR_ABNORMAL_EXIT"
 	ErrDBServer       = "ERR_DB_SERVER"
 	ErrInvalidToken   = "ERR_INVALID_TOKEN"
+	ErrRoomFull       = "ERR_ROOM_FULL"
 )
