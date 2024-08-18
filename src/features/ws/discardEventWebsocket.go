@@ -66,30 +66,29 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		}
 	}
 
-	// 메시지 생성
-	//게임턴 계산
-	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
-
-	//카드 정보 저장
-	doraCardInfo := entity.Card{}
-	doraCardInfo.CardID = uint(doraDTO.CardID)
-	roomInfoMsg.GameInfo.Dora = &doraCardInfo
-
-	// 구조체를 JSON 문자열로 변환 (마샬링)
-	message, err := CreateMessage(&roomInfoMsg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	msg.Message = message
-
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+		// 메시지 생성
+		//게임턴 계산
+		playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
+		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
+
+		//카드 정보 저장
+		doraCardInfo := entity.Card{}
+		doraCardInfo.CardID = uint(doraDTO.CardID)
+		roomInfoMsg.GameInfo.Dora = &doraCardInfo
+
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
 			for client := range clients {
 				if clients[client].UserID == msg.UserID {
-					err := client.WriteJSON(msg)
+					// 구조체를 JSON 문자열로 변환 (마샬링)
+					message, err := CreateMessage(&roomInfoMsg)
+					if err != nil {
+						fmt.Println(err)
+					}
+					msg.Message = message
+					err = client.WriteJSON(msg)
 					if err != nil {
 						log.Printf("error: %v", err)
 						client.Close()
@@ -99,7 +98,20 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			}
 		} else {
 			for client := range clients {
-				err := client.WriteJSON(msg)
+				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+				//본인 카드만 보이도록 메시지 개선 (보안)
+				for i := 0; i < len(filterRoomInfoMsg.Users); i++ {
+					if filterRoomInfoMsg.Users[i].ID != clients[client].UserID {
+						filterRoomInfoMsg.Users[i].Cards = nil
+					}
+				}
+				// 구조체를 JSON 문자열로 변환 (마샬링)
+				message, err := CreateMessage(&filterRoomInfoMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
+				msg.Message = message
+				err = client.WriteJSON(msg)
 				if err != nil {
 					log.Printf("error: %v", err)
 					client.Close()

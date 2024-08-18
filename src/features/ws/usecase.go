@@ -8,6 +8,22 @@ import (
 	"main/utils/db/mysql"
 )
 
+func Deepcopy(src entity.RoomInfo) entity.RoomInfo {
+	var dst entity.RoomInfo
+	b, _ := json.Marshal(src)
+	json.Unmarshal(b, &dst)
+	return dst
+}
+
+func FilterOwnCards(roomInfoMsg *entity.RoomInfo, userID uint) *entity.RoomInfo {
+	for i := 0; i < len(roomInfoMsg.Users); i++ {
+		if roomInfoMsg.Users[i].ID != userID {
+			roomInfoMsg.Users[i].Cards = nil
+		}
+	}
+	return roomInfoMsg
+}
+
 func CalcPlayTurn(playTurn, playerCount int) int {
 	return (playTurn % playerCount) + 1
 }
