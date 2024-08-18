@@ -88,6 +88,9 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 		// 메시지 생성
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
 
+		// 론 가능 여부를 true로 변경
+		roomInfoMsg.GameInfo.IsLoanAllowed = true
+
 		//도라 카드 정보 저장
 		doraCardInfo := entity.Card{}
 		doraCardInfo.CardID = uint(doraDTO.CardID)

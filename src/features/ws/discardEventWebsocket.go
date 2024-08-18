@@ -73,6 +73,9 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
 
+		// 론 가능 여부를 true로 변경
+		roomInfoMsg.GameInfo.IsLoanAllowed = true
+
 		//카드 정보 저장
 		doraCardInfo := entity.Card{}
 		doraCardInfo.CardID = uint(doraDTO.CardID)
