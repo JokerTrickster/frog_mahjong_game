@@ -91,12 +91,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 		} else {
 			for client := range clients {
 				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-				//본인 카드만 보이도록 메시지 개선 (보안)
-				for i := 0; i < len(filterRoomInfoMsg.Users); i++ {
-					if filterRoomInfoMsg.Users[i].ID != clients[client].UserID {
-						filterRoomInfoMsg.Users[i].Cards = nil
-					}
-				}
+
 				// 구조체를 JSON 문자열로 변환 (마샬링)
 				message, err := CreateMessage(&filterRoomInfoMsg)
 				if err != nil {
