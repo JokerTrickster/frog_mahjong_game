@@ -52,16 +52,18 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		}
 
 		if req.LoanInfo != nil {
-			// 론인 경우 해당 유저에 코인 차감한다.
-			err := repository.RequestWinLoanDiffCoin(ctx, tx, &requestWinEntity)
-			if err != nil {
-				return err
-			}
-			// 론인 경우 해당 유저에 코인 추가한다.
-			err = repository.RequestWinLoanAddCoin(ctx, tx, &requestWinEntity)
-			if err != nil {
-				return err
-			}
+			// // 론인 경우 해당 유저에 코인 차감한다.
+			// err := repository.RequestWinLoanDiffCoin(ctx, tx, &requestWinEntity)
+			// if err != nil {
+			// 	return err
+			// }
+			// // 론인 경우 해당 유저에 코인 추가한다.
+			// err = repository.RequestWinLoanAddCoin(ctx, tx, &requestWinEntity)
+			// if err != nil {
+			// 	return err
+			// }
+
+			return fmt.Errorf("잘못된 이벤트로 요청했습니다.")
 
 		} else {
 			// 론이 아닌 경우 모든 플레이어에게 점수 차감
