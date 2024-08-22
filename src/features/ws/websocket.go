@@ -46,6 +46,8 @@ func WSHandleMessages() {
 			LoanEventWebsocket(&msg)
 		case "FAILED_LOAN":
 			FailedLoanEventWebsocket(&msg)
+		case "SUCCESS_LOAN":
+			SuccessLoanEventWebsocket(&msg)
 		case "REQUEST_WIN":
 			RequestWinEventWebsocket(&msg)
 		case "GAME_OVER":
