@@ -97,9 +97,12 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 
 	//유저 상태를 변경한다. (방에 참여)
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+		fmt.Println("방 나가기 이벤트 동작 ! ", msg.UserID)
 		for client := range clients {
+			fmt.Println("방 나가기 이벤트 동작 유저 아이디 체크 ! ", clients[client].UserID)
 			//방나간 유저 클로즈 처리
 			if clients[client].UserID == msg.UserID {
+				fmt.Println("여기 들어와야됨")
 				clientData := clients[client]
 				clientData.Close()
 				clients[client] = clientData
@@ -116,5 +119,4 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			}
 		}
 	}
-	fmt.Println("방 유저 수 ,", len(entity.WSClients[msg.RoomID]))
 }
