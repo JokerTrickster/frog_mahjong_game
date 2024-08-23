@@ -26,7 +26,7 @@ func WSHandleMessages() {
 		switch msg.Event {
 		case "JOIN": // 방 참여
 			JoinEventWebsocket(&msg)
-		case "CLOSE": // 방 나가기
+		case "QUIT_GAME": // 방 나가기
 			CloseEventWebsocket(&msg)
 		case "READY": // 게임 준비
 			ReadyEventWebsocket(&msg)
