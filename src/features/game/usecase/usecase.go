@@ -70,9 +70,9 @@ func CreateInitCards(roomID uint) []mysql.Cards {
 				}
 			}
 			if card.Name == "chung" {
-				card.Color = green
-			} else if card.Name == "bal" {
 				card.Color = red
+			} else if card.Name == "bal" {
+				card.Color = green
 			}
 
 			cards = append(cards, card)
@@ -375,4 +375,3 @@ func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCar
 
 	return result
 }
-
