@@ -59,6 +59,7 @@ func WSHandleMessages() {
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
 func HandlePingPong(wsClient *entity.WSClient) {
 	ws := wsClient.Conn
+
 	// Setting up the Pong handler
 	ws.SetReadDeadline(time.Now().Add(PongWait))
 	ws.SetPongHandler(func(string) error {
@@ -71,11 +72,13 @@ func HandlePingPong(wsClient *entity.WSClient) {
 	for {
 		select {
 		case <-ticker.C:
+			// 연결이 이미 닫혀있는지 확인
+			if wsClient.IsClosed() {
+				return
+			}
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Println("Error sending ping:", err)
-				//비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
 				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID)
-
 				return
 			}
 

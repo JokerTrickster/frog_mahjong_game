@@ -15,7 +15,7 @@ var (
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		}}
-	WSClients   = make(map[uint]map[*websocket.Conn]WSClient)
+	WSClients   = make(map[uint]map[*websocket.Conn]*WSClient)
 	WSBroadcast = make(chan WSMessage)
 )
 
@@ -23,6 +23,7 @@ type WSClient struct {
 	RoomID uint
 	UserID uint
 	Conn   *websocket.Conn
+	Closed bool // 연결이 닫혔는지 여부를 추적하는 필드
 }
 
 type WSMessage struct {
@@ -101,4 +102,13 @@ type RoomUsers struct {
 	User           mysql.Users   `gorm:"foreignKey:UserID"`
 	Room           mysql.Rooms   `gorm:"foreignKey:RoomID"`
 	Cards          []mysql.Cards `gorm:"foreignKey:UserID;references:UserID"`
+}
+
+func (c *WSClient) Close() {
+	c.Closed = true
+	c.Conn.Close()
+}
+
+func (c *WSClient) IsClosed() bool {
+	return c.Closed
 }

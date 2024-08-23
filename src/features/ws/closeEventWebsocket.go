@@ -100,8 +100,11 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 		for client := range clients {
 			//방나간 유저 클로즈 처리
 			if clients[client].UserID == msg.UserID {
-				client.Close()
+				clientData := clients[client]
+				clientData.Close()
+				clients[client] = clientData
 				delete(clients, client)
+				fmt.Println("해당 유저 삭제처리 완료")
 			} else {
 				//나머지 유저에게 메시지 전달
 				err := client.WriteJSON(msg)
@@ -113,4 +116,5 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			}
 		}
 	}
+	fmt.Println("방 유저 수 ,", len(entity.WSClients[msg.RoomID]))
 }
