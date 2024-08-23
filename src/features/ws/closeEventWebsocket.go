@@ -23,6 +23,8 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	if msg.Message != "" {
 		req.Password = msg.Message
 	}
+	fmt.Println("시작할때 유저 수 체크 , ", len(entity.WSClients[msg.RoomID]))
+
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
