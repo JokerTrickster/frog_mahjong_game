@@ -51,38 +51,18 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		if req.LoanInfo != nil {
-			// // 론인 경우 해당 유저에 코인 차감한다.
-			// err := repository.RequestWinLoanDiffCoin(ctx, tx, &requestWinEntity)
-			// if err != nil {
-			// 	return err
-			// }
-			// // 론인 경우 해당 유저에 코인 추가한다.
-			// err = repository.RequestWinLoanAddCoin(ctx, tx, &requestWinEntity)
-			// if err != nil {
-			// 	return err
-			// }
-
-			return fmt.Errorf("잘못된 이벤트로 요청했습니다.")
-
-		} else {
-			// 론이 아닌 경우 모든 플레이어에게 점수 차감
-			diffCoin := int((requestWinEntity.Score) / (len(entity.WSClients[msg.RoomID]) - 1))
-			err := repository.RequestWinDiffCoin(ctx, tx, &requestWinEntity, diffCoin)
-			if err != nil {
-				return err
-			}
-			// 론이 아닌 경우 해당 유저에 코인 추가한다.
-			err = repository.RequestWinAddCoin(ctx, tx, &requestWinEntity)
-			if err != nil {
-				return err
-			}
-		}
-		// 카드 정보 모두 삭제
-		err = repository.RequestWinDeleteAllCards(ctx, tx, &requestWinEntity)
+		// 론이 아닌 경우 모든 플레이어에게 점수 차감
+		diffCoin := int((requestWinEntity.Score) / (len(entity.WSClients[msg.RoomID]) - 1))
+		err = repository.RequestWinDiffCoin(ctx, tx, &requestWinEntity, diffCoin)
 		if err != nil {
 			return err
 		}
+		// 론이 아닌 경우 해당 유저에 코인 추가한다.
+		err = repository.RequestWinAddCoin(ctx, tx, &requestWinEntity)
+		if err != nil {
+			return err
+		}
+
 		// 방 상태 변경 (play -> wait)
 		err = repository.RequestWinUpdateRoomState(ctx, tx, &requestWinEntity)
 		if err != nil {
@@ -95,6 +75,11 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		preloadUsers, err = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+		// 카드 정보 모두 삭제
+		err = repository.RequestWinDeleteAllCards(ctx, tx, &requestWinEntity)
 		if err != nil {
 			return err
 		}
@@ -112,6 +97,21 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
+
+	//승리 유저 카드 정보 순서 저장
+	cards := []*entity.Card{}
+	for _, card := range req.Cards {
+		cards = append(cards, &entity.Card{
+			CardID: card.CardID,
+			UserID: uID,
+		})
+	}
+	for i := 0; i < len(roomInfoMsg.Users); i++ {
+		if roomInfoMsg.Users[i].ID == uID {
+			roomInfoMsg.Users[i].Cards = cards
+			break
+		}
+	}
 
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)

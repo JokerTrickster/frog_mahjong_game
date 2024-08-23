@@ -64,11 +64,6 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// 카드 정보 모두 삭제
-		err = repository.SuccessDeleteAllCards(ctx, tx, &successEntity)
-		if err != nil {
-			return err
-		}
 		// 방 상태 변경 (play -> wait)
 		err = repository.SuccessUpdateRoomState(ctx, tx, &successEntity)
 		if err != nil {
@@ -81,6 +76,11 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		preloadUsers, err = repository.SuccessFindAllRoomUsers(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+		// 카드 정보 모두 삭제
+		err = repository.SuccessDeleteAllCards(ctx, tx, &successEntity)
 		if err != nil {
 			return err
 		}
@@ -98,6 +98,21 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
 		// 메시지 생성
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
+
+		//승리 유저 카드 정보 순서 저장
+		cards := []*entity.Card{}
+		for _, card := range req.Cards {
+			cards = append(cards, &entity.Card{
+				CardID: card.CardID,
+				UserID: uID,
+			})
+		}
+		for i := 0; i < len(roomInfoMsg.Users); i++ {
+			if roomInfoMsg.Users[i].ID == uID {
+				roomInfoMsg.Users[i].Cards = cards
+				break
+			}
+		}
 
 		// 론 가능 여부를 true로 변경
 		roomInfoMsg.GameInfo.IsLoanAllowed = true
