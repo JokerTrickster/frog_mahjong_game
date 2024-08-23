@@ -99,6 +99,7 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
 		fmt.Println("방 나가기 이벤트 동작 ! ", msg.UserID)
 		for client := range clients {
+			fmt.Println("방 유저수 체크 : ,", len(clients), len(entity.WSClients[msg.RoomID]))
 			fmt.Println("방 나가기 이벤트 동작 유저 아이디 체크 ! ", clients[client].UserID)
 			//방나간 유저 클로즈 처리
 			if clients[client].UserID == msg.UserID {
