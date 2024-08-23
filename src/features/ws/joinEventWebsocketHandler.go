@@ -71,21 +71,22 @@ func join(c echo.Context) error {
 	roomID := initialMsg.RoomID
 	// 첫 번째 레벨 맵 초기화
 	if entity.WSClients == nil {
-		entity.WSClients = make(map[uint]map[*websocket.Conn]entity.WSClient)
+		entity.WSClients = make(map[uint]map[*websocket.Conn]*entity.WSClient)
 	}
 
 	// 두 번째 레벨 맵 초기화
 	if entity.WSClients[roomID] == nil {
-		entity.WSClients[roomID] = make(map[*websocket.Conn]entity.WSClient)
+		entity.WSClients[roomID] = make(map[*websocket.Conn]*entity.WSClient)
 	}
-	wsClient := entity.WSClient{
+	wsClient := &entity.WSClient{
 		RoomID: roomID,
 		UserID: userID,
 		Conn:   ws,
+		Closed: false,
 	}
 	entity.WSClients[roomID][ws] = wsClient
 	entity.WSBroadcast <- initialMsg
-	go HandlePingPong(&wsClient)
+	go HandlePingPong(wsClient)
 
 	for {
 		var msg entity.WSMessage
