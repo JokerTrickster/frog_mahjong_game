@@ -52,6 +52,8 @@ func WSHandleMessages() {
 			RequestWinEventWebsocket(&msg)
 		case "GAME_OVER":
 			GameOverEventWebsocket(&msg)
+		case "ROOM_OUT":
+			RoomOutEventWebsocket(&msg)
 		}
 	}
 }

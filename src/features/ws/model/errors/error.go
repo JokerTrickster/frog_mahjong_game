@@ -8,4 +8,5 @@ var (
 	ErrDBServer       = "ERR_DB_SERVER"
 	ErrInvalidToken   = "ERR_INVALID_TOKEN"
 	ErrRoomFull       = "ERR_ROOM_FULL"
+	ErrRoomOut        = "ROOM_OUT"
 )
