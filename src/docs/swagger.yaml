@@ -180,8 +180,12 @@ definitions:
       email:
         type: string
       name:
+        maxLength: 6
+        minLength: 2
         type: string
       password:
+        maxLength: 10
+        minLength: 6
         type: string
     type: object
   request.ReqStart:
