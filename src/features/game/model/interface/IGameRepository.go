@@ -48,3 +48,7 @@ type IScoreCalculateGameRepository interface {
 type IWinRequestGameRepository interface {
 	GetRoomUser(c context.Context, userID uint, roomID uint) (mysql.RoomUsers, error)
 }
+type IResultGameRepository interface {
+	FindCards(c context.Context, entitySQL *entity.ResultEntitySQL) ([]mysql.Cards, error)
+	GetDoraCard(c context.Context, req *request.ReqResult) (mysql.Cards, error)
+}

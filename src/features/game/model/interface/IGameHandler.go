@@ -33,3 +33,7 @@ type IScoreCalculateGameHandler interface {
 type IWinRequestGameHandler interface {
 	WinRequest(c echo.Context) error
 }
+
+type IResultGameHandler interface {
+	Result(c echo.Context) error
+}
