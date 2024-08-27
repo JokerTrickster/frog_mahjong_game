@@ -28,10 +28,10 @@ func GameOverEventWebsocket(msg *entity.WSMessage) {
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 카드 정보 모두 삭제
-		err = repository.GameOverDeleteAllCards(ctx, tx, &GameOverEntity)
-		if err != nil {
-			return err
-		}
+		// err = repository.GameOverDeleteAllCards(ctx, tx, &GameOverEntity)
+		// if err != nil {
+		// 	return err
+		// }
 		// 방 상태 변경 (play -> wait)
 		err = repository.GameOverUpdateRoomState(ctx, tx, &GameOverEntity)
 		if err != nil {
