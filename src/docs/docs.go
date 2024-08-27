@@ -600,7 +600,7 @@ const docTemplate = `{
         },
         "/v0.1/game/score/calculate": {
             "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n\n■ bonus list\nsame : 똑같은 카드로 구성\ncontinuous : 연속된 숫자 카드로 구성\nallGreen : 모두 그린 카드\nsuperRed : 모두 레드 카드\ntangYao :  2 ~ 8 사이의 카드로만 구성\nchanTa : 1,9,중,발 카드가 양쪽에 포함되어 있는 경우\nchinYao : 1,9,중,발 카드로만 구성",
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n\n■ bonus list\nsame : 같은 패 (2점)\ncontinuous : 연속 패 (1점)\nallGreen : 올 그린 (10점)\nallGreen : 도라 (하나당 1점)\nallGreen : 적패 (하나당 1점)\nallGreen : 올 그린 (10점)\nsuperRed : 슈퍼 레드 (20점)\ntangYao :  탕야오 (1점)\nchanTa : 찬타 (2점)\nchinYao : 칭야오 (15점)",
                 "produces": [
                     "application/json"
                 ],
