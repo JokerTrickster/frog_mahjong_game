@@ -29,7 +29,7 @@ func GeneratePasswordAuthCode() string {
 
 func CreateUserSQL(email string) *mysql.Users {
 	return &mysql.Users{
-		Name:     email,
+		Name:     "임시개굴맨",
 		Email:    email,
 		State:    "wait",
 		Coin:     30,
