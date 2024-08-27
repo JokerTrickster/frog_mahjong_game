@@ -844,13 +844,16 @@ paths:
         INTERNAL_DB : DB 처리 실패
 
         ■ bonus list
-        same : 똑같은 카드로 구성
-        continuous : 연속된 숫자 카드로 구성
-        allGreen : 모두 그린 카드
-        superRed : 모두 레드 카드
-        tangYao :  2 ~ 8 사이의 카드로만 구성
-        chanTa : 1,9,중,발 카드가 양쪽에 포함되어 있는 경우
-        chinYao : 1,9,중,발 카드로만 구성
+        same : 같은 패 (2점)
+        continuous : 연속 패 (1점)
+        allGreen : 올 그린 (10점)
+        allGreen : 도라 (하나당 1점)
+        allGreen : 적패 (하나당 1점)
+        allGreen : 올 그린 (10점)
+        superRed : 슈퍼 레드 (20점)
+        tangYao :  탕야오 (1점)
+        chanTa : 찬타 (2점)
+        chinYao : 칭야오 (15점)
       parameters:
       - description: accessToken
         in: header

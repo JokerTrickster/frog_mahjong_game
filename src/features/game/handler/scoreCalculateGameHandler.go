@@ -38,13 +38,16 @@ func NewScoreCalculateGameHandler(c *echo.Echo, useCase _interface.IScoreCalcula
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description
 // @Description ■ bonus list
-// @Description same : 똑같은 카드로 구성
-// @Description continuous : 연속된 숫자 카드로 구성
-// @Description allGreen : 모두 그린 카드
-// @Description superRed : 모두 레드 카드
-// @Description tangYao :  2 ~ 8 사이의 카드로만 구성
-// @Description chanTa : 1,9,중,발 카드가 양쪽에 포함되어 있는 경우
-// @Description chinYao : 1,9,중,발 카드로만 구성
+// @Description same : 같은 패 (2점)
+// @Description continuous : 연속 패 (1점)
+// @Description allGreen : 올 그린 (10점)
+// @Description allGreen : 도라 (하나당 1점)
+// @Description allGreen : 적패 (하나당 1점)
+// @Description allGreen : 올 그린 (10점)
+// @Description superRed : 슈퍼 레드 (20점)
+// @Description tangYao :  탕야오 (1점)
+// @Description chanTa : 찬타 (2점)
+// @Description chinYao : 칭야오 (15점)
 // @Param tkn header string true "accessToken"
 // @Param json body request.ReqScoreCalculate true "json body"
 // @Produce json
