@@ -33,3 +33,7 @@ type ScoreCalculateGameRepository struct {
 type WinRequestGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ResultGameRepository struct {
+	GormDB *gorm.DB
+}

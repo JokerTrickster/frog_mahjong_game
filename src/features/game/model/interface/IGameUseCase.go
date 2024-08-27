@@ -35,3 +35,7 @@ type IScoreCalculateGameUseCase interface {
 type IWinRequestGameUseCase interface {
 	WinRequest(c context.Context, req *request.ReqWinRequest) (bool, error)
 }
+
+type IResultGameUseCase interface {
+	Result(c context.Context, userID uint, req *request.ReqResult) (int, []string, error)
+}

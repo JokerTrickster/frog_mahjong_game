@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"main/features/game/model/entity"
 	_errors "main/features/game/model/errors"
 	"main/features/game/model/request"
@@ -332,6 +331,17 @@ func CreateScoreCalculateEntitySQL(userID uint, req *request.ReqScoreCalculate) 
 	return entitySQL
 
 }
+func CreateResultEntitySQL(userID uint, req *request.ReqResult) *entity.ResultEntitySQL {
+	entitySQL := &entity.ResultEntitySQL{
+		RoomID: req.RoomID,
+	}
+	cards := make([]uint, 0)
+	for _, card := range req.Cards {
+		cards = append(cards, card.CardID)
+	}
+	entitySQL.Cards = cards
+	return entitySQL
+}
 
 func CardValidation(cardsDTO []mysql.Cards, cards []request.ScoreCard) error {
 	// 카드가 6장인지 체크
@@ -356,7 +366,6 @@ func CardValidation(cardsDTO []mysql.Cards, cards []request.ScoreCard) error {
 }
 
 func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCard) *entity.ScoreCalculateEntity {
-	fmt.Println(cardsDTO)
 	result := &entity.ScoreCalculateEntity{
 		Cards: make([]entity.ScoreCalculateCard, 0),
 	}
@@ -373,5 +382,24 @@ func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCar
 		}
 	}
 
+	return result
+}
+
+func CreateResultEntity(cardsDTO []mysql.Cards, cards []request.ResultCard) *entity.ScoreCalculateEntity {
+	result := &entity.ScoreCalculateEntity{
+		Cards: make([]entity.ScoreCalculateCard, 0),
+	}
+	for _, card := range cards {
+		for _, cardDTO := range cardsDTO {
+			if card.CardID == uint(cardDTO.CardID) {
+				result.Cards = append(result.Cards, entity.ScoreCalculateCard{
+					CardID: uint(cardDTO.CardID),
+					Name:   cardDTO.Name,
+					Color:  cardDTO.Color,
+				})
+				break
+			}
+		}
+	}
 	return result
 }
