@@ -79,10 +79,10 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		// 카드 정보 모두 삭제
-		err = repository.RequestWinDeleteAllCards(ctx, tx, &requestWinEntity)
-		if err != nil {
-			return err
-		}
+		// err = repository.RequestWinDeleteAllCards(ctx, tx, &requestWinEntity)
+		// if err != nil {
+		// 	return err
+		// }
 
 		return nil
 	})

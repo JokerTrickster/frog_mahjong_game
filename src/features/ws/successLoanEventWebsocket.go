@@ -80,10 +80,10 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 		// 카드 정보 모두 삭제
-		err = repository.SuccessDeleteAllCards(ctx, tx, &successEntity)
-		if err != nil {
-			return err
-		}
+		// err = repository.SuccessDeleteAllCards(ctx, tx, &successEntity)
+		// if err != nil {
+		// 	return err
+		// }
 		return nil
 	})
 	if err != nil {
