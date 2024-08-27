@@ -9,3 +9,6 @@ type IGetUsersHandler interface {
 type IListUsersHandler interface {
 	List(c echo.Context) error
 }
+type IUpdateUsersHandler interface {
+	Update(c echo.Context) error
+}

@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/users/model/request"
 	"main/features/users/model/response"
 )
 
@@ -11,4 +12,8 @@ type IGetUsersUseCase interface {
 
 type IListUsersUseCase interface {
 	List(c context.Context) (response.ResListUser, error)
+}
+
+type IUpdateUsersUseCase interface {
+	Update(c context.Context, userID uint, req *request.ReqUpdateUsers) error
 }
