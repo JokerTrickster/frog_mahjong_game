@@ -54,7 +54,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 			}
 		}
-		if roomUser.PlayerState != "ready" {
+		if roomUser.Room.OwnerID != roomUser.UserID && roomUser.PlayerState != "ready" {
 			allReady = false
 		}
 
