@@ -30,6 +30,7 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 
 func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, playTurn int, roomInfoError *entity.ErrorInfo) *entity.RoomInfo {
 	roomInfoMsg := entity.RoomInfo{}
+	allReady := true
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
@@ -53,6 +54,9 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 			}
 		}
+		if roomUser.PlayerState != "ready" {
+			allReady = false
+		}
 
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
@@ -63,7 +67,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
 		PlayTurn:      playTurn,
-		AllReady:      true,
+		AllReady:      allReady,
 		IsLoanAllowed: false,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
