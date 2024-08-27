@@ -184,7 +184,6 @@ definitions:
         minLength: 2
         type: string
       password:
-        maxLength: 10
         minLength: 6
         type: string
     type: object
@@ -193,6 +192,16 @@ definitions:
       roomID:
         type: integer
       state:
+        type: string
+    type: object
+  request.ReqUpdateUsers:
+    properties:
+      name:
+        maxLength: 6
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
         type: string
     type: object
   request.ReqValidatePassword:
@@ -1361,6 +1370,43 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 유저 정보 가져오기
+      tags:
+      - user
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqUpdateUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 수정하기
       tags:
       - user
   /v0.1/users/{userID}:

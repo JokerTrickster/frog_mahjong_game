@@ -1,9 +1,19 @@
 package usecase
 
 import (
+	"main/features/users/model/entity"
+	"main/features/users/model/request"
 	"main/features/users/model/response"
 	"main/utils/db/mysql"
 )
+
+func CreateUpdateUsersEntitySQL(userID uint, req *request.ReqUpdateUsers) entity.UpdateUsersEntitySQL {
+	return entity.UpdateUsersEntitySQL{
+		UserID:   userID,
+		Name:     req.Name,
+		Password: req.Password,
+	}
+}
 
 func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
 	return response.ResGetUser{

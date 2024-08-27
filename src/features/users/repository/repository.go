@@ -9,3 +9,7 @@ type GetUsersRepository struct {
 type ListUsersRepository struct {
 	GormDB *gorm.DB
 }
+
+type UpdateUsersRepository struct {
+	GormDB *gorm.DB
+}

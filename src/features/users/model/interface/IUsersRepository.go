@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/users/model/entity"
 	"main/utils/db/mysql"
 )
 
@@ -12,4 +13,8 @@ type IGetUsersRepository interface {
 type IListUsersRepository interface {
 	FindUsers(ctx context.Context) ([]mysql.Users, error)
 	CountUsers(ctx context.Context) (int, error)
+}
+
+type IUpdateUsersRepository interface {
+	FindOneAndUpdateUsers(ctx context.Context, entitySQL *entity.UpdateUsersEntitySQL) error
 }
