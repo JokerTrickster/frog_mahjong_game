@@ -76,8 +76,9 @@ CREATE TABLE chats (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     user_id INT,
+    room_id INT,
     name varchar(255),
-    secret varchar(255)
+    message varchar(255)
 );
 
 CREATE TABLE user_auths (

@@ -27,7 +27,7 @@ func (d *AuthChatUseCase) Auth(c context.Context, userID uint) (string, error) {
 	secret := GenerateSecret(userID)
 	chatDTO := &mysql.Chats{
 		UserID: int(userID),
-		Secret: secret,
+		Message: secret,
 		Name:   userInfo.Name,
 	}
 

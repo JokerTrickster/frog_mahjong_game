@@ -48,16 +48,17 @@ type Cards struct {
 	RoomID int    `json:"roomID" gorm:"column:room_id"`
 	UserID int    `json:"userID" gorm:"column:user_id"`
 	CardID int    `json:"cardID" gorm:"column:card_id"` // 1 ~  44
-	Name   string `json:"name" gorm:"column:name"`   // one, two, three, four, five .... nine, chung, bal
-	Color  string `json:"color" gorm:"column:color"` // red, green, normal
-	State  string `json:"state" gorm:"column:state"` // owned, discard, none
+	Name   string `json:"name" gorm:"column:name"`      // one, two, three, four, five .... nine, chung, bal
+	Color  string `json:"color" gorm:"column:color"`    // red, green, normal
+	State  string `json:"state" gorm:"column:state"`    // owned, discard, none
 }
 
 type Chats struct {
 	gorm.Model
-	UserID int    `json:"userID" gorm:"column:user_id"`
-	Name   string `json:"name" gorm:"column:name"`
-	Secret string `json:"secret" gorm:"column:secret"`
+	UserID  int    `json:"userID" gorm:"column:user_id"`
+	RoomID  int    `json:"roomID" gorm:"column:room_id"`
+	Name    string `json:"name" gorm:"column:name"`
+	Message string `json:"message" gorm:"column:message"`
 }
 
 type UserAuths struct {
