@@ -5,8 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"main/features/ws/model/entity"
+	"main/features/ws/model/request"
 	"main/utils/db/mysql"
 )
+
+func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
+	chatDTO := mysql.Chats{
+		UserID:  int(req.UserID),
+		RoomID:  int(req.RoomID),
+		Name:    req.Name,
+		Message: req.Message,
+	}
+	return &chatDTO
+}
 
 func Deepcopy(src entity.RoomInfo) entity.RoomInfo {
 	var dst entity.RoomInfo
@@ -77,7 +88,15 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	return &roomInfoMsg
 
 }
+func CreateChatMessage(chatInfoMsg *entity.ChatInfo) (string, error) {
+	// 구조체를 JSON 문자열로 변환 (마샬링)
+	jsonData, err := json.Marshal(chatInfoMsg)
+	if err != nil {
+		return "", fmt.Errorf("JSON 마샬링 에러: %s", err)
+	}
 
+	return string(jsonData), nil
+}
 func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	jsonData, err := json.Marshal(roomInfoMsg)

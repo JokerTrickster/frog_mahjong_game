@@ -54,6 +54,8 @@ func WSHandleMessages() {
 			GameOverEventWebsocket(&msg)
 		case "ROOM_OUT":
 			RoomOutEventWebsocket(&msg)
+		case "CHAT":
+			ChatEventWebsocket(&msg)
 		}
 	}
 }

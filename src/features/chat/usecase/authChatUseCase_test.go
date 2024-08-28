@@ -44,7 +44,7 @@ func TestAuthChatUseCase_Auth(t *testing.T) {
 					ID: 1,
 				},
 				UserID: 1,
-				Secret: "test",
+				Message: "test",
 			},
 			wantErr: nil,
 		},

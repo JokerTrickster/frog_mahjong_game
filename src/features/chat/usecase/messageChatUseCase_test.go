@@ -35,9 +35,9 @@ func TestMessageChatUseCase_Message(t *testing.T) {
 				Model: gorm.Model{
 					ID: 1,
 				},
-				UserID: 1,
-				Secret: "test",
-				Name:   "ryan",
+				UserID:  1,
+				Message: "test",
+				Name:    "ryan",
 			},
 			wantErr: nil,
 		},

@@ -31,6 +31,14 @@ type WSMessage struct {
 	Event   string `json:"event"`
 	RoomID  uint   `json:"roomID"`
 	UserID  uint   `json:"userID"`
+	Name    string `json:"name"`
+}
+
+type ChatInfo struct {
+	Name      string     `json:"name"`
+	UserID    uint       `json:"userID"`
+	Message   string     `json:"message"`
+	ErrorInfo *ErrorInfo `json:"errorInfo"` // 에러 정보
 }
 
 /*
