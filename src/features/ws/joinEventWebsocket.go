@@ -21,6 +21,7 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 	if msg.Message != "" {
 		req.Password = msg.Message
 	}
+
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
@@ -99,12 +100,11 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
 			for client := range clients {
 				if clients[client].UserID == msg.UserID {
-					err := client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
+					_ = client.WriteJSON(msg)
+					clientData := clients[client]
+					clientData.Close()
+					clients[client] = clientData
+					delete(clients, client)
 				}
 			}
 		} else {
