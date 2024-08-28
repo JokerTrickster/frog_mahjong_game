@@ -38,6 +38,9 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		if RoomDTO.CurrentCount == RoomDTO.MaxCount {
 			return fmt.Errorf("방이 꽉 찼습니다.")
 		}
+		if RoomDTO.State != "wait" {
+			return fmt.Errorf("게임 중인 방입니다.")
+		}
 		// TODO 기존에 방 유저 정보가 있는지 가져온다.
 		// 유저 정보가 있으면 삭제하고 방 인원수를 감소시킨다.
 		err = repository.JoinFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
@@ -81,6 +84,8 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 			roomInfoMsg.ErrorInfo.Type = _errors.ErrRoomFull
 		} else if roomInfoMsg.ErrorInfo.Msg == "비밀번호가 일치하지 않습니다." {
 			roomInfoMsg.ErrorInfo.Type = _errors.ErrWrongPassword
+		} else if roomInfoMsg.ErrorInfo.Msg == "게임 중인 방입니다." {
+			roomInfoMsg.ErrorInfo.Type = _errors.ErrGameInProgress
 		}
 	}
 
