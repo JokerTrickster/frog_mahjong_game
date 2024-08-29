@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/game/model/request"
+	"main/features/game/model/response"
 )
 
 type IStartGameUseCase interface {
@@ -37,5 +38,5 @@ type IWinRequestGameUseCase interface {
 }
 
 type IResultGameUseCase interface {
-	Result(c context.Context, userID uint, req *request.ReqResult) (int, []string, error)
+	Result(c context.Context, userID uint, req *request.ReqResult) (response.ResResult, error)
 }
