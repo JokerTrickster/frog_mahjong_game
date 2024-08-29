@@ -1793,6 +1793,9 @@
                 },
                 "score": {
                     "type": "integer"
+                },
+                "winner": {
+                    "type": "integer"
                 }
             }
         },

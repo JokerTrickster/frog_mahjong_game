@@ -312,6 +312,8 @@ definitions:
         type: array
       score:
         type: integer
+      winner:
+        type: integer
     type: object
   response.ResScoreCalculate:
     properties:

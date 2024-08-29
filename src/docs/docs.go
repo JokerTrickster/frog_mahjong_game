@@ -1804,6 +1804,9 @@ const docTemplate = `{
                 },
                 "score": {
                     "type": "integer"
+                },
+                "winner": {
+                    "type": "integer"
                 }
             }
         },

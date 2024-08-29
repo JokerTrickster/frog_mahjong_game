@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	_interface "main/features/game/model/interface"
-	"main/features/game/model/response"
 
 	"main/features/game/model/request"
 
@@ -61,13 +60,10 @@ func (d *ResultGameHandler) Result(c echo.Context) error {
 	if err := utils.ValidateReq(c, req); err != nil {
 		return err
 	}
-	score, bonuses, err := d.UseCase.Result(ctx, userID, req)
+	res, err := d.UseCase.Result(ctx, userID, req)
 	if err != nil {
 		return err
 	}
-	res := response.ResResult{
-		Score:   score,
-		Bonuses: bonuses,
-	}
+
 	return c.JSON(http.StatusOK, res)
 }
