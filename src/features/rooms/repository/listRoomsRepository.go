@@ -16,7 +16,7 @@ func NewListRoomsRepository(gormDB *gorm.DB) _interface.IListRoomsRepository {
 func (d *ListRoomsRepository) FindRoomList(ctx context.Context, page int, pageSize int) ([]mysql.Rooms, error) {
 	var Rooms []mysql.Rooms
 	// 페이지네이션 처리
-	err := d.GormDB.Where("deleted_at IS NULL").Limit(pageSize).Offset((page - 1) * pageSize).Find(&Rooms).Error
+	err := d.GormDB.Where("deleted_at IS NULL and id != 1").Limit(pageSize).Offset((page - 1) * pageSize).Find(&Rooms).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
 	}
