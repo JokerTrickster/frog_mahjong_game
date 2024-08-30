@@ -49,18 +49,18 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// 패널티를 부여한다. (코인 차감)
-		penaltyCoin := (len(entity.WSClients[msg.RoomID]) - 1) * 2
-		err = repository.FailedLoanPenalty(ctx, tx, &loanEntity, penaltyCoin)
-		if err != nil {
-			return err
-		}
+		// // 패널티를 부여한다. (코인 차감)
+		// penaltyCoin := (len(entity.WSClients[msg.RoomID]) - 1) * 2
+		// err = repository.FailedLoanPenalty(ctx, tx, &loanEntity, penaltyCoin)
+		// if err != nil {
+		// 	return err
+		// }
 
-		// 모든 플레이어에게 코인 추가
-		err = repository.FailedLoanAddCoin(ctx, tx, &loanEntity)
-		if err != nil {
-			return err
-		}
+		// // 모든 플레이어에게 코인 추가
+		// err = repository.FailedLoanAddCoin(ctx, tx, &loanEntity)
+		// if err != nil {
+		// 	return err
+		// }
 
 		//dora 카드 가져오기
 		doraDTO, err = repository.LoanCardFindOneDora(ctx, tx, roomID)
@@ -90,6 +90,9 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 
 		// 론 가능 여부를 true로 변경
 		roomInfoMsg.GameInfo.IsLoanAllowed = true
+
+		// 론 실패한 유저ID 저장
+		roomInfoMsg.GameInfo.FailedLoanUserID = uID
 
 		//도라 카드 정보 저장
 		doraCardInfo := entity.Card{}

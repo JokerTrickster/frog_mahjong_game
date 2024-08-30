@@ -75,11 +75,12 @@ type User struct {
 	TurnNumber     int     `json:"turnNumber"`
 }
 type GameInfo struct {
-	PlayTurn      int       `json:"playTurn"`
-	Dora          *Card     `json:"dora"`          // 도라
-	AllReady      bool      `json:"allReady"`      // 게임 시작 여부
-	LoanInfo      *LoanInfo `json:"loanInfo"`      // 론 정보
-	IsLoanAllowed bool      `json:"isLoanAllowed"` // 론 가능 여부
+	PlayTurn         int       `json:"playTurn"`
+	Dora             *Card     `json:"dora"`             // 도라
+	AllReady         bool      `json:"allReady"`         // 게임 시작 여부
+	LoanInfo         *LoanInfo `json:"loanInfo"`         // 론 정보
+	IsLoanAllowed    bool      `json:"isLoanAllowed"`    // 론 가능 여부
+	FailedLoanUserID uint      `json:"failedLoanUserID"` // 론 실패 유저 ID
 }
 
 type LoanInfo struct {
