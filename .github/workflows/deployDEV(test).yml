@@ -32,7 +32,11 @@ jobs:
       - name: login to ECR
         run: |
           aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
-    
+      - name: Retrieve Loki URL from SSM
+        id: retrieve-ssm
+        run: |
+          LOKI_URL=$(aws ssm get-parameter --region "ap-northeast-2" --name "dev_common_mysql_host" --with-decryption --query "Parameter.Value" --output text)
+          echo "LOKI_URL=${LOKI_URL}" >> $GITHUB_ENV    
       - name: build & tag image
         run: |
           V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
