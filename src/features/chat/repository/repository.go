@@ -9,3 +9,8 @@ type MessageChatRepository struct {
 type AuthChatRepository struct {
 	GormDB *gorm.DB
 }
+
+
+type HistoryChatRepository struct {
+	GormDB *gorm.DB
+}
