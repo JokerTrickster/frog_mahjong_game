@@ -65,7 +65,8 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 			}
 		}
-		if roomUser.Room.OwnerID != roomUser.UserID && roomUser.PlayerState != "ready" {
+		//방장이 아닌 유저가 준비를 안했을 경우 게임 시작 불가 or 인원수가 1명 이하일 경우 게임 시작 불가
+		if (roomUser.Room.OwnerID != roomUser.UserID && roomUser.PlayerState != "ready") || len(preloadUsers) == 1 {
 			allReady = false
 		}
 
