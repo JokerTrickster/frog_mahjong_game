@@ -9,3 +9,7 @@ type IMessageChatHandler interface {
 type IAuthChatHandler interface {
 	Auth(c echo.Context) error
 }
+
+type IHistoryChatHandler interface {
+	History(c echo.Context) error
+}
