@@ -133,7 +133,14 @@
     "taskRoleArn": "arn:aws:iam::730335282594:role/dev_frog_ecs_task_role",
     "executionRoleArn": "arn:aws:iam::730335282594:role/dev_frog_ecs_task_execution_role",
     "networkMode": "awsvpc",
-    "volumes": [],
+    "volumes": [
+        {
+            "name": "log-volume",
+            "host": {
+                "sourcePath": "/logs"
+            }
+        }
+    ],
     "placementConstraints": [],
     "requiresCompatibilities": [
         "EC2"
