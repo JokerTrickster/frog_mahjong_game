@@ -15,34 +15,69 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+      - name: Setup Go 1.22.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache-dependency-path: "./src/go.sum"
       - name: prepare envs
         id: vars
         run: |
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-      - name: build & run daemon - ??
+      - name: go test
         run: |
-          cd ./src
-          go build -o ../tmp/main .
-          cd ..
-          PORT=8080 ENV=${{ steps.vars.outputs.BRANCH }} IS_LOCAL=true MYSQL_USER=root MYSQL_PASSWORD=examplepassword MYSQL_HOST=0.0.0.0 MYSQL_PORT=3306 MYSQL_DATABASE=frog_dev nohup ./tmp/main > /dev/null 2>&1 & echo $! > go.pid
-      - name: kill daemon & clear - ??
-        run: |
-          kill -9 $(cat ./go.pid)
-          rm -rf ./tmp
-          rm ./go.pid
-  build:
-    name: build n deploy
+          cd ./src/features
+          go test -v ./...
+  coverage:
+    name: coverage
     runs-on: self-hosted
     needs: [test]
-    env: 
-      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
-      REPO_URL: frog
-      CLUSTER_NAME: frog
-      REGION: us-east-1
     steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.x
+        cache-dependency-path: "./src/go.sum"
+
+    - name: Initialize Go modules
+      run: go mod init github.com/JokerTrickster/frog_mahjong_game
+
+    - name: Setup Go modules
+      run: go mod download
+
+    - name: Echo current directory
+      run: echo "Current directory is $(pwd)"
+    - name: Run Unit tests
+      run: |
+        cd src/features
+        export CGO_ENABLED=1
+        go test -race -covermode atomic -coverprofile=covprofile ./...
+        cd ../..
+    - name: Install goveralls
+      run: go install github.com/mattn/goveralls@latest
+    - name: Send coverage
+      env:
+        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd src/features
+        goveralls -coverprofile=covprofile -service=github
+
+  build:
+      name: build n deploy
+      runs-on: self-hosted
+      needs: [test,coverage]
+      env:
+        REPO_DOMAIN: 730335282594.dkr.ecr.ap-northeast-2.amazonaws.com
+        REPO_URL: dev_frog
+        CLUSTER_NAME: frog
+        REGION: ap-northeast-2
+      steps:
       - name: check path
         run: pwd
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
       - name: prepare envs
@@ -50,16 +85,19 @@ jobs:
         run: |
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
           echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
-          echo "TASK_DEFINITION_NAME=dev_frogs" >> $GITHUB_OUTPUT
-          echo "SERVICE_NAME=dev_frogs" >> $GITHUB_OUTPUT
-          echo "MEM=856" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_NAME=${GITHUB_REF#refs/heads/}_frog" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=${GITHUB_REF#refs/heads/}_frog" >> $GITHUB_OUTPUT
+          echo "MEM=412" >> $GITHUB_OUTPUT
+       
       - name: login to ECR
-        run: aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
+        run: |
+          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
+    
       - name: build & tag image
         run: |
           V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
           echo $V
-          docker build -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} -f ./src/deployment/Dockerfile ./src/
+          docker build -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} -f ./deployment/Dockerfile ./src/
           docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
       - name: push image
         id: image
@@ -76,17 +114,18 @@ jobs:
       - name: create new task definition
         run: |
           echo "deploy digest : ${{ steps.image.outputs.DIGEST }}"
-          TASK_JSON=$(cat ./src/deployment/taskDefinition.json)
+          TASK_JSON=$(cat ./deployment/taskDefinition.json)
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_DOMAIN__/${REPO_DOMAIN}/g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REPO_URL__/${REPO_URL}/g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__ENV__/${{ steps.vars.outputs.BRANCH }}/g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__MEM__/${{ steps.vars.outputs.MEM }}/g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__REGION__/${REGION}/g")
+          TASK_JSON=$(echo ${TASK_JSON} | sed "s/__PRD_PREFIX__//g")
           TASK_JSON=$(echo ${TASK_JSON} | sed "s/__IMAGE_DIGEST__/${{ steps.image.outputs.DIGEST }}/g")
-          echo ${TASK_JSON} | tee ./src/deployment/tmp_taskDefinition.json
+          echo ${TASK_JSON} | tee ./deployment/tmp_taskDefinition.json
       - name: register new task definition
         run: |
-          aws ecs register-task-definition --region "${REGION}" --family ${{ steps.vars.outputs.TASK_DEFINITION_NAME }} --cli-input-json file://./src/deployment/tmp_taskDefinition.json
+          aws ecs register-task-definition --region "${REGION}" --family ${{ steps.vars.outputs.TASK_DEFINITION_NAME }} --cli-input-json file://./deployment/tmp_taskDefinition.json
       - name: update service
         run: |
           aws ecs update-service --region ${REGION} --cluster ${CLUSTER_NAME} --service ${{ steps.vars.outputs.SERVICE_NAME }} --task-definition ${{ steps.vars.outputs.TASK_DEFINITION_NAME }}

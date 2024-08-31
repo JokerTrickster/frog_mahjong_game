@@ -1,24 +1,578 @@
 definitions:
+  main_features_rooms_model_response.User:
+    properties:
+      ownedCardCount:
+        type: integer
+      owner:
+        type: boolean
+      playerState:
+        type: string
+      roomID:
+        type: integer
+      roomUserID:
+        type: integer
+      score:
+        type: integer
+      turnNumber:
+        type: integer
+      userEmail:
+        type: string
+      userID:
+        type: integer
+      userName:
+        type: string
+    type: object
+  main_features_users_model_response.User:
+    properties:
+      coin:
+        type: integer
+      email:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+      userID:
+        type: integer
+    type: object
+  request.Card:
+    properties:
+      cardID:
+        type: integer
+      roomID:
+        type: integer
+      state:
+        type: string
+      userID:
+        type: integer
+    type: object
+  request.ReqCreate:
+    properties:
+      maxCount:
+        type: integer
+      minCount:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - maxCount
+    - minCount
+    - name
+    type: object
+  request.ReqDiscard:
+    properties:
+      cardID:
+        type: integer
+      cardState:
+        type: string
+      roomID:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  request.ReqDora:
+    properties:
+      cardColor:
+        type: string
+      cardID:
+        type: integer
+      cardName:
+        type: string
+      cardState:
+        type: string
+      roomID:
+        type: integer
+    type: object
+  request.ReqJoin:
+    properties:
+      password:
+        type: string
+      roomID:
+        type: integer
+    required:
+    - roomID
+    type: object
+  request.ReqLoan:
+    properties:
+      loanCardID:
+        type: integer
+      loanUserID:
+        type: integer
+      roomID:
+        type: integer
+    type: object
+  request.ReqNextTurn:
+    properties:
+      playerState:
+        type: string
+      roomID:
+        type: integer
+      turnNumber:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  request.ReqOut:
+    properties:
+      roomID:
+        type: integer
+    type: object
+  request.ReqOwnership:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/request.Card'
+        type: array
+    type: object
+  request.ReqReady:
+    properties:
+      playerState:
+        type: string
+      roomID:
+        type: integer
+    type: object
+  request.ReqReissue:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  request.ReqRequestPassword:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.ReqResult:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/request.ResultCard'
+        type: array
+      roomID:
+        type: integer
+    type: object
+  request.ReqScoreCalculate:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/request.ScoreCard'
+        type: array
+      roomID:
+        type: integer
+    type: object
+  request.ReqSignin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   request.ReqSignup:
     properties:
       email:
         type: string
       name:
+        maxLength: 6
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+    type: object
+  request.ReqStart:
+    properties:
+      roomID:
+        type: integer
+      state:
+        type: string
+    type: object
+  request.ReqUpdateUsers:
+    properties:
+      name:
+        maxLength: 6
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+    type: object
+  request.ReqValidatePassword:
+    properties:
+      code:
+        type: string
+      email:
         type: string
       password:
         type: string
     type: object
+  request.ReqWinRequest:
+    properties:
+      roomID:
+        type: integer
+      score:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  request.ResultCard:
+    properties:
+      cardID:
+        type: integer
+    type: object
+  request.ScoreCard:
+    properties:
+      cardID:
+        type: integer
+    type: object
+  response.GoogleOauthCallbackRes:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  response.HistoryChat:
+    properties:
+      created:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      userID:
+        type: integer
+    type: object
+  response.ListRoom:
+    properties:
+      created:
+        type: integer
+      currentCount:
+        type: integer
+      id:
+        type: integer
+      maxCount:
+        type: integer
+      minCount:
+        type: integer
+      name:
+        type: string
+      ownerID:
+        type: integer
+      password:
+        type: boolean
+      state:
+        type: string
+    type: object
+  response.ResCreateRoom:
+    properties:
+      roomID:
+        type: integer
+    type: object
+  response.ResGetUser:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      userID:
+        type: integer
+    type: object
+  response.ResHistoryChat:
+    properties:
+      chats:
+        items:
+          $ref: '#/definitions/response.HistoryChat'
+        type: array
+      total:
+        type: integer
+    type: object
+  response.ResJoinRoom:
+    properties:
+      roomID:
+        type: integer
+    type: object
+  response.ResListRoom:
+    properties:
+      rooms:
+        items:
+          $ref: '#/definitions/response.ListRoom'
+        type: array
+      total:
+        type: integer
+    type: object
+  response.ResListUser:
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/main_features_users_model_response.User'
+        type: array
+    type: object
+  response.ResReissue:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  response.ResResult:
+    properties:
+      bonuses:
+        items:
+          type: string
+        type: array
+      score:
+        type: integer
+      winner:
+        type: integer
+    type: object
+  response.ResScoreCalculate:
+    properties:
+      bonuses:
+        items:
+          type: string
+        type: array
+      score:
+        type: integer
+    type: object
+  response.ResSignin:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+      userID:
+        type: integer
+    type: object
+  response.ResUserListRoom:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/main_features_rooms_model_response.User'
+        type: array
+    type: object
+  response.ResV02GoogleOauthCallback:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+      userID:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
+  /v0.1/auth/google:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인
+      tags:
+      - auth
+  /v0.1/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GoogleOauthCallbackRes'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
+      tags:
+      - auth
+  /v0.1/auth/logout:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 로그아웃 하기
+      tags:
+      - auth
+  /v0.1/auth/password/request:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqRequestPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 비밀번호 변경 요청
+      tags:
+      - auth
+  /v0.1/auth/password/validate:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email, password, code
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqValidatePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 비밀번호 변경 검증
+      tags:
+      - auth
+  /v0.1/auth/signin:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqSignin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSignin'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 로그인
+      tags:
+      - auth
   /v0.1/auth/signup:
     post:
       description: |-
         ■ errCode with 400
         PARAM_BAD : 파라미터 오류
-
-        ■ errCode with 400
+        USER_NOT_EXIST : 유저가 존재하지 않음
         USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
 
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
@@ -43,7 +597,961 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: 회원 가입
+      summary: 이메일 회원 가입
       tags:
       - auth
+  /v0.1/auth/token/reissue:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 액세스 토큰, 리프레시 토큰
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqReissue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResReissue'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 액세스 토큰 재발급
+      tags:
+      - auth
+  /v0.1/chats:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: roomID
+        in: query
+        name: roomID
+        required: true
+        type: integer
+      - description: 조회할 페이지. 0부터 시작, 누락시 0으로 처리
+        in: query
+        name: page
+        type: integer
+      - description: '페이지당 알림 개수. 누락시 10으로 처리 '
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResHistoryChat'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 채팅 리스트 가져오기
+      tags:
+      - chats
+  /v0.1/game/card/discard:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqDiscard'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 카드 버리기
+      tags:
+      - game
+  /v0.1/game/card/ownership:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqOwnership'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 카드 소유하기
+      tags:
+      - game
+  /v0.1/game/dora:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqDora'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 도라 선택하기
+      tags:
+      - game
+  /v0.1/game/loan:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+        NOT_LOAN_CARD : 론할 수 없는 카드
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqLoan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 론 하기
+      tags:
+      - game
+  /v0.1/game/next-turn:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqNextTurn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 다음 턴 넘기기
+      tags:
+      - game
+  /v0.1/game/result:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+
+        ■ bonus list
+        same : 같은 패 (2점)
+        continuous : 연속 패 (1점)
+        allGreen : 올 그린 (10점)
+        allGreen : 도라 (하나당 1점)
+        allGreen : 적패 (하나당 1점)
+        allGreen : 올 그린 (10점)
+        superRed : 슈퍼 레드 (20점)
+        tangYao :  탕야오 (1점)
+        chanTa : 찬타 (2점)
+        chinYao : 칭야오 (15점)
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqResult'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResResult'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 결과 가져오기
+      tags:
+      - game
+  /v0.1/game/score/calculate:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+
+        ■ bonus list
+        same : 같은 패 (2점)
+        continuous : 연속 패 (1점)
+        allGreen : 올 그린 (10점)
+        allGreen : 도라 (하나당 1점)
+        allGreen : 적패 (하나당 1점)
+        allGreen : 올 그린 (10점)
+        superRed : 슈퍼 레드 (20점)
+        tangYao :  탕야오 (1점)
+        chanTa : 찬타 (2점)
+        chinYao : 칭야오 (15점)
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqScoreCalculate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResScoreCalculate'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 점수 계산하기
+      tags:
+      - game
+  /v0.1/game/start:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqStart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 시작
+      tags:
+      - game
+  /v0.1/game/win-request:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqWinRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 승리 요청
+      tags:
+      - game
+  /v0.1/rooms:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: 조회할 페이지. 0부터 시작, 누락시 0으로 처리
+        in: query
+        name: page
+        type: integer
+      - description: '페이지당 알림 개수. 누락시 10으로 처리 '
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListRoom'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 목록 가져오기
+      tags:
+      - rooms
+  /v0.1/rooms/create:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResCreateRoom'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 생성
+      tags:
+      - rooms
+  /v0.1/rooms/join:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqJoin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResJoinRoom'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 참여
+      tags:
+      - rooms
+  /v0.1/rooms/join/ws:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: access token
+        in: query
+        name: tkn
+        required: true
+        type: string
+      - description: room id
+        in: query
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 참여 (ws)
+      tags:
+      - ws
+  /v0.1/rooms/out:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqOut'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 나가기
+      tags:
+      - rooms
+  /v0.1/rooms/ready:
+    patch:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqReady'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 준비 상태 변경
+      tags:
+      - rooms
+  /v0.1/rooms/user:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 방 ID
+        in: query
+        name: roomID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResUserListRoom'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 룸 유저 정보 가져오기
+      tags:
+      - rooms
+  /v0.1/users:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 가져오기
+      tags:
+      - user
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqUpdateUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 수정하기
+      tags:
+      - user
+  /v0.1/users/{userID}:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 유저 아이디
+        in: query
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGetUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 가져오기
+      tags:
+      - user
+  /v0.2/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResV02GoogleOauthCallback'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
+      tags:
+      - auth
+  /v0.2/rooms/create:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 생성 (ws)
+      tags:
+      - rooms
+  /v0.2/rooms/join:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 방 참여 (ws)
+      tags:
+      - rooms
 swagger: "2.0"

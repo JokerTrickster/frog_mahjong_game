@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/JokerTrickster/frog_mahjong_game/badge.svg)](https://coveralls.io/github/JokerTrickster/frog_mahjong_game)
+
 # 개굴작 보드게임
 
 ### 프로젝트 설명
@@ -16,13 +18,20 @@
 
 ### 아키텍처
 
+- DB 스키마
+
+<img width="897" alt="스크린샷 2024-04-14 오후 6 37 27" src="https://github.com/JokerTrickster/frog_mahjong_game/assets/140731661/d5916c1f-3d5b-498e-bb2b-1c3fa5bf35f1">
+
+- 인프라 구성도
+
+![KakaoTalk_Photo_2024-04-14-18-41-11](https://github.com/JokerTrickster/frog_mahjong_game/assets/140731661/74245fc3-d3cb-4d06-a9c3-022ec4514c8f)
+
 
 ### 역할 및 기술
 백엔드 : 조현준 / Golang & AWS & RDBMS
-프론트엔드 : 채은비 / 
 
 ### 일정
-23년 11월 11일 ~ 24년 1월 1일
+[프로젝트 일정 링크 클릭](https://github.com/users/JokerTrickster/projects/1/views/2)
 
 ### 프로젝트 문서들
 [링크 클릭](https://drive.google.com/drive/folders/1km1pTM_KVxDrc0HCSJ-pdL-DT5wblw1D?usp=drive_link)

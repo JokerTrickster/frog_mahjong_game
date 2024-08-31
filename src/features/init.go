@@ -2,6 +2,11 @@ package features
 
 import (
 	authHandler "main/features/auth/handler"
+	chatHandler "main/features/chat/handler"
+	gameHandler "main/features/game/handler"
+	roomsHandler "main/features/rooms/handler"
+	userHandler "main/features/users/handler"
+	"main/features/ws"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -14,6 +19,13 @@ func InitHandler(e *echo.Echo) error {
 	})
 	//인증 핸들러 초기화
 	authHandler.NewAuthHandler(e)
+	roomsHandler.NewRoomsHandler(e)
+	gameHandler.NewGameHandler(e)
+	userHandler.NewUsersHandler(e)
+	chatHandler.NewChatHandler(e)
+	//websocket 초기화
+	ws.NewWebsocketHandler(e)
+	go ws.WSHandleMessages()
 
 	return nil
 }

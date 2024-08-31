@@ -3,9 +3,10 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"time"
+
+	_aws "main/utils/aws"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -14,45 +15,62 @@ import (
 )
 
 var MysqlDB *sql.DB
-var GormDB *gorm.DB
+var GormMysqlDB *gorm.DB
 
 const DBTimeOut = 8 * time.Second
 
 func InitMySQL() error {
-	// MySQL 연결 문자열
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		os.Getenv("MYSQL_USER"),
-		os.Getenv("MYSQL_PASSWORD"),
-		os.Getenv("MYSQL_HOST"),
-		os.Getenv("MYSQL_PORT"),
-		os.Getenv("MYSQL_DATABASE"),
-	)
+	var connectionString string
+	var err error
+	isLocal := os.Getenv("IS_LOCAL")
+	if isLocal == "true" {
+		// MySQL 연결 문자열
+		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			os.Getenv("MYSQL_USER"),
+			os.Getenv("MYSQL_PASSWORD"),
+			os.Getenv("MYSQL_HOST"),
+			os.Getenv("MYSQL_PORT"),
+			os.Getenv("MYSQL_DATABASE"),
+		)
+	} else {
+		dbInfos, err := _aws.AwsSsmGetParams([]string{"dev_mysql_user", "dev_mysql_password", "dev_mysql_host", "dev_mysql_port", "dev_mysql_db"})
+		if err != nil {
+			return err
+		}
+		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			dbInfos[4], //user
+			dbInfos[2], //port
+			dbInfos[1], //password
+			dbInfos[3], //host
+			dbInfos[0], //db name
+		)
+	}
 	fmt.Println(connectionString)
-
 	// MySQL에 연결
 	MysqlDB, err := sql.Open("mysql", connectionString)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	// MySQL 연결 테스트
-	err = MysqlDB.Ping()
-	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Failed to connect to MySQL!")
+		fmt.Sprintln("에러 메시지 %s", err)
 	}
 	fmt.Println("Connected to MySQL!")
+
 	/*
 		GORM perform write (create/update/delete) operations run inside a transaction to ensure data consistency,
 		you can disable it during initialization if it is not required, you will gain about 30%+ performance improvement after that
 	*/
-	GormDB, err = gorm.Open(mysql.New(mysql.Config{
+	GormMysqlDB, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: MysqlDB,
 	}), &gorm.Config{
-		SkipDefaultTransaction: true,
+		SkipDefaultTransaction: false,
 	})
 	if err != nil {
-		return err
+		fmt.Println("Failed to connect to Gorm MySQL!")
+		fmt.Sprintln("에러 메시지 %s", err)
 	}
+
+	// gen 패키지를 사용하여 쿼리를 생성할 때 사용할 DB를 설정
+	// SetDefault(GormMysqlDB)
+
 	return nil
 }
 
@@ -80,4 +98,26 @@ func TimeStringToEpoch(t string) int64 {
 
 func TimeToEpoch(t time.Time) int64 {
 	return t.Unix()
+}
+
+// 트랜잭션 처리 미들웨어
+func Transaction(db *gorm.DB, fc func(tx *gorm.DB) error) (err error) {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			err = fmt.Errorf("panic occurred: %v", r)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	if err = tx.Error; err != nil {
+		return err
+	}
+
+	err = fc(tx)
+	return
 }

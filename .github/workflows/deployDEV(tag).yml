@@ -41,23 +41,16 @@ jobs:
         id: vars
         run: |
           echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-      - name: build & run daemon - ??
+      - name: go test
         run: |
-          cd ./src
-          go build -o ../tmp/main .
-          cd ..
-          PORT=8080 ENV=${{ steps.vars.outputs.BRANCH }} IS_LOCAL=true MYSQL_USER=root MYSQL_PASSWORD=examplepassword MYSQL_HOST=0.0.0.0 MYSQL_PORT=3306 MYSQL_DATABASE=frog_dev nohup ./tmp/main > /dev/null 2>&1 & echo $! > go.pid
-      - name: kill daemon & clear - ??
-        run: |
-          kill -9 $(cat ./go.pid)
-          rm -rf ./tmp
-          rm ./go.pid
+          cd ./src/features
+          go test -v ./...
   build:
     name: build n deploy
     runs-on: self-hosted
     needs: [merge, test]
     env:
-      REPO_DOMAIN: 190009833917.dkr.ecr.us-east-1.amazonaws.com
+      REPO_DOMAIN: 730335282594.dkr.ecr.ap-northeast-2.amazonaws.com
       REPO_URL: frog
       CLUSTER_NAME: frog
       REGION: us-east-1

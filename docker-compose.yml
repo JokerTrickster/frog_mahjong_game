@@ -13,6 +13,21 @@ services:
       MYSQL_PASSWORD: asdASD123
     volumes:
       - mysql_data:/var/lib/mysql
-
+# postresql service here
+  postgres:
+    image: postgres:latest
+    hostname: hostname-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: asdASD123
+      POSTGRES_DB: frog_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
 volumes:
   mysql_data:
+  postgres_data:
+
+
