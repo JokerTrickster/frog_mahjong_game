@@ -72,7 +72,7 @@ jobs:
       env:
         REPO_DOMAIN: 730335282594.dkr.ecr.ap-northeast-2.amazonaws.com
         REPO_URL: dev_frog
-        CLUSTER_NAME: frog
+        CLUSTER_NAME: service
         REGION: ap-northeast-2
       steps:
       - name: check path
