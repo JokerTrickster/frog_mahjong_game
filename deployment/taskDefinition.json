@@ -46,6 +46,26 @@
                 {
                     "name": "MYSQL_DATABASE",
                     "value": "frog_dev"
+                },
+                {
+                    "name": "REDIS_USER",
+                    "value": "frog"
+                },
+                {
+                    "name": "REDIS_PASSWORD",
+                    "value": "asdasd123"
+                },
+                {
+                    "name": "REDIS_HOST",
+                    "value": "devstg_redis.internal_ap-northeast-2"
+                },
+                {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                },
+                {
+                    "name": "REDIS_DATABASE",
+                    "value": "1"
                 }
             ],
             "portMappings": [
@@ -58,7 +78,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "ecs-idea-__ENV___frog",
+                    "awslogs-group": "dev_frog_ecs_service",
                     "awslogs-region": "__REGION__"
                 }
             },
@@ -78,10 +98,40 @@
             "essential": true,
             "disableNetworking": false,
             "privileged": false
+        },
+        {
+            "image": "grafana/promtail:2.6.1",
+            "name": "__ENV___promtail",
+            "cpu": 256,
+            "memoryReservation": 128,
+            "environment": [],
+            "secrets": [
+                {
+                    "name": "LOKI_URL",
+                    "valueFrom": "arn:aws:ssm:__REGION__:730335282594:parameter/dev_common_mysql_host"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "log-volume",
+                    "containerPath": "/logs"
+                }
+            ],
+            "command": [
+                "promtail -config.file=/etc/promtail/promtail-config.yaml"
+            ],
+            "essential": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "dev_frog_ecs_promtail",
+                    "awslogs-region": "__REGION__"
+                }
+            }
         }
     ],
-    "taskRoleArn": "arn:aws:iam::730335282594:role/dev_frog_default_task_role",
-    "executionRoleArn": "arn:aws:iam::730335282594:role/dev_frog_default_task_execution_role",
+    "taskRoleArn": "arn:aws:iam::730335282594:role/dev_frog_ecs_task_role",
+    "executionRoleArn": "arn:aws:iam::730335282594:role/dev_frog_ecs_task_execution_role",
     "networkMode": "awsvpc",
     "volumes": [],
     "placementConstraints": [],

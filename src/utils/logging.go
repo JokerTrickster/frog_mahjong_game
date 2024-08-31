@@ -3,8 +3,16 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"reflect"
 	"time"
+)
+
+var (
+	infoLogger    *log.Logger
+	warningLogger *log.Logger
+	errorLogger   *log.Logger
 )
 
 const (
@@ -37,6 +45,25 @@ type ErrorInfo struct {
 	From      string `json:"from,omitempty"`
 }
 
+func InitLogging() error {
+	infoFile, err := os.OpenFile("/logs/info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		return fmt.Errorf("failed to open info log file: %v", err)
+	}
+	errorFile, err := os.OpenFile("/logs/error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		return fmt.Errorf("failed to open error log file: %v", err)
+	}
+	warningFile, err := os.OpenFile("/logs/warning.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		return fmt.Errorf("failed to open error log file: %v", err)
+	}
+	infoLogger = log.New(infoFile, fmt.Sprintf(colorInfo, "[INFO] "), log.LstdFlags)
+	warningLogger = log.New(warningFile, fmt.Sprintf(colorWarning, "[WARNING] "), log.LstdFlags)
+	errorLogger = log.New(errorFile, fmt.Sprintf(colorError, "[ERROR] "), log.LstdFlags)
+	return nil
+}
+
 func (l *Log) MakeLog(userID string, url string, method string, startTime time.Time, httpCode int, requestID string) error {
 	l.Project = "frog"
 	l.Type = "access"
@@ -63,17 +90,29 @@ func (l *Log) MakeErrorLog(res Err) error {
 
 // LogInfo : info level log
 func LogInfo(logContent interface{}) {
-	fmt.Printf("%s %s\n", fmt.Sprintf(colorInfo, "[INFO]"), getStringFromInterface(logContent))
+	if Env.IsLocal {
+		fmt.Printf("[INFO] %s\n", getStringFromInterface(logContent))
+	} else {
+		infoLogger.Printf("%s\n", getStringFromInterface(logContent))
+	}
 }
 
 // LogWarning : warning level log
 func LogWarning(logContent interface{}) {
-	fmt.Printf("%s %s\n", fmt.Sprintf(colorWarning, "[WARNING]"), getStringFromInterface(logContent))
+	if Env.IsLocal {
+		fmt.Printf("[WARNING] %s\n", getStringFromInterface(logContent))
+	} else {
+		warningLogger.Printf("%s\n", getStringFromInterface(logContent))
+	}
 }
 
 // LogError : error level log
 func LogError(logContent interface{}) {
-	fmt.Printf("%s %s\n", fmt.Sprintf(colorError, "[ERROR]"), getStringFromInterface(logContent))
+	if Env.IsLocal {
+		fmt.Printf("[ERROR] %s\n", getStringFromInterface(logContent))
+	} else {
+		errorLogger.Printf("%s\n", getStringFromInterface(logContent))
+	}
 }
 
 // get string from any type.
