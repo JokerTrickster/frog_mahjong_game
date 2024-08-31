@@ -39,10 +39,10 @@ func InitMySQL() error {
 		}
 		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 			dbInfos[4], //user
-			dbInfos[2], //port
 			dbInfos[1], //password
-			dbInfos[3], //host
-			dbInfos[0], //db name
+			dbInfos[0], //host
+			dbInfos[2], //port
+			dbInfos[3], //db
 		)
 	}
 	fmt.Println(connectionString)
