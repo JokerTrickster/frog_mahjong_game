@@ -1689,6 +1689,9 @@ const docTemplate = `{
                 "created": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "message": {
                     "type": "string"
                 },

@@ -40,6 +40,7 @@ func CreateResHistoryChat(chats []*mysql.Chats, total int) (response.ResHistoryC
 	history := make([]response.HistoryChat, 0)
 	for _, chat := range chats {
 		msg := response.HistoryChat{
+			ID:      chat.ID,
 			UserID:  uint(chat.UserID),
 			Name:    chat.Name,
 			Message: chat.Message,
