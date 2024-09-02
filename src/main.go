@@ -44,7 +44,6 @@ func main() {
 		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.jokertrickster.com", utils.Env.Env, "frog")
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
-	utils.LogInfo("frog Server started")
 	e.HideBanner = true
 	e.Logger.Fatal(e.Start(":" + utils.Env.Port))
 	// e.Logger.Fatal(e.Start(":8080"))
