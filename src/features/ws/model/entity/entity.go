@@ -31,6 +31,7 @@ type WSMessage struct {
 	Event   string `json:"event"`
 	RoomID  uint   `json:"roomID"`
 	UserID  uint   `json:"userID"`
+	ChatID  uint   `json:"chatID"`
 	Name    string `json:"name"`
 }
 
