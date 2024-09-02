@@ -30,6 +30,7 @@ type Log struct {
 	Project   string    `json:"project"`
 	Type      string    `json:"type"`
 	UserID    string    `json:"userID"`
+	Env       string    `json:"env"`
 	Created   string    `json:"created"`
 	Url       string    `json:"url"`
 	Method    string    `json:"method"`
@@ -68,6 +69,7 @@ func InitLogging() error {
 func (l *Log) MakeLog(userID string, url string, method string, startTime time.Time, httpCode int, requestID string) error {
 	l.Project = "frog"
 	l.Type = "info"
+	l.Env = Env.Env
 	l.UserID = userID
 	l.Created = startTime.Format("2006-01-02 15:04:05")
 	l.Url = url
