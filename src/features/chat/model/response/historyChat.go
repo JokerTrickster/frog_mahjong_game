@@ -6,6 +6,7 @@ type ResHistoryChat struct {
 }
 
 type HistoryChat struct {
+	ID      uint   `json:"id"`
 	Name    string `json:"name"`
 	Message string `json:"message"`
 	Created string `json:"created"`

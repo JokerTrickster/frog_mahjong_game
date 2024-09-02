@@ -50,7 +50,6 @@ func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, 
 	if err != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
 	}
-
 	if password != findUser.Password {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrPasswordNotMatch, utils.Trace(), _errors.ErrPasswordNotMatch.Error(), utils.ErrFromClient)
 	}
