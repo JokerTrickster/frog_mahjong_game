@@ -17,10 +17,7 @@ scrape_configs:
         labels:
           job: info_logs
           __path__: /logs/info.log
-    relabel_configs:
-      - source_labels: ['__path__']
-        regex: '/logs/positions.yaml'
-        action: drop
+
 
   - job_name: error
     static_configs:
@@ -29,10 +26,7 @@ scrape_configs:
         labels:
           job: error_logs
           __path__: /logs/error.log
-    relabel_configs:
-      - source_labels: ['__path__']
-        regex: '/logs/positions.yaml'
-        action: drop
+
 
   - job_name: warning
     static_configs:
@@ -41,7 +35,4 @@ scrape_configs:
         labels:
           job: warning_logs
           __path__: /logs/warning.log
-    relabel_configs:
-      - source_labels: ['__path__']
-        regex: '/logs/positions.yaml'
-        action: drop
+
