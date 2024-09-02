@@ -8,10 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func ChatInsertOneChat(ctx context.Context, tx *gorm.DB, chatDTO *mysql.Chats) error {
-	err := tx.Create(&chatDTO).Error
-	if err != nil {
-		return fmt.Errorf("채팅 저장 실패 %v", err)
+// 채팅 저장 후 채팅 ID 반환
+func ChatInsertOneChat(ctx context.Context, tx *gorm.DB, chatDTO *mysql.Chats) (uint, error) {
+	if err := tx.WithContext(ctx).Create(chatDTO).Error; err != nil {
+		return 0, fmt.Errorf("챗 정보 저장 실패: %v", err)
 	}
-	return nil
+
+	return chatDTO.ID, nil
 }

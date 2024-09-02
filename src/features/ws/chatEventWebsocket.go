@@ -27,16 +27,18 @@ func ChatEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	ChatInfo := entity.ChatInfo{}
+	var ChatID uint
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 채팅 DTO 만들기
 		chatDTO := CreateChatDTO(req)
 
 		// 채팅 정보 저장
-		err := repository.ChatInsertOneChat(ctx, tx, chatDTO)
+		chatID, err := repository.ChatInsertOneChat(ctx, tx, chatDTO)
 		if err != nil {
 			return err
 		}
+		ChatID = chatID
 
 		return nil
 	})
@@ -58,6 +60,8 @@ func ChatEventWebsocket(msg *entity.WSMessage) {
 				if clients[client].UserID == msg.UserID {
 					// 구조체를 JSON 문자열로 변환 (마샬링)
 					msg.Message = req.Message
+					msg.ChatID = ChatID
+
 					err = client.WriteJSON(msg)
 					if err != nil {
 						log.Printf("error: %v", err)
@@ -70,6 +74,7 @@ func ChatEventWebsocket(msg *entity.WSMessage) {
 			for client := range clients {
 				// 구조체를 JSON 문자열로 변환 (마샬링)
 				msg.Message = req.Message
+				msg.ChatID = ChatID
 				err = client.WriteJSON(msg)
 				if err != nil {
 					log.Printf("error: %v", err)
