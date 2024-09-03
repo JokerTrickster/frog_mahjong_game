@@ -5,4 +5,5 @@ type ReqCreate struct {
 	Password string `json:"password,omitempty"`
 	MaxCount int    `json:"maxCount" validate:"required"`
 	MinCount int    `json:"minCount" validate:"required"`
+	TimeOut  int    `json:"timeOut" validate:"required"`
 }

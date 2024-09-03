@@ -1392,7 +1392,8 @@ const docTemplate = `{
             "required": [
                 "maxCount",
                 "minCount",
-                "name"
+                "name",
+                "timeOut"
             ],
             "properties": {
                 "maxCount": {
@@ -1406,6 +1407,9 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "timeOut": {
+                    "type": "integer"
                 }
             }
         },

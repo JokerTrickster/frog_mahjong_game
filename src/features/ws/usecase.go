@@ -81,6 +81,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		PlayTurn:      playTurn,
 		AllReady:      allReady,
 		IsLoanAllowed: false,
+		TimeOut:       preloadUsers[0].Room.TimeOut,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {

@@ -56,10 +56,13 @@ definitions:
         type: string
       password:
         type: string
+      timeOut:
+        type: integer
     required:
     - maxCount
     - minCount
     - name
+    - timeOut
     type: object
   request.ReqDiscard:
     properties:
