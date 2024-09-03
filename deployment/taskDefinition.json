@@ -114,7 +114,7 @@
             "mountPoints": [
                 {
                     "sourceVolume": "log-volume",
-                    "containerPath": "/mnt/logs"
+                    "containerPath": "/logs"
                 }
             ],
             "command": [

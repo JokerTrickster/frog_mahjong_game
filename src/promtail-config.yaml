@@ -3,7 +3,7 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: /mnt/logs/positions.yaml
+  filename: /logs/positions.yaml
 
 clients:
   - url: http://loki:3100/loki/api/v1/push
@@ -15,19 +15,19 @@ scrape_configs:
           - localhost
         labels:
           job: info_logs
-          __path__: /mnt/logs/info.log
+          __path__: /logs/info.log
   - job_name: error
     static_configs:
       - targets:
           - localhost
         labels:
           job: error_logs
-          __path__: /mnt/logs/error.log
+          __path__: /logs/error.log
   - job_name: warning
     static_configs:
       - targets:
           - localhost
         labels:
           job: warning_logs
-          __path__: /mnt/logs/warning.log
+          __path__: /logs/warning.log
   
