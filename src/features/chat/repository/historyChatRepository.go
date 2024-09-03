@@ -17,7 +17,7 @@ func NewHistoryChatRepository(gormDB *gorm.DB) _interface.IHistoryChatRepository
 func (d *HistoryChatRepository) FindChatHistory(ctx context.Context, entitySQL *entity.HistoryEntitySQL) ([]*mysql.Chats, error) {
 	var chats []*mysql.Chats
 	// 페이지네이션 처리
-	err := d.GormDB.Model(&mysql.Chats{}).Where("deleted_at IS NULL and room_id = ?", entitySQL.RoomID).Limit(entitySQL.PageSize).Offset((entitySQL.Page - 1) * entitySQL.PageSize).Find(&chats).Error
+	err := d.GormDB.Model(&mysql.Chats{}).Where("deleted_at IS NULL and room_id = ?", entitySQL.RoomID).Order("created_at DESC").Limit(entitySQL.PageSize).Offset((entitySQL.Page - 1) * entitySQL.PageSize).Find(&chats).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
 	}
