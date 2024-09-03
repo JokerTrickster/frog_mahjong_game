@@ -137,7 +137,7 @@
         {
             "name": "log-volume",
             "host": {
-                "sourcePath": "/mnt/logs"
+                "sourcePath": "/logs"
             }
         }
     ],
