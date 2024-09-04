@@ -1,9 +1,13 @@
 package middleware
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"main/utils"
+	"net/http"
 	"strings"
 	"time"
 
@@ -25,7 +29,34 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		err := next(c)
+		// 요청으로부터 JSON, 쿼리, 패스 파라미터 값을 추출하여 출력
+		// JSON Body
+		bodyBytes, err := io.ReadAll(req.Body)
+		if err != nil && err != io.EOF {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
+		}
+		req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) // 원래 요청에 복사한 바디를 재설정
+
+		// JSON Body를 읽어서 출력
+		var requestBody map[string]interface{}
+		queryParams := map[string][]string{}
+		pathValues := make(map[string]string)
+		if req.Method == "POST" || req.Method == "PUT" || req.Method == "PATCH" {
+			if err := json.Unmarshal(bodyBytes, &requestBody); err != nil {
+				fmt.Println("Failed to unmarshal JSON body:", err)
+			}
+		} else {
+			// Query Parameters
+			queryParams = c.QueryParams()
+
+			// Path Parameters
+			pathParams := c.ParamNames()
+			for _, param := range pathParams {
+				pathValues[param] = c.Param(param)
+			}
+		}
+
+		err = next(c)
 		//에러 파싱
 		resError := utils.Err{}
 		var resCode int
@@ -40,7 +71,7 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		// 로깅
 		logging := utils.Log{}
-		logging.MakeLog("", url, req.Method, startTime, resCode, requestID)
+		logging.MakeLog("", url, req.Method, startTime, resCode, requestID, requestBody, queryParams, pathValues)
 		if resCode >= 400 {
 			//에러 로깅
 			logging.MakeErrorLog(resError)
