@@ -56,6 +56,8 @@ func WSHandleMessages() {
 			RoomOutEventWebsocket(&msg)
 		case "CHAT":
 			ChatEventWebsocket(&msg)
+		case "TIME_OUT_DISCARD":
+			TimeOutDiscardCardsEventWebsocket(&msg)
 		}
 	}
 }
