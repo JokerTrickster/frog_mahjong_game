@@ -303,7 +303,7 @@ func IsCheckedChanTa(cards []entity.ScoreCalculateCard) bool {
 
 // 4. 도라 : dora 하나당 1점 추가
 func IsCheckedDora(card entity.ScoreCalculateCard, doraCard mysql.Cards) bool {
-	if card.Name == doraCard.Name && card.Color == doraCard.Color {
+	if card.Name == doraCard.Name {
 		return true
 	}
 	return false
