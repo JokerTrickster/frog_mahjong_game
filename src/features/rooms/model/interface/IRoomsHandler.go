@@ -31,3 +31,7 @@ type IListRoomsHandler interface {
 type IUserListRoomsHandler interface {
 	UserList(c echo.Context) error
 }
+
+type IMetaRoomsHandler interface {
+	Meta(c echo.Context) error
+}

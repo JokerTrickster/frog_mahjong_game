@@ -10,4 +10,5 @@ var (
 	ErrRoomFull           = errors.New("room full")
 	ErrPlayerStateFailed  = errors.New("player state change failed")
 	ErrRoomUserNotFound   = errors.New("room user not found")
+	ErrServerError        = errors.New("server error")
 )

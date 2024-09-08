@@ -8,6 +8,16 @@ import (
 	"main/utils/db/mysql"
 )
 
+func CreateResMetaData(times []mysql.Times) response.ResMetaRoom {
+	res := response.ResMetaRoom{}
+	timers := make([]int, 0, len(times))
+	for i := 0; i < len(times); i++ {
+		timers = append(timers, int(times[i].Timer))
+	}
+	res.Timers = timers
+	return res
+}
+
 func CreateResUserListRoom(userList []response.User, rooms mysql.Rooms) response.ResUserListRoom {
 	res := response.ResUserListRoom{}
 	for i := 0; i < len(userList); i++ {

@@ -50,3 +50,6 @@ type IUserListRoomsRepository interface {
 	FindRoomUser(ctx context.Context, RoomID uint) ([]response.User, error)
 	FindOneRoom(ctx context.Context, RoomID uint) (mysql.Rooms, error)
 }
+type IMetaRoomsRepository interface {
+	FindAllTimeMeta(ctx context.Context) ([]mysql.Times, error)
+}
