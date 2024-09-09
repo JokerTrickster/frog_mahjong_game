@@ -66,7 +66,6 @@ func join(c echo.Context) error {
 		fmt.Println(err)
 		return nil
 	}
-
 	initialMsg.UserID = userID
 	roomID := initialMsg.RoomID
 	// 첫 번째 레벨 맵 초기화

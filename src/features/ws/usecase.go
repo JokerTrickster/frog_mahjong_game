@@ -42,10 +42,10 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, playTurn int, roomInfoError *entity.ErrorInfo) *entity.RoomInfo {
 	roomInfoMsg := entity.RoomInfo{}
 	allReady := true
-	timeOut := 30
+	timer := 30
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
-		timeOut = roomUser.Room.TimeOut
+		timer = roomUser.Room.Timer
 		user := entity.User{
 			ID:          uint(roomUser.UserID),
 			PlayerState: roomUser.PlayerState,
@@ -83,7 +83,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		PlayTurn:      playTurn,
 		AllReady:      allReady,
 		IsLoanAllowed: false,
-		TimeOut:       timeOut,
+		Timer:         timer,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
