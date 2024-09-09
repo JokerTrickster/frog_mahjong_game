@@ -12,9 +12,18 @@ import (
 	"gorm.io/gorm"
 )
 
+func MatchFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
+	roomUser := mysql.RoomUsers{}
+	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
+	if err != nil {
+		return 0, fmt.Errorf("방 유저 정보 조회 에러: %v", err)
+	}
+	return uint(roomUser.RoomID), nil
+}
+
 func MatchFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, error) {
 	var roomsDTO *mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at IS NULL and state = ? and min_count = ? and max_count = ? and timer = ? and current_count < max_count", "wait", count, count, timer).First(&roomsDTO).Error
+	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and min_count = ? and max_count = ? and timer = ? and state = ? and current_count < max_count", count, count, timer, "wait").First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
 			return &mysql.Rooms{}, nil
@@ -99,16 +108,11 @@ func MatchindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID
 	return nil
 }
 
-func MatchFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID, roomID uint) error {
-	result := tx.WithContext(ctx).Where("user_id = ? and room_id = ?", uID, roomID).Delete(&mysql.RoomUsers{})
+func MatchFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint) error {
+	result := tx.WithContext(ctx).Where("user_id = ? ", uID).Delete(&mysql.RoomUsers{})
 	// 방 유저 정보가 없는 경우
 	if result.RowsAffected == 0 {
 		return nil
-	} else {
-		result2 := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
-		if result2.Error != nil {
-			return fmt.Errorf("방 인원수 업데이트 실패: %v", result.Error)
-		}
 	}
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete room user: %v", result.Error)

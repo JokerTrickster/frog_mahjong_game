@@ -83,6 +83,7 @@ type GameInfo struct {
 	IsLoanAllowed    bool      `json:"isLoanAllowed"`    // 론 가능 여부
 	FailedLoanUserID uint      `json:"failedLoanUserID"` // 론 실패 유저 ID
 	Timer            int       `json:"timer"`            // 타이머
+	IsFull           bool      `json:"isFull"`           // 방이 꽉 찼는지 여부
 }
 
 type LoanInfo struct {
