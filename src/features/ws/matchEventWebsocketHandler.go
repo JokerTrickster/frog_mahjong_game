@@ -8,9 +8,11 @@ import (
 	"main/features/ws/model/request"
 	"main/features/ws/repository"
 	"main/utils"
+	"main/utils/db/mysql"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // 방 매칭 참여 (ws)
@@ -65,19 +67,40 @@ func match(c echo.Context) error {
 	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
 	var roomID uint
+
 	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
-	if rooms.ID == 0 && err == nil {
-		//대기 방이 없는 경우
-		// 방 생성
-		roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
-		newRoomID, err := repository.MatchInsertOneRoom(ctx, roomDTO)
+	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+
+		if rooms.ID == 0 && err == nil {
+			//대기 방이 없는 경우
+			// 방 생성
+			roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
+			newRoomID, err := repository.MatchInsertOneRoom(ctx, roomDTO)
+			if err != nil {
+				return err
+			}
+			roomID = uint(newRoomID)
+		} else {
+			roomID = rooms.ID
+		}
+		// room 유저 수 증가
+		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}
-		roomID = uint(newRoomID)
-	} else {
-		roomID = rooms.ID
-	}
+		// 기존에 룸 유저 정보가 있으면 지운다.
+		err = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, userID)
+		if err != nil {
+			return err
+		}
+		// room_user 생성
+		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "wait")
+		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 
 	defer ws.Close()
 	var initialMsg entity.WSMessage

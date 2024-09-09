@@ -28,39 +28,11 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	RoomDTO, _ := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
-	roomID := RoomDTO.ID
-	fmt.Println(RoomDTO)
+	roomID, err := repository.MatchFindOneRoomUsers(ctx, uID)
+	if err != nil {
+		log.Fatalf("방 유저 정보 조회 에러: %s", err)
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 방 참여 가능한지 체크
-		if RoomDTO.CurrentCount == RoomDTO.MaxCount {
-			return fmt.Errorf("방이 꽉 찼습니다.")
-		}
-		if RoomDTO.State != "wait" {
-			return fmt.Errorf("게임 중인 방입니다.")
-		}
-		// TODO 기존에 방 유저 정보가 있는지 가져온다.
-		// 유저 정보가 있으면 삭제하고 방 인원수를 감소시킨다.
-		err = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, uID, roomID)
-		if err != nil {
-			return err
-		}
-		// 방 유저 정보를 생성한다.
-		RoomUserDTO := CreateMatchRoomUserDTO(uID, int(roomID), "wait")
-		if err != nil {
-			return err
-		}
-
-		err = repository.MatchInsertOneRoomUser(ctx, tx, RoomUserDTO)
-		if err != nil {
-			return err
-		}
-		// 방 현재 인원을 증가시킨다.
-		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
-
 		//유저 정보를 업데이트 한다.
 		err = repository.MatchFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
@@ -91,6 +63,11 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
+
+	if len(preloadUsers) == req.Count {
+		roomInfoMsg.GameInfo.IsFull = true
+		roomInfoMsg.GameInfo.AllReady = true
+	}
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
