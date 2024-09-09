@@ -82,7 +82,7 @@ type GameInfo struct {
 	LoanInfo         *LoanInfo `json:"loanInfo"`         // 론 정보
 	IsLoanAllowed    bool      `json:"isLoanAllowed"`    // 론 가능 여부
 	FailedLoanUserID uint      `json:"failedLoanUserID"` // 론 실패 유저 ID
-	TimeOut          int       `json:"timeOut"`
+	Timer            int       `json:"timer"`            // 타이머
 }
 
 type LoanInfo struct {

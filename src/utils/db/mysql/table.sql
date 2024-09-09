@@ -36,7 +36,7 @@ CREATE TABLE rooms (
     password VARCHAR(255),
     state VARCHAR(50),
     owner_id INT,
-    time_out INT 
+    timer INT 
 );
 
 

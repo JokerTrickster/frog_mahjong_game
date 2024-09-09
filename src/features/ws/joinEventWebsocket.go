@@ -98,7 +98,6 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
-
 	//방 유저들에게 메시지 전달
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
