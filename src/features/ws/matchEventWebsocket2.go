@@ -64,8 +64,9 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
 
-	if len(preloadUsers) == req.Count{
+	if len(preloadUsers) == req.Count {
 		roomInfoMsg.GameInfo.IsFull = true
+		roomInfoMsg.GameInfo.AllReady = true
 	}
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
