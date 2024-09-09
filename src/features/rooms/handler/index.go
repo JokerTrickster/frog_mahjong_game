@@ -17,4 +17,5 @@ func NewRoomsHandler(c *echo.Echo) {
 	NewUserListRoomsHandler(c, usecase.NewUserListRoomsUseCase(repository.NewUserListRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV02CreateRoomsHandler(c, usecase.NewV02CreateRoomsUseCase(repository.NewV02CreateRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV02JoinRoomsHandler(c, usecase.NewV02JoinRoomsUseCase(repository.NewV02JoinRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewMetaRoomsHandler(c, usecase.NewMetaRoomsUseCase(repository.NewMetaRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

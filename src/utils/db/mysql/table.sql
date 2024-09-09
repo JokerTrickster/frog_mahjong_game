@@ -92,6 +92,32 @@ CREATE TABLE user_auths (
     type VARCHAR(100)
 );
 
+-- 메타 데이터 테이블
+  CREATE TABLE meta_tables (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    table_name VARCHAR(255) NOT NULL UNIQUE,
+    table_description VARCHAR(255)
+);
+-- 게임 시간 타이머 관리 메타 테이블
+CREATE TABLE times (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    timer INT,
+    description VARCHAR(255)
+);
+
+
 # rooms 대기방 생성
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
 VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
+
+-- meta table에 times, types, scenarios 테이블을 저장하는 sql 문 만들어줘
+INSERT INTO meta_tables (table_name, table_description) VALUES ('times', '게임 타이머');
+
+-- times 테이블에 15초, 30초, 60초 데이터를 넣어줘
+INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '60초');

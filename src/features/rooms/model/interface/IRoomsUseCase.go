@@ -34,3 +34,6 @@ type IListRoomsUseCase interface {
 type IUserListRoomsUseCase interface {
 	UserList(c context.Context, RoomID uint) (response.ResUserListRoom, error)
 }
+type IMetaRoomsUseCase interface {
+	Meta(c context.Context) (response.ResMetaRoom, error)
+}
