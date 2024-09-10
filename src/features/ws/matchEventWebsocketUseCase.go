@@ -8,7 +8,7 @@ func CreateMatchRoomDTO(uID uint, count int, timer int) mysql.Rooms {
 		MaxCount:     count,
 		MinCount:     count,
 		State:        "wait",
-		OwnerID:      0,
+		OwnerID:      int(uID),
 		Timer:        timer,
 		PlayTurn:     0,
 		Name:         "speed match",
