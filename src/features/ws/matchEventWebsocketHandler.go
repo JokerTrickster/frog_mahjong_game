@@ -94,7 +94,7 @@ func match(c echo.Context) error {
 			return err
 		}
 		// room_user 생성
-		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "wait")
+		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "play")
 		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
 			return err
