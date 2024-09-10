@@ -36,7 +36,7 @@ func MatchFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Roo
 func MatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error {
 	user := mysql.Users{
 		RoomID: int(RoomID),
-		State:  "play",
+		State:  "ready",
 	}
 	result := tx.WithContext(ctx).Model(user).Where("id = ?", uID).Updates(user)
 	if result.Error != nil {
