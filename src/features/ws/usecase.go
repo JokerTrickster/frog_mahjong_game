@@ -43,6 +43,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	roomInfoMsg := entity.RoomInfo{}
 	allReady := true
 	timer := 30
+	roomID := 0
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
@@ -67,6 +68,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 			}
 		}
+		roomID = roomUser.RoomID
 		//방장이 아닌 유저가 준비를 안했을 경우 게임 시작 불가 or 인원수가 1명 이하일 경우 게임 시작 불가
 		if (roomUser.Room.OwnerID != roomUser.UserID && roomUser.PlayerState != "ready") || len(preloadUsers) == 1 {
 			allReady = false
@@ -85,6 +87,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		IsLoanAllowed: false,
 		Timer:         timer,
 		IsFull:        false,
+		RoomID:        uint(roomID),
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {

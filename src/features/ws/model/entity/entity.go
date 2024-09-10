@@ -84,6 +84,7 @@ type GameInfo struct {
 	FailedLoanUserID uint      `json:"failedLoanUserID"` // 론 실패 유저 ID
 	Timer            int       `json:"timer"`            // 타이머
 	IsFull           bool      `json:"isFull"`           // 방이 꽉 찼는지 여부
+	RoomID           uint      `json:"roomID"`           // 방 ID
 }
 
 type LoanInfo struct {
