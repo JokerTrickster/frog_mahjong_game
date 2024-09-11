@@ -17,13 +17,9 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
-	req := request.ReqWSJoin{
+	req := request.ReqWSClose{
 		RoomID: uint(msg.RoomID),
 	}
-	if msg.Message != "" {
-		req.Password = msg.Message
-	}
-	fmt.Println("시작할때 유저 수 체크 , ", len(entity.WSClients[msg.RoomID]))
 
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
