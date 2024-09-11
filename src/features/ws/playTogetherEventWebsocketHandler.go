@@ -15,9 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// 방 매칭 참여 (ws)
+// 함께하기 방 생성 (ws)
 // @Router /v0.1/rooms/play/together/ws [get]
-// @Summary 방 참여 (ws)
+// @Summary 함께하기 방 생성 (ws)
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
