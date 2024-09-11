@@ -86,8 +86,21 @@ func PlayTogetherFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqW
 	}
 	return RoomDTO, nil
 }
+func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID, count, timer uint) error {
+	room := mysql.Rooms{
+		MaxCount: int(count),
+		MinCount: int(count),
+		Timer:    int(timer),
+	}
+	result := tx.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Updates(room)
+	if result.Error != nil {
+		return fmt.Errorf("방 정보 업데이트 실패: %v", result.Error)
+	}
 
-func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
+	return nil
+}
+
+func PlayTogetherAddPlayerToRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
 	result := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1"))
 	if result.Error != nil {
 		return fmt.Errorf("방 인원수 업데이트 실패: %v", result.Error)

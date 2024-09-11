@@ -46,7 +46,7 @@ func playTogether(c echo.Context) error {
 		return nil
 	}
 
-	req := &request.ReqWSMatch{}
+	req := &request.ReqWSPlayTogether{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		fmt.Println(err)
 		return nil
@@ -72,14 +72,14 @@ func playTogether(c echo.Context) error {
 		//숫자로 이루어진 6개 랜덤값을 생성한다.
 		password := CreateRandomPassword()
 		// 방 생성
-		roomDTO := CreatePlayTogetherRoomDTO(userID, req.Count, req.Timer, password)
+		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
 		newRoomID, err := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
 		if err != nil {
 			return err
 		}
 		roomID = uint(newRoomID)
 		// room 유저 수 증가
-		err = repository.PlayTogetherFindOneAndUpdateRoom(ctx, tx, roomID)
+		err = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}

@@ -33,6 +33,12 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 		log.Fatalf("방 유저 정보 조회 에러: %s", err)
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+		// 방 정보를 업데이트 한다. (타이머, 인원 수)
+		err := repository.PlayTogetherFindOneAndUpdateRoom(ctx, tx, roomID, uint(req.Count), uint(req.Timer))
+		if err != nil {
+			return err
+		}
+
 		//유저 정보를 업데이트 한다.
 		err = repository.PlayTogetherFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
