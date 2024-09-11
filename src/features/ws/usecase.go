@@ -44,9 +44,11 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	allReady := true
 	timer := 30
 	roomID := 0
+	password := ""
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
+		password = roomUser.Room.Password
 		user := entity.User{
 			ID:          uint(roomUser.UserID),
 			PlayerState: roomUser.PlayerState,
@@ -84,6 +86,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		Timer:         timer,
 		IsFull:        false,
 		RoomID:        uint(roomID),
+		Password:      password,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
