@@ -60,6 +60,8 @@ func WSHandleMessages() {
 			TimeOutDiscardCardsEventWebsocket(&msg)
 		case "MATCH":
 			MatchEventWebsocket(&msg)
+		case "CANCEL_MATCH":
+			CancelMatchEventWebsocket(&msg)
 		}
 	}
 }
