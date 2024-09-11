@@ -6,4 +6,5 @@ func NewWebsocketHandler(e *echo.Echo) {
 
 	e.GET("/v0.1/rooms/join/ws", join)
 	e.GET("/v0.1/rooms/match/ws", match)
+	e.GET("/v0.1/rooms/play/together/ws", playTogether)
 }
