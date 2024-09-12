@@ -13,7 +13,7 @@ const (
 	WriteWait = 10 * time.Second
 
 	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
-	PongWait = 40 * time.Second
+	PongWait = 30 * time.Second
 
 	// 핑을 보낼 수 있는 기간입니다. (PongWait 보다 작아야 된다.)
 	PingPeriod = (PongWait * 9) / 10

@@ -68,21 +68,26 @@ func joinPlay(c echo.Context) error {
 	var roomID uint
 
 	rooms, err := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
+	if err != nil {
+		message := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "비밀번호를 잘못 입력했습니다.")
+		ws.WriteMessage(websocket.CloseMessage, message)
+		return nil
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		roomID = rooms.ID
 		// room 유저 수 증가
-		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		err = repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}
 		// 기존에 룸 유저 정보가 있으면 지운다.
-		err = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, userID)
+		err = repository.JoinPlayFindOneAndDeleteRoomUser(ctx, tx, userID)
 		if err != nil {
 			return err
 		}
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "ready")
-		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
+		err = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
 			return err
 		}
