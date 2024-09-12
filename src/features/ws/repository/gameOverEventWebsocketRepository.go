@@ -28,15 +28,6 @@ func GameOverDeleteAllCards(ctx context.Context, tx *gorm.DB, GameOverEntity *en
 	return nil
 }
 
-// 방 상태 변경 (play -> wait)
-func GameOverUpdateRoomState(c context.Context, tx *gorm.DB, GameOverEntity *entity.WSGameOverEntity) error {
-	err := tx.Model(&mysql.Rooms{}).Where("id = ?", GameOverEntity.RoomID).Update("state", "wait").Error
-	if err != nil {
-		return fmt.Errorf("방 상태 변경 실패 %v", err.Error())
-	}
-	return nil
-}
-
 // 유저 상태 변경 (play -> wait)
 func GameOverUpdateRoomUsers(c context.Context, tx *gorm.DB, GameOverEntity *entity.WSGameOverEntity) error {
 	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ?", GameOverEntity.RoomID).Update("player_state", "wait").Error

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RequestWinFindAllRoomUsers(ctx context.Context,tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+func RequestWinFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
 	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
@@ -42,15 +42,6 @@ func RequestWinDeleteAllCards(ctx context.Context, tx *gorm.DB, requestWinEntity
 	err := tx.Model(&mysql.Cards{}).Where("room_id = ?", requestWinEntity.RoomID).Delete(&mysql.Cards{}).Error
 	if err != nil {
 		return fmt.Errorf("카드 삭제 실패 %v", err.Error())
-	}
-	return nil
-}
-
-// 방 상태 변경 (play -> wait)
-func RequestWinUpdateRoomState(c context.Context, tx *gorm.DB, requestWinEntity *entity.WSRequestWinEntity) error {
-	err := tx.Model(&mysql.Rooms{}).Where("id = ?", requestWinEntity.RoomID).Update("state", "wait").Error
-	if err != nil {
-		return fmt.Errorf("방 상태 변경 실패 %v", err.Error())
 	}
 	return nil
 }
