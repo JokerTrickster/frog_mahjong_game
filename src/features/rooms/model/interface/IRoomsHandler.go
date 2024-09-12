@@ -9,8 +9,8 @@ type ICreateRoomsHandler interface {
 type IV02CreateRoomsHandler interface {
 	V02Create(c echo.Context) error
 }
-type IJoinRoomsHandler interface {
-	Join(c echo.Context) error
+type IJoinPlayRoomsHandler interface {
+	JoinPlay(c echo.Context) error
 }
 
 type IV02JoinRoomsHandler interface {

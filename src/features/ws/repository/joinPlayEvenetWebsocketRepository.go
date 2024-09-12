@@ -25,7 +25,7 @@ func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Ro
 	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and password = ? and state = ? and current_count < max_count", password, "wait").First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
-			return &mysql.Rooms{}, nil
+			return &mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), "비밀번호가 잘못됐엇습니다.", utils.ErrFromClient)
 		}
 		return &mysql.Rooms{}, fmt.Errorf("대기 방 조회시 에러 발생: %v", err)
 	}

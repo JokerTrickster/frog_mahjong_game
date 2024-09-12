@@ -71,6 +71,7 @@ const (
 	ErrRoomFull                 = ErrType("ROOM_FULL")
 	ErrPlayerStateFailed        = ErrType("PLAYER_STATE_CHANGE_FAILED")
 	ErrRoomUserNotFound         = ErrType("ROOM_USER_NOT_FOUND")
+	ErrWrongPassword            = ErrType("WRONG_PASSWORD")
 )
 
 // auth error
@@ -83,6 +84,7 @@ const (
 var ErrHttpCode = map[string]int{
 	//400
 	"PARAM_BAD":                   http.StatusBadRequest,
+	"WRONG_PASSWORD":              http.StatusBadRequest,
 	"USER_ALREADY_EXISTED":        http.StatusBadRequest,
 	"BAD_REQUEST":                 http.StatusBadRequest,
 	"NOT_ALL_USERS_READY":         http.StatusBadRequest,

@@ -20,11 +20,8 @@ type IV02CreateRoomsRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error
 }
 
-type IJoinRoomsRepository interface {
-	FindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqJoin) (mysql.Rooms, error)
-	FindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error
-	FindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomsID uint) error
-	InsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error
+type IJoinPlayRoomsRepository interface {
+	FindOneRoom(ctx context.Context, req *request.ReqJoinPlay) error
 }
 type IV02JoinRoomsRepository interface {
 }

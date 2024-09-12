@@ -10,7 +10,7 @@ import (
 
 func NewRoomsHandler(c *echo.Echo) {
 	NewCreateRoomsHandler(c, usecase.NewCreateRoomsUseCase(repository.NewCreateRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
-	NewJoinRoomsHandler(c, usecase.NewJoinRoomsUseCase(repository.NewJoinRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewJoinPlayRoomsHandler(c, usecase.NewJoinPlayRoomsUseCase(repository.NewJoinPlayRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewOutRoomsHandler(c, usecase.NewOutRoomsUseCase(repository.NewOutRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewReadyRoomsHandler(c, usecase.NewReadyRoomsUseCase(repository.NewReadyRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewListRoomsHandler(c, usecase.NewListRoomsUseCase(repository.NewListRoomsRepository(mysql.GormMysqlDB), mysql.DBTimeOut))

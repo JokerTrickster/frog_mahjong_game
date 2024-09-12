@@ -861,16 +861,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/rooms/join": {
-            "post": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+        "/v0.1/rooms/join/play": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nROOM_NOT_FOUND : 방을 찾을 수 없음\nROOM_FULL : 방이 꽉 찼습니다.\nROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음\nWRONG_PASSWORD : 비밀번호가 일치하지 않습니다.\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "rooms"
                 ],
-                "summary": "방 참여",
+                "summary": "함께하기 방 참여 체크 (비밀번호 검증)",
                 "parameters": [
                     {
                         "type": "string",
@@ -880,20 +880,18 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "json body",
-                        "name": "json",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ReqJoin"
-                        }
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ResJoinRoom"
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -1566,20 +1564,6 @@ const docTemplate = `{
                 }
             }
         },
-        "request.ReqJoin": {
-            "type": "object",
-            "required": [
-                "roomID"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "roomID": {
-                    "type": "integer"
-                }
-            }
-        },
         "request.ReqLoan": {
             "type": "object",
             "properties": {
@@ -1887,14 +1871,6 @@ const docTemplate = `{
                     }
                 },
                 "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "response.ResJoinRoom": {
-            "type": "object",
-            "properties": {
-                "roomID": {
                     "type": "integer"
                 }
             }
