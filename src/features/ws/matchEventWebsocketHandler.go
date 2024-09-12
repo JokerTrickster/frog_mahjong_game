@@ -15,9 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// 방 매칭 참여 (ws)
+// 랜덤으로 방 매칭 (ws)
 // @Router /v0.1/rooms/match/ws [get]
-// @Summary 방 참여 (ws)
+// @Summary 랜덤으로 방 매칭 (ws)
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류

@@ -15,9 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// 방 참여 (ws)
+// 함께하기 참여 (패스워드 필수) (ws)
 // @Router /v0.1/rooms/join/play/ws [get]
-// @Summary 방 참여 (ws)
+// @Summary 함께하기 참여 (패스워드 필수) (ws)
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
@@ -32,8 +32,7 @@ import (
 // @Description INTERNAL_DB : DB 처리 실패
 // @Description PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
 // @Param tkn query string true "access token"
-// @Param timer query int true "timer"
-// @Param count query int true "count"
+// @Param password query string true "password"
 // @Produce json
 // @Success 200 {object} boolean
 // @Failure 400 {object} error

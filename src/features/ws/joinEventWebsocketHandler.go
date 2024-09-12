@@ -11,9 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// 방 참여 (ws)
-// @Router /v0.1/rooms/join/ws [get]
-// @Summary 방 참여 (ws)
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
