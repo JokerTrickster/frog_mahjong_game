@@ -63,12 +63,6 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// 방 상태 변경 (play -> wait)
-		err = repository.RequestWinUpdateRoomState(ctx, tx, &requestWinEntity)
-		if err != nil {
-			return err
-		}
-
 		// 유저 상태 변경
 		err = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
 		if err != nil {
@@ -78,11 +72,6 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		// 카드 정보 모두 삭제
-		// err = repository.RequestWinDeleteAllCards(ctx, tx, &requestWinEntity)
-		// if err != nil {
-		// 	return err
-		// }
 
 		return nil
 	})
