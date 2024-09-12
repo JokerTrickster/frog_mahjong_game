@@ -46,15 +46,6 @@ func SuccessDeleteAllCards(ctx context.Context, tx *gorm.DB, SuccessEntity *enti
 	return nil
 }
 
-// 방 상태 변경 (play -> wait)
-func SuccessUpdateRoomState(c context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) error {
-	err := tx.Model(&mysql.Rooms{}).Where("id = ?", SuccessEntity.RoomID).Update("state", "wait").Error
-	if err != nil {
-		return fmt.Errorf("방 상태 변경 실패 %v", err.Error())
-	}
-	return nil
-}
-
 // 유저 상태 변경 (play -> wait)
 func SuccessUpdateRoomUsers(c context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) error {
 	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ?", SuccessEntity.RoomID).Update("player_state", "wait").Error

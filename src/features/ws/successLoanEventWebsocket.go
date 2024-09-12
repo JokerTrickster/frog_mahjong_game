@@ -64,12 +64,6 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// 방 상태 변경 (play -> wait)
-		err = repository.SuccessUpdateRoomState(ctx, tx, &successEntity)
-		if err != nil {
-			return err
-		}
-
 		// 유저 상태 변경
 		err = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
 		if err != nil {
@@ -79,11 +73,7 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		// 카드 정보 모두 삭제
-		// err = repository.SuccessDeleteAllCards(ctx, tx, &successEntity)
-		// if err != nil {
-		// 	return err
-		// }
+
 		return nil
 	})
 	if err != nil {
