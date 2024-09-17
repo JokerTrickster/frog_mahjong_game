@@ -3,6 +3,7 @@ package ws
 import (
 	"fmt"
 	"main/features/ws/model/entity"
+	"main/utils"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -23,6 +24,9 @@ func WSHandleMessages() {
 
 	for {
 		msg := <-entity.WSBroadcast
+		logging := utils.Log{}
+		logging.MakeWSLog(msg)
+		utils.LogInfo(logging)
 		switch msg.Event {
 		case "JOIN": // 방 참여
 			JoinEventWebsocket(&msg)
