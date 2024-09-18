@@ -87,12 +87,17 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 
 func ErrorParsing(data string) utils.Err {
 	slice := strings.Split(data, "|")
-	result := utils.Err{
-		HttpCode: utils.ErrHttpCode[slice[0]],
-		ErrType:  slice[0],
-		Trace:    slice[1],
-		Msg:      slice[2],
-		From:     slice[3],
+	if len(slice) == 1 {
+		return utils.Err{
+			Msg: slice[0],
+		}
+	} else {
+		return utils.Err{
+			HttpCode: utils.ErrHttpCode[slice[0]],
+			ErrType:  slice[0],
+			Trace:    slice[1],
+			Msg:      slice[2],
+			From:     slice[3],
+		}
 	}
-	return result
 }

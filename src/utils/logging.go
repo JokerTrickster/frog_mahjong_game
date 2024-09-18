@@ -101,7 +101,7 @@ func (l *Log) MakeWSLog(msg entity.WSMessage) error {
 	l.Env = Env.Env
 	l.UserID = string(msg.UserID)
 	l.Created = startTime.Format("2006-01-02 15:04:05")
-	l.Url = "event"
+	l.Url = msg.Event
 	l.Method = "ws"
 	l.Latency = time.Since(startTime).Milliseconds()
 	l.HttpCode = 200

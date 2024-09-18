@@ -1,9 +1,18 @@
 [![Coverage Status](https://coveralls.io/repos/github/JokerTrickster/frog_mahjong_game/badge.svg)](https://coveralls.io/github/JokerTrickster/frog_mahjong_game)
 
 # 개굴작 보드게임
+### 도메인
+https://www.frog-mahjong.xyz/
 
 ### 프로젝트 설명
 참새작 보드게임을 모티브로 웹에서 여러 유저들과 플레이
+
+### 게임 화면
+<img width="1680" alt="스크린샷 2024-09-18 오후 9 19 34" src="https://github.com/user-attachments/assets/cb3bbe11-0381-4658-af07-982528d2f0b7">
+
+<img width="1676" alt="스크린샷 2024-09-18 오후 9 20 56" src="https://github.com/user-attachments/assets/dfe5985e-602b-404e-b5e1-844ae62fd45c">
+
+<img width="1672" alt="스크린샷 2024-09-19 오전 12 28 11" src="https://github.com/user-attachments/assets/f82b130e-147c-45b6-9f0f-4ee59144d9a2">
 
 ### 기능
 1. 로그인 기능
@@ -19,8 +28,7 @@
 ### 아키텍처
 
 - DB 스키마
-
-<img width="897" alt="스크린샷 2024-04-14 오후 6 37 27" src="https://github.com/JokerTrickster/frog_mahjong_game/assets/140731661/d5916c1f-3d5b-498e-bb2b-1c3fa5bf35f1">
+<img width="902" alt="스크린샷 2024-09-17 오후 7 54 18" src="https://github.com/user-attachments/assets/d3056ef8-a186-4a08-85af-cc5c0aa187f3">
 
 - 인프라 구성도
 
