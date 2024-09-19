@@ -20,6 +20,7 @@ func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
 		UserID: int(userDTO.ID),
 		Email:  userDTO.Email,
 		Name:   userDTO.Name,
+		Coin:   userDTO.Coin,
 	}
 }
 
