@@ -1850,6 +1850,9 @@ const docTemplate = `{
         "response.ResGetUser": {
             "type": "object",
             "properties": {
+                "coin": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },

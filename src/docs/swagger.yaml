@@ -274,6 +274,8 @@ definitions:
     type: object
   response.ResGetUser:
     properties:
+      coin:
+        type: integer
       email:
         type: string
       name:
