@@ -18,12 +18,12 @@ func NewGetUsersHandler(c *echo.Echo, useCase _interface.IGetUsersUseCase) _inte
 	handler := &GetUsersHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/users/:userID", handler.Get, mw.TokenChecker)
+	c.GET("/v0.1/user", handler.Get, mw.TokenChecker)
 	return handler
 }
 
 // 유저 정보 가져오기
-// @Router /v0.1/users/{userID} [get]
+// @Router /v0.1/user [get]
 // @Summary 유저 정보 가져오기
 // @Description
 // @Description ■ errCode with 400
@@ -34,19 +34,18 @@ func NewGetUsersHandler(c *echo.Echo, useCase _interface.IGetUsersUseCase) _inte
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param tkn header string true "accessToken"
-// @Param userID query string true "유저 아이디"
 // @Produce json
 // @Success 200 {object} response.ResGetUser
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags user
 func (d *GetUsersHandler) Get(c echo.Context) error {
-	ctx, _, _ := utils.CtxGenerate(c)
+	ctx, uID, _ := utils.CtxGenerate(c)
 	req := &request.ReqGetUser{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		return err
 	}
-	res, err := d.UseCase.Get(ctx, req.UserID)
+	res, err := d.UseCase.Get(ctx, int(uID))
 	if err != nil {
 		return err
 	}
