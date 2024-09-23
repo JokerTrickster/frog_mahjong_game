@@ -76,7 +76,7 @@ func InitAwsSes() error {
 					Name:  aws.String("type"),
 					Value: aws.String(string(mailReq.mailType)),
 				}},
-				FromEmailAddress: aws.String("pkjhj485@naver.com"),
+				FromEmailAddress: aws.String("root@jokertrickster.com"),
 			})
 			if err != nil {
 				if mailReq.failCount < 3 {
