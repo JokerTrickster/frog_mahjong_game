@@ -44,3 +44,7 @@ type IResultGameUseCase interface {
 type IReportGameUseCase interface {
 	Report(c context.Context, userID uint, req *request.ReqReport) error
 }
+
+type IMetaGameUseCase interface {
+	Meta(c context.Context) (response.ResMetaGame, error)
+}

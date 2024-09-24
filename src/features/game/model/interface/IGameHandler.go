@@ -41,3 +41,6 @@ type IResultGameHandler interface {
 type IReportGameHandler interface {
 	Report(c echo.Context) error
 }
+type IMetaGameHandler interface {
+	Meta(c echo.Context) error
+}

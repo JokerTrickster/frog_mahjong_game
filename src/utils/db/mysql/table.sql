@@ -122,6 +122,15 @@ CREATE TABLE reports (
     category_id int,
     reason varchar(1000)
 );
+-- 신고하기 메타 테이블
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    reason VARCHAR(1000)
+);
 
 
 # rooms 대기방 생성
@@ -133,3 +142,5 @@ INSERT INTO meta_tables (table_name, table_description) VALUES ('times', '게임
 
 -- times 테이블에 15초, 30초, 60초 데이터를 넣어줘
 INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '60초');
+
+INSERT INTO categories (type, reason) VALUES ('report', '도배 및 불건전한 언어 사용'),('report', '불법 프로그램 사용'),('report', '비매너 행위'),('report', '기타');

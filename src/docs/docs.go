@@ -635,6 +635,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/game/report/meta": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "신고하기 카테고리 데이터 가져오기",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResMetaGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/game/result": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n\n■ bonus list\nsame : 같은 패 (2점)\ncontinuous : 연속 패 (1점)\nallGreen : 올 그린 (10점)\nallGreen : 도라 (하나당 1점)\nallGreen : 적패 (하나당 1점)\nallGreen : 올 그린 (10점)\nsuperRed : 슈퍼 레드 (20점)\ntangYao :  탕야오 (1점)\nchanTa : 찬타 (2점)\nchinYao : 칭야오 (15점)",
@@ -1829,6 +1857,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GoogleOauthCallbackRes": {
             "type": "object",
             "properties": {
@@ -1955,6 +1994,17 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/main_features_users_model_response.User"
+                    }
+                }
+            }
+        },
+        "response.ResMetaGame": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Category"
                     }
                 }
             }

@@ -56,3 +56,7 @@ type IResultGameRepository interface {
 type IReportGameRepository interface {
 	SaveReport(c context.Context, reportDTO *mysql.Reports) error
 }
+
+type IMetaGameRepository interface {
+	FindAllReportCategory(c context.Context) ([]mysql.Categories, error)
+}

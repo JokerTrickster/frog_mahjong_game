@@ -82,3 +82,9 @@ type Reports struct {
 	CategoryID     int    `json:"categoryID" gorm:"column:category_id"`
 	Reason         string `json:"reason" gorm:"column:reason"`
 }
+
+type Categories struct {
+	gorm.Model
+	Reason string `json:"reason" gorm:"column:reason"`
+	Type   string `json:"type" gorm:"column:type"`
+}
