@@ -40,3 +40,7 @@ type IWinRequestGameUseCase interface {
 type IResultGameUseCase interface {
 	Result(c context.Context, userID uint, req *request.ReqResult) (response.ResResult, error)
 }
+
+type IReportGameUseCase interface {
+	Report(c context.Context, userID uint, req *request.ReqReport) error
+}

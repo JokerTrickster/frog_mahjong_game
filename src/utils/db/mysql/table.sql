@@ -111,6 +111,18 @@ CREATE TABLE times (
     description VARCHAR(255)
 );
 
+-- 신고 테이블
+CREATE TABLE reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    target_user_id int,
+    reporter_user_id int,
+    category_id int,
+    reason varchar(1000)
+);
+
 
 # rooms 대기방 생성
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)

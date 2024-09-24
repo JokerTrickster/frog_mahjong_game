@@ -37,3 +37,7 @@ type WinRequestGameRepository struct {
 type ResultGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ReportGameRepository struct {
+	GormDB *gorm.DB
+}

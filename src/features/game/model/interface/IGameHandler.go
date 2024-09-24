@@ -37,3 +37,7 @@ type IWinRequestGameHandler interface {
 type IResultGameHandler interface {
 	Result(c echo.Context) error
 }
+
+type IReportGameHandler interface {
+	Report(c echo.Context) error
+}

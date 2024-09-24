@@ -18,4 +18,5 @@ func NewGameHandler(c *echo.Echo) {
 	NewScoreCalculateGameHandler(c, usecase.NewScoreCalculateGameUseCase(repository.NewScoreCalculateGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewWinRequestGameHandler(c, usecase.NewWinRequestGameUseCase(repository.NewWinRequestGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewResultGameHandler(c, usecase.NewResultGameUseCase(repository.NewResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewReportGameHandler(c, usecase.NewReportGameUseCase(repository.NewReportGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

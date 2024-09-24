@@ -403,3 +403,12 @@ func CreateResultEntity(cardsDTO []mysql.Cards, cards []request.ResultCard) *ent
 	}
 	return result
 }
+
+func CreateReportDTO(userID uint, req *request.ReqReport) *mysql.Reports {
+	return &mysql.Reports{
+		TargetUserID:   int(req.TargetUserID),
+		ReporterUserID: int(userID),
+		CategoryID:     int(req.CategoryID),
+		Reason:         req.Reason,
+	}
+}
