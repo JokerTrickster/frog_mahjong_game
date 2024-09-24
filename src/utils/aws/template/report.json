@@ -1,0 +1,8 @@
+{
+    "Template": {
+        "TemplateName": "report",
+        "SubjectPart": "신고 레포트",
+        "TextPart": "신고 레포트 접수되었습니다.\n유저 아이디 {{userID}} 님이 유저 아이디 {{targetUserID}} 님을 신고하였습니다.\n신고 카테고리 아이디는 {{categoryID}}입니다.\n신고 이유는 {{reason}}입니다. 확인해 주세요.",
+        "HtmlPart": "<html><body><p>신고 레포트 접수되었습니다.</p><p>유저 아이디 <strong>{{userID}}</strong> 님이 유저 아이디 <strong>{{targetUserID}}</strong> 님을 신고하였습니다.</p><p>신고 카테고리 아이디는 <strong>{{categoryID}}</strong>입니다.</p><p>신고 이유는 <strong>{{reason}}</strong>입니다. 확인해 주세요.</p></body></html>"
+    }
+}
