@@ -14,6 +14,7 @@ type emailType string
 
 const (
 	emailTypePassword = emailType("password")
+	emailTypeReport   = emailType("report")
 )
 
 type sesMailData struct {

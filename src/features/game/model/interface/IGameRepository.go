@@ -52,3 +52,11 @@ type IResultGameRepository interface {
 	FindCards(c context.Context, entitySQL *entity.ResultEntitySQL) ([]mysql.Cards, error)
 	GetDoraCard(c context.Context, req *request.ReqResult) (mysql.Cards, error)
 }
+
+type IReportGameRepository interface {
+	SaveReport(c context.Context, reportDTO *mysql.Reports) error
+}
+
+type IMetaGameRepository interface {
+	FindAllReportCategory(c context.Context) ([]mysql.Categories, error)
+}

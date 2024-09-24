@@ -74,3 +74,17 @@ type UserAuths struct {
 	AuthCode string `json:"authCode" gorm:"column:auth_code"`
 	Type     string `json:"type" gorm:"column:type"`
 }
+
+type Reports struct {
+	gorm.Model
+	TargetUserID   int    `json:"targetUserID" gorm:"column:target_user_id"`
+	ReporterUserID int    `json:"reporterUserID" gorm:"column:reporter_user_id"`
+	CategoryID     int    `json:"categoryID" gorm:"column:category_id"`
+	Reason         string `json:"reason" gorm:"column:reason"`
+}
+
+type Categories struct {
+	gorm.Model
+	Reason string `json:"reason" gorm:"column:reason"`
+	Type   string `json:"type" gorm:"column:type"`
+}

@@ -5,6 +5,7 @@ import (
 	"main/features/game/model/entity"
 	_errors "main/features/game/model/errors"
 	"main/features/game/model/request"
+	"main/features/game/model/response"
 	"main/utils"
 	"main/utils/db/mysql"
 	"math/rand"
@@ -402,4 +403,25 @@ func CreateResultEntity(cardsDTO []mysql.Cards, cards []request.ResultCard) *ent
 		}
 	}
 	return result
+}
+
+func CreateReportDTO(userID uint, req *request.ReqReport) *mysql.Reports {
+	return &mysql.Reports{
+		TargetUserID:   int(req.TargetUserID),
+		ReporterUserID: int(userID),
+		CategoryID:     int(req.CategoryID),
+		Reason:         req.Reason,
+	}
+}
+
+func CreateResMetaGame(categoryList []mysql.Categories) response.ResMetaGame {
+	res := response.ResMetaGame{}
+	for _, category := range categoryList {
+		category := response.Category{
+			ID:     uint(category.ID),
+			Reason: category.Reason,
+		}
+		res.Categories = append(res.Categories, category)
+	}
+	return res
 }
