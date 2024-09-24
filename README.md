@@ -4,6 +4,9 @@
 ### 도메인
 https://www.frog-mahjong.xyz/
 
+### 회의 일지
+[회의 일지 링크](https://github.com/JokerTrickster/frog_mahjong_game/wiki/%ED%9A%8C%EC%9D%98-%EC%9D%BC%EC%A7%80)  
+
 ### 프로젝트 설명
 참새작 보드게임을 모티브로 웹에서 여러 유저들과 플레이
 
