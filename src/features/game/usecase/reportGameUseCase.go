@@ -4,6 +4,8 @@ import (
 	"context"
 	_interface "main/features/game/model/interface"
 	"main/features/game/model/request"
+	"main/utils/aws"
+	"strconv"
 	"time"
 )
 
@@ -27,7 +29,13 @@ func (d *ReportGameUseCase) Report(c context.Context, userID uint, req *request.
 		return err
 	}
 	//이메일 전송
-	
+	reqReport := &aws.ReqReportSES{
+		UserID:       strconv.Itoa(int(userID)),
+		TargetUserID: strconv.Itoa(int(req.TargetUserID)),
+		CategoryID:   strconv.Itoa(int(req.CategoryID)),
+		Reason:       string(req.Reason),
+	}
+	go aws.EmailSendReport([]string{"pkjhj485@gmail.com", "kkukileon305@gmail.com"}, reqReport)
 
 	return nil
 }

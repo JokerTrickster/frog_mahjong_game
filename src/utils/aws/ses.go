@@ -17,22 +17,38 @@ const (
 	emailTypeReport   = emailType("report")
 )
 
+const (
+	ReportSpamAbuse      = 1 + iota // 도배 및 불건전한 언어 사용
+	ReportIllegalProgram            // 불법 프로그램 사용
+	ReportBadManners                // 비매너 행위
+	ReportETC                       // 기타
+)
+
+var ReportMap = map[string]int{
+	"도배 및 불건전한 언어 사용": ReportSpamAbuse,
+	"불법 프로그램 사용":      ReportIllegalProgram,
+	"비매너 행위":          ReportBadManners,
+	"기타":              ReportETC,
+}
+var ReportReverseMap = make(map[int]string)
+
 type sesMailData struct {
-	email        string
-	validateCode string
+	email        []string
 	mailType     emailType
 	failCount    uint8
 	templateData string
+	templateName string
+}
+type ReqReportSES struct {
+	UserID       string
+	TargetUserID string
+	CategoryID   string
+	Reason       string
 }
 
 func EmailSendPassword(email string, validateCode string) {
-
-	emailSend(email, validateCode, emailTypePassword, validateCode)
-}
-
-func emailSend(email string, validateCode string, mailType emailType, randomValue string) {
 	templateDataMap := map[string]string{
-		"randomValue": randomValue,
+		"randomValue": validateCode,
 	}
 	templateDataJson, err := json.Marshal(templateDataMap)
 	if err != nil {
@@ -40,12 +56,32 @@ func emailSend(email string, validateCode string, mailType emailType, randomValu
 		return
 	}
 
+	emailSend([]string{email}, emailTypePassword, string(templateDataJson), "password")
+}
+
+func EmailSendReport(email []string, req *ReqReportSES) {
+	templateDataMap := map[string]string{
+		"userID":       req.UserID,
+		"targetUserID": req.TargetUserID,
+		"categoryID":   req.CategoryID,
+		"reason":       req.Reason,
+	}
+	templateDataJson, err := json.Marshal(templateDataMap)
+	if err != nil {
+		fmt.Println("Error marshaling template data:", err)
+		return
+	}
+	emailSend(email, emailTypeReport, string(templateDataJson), "report")
+}
+
+func emailSend(email []string, mailType emailType, templateDataJson, templateName string) {
+
 	mailData := sesMailData{
 		email:        email,
-		validateCode: validateCode,
 		mailType:     mailType,
 		failCount:    0,
-		templateData: string(templateDataJson),
+		templateData: templateDataJson,
+		templateName: templateName,
 	}
 	select {
 	case sesMailReqChan <- mailData:
@@ -58,6 +94,8 @@ func emailSend(email string, validateCode string, mailType emailType, randomValu
 var sesMailReqChan chan sesMailData
 
 func InitAwsSes() error {
+	//메타 정보 저장
+	InitMeta()
 
 	sesMailReqChan = make(chan sesMailData, 100)
 	go func() {
@@ -67,11 +105,11 @@ func InitAwsSes() error {
 				Content: &types.EmailContent{
 					Template: &types.Template{
 						TemplateData: aws.String(mailReq.templateData),
-						TemplateName: aws.String("password"),
+						TemplateName: aws.String(mailReq.templateName),
 					},
 				},
 				Destination: &types.Destination{
-					ToAddresses: []string{mailReq.email},
+					ToAddresses: mailReq.email,
 				},
 				EmailTags: []types.MessageTag{{
 					Name:  aws.String("type"),
@@ -89,4 +127,25 @@ func InitAwsSes() error {
 		}
 	}()
 	return nil
+}
+
+func GetReportID(name string) (int, error) {
+	id, exists := ReportMap[name]
+	if !exists {
+		return 0, fmt.Errorf("시나리오 이름을 찾을 수 없습니다: %s", name)
+	}
+	return id, nil
+}
+
+// 맵에서 키에 해당하는 값을 가져오는 함수
+func GetReportKey(val int) (string, bool) {
+	key, ok := ReportReverseMap[val]
+	return key, ok
+}
+
+func InitMeta() {
+	for k, v := range ReportMap {
+		ReportReverseMap[v] = k
+	}
+
 }
