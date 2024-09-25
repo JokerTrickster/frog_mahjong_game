@@ -37,7 +37,7 @@ func NewRequestPasswordAuthHandler(c *echo.Echo, useCase _interface.IRequestPass
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param json body request.ReqRequestPassword true "email"
 // @Produce json
-// @Success 200 {object} string
+// @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags auth
@@ -51,9 +51,9 @@ func (d *RequestPasswordAuthHandler) RequestPassword(c echo.Context) error {
 	entity := entity.RequestPasswordAuthEntity{
 		Email: req.Email,
 	}
-	code, err := d.UseCase.RequestPassword(ctx, entity)
+	_, err := d.UseCase.RequestPassword(ctx, entity)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, code)
+	return c.JSON(http.StatusOK, true)
 }
