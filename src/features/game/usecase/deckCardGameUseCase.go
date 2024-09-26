@@ -26,7 +26,7 @@ func (d *DeckCardGameUseCase) DeckCard(c context.Context, userID int, req *reque
 	if err != nil {
 		return response.ResDeckCardGame{}, err
 	}
-	// 카드 정보를 생성한다.
+	//  
 
 	//응답한다.
 

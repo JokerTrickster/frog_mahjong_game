@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_aws "main/utils/aws"
 	"main/utils/db/mysql"
+	_redis "main/utils/db/redis"
 )
 
 func InitServer() error {
@@ -25,11 +26,10 @@ func InitServer() error {
 		fmt.Sprintf("google oauth 초기화 에러 : %s", err.Error())
 		return err
 	}
-
-	// if err := postgresql.InitPostgreSQL(); err != nil {
-	// 	fmt.Sprintf("db 초기화 에러 : %s", err.Error())
-	// 	return err
-	// }
+	if err := _redis.InitRedis(); err != nil {
+		fmt.Sprintf("redis 초기화 에러 : %s", err.Error())
+		return err
+	}
 
 	if err := mysql.InitMySQL(); err != nil {
 		fmt.Sprintf("db 초기화 에러 : %s", err.Error())

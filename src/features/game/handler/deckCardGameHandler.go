@@ -35,9 +35,8 @@ func NewDeckCardGameHandler(c *echo.Echo, useCase _interface.IDeckCardGameUseCas
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param tkn header string true "accessToken"
-// @Param query string roomID true "json body"
 // @Produce json
-// @Success 200 {object} response.ResDeckCard
+// @Success 200 {object} response.ResDeckCardGame
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags game
