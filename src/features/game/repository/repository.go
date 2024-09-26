@@ -45,3 +45,7 @@ type ReportGameRepository struct {
 type MetaGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type DeckCardGameRepository struct {
+	GormDB *gorm.DB
+}

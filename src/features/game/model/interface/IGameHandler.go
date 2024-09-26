@@ -44,3 +44,6 @@ type IReportGameHandler interface {
 type IMetaGameHandler interface {
 	Meta(c echo.Context) error
 }
+type IDeckCardGameHandler interface {
+	DeckCard(c echo.Context) error
+}
