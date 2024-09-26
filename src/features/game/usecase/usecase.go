@@ -425,3 +425,17 @@ func CreateResMetaGame(categoryList []mysql.Categories) response.ResMetaGame {
 	}
 	return res
 }
+
+func CreateRandomCardIDList() response.ResDeckCardGame {
+	res := response.ResDeckCardGame{}
+	cardIDList := make([]int, 0)
+	for i := 1; i <= 44; i++ {
+		cardIDList = append(cardIDList, i)
+	}
+	rand.Shuffle(len(cardIDList), func(i, j int) {
+		cardIDList[i], cardIDList[j] = cardIDList[j], cardIDList[i]
+	})
+	res.CardIDList = cardIDList
+	return res
+
+}

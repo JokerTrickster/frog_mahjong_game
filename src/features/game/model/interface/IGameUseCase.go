@@ -49,5 +49,5 @@ type IMetaGameUseCase interface {
 	Meta(c context.Context) (response.ResMetaGame, error)
 }
 type IDeckCardGameUseCase interface {
-	DeckCard(c context.Context, userID int, req *request.ReqDeckCard) (response.ResDeckCardGame, error)
+	DeckCard(c context.Context, userID, roomID int) (response.ResDeckCardGame, error)
 }
