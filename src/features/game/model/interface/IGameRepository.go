@@ -60,3 +60,6 @@ type IReportGameRepository interface {
 type IMetaGameRepository interface {
 	FindAllReportCategory(c context.Context) ([]mysql.Categories, error)
 }
+type IDeckCardGameRepository interface {
+	CheckRoomUser(c context.Context, userID int, roomID int) error
+}
