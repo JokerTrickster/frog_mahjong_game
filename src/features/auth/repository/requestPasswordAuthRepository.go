@@ -19,8 +19,8 @@ func (g *RequestPasswordAuthRepository) FindOneUserByEmail(ctx context.Context, 
 	var user mysql.Users
 	result := g.GormDB.WithContext(ctx).Where("email = ?", email).First(&user)
 	if result.RowsAffected == 0 {
-		return utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrUserNotFound.Error(), utils.ErrFromClient)
-	} 
+		return utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error(), email), utils.ErrFromClient)
+	}
 	return nil
 }
 
@@ -36,18 +36,18 @@ func (d *RequestPasswordAuthRepository) InsertAuthCode(ctx context.Context, user
 			// 레코드가 없으면 삽입
 			err = d.GormDB.Create(&userAuthDTO).Error
 			if err != nil {
-				return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+				return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), userAuthDTO), utils.ErrFromMysqlDB)
 			}
 		} else {
 			// 다른 에러가 발생하면 에러 반환
-			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), userAuthDTO), utils.ErrFromMysqlDB)
 		}
 	} else {
 		// 레코드가 있으면 업데이트
 		userAuthDTO.ID = existingUserAuth.ID
 		err = d.GormDB.WithContext(ctx).Model(&userAuthDTO).Where("email = ?", userAuthDTO.Email).Update("auth_code", &userAuthDTO.AuthCode).Error
 		if err != nil {
-			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), userAuthDTO), utils.ErrFromMysqlDB)
 		}
 	}
 
