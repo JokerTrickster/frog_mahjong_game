@@ -20,7 +20,7 @@ func (d *ResultGameRepository) FindCards(c context.Context, entitySQL *entity.Re
 	var cards []mysql.Cards
 	err := d.GormDB.Model(&cards).Where("room_id = ? and card_id IN ?", entitySQL.RoomID, entitySQL.Cards).Find(&cards).Error
 	if err != nil {
-		return nil, utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return nil, utils.ErrorMsg(c, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),entitySQL), utils.ErrFromMysqlDB)
 	}
 	return cards, nil
 }
@@ -30,7 +30,7 @@ func (d *ResultGameRepository) GetDoraCard(c context.Context, req *request.ReqRe
 	var doraCard mysql.Cards
 	err := d.GormDB.Model(&doraCard).Where("room_id = ? AND state = ?", req.RoomID, "dora").First(&doraCard).Error
 	if err != nil {
-		return mysql.Cards{}, utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(), err.Error(), utils.ErrFromClient)
+		return mysql.Cards{}, utils.ErrorMsg(c, utils.ErrBadParameter, utils.Trace(),utils.HandleError( err.Error(),req), utils.ErrFromClient)
 	}
 	return doraCard, nil
 }

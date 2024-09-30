@@ -845,7 +845,7 @@
                 "tags": [
                     "game"
                 ],
-                "summary": "카드 버리기",
+                "summary": "카드 정보 가져오기",
                 "parameters": [
                     {
                         "type": "string",

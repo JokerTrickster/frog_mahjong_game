@@ -20,21 +20,21 @@ func (g *SignupAuthRepository) UserCheckByEmail(ctx context.Context, email strin
 		return nil
 	} else {
 		if user.Provider == "email" {
-			return utils.ErrorMsg(ctx, utils.ErrUserAlreadyExisted, utils.Trace(), _errors.ErrUserAlreadyExisted.Error(), utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrUserAlreadyExisted, utils.Trace(), utils.HandleError(_errors.ErrUserAlreadyExisted.Error(), email), utils.ErrFromClient)
 
 		} else {
 			//google 이미 가입 된 상태
-			return utils.ErrorMsg(ctx, utils.ErrUserGoogleAlreadyExisted, utils.Trace(), _errors.ErrUserGoogleExisted.Error(), utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrUserGoogleAlreadyExisted, utils.Trace(), utils.HandleError(_errors.ErrUserGoogleExisted.Error(), email), utils.ErrFromClient)
 		}
 	}
 }
 func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Users) error {
 	result := g.GormDB.WithContext(ctx).Create(&user)
 	if result.RowsAffected == 0 {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), "failed user insert", utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user insert", user), utils.ErrFromMysqlDB)
 	}
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), result.Error.Error(), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), user), utils.ErrFromMysqlDB)
 	}
 	return nil
 }

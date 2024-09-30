@@ -20,9 +20,9 @@ func (g *ValidatePasswordAuthRepository) CheckAuthCode(ctx context.Context, emai
 	err := g.GormDB.WithContext(ctx).Model(&userAuth).Where("email = ? AND auth_code = ?", email, code).First(&userAuth).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return utils.ErrorMsg(ctx, utils.ErrCodeNotFound, utils.Trace(), _errors.ErrCodeNotFound.Error(), utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrCodeNotFound, utils.Trace(), utils.HandleError(_errors.ErrCodeNotFound.Error(),email,code), utils.ErrFromClient)
 		} else {
-			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+			return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),email,code), utils.ErrFromMysqlDB)
 		}
 	}
 
@@ -32,7 +32,7 @@ func (g *ValidatePasswordAuthRepository) CheckAuthCode(ctx context.Context, emai
 func (g *ValidatePasswordAuthRepository) UpdatePassword(ctx context.Context, user mysql.Users) error {
 	err := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?", user.Email).Update("password", &user.Password).Error
 	if err != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),user), utils.ErrFromMysqlDB)
 	}
 
 	return nil
@@ -42,7 +42,7 @@ func (g *ValidatePasswordAuthRepository) DeleteAuthCode(ctx context.Context, ema
 	userAuth := mysql.UserAuths{}
 	err := g.GormDB.WithContext(ctx).Model(&userAuth).Where("email = ?", email).Delete(&userAuth).Error
 	if err != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(),utils.HandleError( err.Error(),email), utils.ErrFromMysqlDB)
 	}
 
 	return nil

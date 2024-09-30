@@ -16,7 +16,7 @@ func NewReissueAuthRepository(gormDB *gorm.DB) _interface.IReissueAuthRepository
 func (d *ReissueAuthRepository) SaveToken(ctx context.Context, token mysql.Tokens) error {
 	err := d.GormDB.Create(&token).Error
 	if err != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),token), utils.ErrFromMysqlDB)
 	}
 	return nil
 }
@@ -24,7 +24,7 @@ func (d *ReissueAuthRepository) SaveToken(ctx context.Context, token mysql.Token
 func (d *ReissueAuthRepository) DeleteToken(ctx context.Context, uID uint) error {
 	err := d.GormDB.Where("user_id = ?", uID).Delete(&mysql.Tokens{}).Error
 	if err != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),uID), utils.ErrFromMysqlDB)
 	}
 	return nil
 }
