@@ -16,7 +16,7 @@ func NewWinRequestGameRepository(gormDB *gorm.DB) _interface.IWinRequestGameRepo
 func (d *WinRequestGameRepository) GetRoomUser(ctx context.Context, userID uint, roomID uint) (mysql.RoomUsers, error) {
 	var roomUser mysql.RoomUsers
 	if err := d.GormDB.Where("user_id = ? AND room_id = ?", userID, roomID).First(&roomUser).Error; err != nil {
-		return mysql.RoomUsers{}, utils.ErrorMsg(ctx, utils.ErrBadRequest, utils.Trace(), err.Error(), utils.ErrFromClient)
+		return mysql.RoomUsers{}, utils.ErrorMsg(ctx, utils.ErrBadRequest, utils.Trace(), utils.HandleError(err.Error(),userID,roomID), utils.ErrFromClient)
 	}
 	return roomUser, nil
 }

@@ -19,7 +19,7 @@ func (d *HistoryChatRepository) FindChatHistory(ctx context.Context, entitySQL *
 	// 페이지네이션 처리
 	err := d.GormDB.Model(&mysql.Chats{}).Where("deleted_at IS NULL and room_id = ?", entitySQL.RoomID).Order("created_at DESC").Limit(entitySQL.PageSize).Offset((entitySQL.Page - 1) * entitySQL.PageSize).Find(&chats).Error
 	if err != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),entitySQL), utils.ErrFromMysqlDB)
 	}
 	return chats, nil
 }
@@ -28,7 +28,7 @@ func (d *HistoryChatRepository) CountChatHistory(ctx context.Context, entitySQL 
 	var count int64
 	err := d.GormDB.Model(&mysql.Chats{}).Where("deleted_at IS NULL and room_id = ?", entitySQL.RoomID).Count(&count).Error
 	if err != nil {
-		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMysqlDB)
+		return 0, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(),entitySQL), utils.ErrFromMysqlDB)
 	}
 
 	return int(count), nil

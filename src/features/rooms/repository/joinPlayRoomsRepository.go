@@ -21,12 +21,12 @@ func (g *JoinPlayRoomsRepository) FindOneRoom(ctx context.Context, req *request.
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("deleted_at is null and password = ? and state = ?", req.Password, "wait").First(&RoomDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
-			return utils.ErrorMsg(ctx, utils.ErrWrongPassword, utils.Trace(), _errors.ErrWrongPassword.Error(), utils.ErrFromClient)
+			return utils.ErrorMsg(ctx, utils.ErrWrongPassword, utils.Trace(), utils.HandleError(_errors.ErrWrongPassword.Error(),req), utils.ErrFromClient)
 		}
-		return utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), _errors.ErrRoomNotFound.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), utils.HandleError(_errors.ErrRoomNotFound.Error(),req), utils.ErrFromClient)
 	}
 	if RoomDTO.CurrentCount == RoomDTO.MaxCount {
-		return utils.ErrorMsg(ctx, utils.ErrRoomFull, utils.Trace(), _errors.ErrRoomFull.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrRoomFull, utils.Trace(), utils.HandleError(_errors.ErrRoomFull.Error(),req), utils.ErrFromClient)
 	}
 	return nil
 }

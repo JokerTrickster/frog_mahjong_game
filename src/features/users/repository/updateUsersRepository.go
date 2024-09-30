@@ -16,7 +16,7 @@ func NewUpdateUsersRepository(gormDB *gorm.DB) _interface.IUpdateUsersRepository
 func (d *UpdateUsersRepository) FindOneAndUpdateUsers(ctx context.Context, entitySQL *entity.UpdateUsersEntitySQL) error {
 	err := d.GormDB.WithContext(ctx).Model(&mysql.Users{}).Where("id = ?", entitySQL.UserID).Updates(entitySQL).Error
 	if err != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), err.Error(), utils.ErrFromMongoDB)
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMongoDB)
 	}
 	return nil
 }
