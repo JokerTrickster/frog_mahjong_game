@@ -43,7 +43,7 @@ func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Use
 func (g *SignupAuthRepository) VerifyAuthCode(ctx context.Context, email, code string) error {
 	var userAuth mysql.UserAuths
 	tenMinutesAgo := time.Now().Add(-10 * time.Minute)
-	result := g.GormDB.WithContext(ctx).Where("email = ? AND code = ? and created_at >= ? and = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
+	result := g.GormDB.WithContext(ctx).Where("email = ? AND code = ? and created_at >= ? and type = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInvalidAuthCode, utils.Trace(), utils.HandleError(_errors.ErrInvalidAuthCode.Error(), email, code), utils.ErrFromClient)
 	}
