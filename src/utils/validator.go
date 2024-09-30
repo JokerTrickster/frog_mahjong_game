@@ -13,7 +13,7 @@ var val = validator.New()
 // ValidateStruct : validate struct
 func ValidateStruct(class interface{}) error {
 	if err := val.Struct(class); err != nil {
-		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), err.Error(), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), HandleError(err.Error(),class), ErrFromClient)
 	}
 	return nil
 }
@@ -21,10 +21,10 @@ func ValidateStruct(class interface{}) error {
 // ValidateReq : validate REST API req body
 func ValidateReq(c echo.Context, req interface{}) error {
 	if err := c.Bind(req); err != nil {
-		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), err.Error(), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), HandleError(err.Error(),req), ErrFromClient)
 	}
 	if err := val.Struct(req); err != nil {
-		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), err.Error(), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), HandleError(err.Error(),req), ErrFromClient)
 	}
 	return nil
 }
@@ -32,7 +32,7 @@ func ValidateReq(c echo.Context, req interface{}) error {
 // ValidateRes : validate REST API res body
 func ValidateRes(c echo.Context, res interface{}) error {
 	if err := val.Struct(res); err != nil {
-		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(), err.Error(), ErrFromClient)
+		return ErrorMsg(context.TODO(), ErrBadParameter, Trace(),HandleError( err.Error(),res), ErrFromClient)
 	}
 	return nil
 }

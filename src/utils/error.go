@@ -144,3 +144,16 @@ func Trace() string {
 	_, line := runtime.FuncForPC(pc).FileLine(pc)
 	return fmt.Sprintf("%s.L%d", funcName, line)
 }
+
+func HandleError(errMsg string, args ...interface{}) string {
+	// 인자로 받은 값들을 문자열로 변환
+	var params []string
+	for _, arg := range args {
+		params = append(params, fmt.Sprintf("%v", arg))
+	}
+
+	// 에러 메시지와 파라미터들을 조합
+	result := fmt.Sprintf("Error: %s | Parameters: %s", errMsg, strings.Join(params, ", "))
+
+	return result
+}

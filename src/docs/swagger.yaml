@@ -745,7 +745,7 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: 카드 버리기
+      summary: 카드 정보 가져오기
       tags:
       - game
   /v0.1/game/card/discard:

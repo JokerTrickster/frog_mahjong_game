@@ -17,7 +17,7 @@ func (d *GetUsersRepository) FindOneUser(ctx context.Context, userID int) (mysql
 	var userDTO mysql.Users
 	err := d.GormDB.WithContext(ctx).Model(&userDTO).Where("id = ?", userID).First(&userDTO).Error
 	if err != nil {
-		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), err.Error(), utils.ErrFromClient)
+		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(),utils.HandleError( err.Error()), utils.ErrFromClient)
 	}
 	return userDTO, nil
 }

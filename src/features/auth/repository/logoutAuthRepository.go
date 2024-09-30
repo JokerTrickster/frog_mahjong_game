@@ -18,7 +18,7 @@ func (d *LogoutAuthRepository) DeleteToken(ctx context.Context, uID uint) error 
 	}
 	result := d.GormDB.Model(&token).Where("user_id = ?", uID).Delete(&token)
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), result.Error.Error(), utils.ErrFromInternal)
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(),uID), utils.ErrFromInternal)
 	}
 	return nil
 }
@@ -30,7 +30,7 @@ func (d *LogoutAuthRepository) FindOneAndUpdateUser(ctx context.Context, uID uin
 	}
 	result := d.GormDB.WithContext(ctx).Model(&user).Where("id = ?", uID).Updates(user)
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), result.Error.Error(), utils.ErrFromClient)
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), utils.HandleError(result.Error.Error(),uID), utils.ErrFromClient)
 	}
 	return nil
 }
