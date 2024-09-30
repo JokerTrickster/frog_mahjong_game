@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
 	"main/utils"
@@ -42,8 +43,13 @@ func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Use
 
 func (g *SignupAuthRepository) VerifyAuthCode(ctx context.Context, email, code string) error {
 	var userAuth mysql.UserAuths
-	tenMinutesAgo := time.Now().Add(-10 * time.Minute)
-	result := g.GormDB.WithContext(ctx).Where("email = ? AND code = ? and created_at >= ? and type = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
+	location, err := time.LoadLocation("GMT")
+	if err != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError("failed to load location", email), utils.ErrFromInternal)
+	}
+	tenMinutesAgo := time.Now().In(location).Add(-10 * time.Minute).Format("2006-01-02 15:04:05")
+	result := g.GormDB.WithContext(ctx).Where("email = ? AND auth_code = ? and created_at >= ? and type = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
+	fmt.Println(result.RowsAffected)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInvalidAuthCode, utils.Trace(), utils.HandleError(_errors.ErrInvalidAuthCode.Error(), email, code), utils.ErrFromClient)
 	}
