@@ -27,6 +27,9 @@ type IGoogleOauthCallbackAuthHandler interface {
 type IRequestPasswordAuthHandler interface {
 	RequestPassword(c echo.Context) error
 }
+type IRequestSignupAuthHandler interface {
+	RequestSignup(c echo.Context) error
+}
 type IValidatePasswordAuthHandler interface {
 	ValidatePassword(c echo.Context) error
 }

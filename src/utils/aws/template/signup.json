@@ -1,0 +1,8 @@
+{
+    "Template": {
+        "TemplateName": "signup",
+        "SubjectPart": "Your Verification Code",
+        "TextPart": "Hello,\nYour verification code is {{randomValue}}.\nThank you!",
+        "HtmlPart": "<html><body><p>Hello,</p><p>Your verification code is <b>{{randomValue}}</b>.</p><p>Thank you!</p></body></html>"
+    }
+}

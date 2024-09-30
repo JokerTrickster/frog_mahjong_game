@@ -37,3 +37,6 @@ type ValidatePasswordAuthRepository struct {
 type V02GoogleOauthCallbackAuthRepository struct {
 	GormDB *gorm.DB
 }
+type RequestSignupAuthRepository struct {
+	GormDB *gorm.DB
+}

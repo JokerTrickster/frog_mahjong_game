@@ -9,4 +9,5 @@ var (
 	ErrUserGoogleExisted  = errors.New("user google already existed")
 	ErrCodeNotFound       = errors.New("code not found")
 	ErrPasswordNotMatch   = errors.New("password not match")
+	ErrInvalidAuthCode    = errors.New("invalid auth code")
 )
