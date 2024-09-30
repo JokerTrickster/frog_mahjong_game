@@ -36,6 +36,7 @@ func (d *RequestPasswordAuthUseCase) RequestPassword(c context.Context, e entity
 	userAuthDTO := mysql.UserAuths{
 		Email:    e.Email,
 		AuthCode: authCode,
+		Type:     "password",
 	}
 	err = d.Repository.InsertAuthCode(ctx, userAuthDTO)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	_interface "main/features/auth/model/interface"
 	"main/utils"
 	"main/utils/db/mysql"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -35,6 +36,19 @@ func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Use
 	}
 	if result.Error != nil {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), user), utils.ErrFromMysqlDB)
+	}
+	return nil
+}
+
+func (g *SignupAuthRepository) VerifyAuthCode(ctx context.Context, email, code string) error {
+	var userAuth mysql.UserAuths
+	tenMinutesAgo := time.Now().Add(-10 * time.Minute)
+	result := g.GormDB.WithContext(ctx).Where("email = ? AND code = ? and created_at >= ? and = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
+	if result.RowsAffected == 0 {
+		return utils.ErrorMsg(ctx, utils.ErrInvalidAuthCode, utils.Trace(), utils.HandleError(_errors.ErrInvalidAuthCode.Error(), email, code), utils.ErrFromClient)
+	}
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), email, code), utils.ErrFromMysqlDB)
 	}
 	return nil
 }

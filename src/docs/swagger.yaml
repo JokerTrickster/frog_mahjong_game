@@ -150,6 +150,13 @@ definitions:
     required:
     - email
     type: object
+  request.ReqRequestSignup:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   request.ReqResult:
     properties:
       cards:
@@ -180,6 +187,8 @@ definitions:
     type: object
   request.ReqSignup:
     properties:
+      authCode:
+        type: string
       email:
         type: string
       name:
@@ -628,6 +637,40 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 이메일 회원 가입
+      tags:
+      - auth
+  /v0.1/auth/signup/request:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqRequestSignup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 이메일 인증 요청
       tags:
       - auth
   /v0.1/auth/token/reissue:

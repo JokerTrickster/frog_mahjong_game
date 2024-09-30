@@ -15,6 +15,7 @@ type emailType string
 const (
 	emailTypePassword = emailType("password")
 	emailTypeReport   = emailType("report")
+	emailTypeSignup   = emailType("signup")
 )
 
 const (
@@ -57,6 +58,19 @@ func EmailSendPassword(email string, validateCode string) {
 	}
 
 	emailSend([]string{email}, emailTypePassword, string(templateDataJson), "password")
+}
+
+func EmailSendSignup(email string, validateCode string) {
+	templateDataMap := map[string]string{
+		"randomValue": validateCode,
+	}
+	templateDataJson, err := json.Marshal(templateDataMap)
+	if err != nil {
+		fmt.Println("Error marshaling template data:", err)
+		return
+	}
+
+	emailSend([]string{email}, emailTypePassword, string(templateDataJson), "signup")
 }
 
 func EmailSendReport(email []string, req *ReqReportSES) {

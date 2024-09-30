@@ -24,6 +24,12 @@ func (d *SignupAuthUseCase) Signup(c context.Context, req *request.ReqSignup) er
 	if err != nil {
 		return err
 	}
+
+	//인증코드 검증이 됐는지 체크
+	err = d.Repository.VerifyAuthCode(ctx, req.Email, req.AuthCode)
+	if err != nil {
+		return err
+	}
 	// 유저 생성 쿼리문 작성
 	user := CreateSignupUser(req)
 

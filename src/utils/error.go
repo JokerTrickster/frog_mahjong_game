@@ -72,6 +72,7 @@ const (
 	ErrPlayerStateFailed        = ErrType("PLAYER_STATE_CHANGE_FAILED")
 	ErrRoomUserNotFound         = ErrType("ROOM_USER_NOT_FOUND")
 	ErrWrongPassword            = ErrType("WRONG_PASSWORD")
+	ErrInvalidAuthCode          = ErrType("INVALID_AUTH_CODE")
 )
 
 // auth error
@@ -104,6 +105,7 @@ var ErrHttpCode = map[string]int{
 	//401
 	"TOKEN_BAD":            http.StatusUnauthorized,
 	"INVALID_ACCESS_TOKEN": http.StatusUnauthorized,
+	"INVALID_AUTH_CODE":    http.StatusUnauthorized,
 
 	//403
 	"PARTNER": http.StatusForbidden,
