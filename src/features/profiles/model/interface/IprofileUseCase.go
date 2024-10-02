@@ -6,5 +6,5 @@ import (
 )
 
 type IListProfilesUseCase interface {
-	List(c context.Context, userID uint) (response.ResListProfile, error)
+	List(c context.Context) (response.ResListProfile, error)
 }

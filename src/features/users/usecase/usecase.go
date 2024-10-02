@@ -11,16 +11,16 @@ func CreateUpdateUsersEntitySQL(userID uint, req *request.ReqUpdateUsers) entity
 	result := entity.UpdateUsersEntitySQL{
 		UserID: userID,
 	}
-	if req.Name != ""{
+	if req.Name != "" {
 		result.Name = req.Name
 	}
-	if req.Password != ""{
+	if req.Password != "" {
 		result.Password = req.Password
 	}
-	if req.ProfileID != 0{
+	if req.ProfileID != 0 {
 		result.ProfileID = req.ProfileID
 	}
-	
+
 	return result
 }
 
@@ -49,5 +49,17 @@ func CreateResListUser(users []mysql.Users, total int) response.ResListUser {
 	}
 	res.Users = UserList
 	res.Total = total
+	return res
+}
+
+func CreateResProfileList(profileList []*mysql.UserProfiles) response.ResListProfileUser {
+	res := response.ResListProfileUser{}
+	for _, profile := range profileList {
+		res.Profiles = append(res.Profiles, response.Profile{
+			ProfileID:    int(profile.ID),
+			CurrentCount: profile.Earned,
+			IsAchieved:   profile.IsAchieved,
+		})
+	}
 	return res
 }

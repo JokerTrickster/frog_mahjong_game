@@ -5,13 +5,13 @@ import (
 	"main/utils/db/mysql"
 )
 
-func CreateResProfileList(profileList []*mysql.UserProfiles) response.ResListProfile {
+func CreateResProfileList(profileList []*mysql.Profiles) response.ResListProfile {
 	res := response.ResListProfile{}
 	for _, profile := range profileList {
-		res.ProfileList = append(res.ProfileList, response.Profile{
-			ProfileID:    int(profile.ID),
-			CurrentCount: profile.Earned,
-			IsAchieved:   profile.IsAchieved,
+		res.Profiles = append(res.Profiles, response.Profile{
+			ProfileID:  int(profile.ID),
+			Name:       profile.Name,
+			TotalCount: profile.Count,
 		})
 	}
 	return res
