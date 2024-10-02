@@ -15,7 +15,7 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
+    email VARCHAR(255),
     password VARCHAR(255),
     coin INT,
     state VARCHAR(50),
@@ -23,6 +23,9 @@ CREATE TABLE users (
 	room_id INT,
     provider VARCHAR(50)
 );
+
+
+
   
 CREATE TABLE rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,

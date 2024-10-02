@@ -21,4 +21,5 @@ type IUpdateUsersRepository interface {
 
 type IDeleteUsersRepository interface {
 	FindOneAndDeleteUsers(ctx context.Context, userID uint) error
+	DeleteToken(ctx context.Context, userID uint) error
 }

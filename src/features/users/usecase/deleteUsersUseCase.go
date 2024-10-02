@@ -25,5 +25,11 @@ func (d *DeleteUsersUseCase) Delete(c context.Context, userID uint) error {
 		return err
 	}
 
+	// 토큰 제거
+	err = d.Repository.DeleteToken(ctx, userID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

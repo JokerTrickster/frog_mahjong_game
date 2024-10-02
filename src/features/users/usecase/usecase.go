@@ -8,11 +8,20 @@ import (
 )
 
 func CreateUpdateUsersEntitySQL(userID uint, req *request.ReqUpdateUsers) entity.UpdateUsersEntitySQL {
-	return entity.UpdateUsersEntitySQL{
-		UserID:   userID,
-		Name:     req.Name,
-		Password: req.Password,
+	result := entity.UpdateUsersEntitySQL{
+		UserID: userID,
 	}
+	if req.Name != ""{
+		result.Name = req.Name
+	}
+	if req.Password != ""{
+		result.Password = req.Password
+	}
+	if req.ProfileID != 0{
+		result.ProfileID = req.ProfileID
+	}
+	
+	return result
 }
 
 func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {

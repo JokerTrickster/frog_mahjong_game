@@ -1949,6 +1949,9 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
+                },
+                "profileID": {
+                    "type": "integer"
                 }
             }
         },
