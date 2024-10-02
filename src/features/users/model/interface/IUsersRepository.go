@@ -18,3 +18,7 @@ type IListUsersRepository interface {
 type IUpdateUsersRepository interface {
 	FindOneAndUpdateUsers(ctx context.Context, entitySQL *entity.UpdateUsersEntitySQL) error
 }
+
+type IDeleteUsersRepository interface {
+	FindOneAndDeleteUsers(ctx context.Context, userID uint) error
+}
