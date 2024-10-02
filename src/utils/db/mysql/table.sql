@@ -19,6 +19,7 @@ CREATE TABLE users (
     password VARCHAR(255),
     coin INT,
     state VARCHAR(50),
+    profile_id INT default 1,
 	room_id INT,
     provider VARCHAR(50)
 );
@@ -130,6 +131,27 @@ CREATE TABLE categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     reason VARCHAR(1000)
+);
+
+create table profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, 
+    count INT,        -- 프로필 달성 조건 횟수
+    image VARCHAR(255),  -- 프로필 이미지 경로
+    description VARCHAR(255) -- 프로필 획득 설명
+);
+
+CREATE TABLE user_profiles (
+    user_id INT,
+    profile_id INT,
+    earned INT DEFAULT 0,  -- 해당 프로필 달성한 횟수
+    is_achieved BOOLEAN DEFAULT FALSE, -- 달성 여부
+    PRIMARY KEY (user_id, profile_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
 

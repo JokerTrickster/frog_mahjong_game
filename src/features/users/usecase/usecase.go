@@ -17,10 +17,11 @@ func CreateUpdateUsersEntitySQL(userID uint, req *request.ReqUpdateUsers) entity
 
 func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
 	return response.ResGetUser{
-		UserID: int(userDTO.ID),
-		Email:  userDTO.Email,
-		Name:   userDTO.Name,
-		Coin:   userDTO.Coin,
+		UserID:    int(userDTO.ID),
+		Email:     userDTO.Email,
+		Name:      userDTO.Name,
+		Coin:      userDTO.Coin,
+		ProfileID: 1,
 	}
 }
 
