@@ -17,3 +17,7 @@ type IListUsersUseCase interface {
 type IUpdateUsersUseCase interface {
 	Update(c context.Context, userID uint, req *request.ReqUpdateUsers) error
 }
+
+type IDeleteUsersUseCase interface {
+	Delete(c context.Context, userID uint) error
+}
