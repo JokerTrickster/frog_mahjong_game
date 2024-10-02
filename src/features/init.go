@@ -4,6 +4,7 @@ import (
 	authHandler "main/features/auth/handler"
 	chatHandler "main/features/chat/handler"
 	gameHandler "main/features/game/handler"
+	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
 	userHandler "main/features/users/handler"
 	"main/features/ws"
@@ -23,6 +24,7 @@ func InitHandler(e *echo.Echo) error {
 	gameHandler.NewGameHandler(e)
 	userHandler.NewUsersHandler(e)
 	chatHandler.NewChatHandler(e)
+	profileHandler.NewProfilesHandler(e)
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
 	go ws.WSHandleMessages()

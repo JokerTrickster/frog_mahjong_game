@@ -107,3 +107,16 @@ func getGoogleUserInfo(ctx context.Context, accessToken string) ([]byte, error) 
 
 	return content, nil
 }
+
+func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.Profiles) []*mysql.UserProfiles {
+	userProfileDTOList := make([]*mysql.UserProfiles, 0)
+	for _, profile := range profileIDList {
+		userProfileDTOList = append(userProfileDTOList, &mysql.UserProfiles{
+			UserID:     int(userID),
+			ProfileID:  int(profile.ID),
+			IsAchieved: true,
+			Earned:     0,
+		})
+	}
+	return userProfileDTOList
+}

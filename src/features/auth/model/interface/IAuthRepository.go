@@ -10,6 +10,8 @@ type ISignupAuthRepository interface {
 	UserCheckByEmail(ctx context.Context, email string) error
 	InsertOneUser(ctx context.Context, user mysql.Users) error
 	VerifyAuthCode(ctx context.Context, email, code string) error
+	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
+	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
 }
 
 type ISigninAuthRepository interface {
