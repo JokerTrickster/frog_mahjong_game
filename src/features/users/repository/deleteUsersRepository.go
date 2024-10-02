@@ -20,3 +20,14 @@ func (d *DeleteUsersRepository) FindOneAndDeleteUsers(ctx context.Context, userI
 	}
 	return nil
 }
+
+func (d *DeleteUsersRepository) DeleteToken(ctx context.Context, userID uint) error {
+	token := mysql.Tokens{
+		UserID: userID,
+	}
+	result := d.GormDB.Model(&token).Where("user_id = ?", userID).Delete(&token)
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(), userID), utils.ErrFromInternal)
+	}
+	return nil
+}

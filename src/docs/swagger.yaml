@@ -215,6 +215,8 @@ definitions:
       password:
         minLength: 6
         type: string
+      profileID:
+        type: integer
     type: object
   request.ReqValidatePassword:
     properties:
