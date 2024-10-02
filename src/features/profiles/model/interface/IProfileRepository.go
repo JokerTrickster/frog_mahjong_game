@@ -6,5 +6,5 @@ import (
 )
 
 type IListProfilesRepository interface {
-	FindAllProfiles(ctx context.Context, userID uint) ([]*mysql.UserProfiles, error)
+	FindAllProfiles(ctx context.Context) ([]*mysql.Profiles, error)
 }

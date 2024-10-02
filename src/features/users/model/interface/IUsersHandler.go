@@ -16,3 +16,7 @@ type IUpdateUsersHandler interface {
 type IDeleteUsersHandler interface {
 	Delete(c echo.Context) error
 }
+
+type IListProfilesUsersHandler interface {
+	ListProfiles(c echo.Context) error
+}

@@ -939,16 +939,7 @@ const docTemplate = `{
                 "tags": [
                     "profile"
                 ],
-                "summary": "유저 프로필 리스트 가져오기",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "accessToken",
-                        "name": "tkn",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
+                "summary": "프로필 리스트 가져오기",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1511,6 +1502,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/users/profiles": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "유저 프로필 리스트 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResListProfileUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/users/{userID}": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -1658,6 +1686,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main_features_profiles_model_response.Profile": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "profileID": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "main_features_rooms_model_response.User": {
             "type": "object",
             "properties": {
@@ -1690,6 +1732,23 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "main_features_users_model_response.Profile": {
+            "type": "object",
+            "properties": {
+                "currentCount": {
+                    "description": "현재 획득 포인트",
+                    "type": "integer"
+                },
+                "isAchieved": {
+                    "description": "획득 여부",
+                    "type": "boolean"
+                },
+                "profileID": {
+                    "description": "프로필 ID",
+                    "type": "integer"
                 }
             }
         },
@@ -2110,23 +2169,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Profile": {
-            "type": "object",
-            "properties": {
-                "currentCount": {
-                    "description": "현재 획득 포인트",
-                    "type": "integer"
-                },
-                "isAchieved": {
-                    "description": "획득 여부",
-                    "type": "boolean"
-                },
-                "profileID": {
-                    "description": "프로필 ID",
-                    "type": "integer"
-                }
-            }
-        },
         "response.ResCreateRoom": {
             "type": "object",
             "properties": {
@@ -2183,10 +2225,21 @@ const docTemplate = `{
         "response.ResListProfile": {
             "type": "object",
             "properties": {
-                "profileList": {
+                "profiles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.Profile"
+                        "$ref": "#/definitions/main_features_profiles_model_response.Profile"
+                    }
+                }
+            }
+        },
+        "response.ResListProfileUser": {
+            "type": "object",
+            "properties": {
+                "profiles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main_features_users_model_response.Profile"
                     }
                 }
             }

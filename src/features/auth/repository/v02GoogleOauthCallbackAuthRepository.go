@@ -68,3 +68,24 @@ func (g *V02GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, u
 	}
 	return user, nil
 }
+
+
+func (g *V02GoogleOauthCallbackAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error) {
+	profiles := make([]*mysql.Profiles, 0)
+	err := g.GormDB.WithContext(ctx).Where("earned = ?", 0).Find(&profiles).Error
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
+	}
+	return profiles, nil
+}
+
+func (g *V02GoogleOauthCallbackAuthRepository) InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error {
+	result := g.GormDB.WithContext(ctx).Create(&userProfileDTOList)
+	if result.RowsAffected == 0 {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user profile insert", userProfileDTOList), utils.ErrFromMysqlDB)
+	}
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), userProfileDTOList), utils.ErrFromMysqlDB)
+	}
+	return nil
+}

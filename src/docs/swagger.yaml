@@ -1,4 +1,13 @@
 definitions:
+  main_features_profiles_model_response.Profile:
+    properties:
+      name:
+        type: string
+      profileID:
+        type: integer
+      totalCount:
+        type: integer
+    type: object
   main_features_rooms_model_response.User:
     properties:
       ownedCardCount:
@@ -21,6 +30,18 @@ definitions:
         type: integer
       userName:
         type: string
+    type: object
+  main_features_users_model_response.Profile:
+    properties:
+      currentCount:
+        description: 현재 획득 포인트
+        type: integer
+      isAchieved:
+        description: 획득 여부
+        type: boolean
+      profileID:
+        description: 프로필 ID
+        type: integer
     type: object
   main_features_users_model_response.User:
     properties:
@@ -294,18 +315,6 @@ definitions:
       state:
         type: string
     type: object
-  response.Profile:
-    properties:
-      currentCount:
-        description: 현재 획득 포인트
-        type: integer
-      isAchieved:
-        description: 획득 여부
-        type: boolean
-      profileID:
-        description: 프로필 ID
-        type: integer
-    type: object
   response.ResCreateRoom:
     properties:
       roomID:
@@ -342,9 +351,16 @@ definitions:
     type: object
   response.ResListProfile:
     properties:
-      profileList:
+      profiles:
         items:
-          $ref: '#/definitions/response.Profile'
+          $ref: '#/definitions/main_features_profiles_model_response.Profile'
+        type: array
+    type: object
+  response.ResListProfileUser:
+    properties:
+      profiles:
+        items:
+          $ref: '#/definitions/main_features_users_model_response.Profile'
         type: array
     type: object
   response.ResListRoom:
@@ -1260,12 +1276,6 @@ paths:
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
-      parameters:
-      - description: accessToken
-        in: header
-        name: tkn
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1279,7 +1289,7 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: 유저 프로필 리스트 가져오기
+      summary: 프로필 리스트 가져오기
       tags:
       - profile
   /v0.1/rooms:
@@ -1828,6 +1838,38 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 유저 정보 가져오기
+      tags:
+      - user
+  /v0.1/users/profiles:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListProfileUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 프로필 리스트 가져오기
       tags:
       - user
   /v0.2/auth/google/callback:

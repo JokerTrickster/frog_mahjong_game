@@ -21,3 +21,6 @@ type IUpdateUsersUseCase interface {
 type IDeleteUsersUseCase interface {
 	Delete(c context.Context, userID uint) error
 }
+type IListProfilesUsersUseCase interface {
+	ListProfiles(c context.Context, userID uint) (response.ResListProfileUser, error)
+}

@@ -23,3 +23,8 @@ type IDeleteUsersRepository interface {
 	FindOneAndDeleteUsers(ctx context.Context, userID uint) error
 	DeleteToken(ctx context.Context, userID uint) error
 }
+
+
+type IListProfilesUsersRepository interface {
+	FindAllProfiles(ctx context.Context, userID uint) ([]*mysql.UserProfiles, error)
+}

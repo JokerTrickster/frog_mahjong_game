@@ -51,6 +51,17 @@ func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Con
 		if err != nil {
 			return response.ResV02GoogleOauthCallback{}, err
 		}
+		// 기본 프로필 정보를 가져온다
+		profileIDList, err := d.Repository.FindAllBasicProfile(ctx)
+		if err != nil {
+			return response.ResV02GoogleOauthCallback{},err
+		}
+		userProfileDTOList := CreateUserProfileDTOList(user.ID, profileIDList)
+		// 유저 프로필 정보 insert
+		err = d.Repository.InsertOneUserProfile(ctx, userProfileDTOList)
+		if err != nil {
+			return response.ResV02GoogleOauthCallback{},err
+		}
 	}
 
 	//토큰 생성

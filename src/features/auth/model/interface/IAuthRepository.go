@@ -61,4 +61,6 @@ type IV02GoogleOauthCallbackAuthRepository interface {
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
 	CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error)
+	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
+	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
 }
