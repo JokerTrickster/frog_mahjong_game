@@ -23,6 +23,7 @@ func (d *GetUsersUseCase) Get(c context.Context, userID int) (response.ResGetUse
 	if err != nil {
 		return response.ResGetUser{}, err
 	}
+
 	// create ResGetUser
 	res := CreateResGetUser(userDTO)
 

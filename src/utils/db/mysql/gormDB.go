@@ -18,13 +18,14 @@ type Tokens struct {
 
 type Users struct {
 	gorm.Model
-	Name     string `json:"name" gorm:"column:name"`
-	Email    string `json:"email" gorm:"uniqueIndex;column:email"`
-	Password string `json:"password" gorm:"column:password"`
-	Coin     int    `json:"coin" gorm:"column:coin"`
-	State    string `json:"state" gorm:"column:state"` //logout, wait, play
-	RoomID   int    `json:"roomID" gorm:"column:room_id"`
-	Provider string `json:"provider" gorm:"column:provider"`
+	Name      string `json:"name" gorm:"column:name"`
+	Email     string `json:"email" gorm:"uniqueIndex;column:email"`
+	Password  string `json:"password" gorm:"column:password"`
+	Coin      int    `json:"coin" gorm:"column:coin"`
+	State     string `json:"state" gorm:"column:state"` //logout, wait, play
+	RoomID    int    `json:"roomID" gorm:"column:room_id"`
+	Provider  string `json:"provider" gorm:"column:provider"`
+	ProfileID int    `json:"profileID" gorm:"column:profile_id"`
 }
 
 type Rooms struct {
@@ -87,4 +88,20 @@ type Categories struct {
 	gorm.Model
 	Reason string `json:"reason" gorm:"column:reason"`
 	Type   string `json:"type" gorm:"column:type"`
+}
+
+type Profiles struct {
+	gorm.Model
+	Name        string `json:"name" gorm:"column:name"`
+	Count       int    `json:"count" gorm:"column:count"`
+	Image       string `json:"image" gorm:"column:image"`
+	Description string `json:"description" gorm:"column:description"`
+}
+
+type UserProfiles struct {
+	gorm.Model
+	UserID     int  `json:"userID" gorm:"column:user_id"`
+	ProfileID  int  `json:"profileID" gorm:"column:profile_id"`
+	IsAchieved bool `json:"isAchieved" gorm:"column:is_achieved"`
+	Earned     int  `json:"earned" gorm:"column:earned"`
 }

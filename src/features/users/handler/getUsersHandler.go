@@ -2,10 +2,10 @@ package handler
 
 import (
 	_interface "main/features/users/model/interface"
-	"main/features/users/model/request"
 	mw "main/middleware"
 	"main/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,12 +18,12 @@ func NewGetUsersHandler(c *echo.Echo, useCase _interface.IGetUsersUseCase) _inte
 	handler := &GetUsersHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/user", handler.Get, mw.TokenChecker)
+	c.GET("/v0.1/users/:userID", handler.Get, mw.TokenChecker)
 	return handler
 }
 
 // 유저 정보 가져오기
-// @Router /v0.1/user [get]
+// @Router /v0.1/users/{userID} [get]
 // @Summary 유저 정보 가져오기
 // @Description
 // @Description ■ errCode with 400
@@ -34,6 +34,7 @@ func NewGetUsersHandler(c *echo.Echo, useCase _interface.IGetUsersUseCase) _inte
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param tkn header string true "accessToken"
+// @Param userID path string true "userID"
 // @Produce json
 // @Success 200 {object} response.ResGetUser
 // @Failure 400 {object} error
@@ -41,13 +42,15 @@ func NewGetUsersHandler(c *echo.Echo, useCase _interface.IGetUsersUseCase) _inte
 // @Tags user
 func (d *GetUsersHandler) Get(c echo.Context) error {
 	ctx, uID, _ := utils.CtxGenerate(c)
-	req := &request.ReqGetUser{}
-	if err := utils.ValidateReq(c, req); err != nil {
-		return err
+	pathUserID := c.Param("userID")
+	puID, _ := strconv.Atoi(pathUserID)
+	if pathUserID == "" || uID != uint(puID) {
+		return utils.ErrorMsg(ctx, utils.ErrBadParameter, utils.Trace(), utils.HandleError("invalid user id", pathUserID), utils.ErrFromClient)
 	}
+
 	res, err := d.UseCase.Get(ctx, int(uID))
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, res)
+	return c.JSON(http.StatusOK, res)
 }
