@@ -19,6 +19,7 @@ func NewSignupAuthUseCase(repo _interface.ISignupAuthRepository, timeout time.Du
 func (d *SignupAuthUseCase) Signup(c context.Context, req *request.ReqSignup) error {
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
+
 	// 해당 유저가 존재하는지 체크
 	err := d.Repository.UserCheckByEmail(ctx, req.Email)
 	if err != nil {
@@ -35,6 +36,18 @@ func (d *SignupAuthUseCase) Signup(c context.Context, req *request.ReqSignup) er
 
 	// 유저 정보 insert
 	err = d.Repository.InsertOneUser(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	// 유저 프로필 생성
+	profileIDList, err := d.Repository.FindAllBasicProfile(ctx)
+	if err != nil {
+		return err
+	}
+	userProfileDTOList := CreateUserProfileDTOList(user.ID, profileIDList)
+	// 유저 프로필 정보 insert
+	err = d.Repository.InsertOneUserProfile(ctx, userProfileDTOList)
 	if err != nil {
 		return err
 	}
