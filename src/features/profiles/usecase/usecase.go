@@ -11,7 +11,7 @@ func CreateResProfileList(profileList []*mysql.Profiles) response.ResListProfile
 		res.Profiles = append(res.Profiles, response.Profile{
 			ProfileID:  int(profile.ID),
 			Name:       profile.Name,
-			TotalCount: profile.Count,
+			TotalCount: profile.TotalCount,
 		})
 	}
 	return res

@@ -93,7 +93,7 @@ type Categories struct {
 type Profiles struct {
 	gorm.Model
 	Name        string `json:"name" gorm:"column:name"`
-	Count       int    `json:"count" gorm:"column:count"`
+	TotalCount       int    `json:"totalCount" gorm:"column:total_count"`
 	Image       string `json:"image" gorm:"column:image"`
 	Description string `json:"description" gorm:"column:description"`
 }
@@ -103,5 +103,5 @@ type UserProfiles struct {
 	UserID     int  `json:"userID" gorm:"column:user_id"`
 	ProfileID  int  `json:"profileID" gorm:"column:profile_id"`
 	IsAchieved bool `json:"isAchieved" gorm:"column:is_achieved"`
-	Earned     int  `json:"earned" gorm:"column:earned"`
+	CurrentCount     int  `json:"currentCount" gorm:"column:current_count"`
 }

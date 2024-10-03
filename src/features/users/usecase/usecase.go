@@ -57,7 +57,7 @@ func CreateResProfileList(profileList []*mysql.UserProfiles) response.ResListPro
 	for _, profile := range profileList {
 		res.Profiles = append(res.Profiles, response.Profile{
 			ProfileID:    int(profile.ID),
-			CurrentCount: profile.Earned,
+			CurrentCount: profile.CurrentCount,
 			IsAchieved:   profile.IsAchieved,
 		})
 	}

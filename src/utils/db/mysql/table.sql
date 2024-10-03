@@ -73,7 +73,6 @@ CREATE TABLE cards (
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-#chat table create
 
 CREATE TABLE chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -142,7 +141,7 @@ create table profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL, 
-    count INT,        -- 프로필 달성 조건 횟수
+    total_count INT,        -- 프로필 달성 조건 횟수
     image VARCHAR(255),  -- 프로필 이미지 경로
     description VARCHAR(255) -- 프로필 획득 설명
 );
@@ -154,7 +153,7 @@ CREATE TABLE user_profiles (
     deleted_at TIMESTAMP NULL DEFAULT NULL, 
     user_id INT,
     profile_id INT,
-    earned INT DEFAULT 0,  -- 해당 프로필 달성한 횟수
+    current_count INT DEFAULT 0,  -- 해당 프로필 달성한 횟수
     is_achieved BOOLEAN DEFAULT FALSE, -- 달성 여부
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
@@ -173,8 +172,8 @@ INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '
 
 INSERT INTO categories (type, reason) VALUES ('report', '도배 및 불건전한 언어 사용'),('report', '불법 프로그램 사용'),('report', '비매너 행위'),('report', '기타');
 
-INSERT INTO profiles (name, count, image, description) VALUES ('소라게 개굴', 0, 'profile/1.png', '기본 이미지');
-INSERT INTO profiles (name, count, image, description) VALUES ('증명 사진 개굴', 0, 'profile/2.png', '기본 이미지');
-INSERT INTO profiles (name, count, image, description) VALUES ('뽀또', 0, 'profile/3.png', '기본 이미지');
-INSERT INTO profiles (name, count, image, description) VALUES ('분홍 개굴', 0, 'profile/4.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('소라게 개굴', 0, 'profile/1.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('증명 사진 개굴', 0, 'profile/2.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('뽀또', 0, 'profile/3.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('분홍 개굴', 0, 'profile/4.png', '기본 이미지');
 

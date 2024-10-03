@@ -58,7 +58,7 @@ func (g *SignupAuthRepository) VerifyAuthCode(ctx context.Context, email, code s
 
 func (g *SignupAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error) {
 	profiles := make([]*mysql.Profiles, 0)
-	err := g.GormDB.WithContext(ctx).Where("count = ?", 0).Find(&profiles).Error
+	err := g.GormDB.WithContext(ctx).Where("total_count = ?", 0).Find(&profiles).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
 	}

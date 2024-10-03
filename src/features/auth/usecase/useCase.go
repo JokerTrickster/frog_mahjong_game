@@ -115,7 +115,7 @@ func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.Profiles) []*m
 			UserID:     int(userID),
 			ProfileID:  int(profile.ID),
 			IsAchieved: true,
-			Earned:     0,
+			CurrentCount:     0,
 		})
 	}
 	return userProfileDTOList
