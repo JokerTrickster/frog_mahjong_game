@@ -47,8 +47,8 @@ func CreateTokenDTO(uID uint, accessToken string, accessTknExpiredAt int64, refr
 	}
 }
 
-func CreateSignupUser(req *request.ReqSignup) mysql.Users {
-	return mysql.Users{
+func CreateSignupUser(req *request.ReqSignup) *mysql.Users {
+	return &mysql.Users{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
@@ -112,10 +112,10 @@ func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.Profiles) []*m
 	userProfileDTOList := make([]*mysql.UserProfiles, 0)
 	for _, profile := range profileIDList {
 		userProfileDTOList = append(userProfileDTOList, &mysql.UserProfiles{
-			UserID:     int(userID),
-			ProfileID:  int(profile.ID),
-			IsAchieved: true,
-			CurrentCount:     0,
+			UserID:       int(userID),
+			ProfileID:    int(profile.ID),
+			IsAchieved:   true,
+			CurrentCount: 0,
 		})
 	}
 	return userProfileDTOList

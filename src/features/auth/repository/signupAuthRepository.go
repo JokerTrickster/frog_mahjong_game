@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	_errors "main/features/auth/model/errors"
 	_interface "main/features/auth/model/interface"
 	"main/utils"
@@ -30,7 +29,7 @@ func (g *SignupAuthRepository) UserCheckByEmail(ctx context.Context, email strin
 		}
 	}
 }
-func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user mysql.Users) error {
+func (g *SignupAuthRepository) InsertOneUser(ctx context.Context, user *mysql.Users) error {
 	result := g.GormDB.WithContext(ctx).Create(&user)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user insert", user), utils.ErrFromMysqlDB)
@@ -46,7 +45,6 @@ func (g *SignupAuthRepository) VerifyAuthCode(ctx context.Context, email, code s
 
 	tenMinutesAgo := time.Now().Add(-10 * time.Minute).Format("2006-01-02 15:04:05")
 	result := g.GormDB.WithContext(ctx).Where("email = ? AND auth_code = ? and created_at >= ? and type = ?", email, code, tenMinutesAgo, "signup").First(&userAuth)
-	fmt.Println(result.RowsAffected)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInvalidAuthCode, utils.Trace(), utils.HandleError(_errors.ErrInvalidAuthCode.Error(), email, code), utils.ErrFromClient)
 	}
@@ -66,6 +64,7 @@ func (g *SignupAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysq
 }
 
 func (g *SignupAuthRepository) InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error {
+
 	result := g.GormDB.WithContext(ctx).Create(&userProfileDTOList)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user profile insert", userProfileDTOList), utils.ErrFromMysqlDB)
