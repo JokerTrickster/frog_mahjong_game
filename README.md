@@ -11,11 +11,15 @@ https://www.frog-mahjong.xyz/
 참새작 보드게임을 모티브로 웹에서 여러 유저들과 플레이
 
 ### 게임 화면
-<img width="1680" alt="스크린샷 2024-09-18 오후 9 19 34" src="https://github.com/user-attachments/assets/cb3bbe11-0381-4658-af07-982528d2f0b7">
 
-<img width="1676" alt="스크린샷 2024-09-18 오후 9 20 56" src="https://github.com/user-attachments/assets/dfe5985e-602b-404e-b5e1-844ae62fd45c">
+- 매칭 화면
+<img width="411" alt="스크린샷 2024-10-05 오전 12 32 45" src="https://github.com/user-attachments/assets/648412fd-85a4-4573-8ff1-30b9b536a77e">
 
-<img width="1672" alt="스크린샷 2024-09-19 오전 12 28 11" src="https://github.com/user-attachments/assets/f82b130e-147c-45b6-9f0f-4ee59144d9a2">
+- 게임 화면
+<img width="732" alt="스크린샷 2024-10-05 오전 12 35 05" src="https://github.com/user-attachments/assets/d8f2dd50-5654-4cf9-ae54-051487ec6b2d">
+
+- 결과 화면
+<img width="843" alt="스크린샷 2024-10-05 오전 12 35 47" src="https://github.com/user-attachments/assets/430cbb1d-f47f-4eef-a348-2f7a8cbdd062">
 
 ### MVP 기능
 1. 인증 기능  
