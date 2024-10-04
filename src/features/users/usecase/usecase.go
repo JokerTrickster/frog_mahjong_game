@@ -30,7 +30,7 @@ func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
 		Email:     userDTO.Email,
 		Name:      userDTO.Name,
 		Coin:      userDTO.Coin,
-		ProfileID: 1,
+		ProfileID: userDTO.ProfileID,
 	}
 }
 
