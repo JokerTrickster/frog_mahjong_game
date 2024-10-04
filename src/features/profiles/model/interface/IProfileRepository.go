@@ -8,3 +8,7 @@ import (
 type IListProfilesRepository interface {
 	FindAllProfiles(ctx context.Context) ([]*mysql.Profiles, error)
 }
+
+type IUploadProfilesRepository interface {
+	InsertOneProfile(ctx context.Context, profile *mysql.Profiles) error
+}
