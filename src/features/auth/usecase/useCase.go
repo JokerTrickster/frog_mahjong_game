@@ -29,12 +29,13 @@ func GeneratePasswordAuthCode() string {
 
 func CreateUserSQL(email string) *mysql.Users {
 	return &mysql.Users{
-		Name:     "임시개굴맨",
-		Email:    email,
-		State:    "wait",
-		Coin:     30,
-		RoomID:   1,
-		Provider: "google",
+		Name:      "임시개굴맨",
+		Email:     email,
+		State:     "wait",
+		Coin:      30,
+		RoomID:    1,
+		Provider:  "google",
+		ProfileID: 1,
 	}
 }
 
@@ -49,13 +50,14 @@ func CreateTokenDTO(uID uint, accessToken string, accessTknExpiredAt int64, refr
 
 func CreateSignupUser(req *request.ReqSignup) *mysql.Users {
 	return &mysql.Users{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
-		Coin:     30,
-		RoomID:   1,
-		State:    "logout",
-		Provider: "email",
+		Name:      req.Name,
+		Email:     req.Email,
+		Password:  req.Password,
+		Coin:      30,
+		RoomID:    1,
+		State:     "logout",
+		Provider:  "email",
+		ProfileID: 1,
 	}
 }
 
