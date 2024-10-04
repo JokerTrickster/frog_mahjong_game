@@ -10,4 +10,5 @@ import (
 
 func NewProfilesHandler(c *echo.Echo) {
 	NewListProfilesHandler(c, usecase.NewListProfilesUseCase(repository.NewListProfilesRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewUploadProfilesHandler(c, usecase.NewUploadProfilesUseCase(repository.NewUploadProfilesRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

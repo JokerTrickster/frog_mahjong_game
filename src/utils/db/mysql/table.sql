@@ -172,8 +172,8 @@ INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '
 
 INSERT INTO categories (type, reason) VALUES ('report', '도배 및 불건전한 언어 사용'),('report', '불법 프로그램 사용'),('report', '비매너 행위'),('report', '기타');
 
-INSERT INTO profiles (name, total_count, image, description) VALUES ('소라게 개굴', 0, 'profile/1.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('증명 사진 개굴', 0, 'profile/2.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('뽀또', 0, 'profile/3.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('분홍 개굴', 0, 'profile/4.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('소라게 개굴', 0, 'profiles/1.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('증명 사진 개굴', 0, 'profiles/2.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('뽀또', 0, 'profiles/3.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('분홍 개굴', 0, 'profiles/4.png', '기본 이미지');
 
