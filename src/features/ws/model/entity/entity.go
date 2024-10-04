@@ -74,6 +74,7 @@ type User struct {
 	DiscardedCards []*Card `json:"discardedCards"`
 	Coin           int     `json:"coin"`
 	TurnNumber     int     `json:"turnNumber"`
+	ProfileID      int     `json:"profileID"`
 }
 type GameInfo struct {
 	PlayTurn         int       `json:"playTurn"`
