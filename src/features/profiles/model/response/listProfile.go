@@ -8,4 +8,5 @@ type Profile struct {
 	ProfileID  int    `json:"profileID"`
 	Name       string `json:"name"`
 	TotalCount int    `json:"totalCount"`
+	Image      string `json:"image"`
 }
