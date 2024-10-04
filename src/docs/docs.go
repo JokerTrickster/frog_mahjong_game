@@ -1743,6 +1743,9 @@ const docTemplate = `{
         "main_features_profiles_model_response.Profile": {
             "type": "object",
             "properties": {
+                "image": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
