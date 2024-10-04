@@ -56,6 +56,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 			Name:        roomUser.User.Name,
 			Email:       roomUser.User.Email,
 			TurnNumber:  roomUser.TurnNumber,
+			ProfileID:   roomUser.User.ProfileID,
 		}
 		for _, card := range roomUser.Cards {
 			if card.State == "owned" {
