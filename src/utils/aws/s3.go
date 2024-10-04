@@ -21,7 +21,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		path:       "profiles",
 		width:      512,
 		height:     512,
-		expireTime: 1 * time.Minute,
+		expireTime: 24 * time.Hour,
 	},
 }
 
