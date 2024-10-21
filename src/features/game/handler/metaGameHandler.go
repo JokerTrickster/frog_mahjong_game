@@ -17,12 +17,12 @@ func NewMetaGameHandler(c *echo.Echo, useCase _interface.IMetaGameUseCase) _inte
 	handler := &MetaGameHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/game/report/meta", handler.Meta)
+	c.GET("/v2.1/game/report/meta", handler.Meta)
 	return handler
 }
 
 // 신고하기 카테고리 데이터 가져오기
-// @Router /v0.1/game/report/meta [get]
+// @Router /v2.1/game/report/meta [get]
 // @Summary 신고하기 카테고리 데이터 가져오기
 // @Description
 // @Description ■ errCode with 400

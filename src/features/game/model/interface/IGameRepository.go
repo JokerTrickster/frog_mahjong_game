@@ -63,3 +63,7 @@ type IMetaGameRepository interface {
 type IDeckCardGameRepository interface {
 	CheckRoomUser(c context.Context, userID int, roomID int) error
 }
+
+type IListMissionGameRepository interface {
+	FindAllMission(c context.Context) ([]*mysql.Missions, error)
+}

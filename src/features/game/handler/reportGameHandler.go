@@ -20,12 +20,12 @@ func NewReportGameHandler(c *echo.Echo, useCase _interface.IReportGameUseCase) _
 	handler := &ReportGameHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/game/report", handler.Report, mw.TokenChecker)
+	c.POST("/v2.1/game/report", handler.Report, mw.TokenChecker)
 	return handler
 }
 
 // 유저 신고하기
-// @Router /v0.1/game/report [post]
+// @Router /v2.1/game/report [post]
 // @Summary 유저 신고하기
 // @Description
 // @Description ■ errCode with 400

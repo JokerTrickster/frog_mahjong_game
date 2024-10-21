@@ -51,3 +51,7 @@ type IMetaGameUseCase interface {
 type IDeckCardGameUseCase interface {
 	DeckCard(c context.Context, userID, roomID int) (response.ResDeckCardGame, error)
 }
+
+type IListMissionGameUseCase interface {
+	ListMission(c context.Context) (response.ResListMissionGame, error)
+}

@@ -439,3 +439,15 @@ func CreateRandomCardIDList() response.ResDeckCardGame {
 	return res
 
 }
+
+func CreateResListMission(missionList []*mysql.Missions) response.ResListMissionGame {
+	res := response.ResListMissionGame{}
+	for _, mission := range missionList {
+		mission := response.Mission{
+			ID:    int(mission.ID),
+			Title: mission.Name,
+		}
+		res.Missions = append(res.Missions, mission)
+	}
+	return res
+}

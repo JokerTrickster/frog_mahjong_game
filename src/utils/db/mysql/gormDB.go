@@ -39,7 +39,7 @@ type Rooms struct {
 	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
 	PlayTurn     int    `json:"playTurn" gorm:"column:play_turn"`
 	Timer        int    `json:"timeOut" gorm:"column:timer"`
-	MissionID	int    `json:"missionID" gorm:"column:mission_id"`
+	MissionID    int    `json:"missionID" gorm:"column:mission_id"`
 }
 
 type RoomUsers struct {
@@ -94,15 +94,21 @@ type Categories struct {
 type Profiles struct {
 	gorm.Model
 	Name        string `json:"name" gorm:"column:name"`
-	TotalCount       int    `json:"totalCount" gorm:"column:total_count"`
+	TotalCount  int    `json:"totalCount" gorm:"column:total_count"`
 	Image       string `json:"image" gorm:"column:image"`
 	Description string `json:"description" gorm:"column:description"`
 }
 
 type UserProfiles struct {
 	gorm.Model
-	UserID     int  `json:"userID" gorm:"column:user_id"`
-	ProfileID  int  `json:"profileID" gorm:"column:profile_id"`
-	IsAchieved bool `json:"isAchieved" gorm:"column:is_achieved"`
-	CurrentCount     int  `json:"currentCount" gorm:"column:current_count"`
+	UserID       int  `json:"userID" gorm:"column:user_id"`
+	ProfileID    int  `json:"profileID" gorm:"column:profile_id"`
+	IsAchieved   bool `json:"isAchieved" gorm:"column:is_achieved"`
+	CurrentCount int  `json:"currentCount" gorm:"column:current_count"`
+}
+
+type Missions struct {
+	gorm.Model
+	Name        string `json:"name" gorm:"column:name"`
+	Description string `json:"description" gorm:"column:description"`
 }
