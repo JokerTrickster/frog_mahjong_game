@@ -69,20 +69,20 @@ type User struct {
 	Email          string  `json:"email"`
 	Name           string  `json:"name"`
 	PlayerState    string  `json:"playerState"` // 카드를 모두 선택했다면 done, 아니면 선택중이라면 picking
-	IsOwner        bool    `json:"isOwner"`
-	Cards          []*Card `json:"cards"`
-	DiscardedCards []*Card `json:"discardedCards"`
-	PickedCards    []*Card `json:"pickedCards"`
-	Coin           int     `json:"coin"`
-	ProfileID      int     `json:"profileID"`
+	IsOwner        bool    `json:"isOwner"` 	// 방장 여부
+	Cards          []*Card `json:"cards"`			// 소유하고 있는 카드
+	DiscardedCards []*Card `json:"discardedCards"`	//버린 카드
+	PickedCards    []*Card `json:"pickedCards"`	// 선택한 카드
+	Coin           int     `json:"coin"`		// 보유하고 있는 코인
+	ProfileID      int     `json:"profileID"`	// 프로필 ID
 }
 type GameInfo struct {
 	PlayTurn  int    `json:"playTurn"`
-	MissionID int    `json:"missionID"`
+	MissionID int    `json:"missionID"`	// 미션 ID
 	AllReady  bool   `json:"allReady"`  // 게임 시작 여부
 	Timer     int    `json:"timer"`     // 타이머
 	IsFull    bool   `json:"isFull"`    // 방이 꽉 찼는지 여부
-	AllPicked bool   `json:"allPicked"` // 모든 유저가 카드를 선택했는지 여부 D
+	AllPicked bool   `json:"allPicked"` // 모든 유저가 카드를 선택했는지 여부
 	RoomID    uint   `json:"roomID"`    // 방 ID
 	Password  string `json:"password"`  // 방 비밀번호
 }
