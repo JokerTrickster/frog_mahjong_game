@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"main/features/ws/model/entity"
+	v2entity"main/features/v2ws/model/entity"
 	"os"
 	"reflect"
 	"time"
@@ -109,6 +110,22 @@ func (l *Log) MakeWSLog(msg entity.WSMessage) error {
 	l.Message = msg.Message
 	return nil
 }
+func (l *Log) V2MakeWSLog(msg v2entity.WSMessage) error {
+	startTime := time.Now()
+	l.Project = "frog"
+	l.Type = "info"
+	l.Env = Env.Env
+	l.UserID = string(msg.UserID)
+	l.Created = startTime.Format("2006-01-02 15:04:05")
+	l.Url = msg.Event
+	l.Method = "ws"
+	l.Latency = time.Since(startTime).Milliseconds()
+	l.HttpCode = 200
+	l.RequestID = string(msg.RoomID)
+	l.Message = msg.Message
+	return nil
+}
+
 
 func (l *Log) MakeErrorLog(res Err) error {
 	l.Type = "error"

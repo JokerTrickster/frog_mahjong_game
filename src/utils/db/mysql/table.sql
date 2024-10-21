@@ -24,9 +24,20 @@ CREATE TABLE users (
     provider VARCHAR(50)
 );
 
+create table missions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, 
+    name VARCHAR(255),
+    description VARCHAR(255)
+);
+
+INSERT INTO missions (name, description) VALUES ('연속된 숫자 2쌍', '연속된 숫자 2쌍을 완성해주세요 ex) 123 567');
+INSERT INTO missions (name, description) VALUES ('동일한 숫자 2쌍', '동일한 숫자 2쌍을 완성해주세요 ex) 111 222');
 
 
-  
+
 CREATE TABLE rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -40,9 +51,12 @@ CREATE TABLE rooms (
     password VARCHAR(255),
     state VARCHAR(50),
     owner_id INT,
-    timer INT 
+    timer INT,
+    mission_id INT,
+    FOREIGN KEY (mission_id) REFERENCES missions(id)
 );
-
+INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
+VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
 
 CREATE TABLE room_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -82,7 +96,9 @@ CREATE TABLE chats (
     user_id INT,
     room_id INT,
     name varchar(255),
-    message varchar(255)
+    message varchar(255),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
 CREATE TABLE user_auths (
@@ -104,6 +120,8 @@ CREATE TABLE user_auths (
     table_name VARCHAR(255) NOT NULL UNIQUE,
     table_description VARCHAR(255)
 );
+INSERT INTO meta_tables (table_name, table_description) VALUES ('times', '게임 타이머');
+
 -- 게임 시간 타이머 관리 메타 테이블
 CREATE TABLE times (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,6 +131,8 @@ CREATE TABLE times (
     timer INT,
     description VARCHAR(255)
 );
+-- times 테이블에 15초, 30초, 60초 데이터를 넣어줘
+INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '60초');
 
 -- 신고 테이블
 CREATE TABLE reports (
@@ -135,6 +155,10 @@ CREATE TABLE categories (
     reason VARCHAR(1000)
 );
 
+INSERT INTO categories (type, reason) VALUES ('report', '도배 및 불건전한 언어 사용'),('report', '불법 프로그램 사용'),('report', '비매너 행위'),('report', '기타');
+
+
+
 create table profiles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
@@ -145,6 +169,10 @@ create table profiles (
     image VARCHAR(255),  -- 프로필 이미지 경로
     description VARCHAR(255) -- 프로필 획득 설명
 );
+INSERT INTO profiles (name, total_count, image, description) VALUES ('소라게 개굴', 0, '1.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('증명 사진 개굴', 0, '2.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('뽀또', 0, '3.png', '기본 이미지');
+INSERT INTO profiles (name, total_count, image, description) VALUES ('분홍 개굴', 0, '4.png', '기본 이미지');
 
 CREATE TABLE user_profiles (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -160,20 +188,7 @@ CREATE TABLE user_profiles (
 );
 
 
-# rooms 대기방 생성
-INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
-VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
 
 -- meta table에 times, types, scenarios 테이블을 저장하는 sql 문 만들어줘
-INSERT INTO meta_tables (table_name, table_description) VALUES ('times', '게임 타이머');
 
--- times 테이블에 15초, 30초, 60초 데이터를 넣어줘
-INSERT INTO times (timer, description) VALUES (15, '15초'),(30, '30초'),(60, '60초');
-
-INSERT INTO categories (type, reason) VALUES ('report', '도배 및 불건전한 언어 사용'),('report', '불법 프로그램 사용'),('report', '비매너 행위'),('report', '기타');
-
-INSERT INTO profiles (name, total_count, image, description) VALUES ('소라게 개굴', 0, '1.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('증명 사진 개굴', 0, '2.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('뽀또', 0, '3.png', '기본 이미지');
-INSERT INTO profiles (name, total_count, image, description) VALUES ('분홍 개굴', 0, '4.png', '기본 이미지');
 

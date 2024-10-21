@@ -39,6 +39,7 @@ type Rooms struct {
 	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
 	PlayTurn     int    `json:"playTurn" gorm:"column:play_turn"`
 	Timer        int    `json:"timeOut" gorm:"column:timer"`
+	MissionID	int    `json:"missionID" gorm:"column:mission_id"`
 }
 
 type RoomUsers struct {

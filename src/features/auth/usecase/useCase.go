@@ -14,13 +14,13 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const charset = "0123456789"
 
 // 랜덤 값 생성 함수
 func GeneratePasswordAuthCode() string {
 	seed := rand.NewSource(uint64(time.Now().UnixNano()))
 	r := rand.New(seed)
-	b := make([]byte, 6)
+	b := make([]byte, 4)
 	for i := range b {
 		b[i] = charset[r.Intn(len(charset))]
 	}
