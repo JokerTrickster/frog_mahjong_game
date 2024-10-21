@@ -7,6 +7,7 @@ import (
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
 	userHandler "main/features/users/handler"
+	"main/features/v2ws"
 	"main/features/ws"
 	"net/http"
 
@@ -27,7 +28,10 @@ func InitHandler(e *echo.Echo) error {
 	profileHandler.NewProfilesHandler(e)
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
+	v2ws.NewV2WebsocketHandler(e)
 	go ws.WSHandleMessages()
+
+	go v2ws.WSHandleMessages()
 
 	return nil
 }
