@@ -49,3 +49,7 @@ type MetaGameRepository struct {
 type DeckCardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ListMissionGameRepository struct {
+	GormDB *gorm.DB
+}

@@ -47,3 +47,7 @@ type IMetaGameHandler interface {
 type IDeckCardGameHandler interface {
 	DeckCard(c echo.Context) error
 }
+
+type IListMissionGameHandler interface {
+	ListMission(c echo.Context) error
+}
