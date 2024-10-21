@@ -21,12 +21,12 @@ func NewListMissionGameHandler(c *echo.Echo, useCase _interface.IListMissionGame
 	handler := &ListMissionGameHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/game/missions", handler.ListMission)
+	c.GET("/v2.1/game/missions", handler.ListMission)
 	return handler
 }
 
 // 미션 리스트 가져오기
-// @Router /v0.1/game/missions [get]
+// @Router /v2.1/game/missions [get]
 // @Summary 미션 리스트 가져오기
 // @Description
 // @Description ■ errCode with 400
