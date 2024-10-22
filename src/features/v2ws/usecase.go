@@ -7,6 +7,7 @@ import (
 	"main/features/v2ws/model/entity"
 	"main/features/v2ws/model/request"
 	"main/utils/db/mysql"
+	"strings"
 )
 
 func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
@@ -225,4 +226,66 @@ func CalcScore(cards []*mysql.Cards, score int) error {
 		return nil
 	}
 	return fmt.Errorf("점수가 부족합니다.")
+}
+
+const (
+	CONSECUTIVE_PAIRS = iota + 1 // 연속된 숫자 2쌍
+	IDENTICAL_PAIRS              //같은 숫자 2쌍
+)
+
+// 숫자 문자열과 대응하는 숫자를 맵으로 정의
+var numberMap = map[string]int{
+	"one":   1,
+	"two":   2,
+	"three": 3,
+	"four":  4,
+	"five":  5,
+	"six":   6,
+	"seven": 7,
+	"eight": 8,
+	"nine":  9,
+}
+
+func CalcMission(missionID int, cards entity.WSRequestWinEntity) (bool, error) {
+	switch missionID {
+	case CONSECUTIVE_PAIRS:
+		return CalcConsecutivePairs(cards), nil
+	case IDENTICAL_PAIRS:
+		return CalcIdenticalPairs(cards), nil
+	}
+	return false, nil
+}
+func CalcConsecutivePairs(cards entity.WSRequestWinEntity) bool {
+	result := true
+	// 연속된 숫자 2쌍인지 체크
+	for i := 0; i < len(cards.Cards); i += 3 {
+		card1Int := convertToNumber(cards.Cards[i].Name)
+		card2Int := convertToNumber(cards.Cards[i+1].Name)
+		card3Int := convertToNumber(cards.Cards[i+2].Name)
+
+		if card1Int+1 == card2Int && card2Int+1 == card3Int {
+			continue
+		} else {
+			result = false
+		}
+	}
+	return result
+}
+func convertToNumber(word string) int {
+	word = strings.ToLower(word) // 대소문자 구분을 없애기 위해 소문자로 변환
+	number, _ := numberMap[word]
+	return number
+}
+
+func CalcIdenticalPairs(cards entity.WSRequestWinEntity) bool {
+	// 같은 숫자 2쌍인지 체크
+	result := true
+	for i := 0; i < len(cards.Cards); i += 3 {
+		if cards.Cards[i].Name == cards.Cards[i+1].Name && cards.Cards[i+2].Name == cards.Cards[i+3].Name {
+			continue
+		} else {
+			result = false
+		}
+	}
+	return result
 }

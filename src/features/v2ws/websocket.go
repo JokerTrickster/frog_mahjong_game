@@ -32,14 +32,10 @@ func WSHandleMessages() {
 			CloseEventWebsocket(&msg)
 		case "START": // 게임 시작
 			StartEventWebsocket(&msg)
-		case "IMPORT_CARDS":
-			ImportCardsEventWebsocket(&msg)
 		case "DISCARD":
 			DiscardCardsEventWebsocket(&msg)
 		case "IMPORT_SINGLE_CARD":
 			ImportSingleCardEventWebsocket(&msg)
-		case "REQUEST_WIN":
-			RequestWinEventWebsocket(&msg)
 		case "GAME_OVER":
 			GameOverEventWebsocket(&msg)
 		case "CHAT":

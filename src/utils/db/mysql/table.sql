@@ -1,3 +1,4 @@
+
 CREATE TABLE tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -7,21 +8,6 @@ CREATE TABLE tokens (
     user_id INT,
     access_token VARCHAR(255),
     refresh_token VARCHAR(255)
-);
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    name VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    coin INT,
-    state VARCHAR(50),
-    profile_id INT default 1,
-	room_id INT,
-    provider VARCHAR(50)
 );
 
 create table missions (
@@ -35,7 +21,6 @@ create table missions (
 
 INSERT INTO missions (name, description) VALUES ('연속된 숫자 2쌍', '연속된 숫자 2쌍을 완성해주세요 ex) 123 567');
 INSERT INTO missions (name, description) VALUES ('동일한 숫자 2쌍', '동일한 숫자 2쌍을 완성해주세요 ex) 111 222');
-
 
 
 CREATE TABLE rooms (
@@ -52,11 +37,38 @@ CREATE TABLE rooms (
     state VARCHAR(50),
     owner_id INT,
     timer INT,
-    mission_id INT,
-    FOREIGN KEY (mission_id) REFERENCES missions(id)
+    mission_id INT default 1
 );
+
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
 VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255),
+    coin INT,
+    state VARCHAR(50),
+    profile_id INT default 1,
+	room_id INT,
+    provider VARCHAR(50),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+);
+
+INSERT INTO users (name, email, password, coin, state, profile_id, room_id, provider) 
+VALUES ('test', 'test@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
+INSERT INTO users (name, email, password, coin, state, profile_id, room_id, provider) 
+VALUES ('test2', 'test2@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
+INSERT INTO users (name, email, password, coin, state, profile_id, room_id, provider) 
+VALUES ('test3', 'test3@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
+INSERT INTO users (name, email, password, coin, state, profile_id, room_id, provider) 
+VALUES ('test4', 'test4@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
+
+
 
 CREATE TABLE room_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -186,9 +198,3 @@ CREATE TABLE user_profiles (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
-
-
-
--- meta table에 times, types, scenarios 테이블을 저장하는 sql 문 만들어줘
-
-

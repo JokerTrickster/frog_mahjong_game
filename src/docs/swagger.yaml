@@ -1003,33 +1003,6 @@ paths:
       summary: 론 하기
       tags:
       - game
-  /v0.1/game/missions:
-    get:
-      description: |-
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        NOT_OWNER : 방장이 시작 요청을 하지 않음
-        NOT_FIRST_PLAYER : 첫 플레이어가 아님
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.ResListMissionGame'
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: 미션 리스트 가져오기
-      tags:
-      - game
   /v0.1/game/next-turn:
     put:
       description: |-
@@ -1067,70 +1040,6 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 다음 턴 넘기기
-      tags:
-      - game
-  /v0.1/game/report:
-    post:
-      description: |
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      parameters:
-      - description: accessToken
-        in: header
-        name: tkn
-        required: true
-        type: string
-      - description: json body
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/request.ReqReport'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: boolean
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: 유저 신고하기
-      tags:
-      - game
-  /v0.1/game/report/meta:
-    get:
-      description: |
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.ResMetaGame'
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: 신고하기 카테고리 데이터 가져오기
       tags:
       - game
   /v0.1/game/result:
@@ -2058,6 +1967,97 @@ paths:
       summary: 방 참여 (ws)
       tags:
       - rooms
+  /v2.1/game/missions:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListMissionGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 미션 리스트 가져오기
+      tags:
+      - game
+  /v2.1/game/report:
+    post:
+      description: |
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqReport'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 신고하기
+      tags:
+      - game
+  /v2.1/game/report/meta:
+    get:
+      description: |
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResMetaGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 신고하기 카테고리 데이터 가져오기
+      tags:
+      - game
   /v2.1/rooms/join/play/ws:
     get:
       description: |-
