@@ -40,6 +40,8 @@ func WSHandleMessages() {
 			GameOverEventWebsocket(&msg)
 		case "CHAT":
 			ChatEventWebsocket(&msg)
+		case "REQUEST_WIN":
+			RequestWinEventWebsocket(&msg)
 		case "TIME_OUT_DISCARD":
 			TimeOutDiscardCardsEventWebsocket(&msg)
 		case "MATCH":
