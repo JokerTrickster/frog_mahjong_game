@@ -19,8 +19,8 @@ func DiscardCardsFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint)
 	return roomUsers, nil
 }
 
-func DiscardCardUpdateAllCardState(c context.Context, roomID uint) error {
-	err := mysql.GormMysqlDB.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "discard").Error
+func DiscardCardUpdateAllCardState(c context.Context, tx *gorm.DB, roomID uint) error {
+	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "discard").Error
 	if err != nil {
 		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
 	}

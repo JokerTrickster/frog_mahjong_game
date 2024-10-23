@@ -71,7 +71,26 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		if roomInfoMsg.GameInfo.AllPicked == true {
 			// 카드 상태 picked -> owned 로 변경한다.
 			// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
-			err = repository.DiscardCardUpdateAllCardState(ctx, roomID)
+			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+				err = repository.DiscardCardUpdateAllCardState(ctx, tx, roomID)
+				if err != nil {
+					return err
+				}
+				preloadUsers, err = repository.DiscardCardsFindAllRoomUsers(ctx, tx, roomID)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
+				roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+					Code: 500,
+					Msg:  err.Error(),
+					Type: _errors.ErrInternalServer,
+				}
+			}
+			roomInfoMsg = *DiscardCreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
+			roomInfoMsg.GameInfo.AllReady = true
 		}
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
