@@ -90,7 +90,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 				}
 			}
 			roomInfoMsg = *DiscardCreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
-			roomInfoMsg.GameInfo.AllReady = true
+			roomInfoMsg.GameInfo.AllPicked = true
 		}
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
