@@ -82,6 +82,16 @@ func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, state string
 	return nil
 }
 
+// 유저들 코인 -1 차감한다.
+func StartDiffCoin(ctx context.Context, tx *gorm.DB, roomID uint) error {
+	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("room_id = ?", roomID).Update("coin", gorm.Expr("coin - 1"))
+	if err.Error != nil {
+		return fmt.Errorf("유저 코인 차감 실패: %v", err.Error)
+	}
+
+	return nil
+}
+
 // 카드 데이터 생성
 func StartCreateCards(ctx context.Context, tx *gorm.DB, roomID uint, cards []mysql.Cards) error {
 	err := tx.WithContext(ctx).Create(&cards)

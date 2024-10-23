@@ -54,6 +54,12 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
+		// 유저들 코인 -1 차감한다.
+		err = repository.StartDiffCoin(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+
 		// 기존 카드가 있다면 모두 제거한다.
 		err = repository.StartDeleteCards(ctx, tx, roomID)
 		if err != nil {
