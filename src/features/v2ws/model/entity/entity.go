@@ -85,6 +85,7 @@ type GameInfo struct {
 	AllPicked bool   `json:"allPicked"` // 모든 유저가 카드를 선택했는지 여부
 	RoomID    uint   `json:"roomID"`    // 방 ID
 	Password  string `json:"password"`  // 방 비밀번호
+	Winner    uint   `json:"winner"`    // 승리자 ID
 }
 
 /*

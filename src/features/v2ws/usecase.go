@@ -190,6 +190,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		RoomID:    uint(roomID),
 		Password:  password,
 		MissionID: missionID,
+		Winner:    0,
 	}
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true

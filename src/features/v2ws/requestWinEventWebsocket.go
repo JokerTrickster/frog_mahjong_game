@@ -68,6 +68,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 	roomInfoMsg.GameInfo.AllReady = false
+	roomInfoMsg.GameInfo.Winner = uID
 
 	//승리 유저 카드 정보 순서 저장
 	cards := []*entity.Card{}
