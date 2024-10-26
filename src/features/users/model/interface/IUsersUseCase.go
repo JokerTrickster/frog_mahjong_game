@@ -27,3 +27,6 @@ type IListProfilesUsersUseCase interface {
 type IFullCoinUsersUseCase interface {
 	FullCoin(c context.Context) error
 }
+type IOneCoinUsersUseCase interface {
+	OneCoin(c context.Context) error
+}

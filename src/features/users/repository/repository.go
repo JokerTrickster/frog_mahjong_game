@@ -24,3 +24,7 @@ type ListProfilesUsersRepository struct {
 type FullCoinUsersRepository struct {
 	GormDB *gorm.DB
 }
+
+type OneCoinUsersRepository struct {
+	GormDB *gorm.DB
+}
