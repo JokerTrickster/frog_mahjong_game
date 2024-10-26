@@ -23,4 +23,5 @@ func NewGameHandler(c *echo.Echo) {
 	NewDeckCardGameHandler(c, usecase.NewDeckCardGameUseCase(repository.NewDeckCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewListMissionGameHandler(c, usecase.NewListMissionGameUseCase(repository.NewListMissionGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2ReportGameHandler(c, usecase.NewV2ReportGameUseCase(repository.NewV2ReportGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewCreateMissionGameHandler(c, usecase.NewCreateMissionGameUseCase(repository.NewCreateMissionGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }
