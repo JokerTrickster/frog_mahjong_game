@@ -2271,4 +2271,30 @@ paths:
       summary: 함께하기 방 생성 (패스워드 발급) (ws)
       tags:
       - ws
+  /v2.1/users/batch/coins/full:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: '[배치용] 유저 코인 30까지 모두 회복'
+      tags:
+      - user
 swagger: "2.0"

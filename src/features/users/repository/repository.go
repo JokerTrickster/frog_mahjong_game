@@ -20,3 +20,7 @@ type DeleteUsersRepository struct {
 type ListProfilesUsersRepository struct {
 	GormDB *gorm.DB
 }
+
+type FullCoinUsersRepository struct {
+	GormDB *gorm.DB
+}
