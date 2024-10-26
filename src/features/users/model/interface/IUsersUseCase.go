@@ -24,3 +24,6 @@ type IDeleteUsersUseCase interface {
 type IListProfilesUsersUseCase interface {
 	ListProfiles(c context.Context, userID uint) (response.ResListProfileUser, error)
 }
+type IFullCoinUsersUseCase interface {
+	FullCoin(c context.Context) error
+}

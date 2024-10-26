@@ -20,3 +20,6 @@ type IDeleteUsersHandler interface {
 type IListProfilesUsersHandler interface {
 	ListProfiles(c echo.Context) error
 }
+type IFullCoinUsersHandler interface {
+	FullCoin(c echo.Context) error
+}

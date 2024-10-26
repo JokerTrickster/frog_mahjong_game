@@ -24,7 +24,10 @@ type IDeleteUsersRepository interface {
 	DeleteToken(ctx context.Context, userID uint) error
 }
 
-
 type IListProfilesUsersRepository interface {
 	FindAllProfiles(ctx context.Context, userID uint) ([]*mysql.UserProfiles, error)
+}
+
+type IFullCoinUsersRepository interface {
+	FullCoin(ctx context.Context) error
 }
