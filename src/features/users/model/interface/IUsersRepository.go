@@ -31,3 +31,7 @@ type IListProfilesUsersRepository interface {
 type IFullCoinUsersRepository interface {
 	FullCoin(ctx context.Context) error
 }
+
+type IOneCoinUsersRepository interface {
+	OneCoin(ctx context.Context) error
+}

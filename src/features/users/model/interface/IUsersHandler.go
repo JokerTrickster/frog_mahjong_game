@@ -23,3 +23,7 @@ type IListProfilesUsersHandler interface {
 type IFullCoinUsersHandler interface {
 	FullCoin(c echo.Context) error
 }
+
+type IOneCoinUsersHandler interface {
+	OneCoin(c echo.Context) error
+}
