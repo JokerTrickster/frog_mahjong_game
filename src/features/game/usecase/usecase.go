@@ -405,6 +405,14 @@ func CreateResultEntity(cardsDTO []mysql.Cards, cards []request.ResultCard) *ent
 	return result
 }
 
+func CreateV2ReportDTO(userID uint, req *request.ReqV2Report) *mysql.Reports {
+	return &mysql.Reports{
+		TargetUserID:   int(req.TargetUserID),
+		ReporterUserID: int(userID),
+		CategoryID:     int(req.CategoryID),
+		Reason:         req.Reason,
+	}
+}
 func CreateReportDTO(userID uint, req *request.ReqReport) *mysql.Reports {
 	return &mysql.Reports{
 		TargetUserID:   int(req.TargetUserID),
@@ -413,7 +421,6 @@ func CreateReportDTO(userID uint, req *request.ReqReport) *mysql.Reports {
 		Reason:         req.Reason,
 	}
 }
-
 func CreateResMetaGame(categoryList []mysql.Categories) response.ResMetaGame {
 	res := response.ResMetaGame{}
 	for _, category := range categoryList {
