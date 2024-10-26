@@ -42,6 +42,9 @@ type ReportGameRepository struct {
 	GormDB *gorm.DB
 }
 
+type V2ReportGameRepository struct {
+	GormDB *gorm.DB
+}
 type MetaGameRepository struct {
 	GormDB *gorm.DB
 }

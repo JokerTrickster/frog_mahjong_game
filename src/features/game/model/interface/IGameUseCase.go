@@ -41,6 +41,9 @@ type IResultGameUseCase interface {
 	Result(c context.Context, userID uint, req *request.ReqResult) (response.ResResult, error)
 }
 
+type IV2ReportGameUseCase interface {
+	V2Report(c context.Context, userID uint, req *request.ReqV2Report) error
+}
 type IReportGameUseCase interface {
 	Report(c context.Context, userID uint, req *request.ReqReport) error
 }

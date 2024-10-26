@@ -38,6 +38,10 @@ type IResultGameHandler interface {
 	Result(c echo.Context) error
 }
 
+type IV2ReportGameHandler interface {
+	V2Report(c echo.Context) error
+}
+
 type IReportGameHandler interface {
 	Report(c echo.Context) error
 }
