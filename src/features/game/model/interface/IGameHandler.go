@@ -55,3 +55,7 @@ type IDeckCardGameHandler interface {
 type IListMissionGameHandler interface {
 	ListMission(c echo.Context) error
 }
+
+type ICreateMissionGameHandler interface {
+	CreateMission(c echo.Context) error
+}
