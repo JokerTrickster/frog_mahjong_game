@@ -101,3 +101,31 @@ func StartCreateCards(ctx context.Context, tx *gorm.DB, roomID uint, cards []mys
 
 	return nil
 }
+
+// 랜덤으로 카드 3장 상태를 opened으로 변경한다.
+func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
+	// 상태가 'none'인 카드 중에서 랜덤으로 3개의 카드 ID를 가져온다.
+	var cardIDs []int
+	err := mysql.GormMysqlDB.WithContext(ctx).
+		Model(&mysql.Cards{}).
+		Where("room_id = ? AND state = ?", roomID, "none").
+		Order("RAND()").
+		Limit(3).
+		Pluck("card_id", &cardIDs).Error
+	if err != nil {
+		return nil, fmt.Errorf("카드 조회 실패: %v", err.Error())
+	}
+
+	// 선택된 카드들의 상태를 opened로 변경한다.
+	if len(cardIDs) > 0 {
+		err = mysql.GormMysqlDB.WithContext(ctx).
+			Model(&mysql.Cards{}).
+			Where("room_id = ? AND card_id IN ?", roomID, cardIDs).
+			Update("state", "opened").Error
+		if err != nil {
+			return nil, fmt.Errorf("카드 상태 업데이트 실패: %v", err.Error())
+		}
+	}
+
+	return cardIDs, nil
+}

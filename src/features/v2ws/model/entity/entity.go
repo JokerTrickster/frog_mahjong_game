@@ -86,6 +86,7 @@ type GameInfo struct {
 	RoomID    uint   `json:"roomID"`    // 방 ID
 	Password  string `json:"password"`  // 방 비밀번호
 	Winner    uint   `json:"winner"`    // 승리자 ID
+	OpenCards []int  `json:"openCards"` // 공개된 카드
 }
 
 /*
