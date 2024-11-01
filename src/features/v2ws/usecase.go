@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"main/features/v2ws/model/entity"
 	"main/features/v2ws/model/request"
+	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
 	"strings"
 )
@@ -195,6 +196,12 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true
 	}
+
+	openCards, err := repository.FindAllOpenCards(ctx, roomID)
+	if err != nil {
+		fmt.Println(err)
+	}
+	gameInfo.OpenCards = openCards
 
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {

@@ -77,6 +77,21 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			// 카드 상태 picked -> owned 로 변경한다.
 			// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
 			err = repository.ImportSingleCardUpdateAllCardState(ctx, roomID)
+			if err != nil {
+				fmt.Println(err)
+			}
+			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
+			err := repository.ImportSingleCardUpdateOpenCards(ctx, roomID)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			// 오픈 카드 정보를 가져온다.
+			openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
+			if err != nil {
+				fmt.Println(err)
+			}
+			roomInfoMsg.GameInfo.OpenCards = openCards
 		}
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
