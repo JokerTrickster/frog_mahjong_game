@@ -46,8 +46,7 @@ CREATE TABLE rooms (
     password VARCHAR(255),
     state VARCHAR(50),
     owner_id INT,
-    timer INT,
-    mission_id INT default 1
+    timer INT
 );
 
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
