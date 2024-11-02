@@ -19,8 +19,18 @@ create table missions (
     description VARCHAR(255)
 );
 
-INSERT INTO missions (name, description) VALUES ('연속된 숫자 2쌍', '연속된 숫자 2쌍을 완성해주세요 ex) 123 567');
-INSERT INTO missions (name, description) VALUES ('동일한 숫자 2쌍', '동일한 숫자 2쌍을 완성해주세요 ex) 111 222');
+INSERT INTO missions (name, description) VALUES ('새 크기가 60cm 이상', '새 크기가 60cm 이상인 새를 완성해주세요');
+INSERT INTO missions (name, description) VALUES ('새 크기가 60cm 미만', '새 크기가 60cm 미만인 새를 완성해주세요');
+INSERT INTO missions (name, description) VALUES ('숲에서 사는 새', '서식지가 숲인 새를 모아주세요');
+INSERT INTO missions (name, description) VALUES ('초원에서 사는 새', '서식지가 초원인 새를 모아주세요');
+INSERT INTO missions (name, description) VALUES ('물에서 사는 새', '서식지가 물인 새를 모아주세요');
+INSERT INTO missions (name, description) VALUES ('이름에 신체 부위가 들어간 새', '새 이름에 신체 부위가 들어간 새를 모아주세요 귀, 눈, 날개, 다리, 부리, 꼬리, 몸통');
+INSERT INTO missions (name, description) VALUES ('이름에 색깔이 들어간 새', '새 이름에 색깔이 들어간 새를 모아주세요 빨간, 주황, 노란, 초록, 파란, 남색, 보라');
+INSERT INTO missions (name, description) VALUES ('서식지가 2곳 이상인 새', '서식지가 2곳 이상인 새를 모아주세요');
+INSERT INTO missions (name, description) VALUES ('부리 방향이 오른쪽인 새', '새 부리 방향이 오른쪽인 새를 모아주세요');
+INSERT INTO missions (name, description) VALUES ('부리 방향이 왼쪽인 새', '새 부리 방향이 왼쪽인 새를 모아주세요');
+
+
 
 
 CREATE TABLE rooms (
@@ -42,6 +52,18 @@ CREATE TABLE rooms (
 
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)
 VALUES (0, 10, 1, 'Example Room', 'room_password', 'waiting', 1);	
+
+-- 중간 테이블로 rooms와 missions의 다대다 관계를 정의
+CREATE TABLE room_missions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    mission_id INT,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE
+);
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,

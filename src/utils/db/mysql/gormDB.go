@@ -39,7 +39,6 @@ type Rooms struct {
 	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
 	PlayTurn     int    `json:"playTurn" gorm:"column:play_turn"`
 	Timer        int    `json:"timeOut" gorm:"column:timer"`
-	MissionID    int    `json:"missionID" gorm:"column:mission_id"`
 }
 
 type RoomUsers struct {
@@ -111,4 +110,10 @@ type Missions struct {
 	gorm.Model
 	Name        string `json:"name" gorm:"column:name"`
 	Description string `json:"description" gorm:"column:description"`
+}
+
+type RoomMissions struct {
+	gorm.Model
+	RoomID    int `json:"roomID" gorm:"column:room_id"`
+	MissionID int `json:"missionID" gorm:"column:mission_id"`
 }
