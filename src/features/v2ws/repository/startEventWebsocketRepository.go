@@ -11,7 +11,7 @@ import (
 
 func StartFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
 	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
@@ -128,4 +128,34 @@ func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
 	}
 
 	return cardIDs, nil
+}
+
+// 미션을 랜덤으로 3개 생성한다.
+func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
+	// 랜덤으로 미션 ID 3개를 가져온다.
+	var missionIDs []int
+	err := tx.WithContext(ctx).
+		Model(&mysql.Missions{}).
+		Order("RAND()").
+		Limit(3).
+		Pluck("id", &missionIDs).Error
+	if err != nil {
+		return fmt.Errorf("미션 조회 실패: %v", err.Error())
+	}
+
+	// 미션 정보를 생성한다.
+	roomMissions := make([]mysql.RoomMissions, 0)
+	for _, missionID := range missionIDs {
+		roomMission := mysql.RoomMissions{
+			RoomID:    int(roomID),
+			MissionID: missionID,
+		}
+		roomMissions = append(roomMissions, roomMission)
+	}
+	err = tx.WithContext(ctx).Create(&roomMissions).Error
+	if err != nil {
+		return fmt.Errorf("미션 생성 실패: %v", err.Error())
+	}
+
+	return nil
 }

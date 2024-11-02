@@ -47,7 +47,7 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 	timer := 30
 	roomID := 0
 	password := ""
-	missionID := 1
+	missionIDs := make([]int, 0)
 	pickedCount := 0
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
@@ -94,26 +94,33 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
 		}
-		if roomUser.Room.MissionID != 0 {
-			missionID = roomUser.Room.MissionID
+		if len(missionIDs) == 0 {
+			for _, mission := range roomUser.RoomMission {
+				missionIDs = append(missionIDs, mission.MissionID)
+			}
 		}
+
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn:  playTurn,
-		AllReady:  allReady,
-		Timer:     timer,
-		IsFull:    false,
-		RoomID:    uint(roomID),
-		Password:  password,
-		MissionID: missionID,
+		PlayTurn:   playTurn,
+		AllReady:   allReady,
+		Timer:      timer,
+		IsFull:     false,
+		RoomID:     uint(roomID),
+		Password:   password,
+		MissionIDs: missionIDs,
 	}
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true
 	}
-
+	openCards, err := repository.FindAllOpenCards(ctx, roomID)
+	if err != nil {
+		fmt.Println(err)
+	}
+	gameInfo.OpenCards = openCards
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
 		roomInfoMsg.ErrorInfo = roomInfoError
@@ -128,8 +135,8 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	timer := 30
 	roomID := 0
 	password := ""
-	missionID := 1
 	pickedCount := 0
+	missionIDs := make([]int, 0)
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
@@ -176,22 +183,25 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
 		}
-		if roomUser.Room.MissionID != 0 {
-			missionID = roomUser.Room.MissionID
+		if len(missionIDs) == 0 {
+			for _, mission := range roomUser.RoomMission {
+				missionIDs = append(missionIDs, mission.MissionID)
+			}
 		}
+
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		PlayTurn:  playTurn,
-		AllReady:  allReady,
-		Timer:     timer,
-		IsFull:    false,
-		RoomID:    uint(roomID),
-		Password:  password,
-		MissionID: missionID,
-		Winner:    0,
+		PlayTurn:   playTurn,
+		AllReady:   allReady,
+		Timer:      timer,
+		IsFull:     false,
+		RoomID:     uint(roomID),
+		Password:   password,
+		Winner:     0,
+		MissionIDs: missionIDs,
 	}
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true
