@@ -470,7 +470,7 @@ func CreateMissionDTO(req *request.ReqCreateMission) *mysql.Missions {
 func CreateResListCard(cards []*mysql.BirdCards) response.ResListCardGame {
 	res := response.ResListCardGame{}
 	for _, card := range cards {
-		card := response.BirdCard{
+		c := response.BirdCard{
 			ID:            int(card.ID),
 			Name:          card.Name,
 			Size:          card.Size,
@@ -483,8 +483,22 @@ func CreateResListCard(cards []*mysql.BirdCards) response.ResListCardGame {
 			fmt.Println(err)
 			return response.ResListCardGame{}
 		}
-		card.Image = imageUrl
-		res.Cards = append(res.Cards, card)
+		c.Image = imageUrl
+		res.Cards = append(res.Cards, c)
 	}
 	return res
+}
+
+func CreateV2RandomCardIDList() response.ResV2DeckCardGame {
+	res := response.ResV2DeckCardGame{}
+	cardIDList := make([]int, 0)
+	for i := 1; i <= 9; i++ {
+		cardIDList = append(cardIDList, i)
+	}
+	rand.Shuffle(len(cardIDList), func(i, j int) {
+		cardIDList[i], cardIDList[j] = cardIDList[j], cardIDList[i]
+	})
+	res.CardIDList = cardIDList
+	return res
+
 }

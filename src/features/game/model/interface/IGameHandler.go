@@ -62,3 +62,7 @@ type ICreateMissionGameHandler interface {
 type IListCardGameHandler interface {
 	ListCard(c echo.Context) error
 }
+
+type IV2DeckCardGameHandler interface {
+	V2DeckCard(c echo.Context) error
+}
