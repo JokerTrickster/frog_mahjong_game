@@ -492,6 +492,13 @@ definitions:
           $ref: '#/definitions/main_features_rooms_model_response.User'
         type: array
     type: object
+  response.ResV2DeckCardGame:
+    properties:
+      cardIDList:
+        items:
+          type: integer
+        type: array
+    type: object
   response.ResV02GoogleOauthCallback:
     properties:
       accessToken:
@@ -2070,6 +2077,44 @@ paths:
       summary: 방 참여 (ws)
       tags:
       - rooms
+  /v2.1/game/{roomID}/deck:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: roomID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResV2DeckCardGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 카드 정보 가져오기
+      tags:
+      - game
   /v2.1/game/missions:
     get:
       description: |-

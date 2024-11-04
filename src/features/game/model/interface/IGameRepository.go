@@ -77,3 +77,6 @@ type ICreateMissionGameRepository interface {
 type IListCardGameRepository interface {
 	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
 }
+type IV2DeckCardGameRepository interface {
+	CheckRoomUser(c context.Context, userID int, roomID int) error
+}

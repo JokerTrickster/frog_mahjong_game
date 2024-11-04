@@ -65,3 +65,6 @@ type ICreateMissionGameUseCase interface {
 type IListCardGameUseCase interface {
 	ListCard(c context.Context) (response.ResListCardGame, error)
 }
+type IV2DeckCardGameUseCase interface {
+	V2DeckCard(c context.Context, userID, roomID int) (response.ResV2DeckCardGame, error)
+}
