@@ -2,11 +2,13 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"main/features/game/model/entity"
 	_errors "main/features/game/model/errors"
 	"main/features/game/model/request"
 	"main/features/game/model/response"
 	"main/utils"
+	_aws "main/utils/aws"
 	"main/utils/db/mysql"
 	"math/rand"
 	"strconv"
@@ -463,4 +465,26 @@ func CreateMissionDTO(req *request.ReqCreateMission) *mysql.Missions {
 		Name:        req.Name,
 		Description: req.Description,
 	}
+}
+
+func CreateResListCard(cards []*mysql.BirdCards) response.ResListCardGame {
+	res := response.ResListCardGame{}
+	for _, card := range cards {
+		card := response.BirdCard{
+			ID:            int(card.ID),
+			Name:          card.Name,
+			Size:          card.Size,
+			Habitat:       card.Habitat,
+			BeakDirection: card.BeakDirection,
+		}
+		// s3 에서 서명된 url로 응답
+		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), card.Image, _aws.ImgTypeCard)
+		if err != nil {
+			fmt.Println(err)
+			return response.ResListCardGame{}
+		}
+		card.Image = imageUrl
+		res.Cards = append(res.Cards, card)
+	}
+	return res
 }
