@@ -74,3 +74,6 @@ type IListMissionGameRepository interface {
 type ICreateMissionGameRepository interface {
 	SaveMission(c context.Context, missionDTO *mysql.Missions) error
 }
+type IListCardGameRepository interface {
+	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
+}

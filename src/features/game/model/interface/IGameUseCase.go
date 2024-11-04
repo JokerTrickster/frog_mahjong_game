@@ -62,3 +62,6 @@ type IListMissionGameUseCase interface {
 type ICreateMissionGameUseCase interface {
 	CreateMission(c context.Context, req *request.ReqCreateMission) error
 }
+type IListCardGameUseCase interface {
+	ListCard(c context.Context) (response.ResListCardGame, error)
+}

@@ -117,3 +117,13 @@ type RoomMissions struct {
 	RoomID    int `json:"roomID" gorm:"column:room_id"`
 	MissionID int `json:"missionID" gorm:"column:mission_id"`
 }
+
+type BirdCards struct {
+	gorm.Model
+	Name          string `json:"name" gorm:"column:name"`
+	Image         string `json:"image" gorm:"column:image"`
+	Description   string `json:"description" gorm:"column:description"`
+	Size          int    `json:"size" gorm:"column:size"`
+	Habitat       string `json:"habitat" gorm:"column:habitat"`
+	BeakDirection string `json:"beakDirection" gorm:"column:beak_direction"`
+}

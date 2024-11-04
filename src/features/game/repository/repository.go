@@ -60,3 +60,7 @@ type ListMissionGameRepository struct {
 type CreateMissionGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ListCardGameRepository struct {
+	GormDB *gorm.DB
+}

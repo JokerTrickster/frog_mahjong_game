@@ -59,3 +59,6 @@ type IListMissionGameHandler interface {
 type ICreateMissionGameHandler interface {
 	CreateMission(c echo.Context) error
 }
+type IListCardGameHandler interface {
+	ListCard(c echo.Context) error
+}

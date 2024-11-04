@@ -120,7 +120,6 @@ CREATE TABLE cards (
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-
 CREATE TABLE chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -219,3 +218,22 @@ CREATE TABLE user_profiles (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
+
+-- 이름, 이미지, 설명, 크기, 서식지, 부리 방향
+create table bird_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, 
+    name VARCHAR(255),
+    image VARCHAR(255),
+    description VARCHAR(255),
+    size INT,
+    habitat VARCHAR(255),
+    beak_direction VARCHAR(255)
+);
+
+-- 새 서식지 : water, all, forest, field
+INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('나팔고리', '1.png', '나팔고리 입니다', 203, 'water', 'right');
+INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('아메리카멧도요', '2.png', '아메리카멧도요 입니다', 46, 'forest field', 'right');
+INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('볼티모어꾀꼬리', '3.png', '볼티모어꾀꼬리 입니다', 30, 'all', 'right');

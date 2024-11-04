@@ -23,6 +23,14 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		height:     512,
 		expireTime: 24 * time.Hour,
 	},
+	ImgTypeCard: {
+		bucket:     func() string { return "dev-frog" },
+		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		path:       "cards",
+		width:      512,
+		height:     512,
+		expireTime: 24 * time.Hour,
+	},
 }
 
 func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename string, imgType ImgType) error {
