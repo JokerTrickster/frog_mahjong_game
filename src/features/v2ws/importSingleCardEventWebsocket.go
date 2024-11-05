@@ -30,11 +30,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	importSingleCardEntity := entity.WSImportSingleCardEntity{
 		RoomID: roomID,
 		UserID: uID,
-		Cards: &mysql.Cards{
-			CardID: int(req.CardID),
-			RoomID: int(roomID),
-			UserID: int(uID),
-		},
+		CardID: uint(req.CardID),
 	}
 
 	// 비즈니스 로직
@@ -42,7 +38,8 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
-		err := repository.ImportSingleCardUpdateCardState(ctx, tx, &importSingleCardEntity)
+		userBirdCardDTO := CreateUserBirdCardDTO(importSingleCardEntity)
+		err := repository.ImportSingleCardCreateCard(ctx, tx, userBirdCardDTO)
 		if err != nil {
 			return err
 		}

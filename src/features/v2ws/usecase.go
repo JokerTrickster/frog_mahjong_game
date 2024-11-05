@@ -54,12 +54,13 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 		timer = roomUser.Room.Timer
 		password = roomUser.Room.Password
 		user := entity.User{
-			ID:          uint(roomUser.UserID),
-			Coin:        roomUser.User.Coin,
-			Name:        roomUser.User.Name,
-			Email:       roomUser.User.Email,
-			ProfileID:   roomUser.User.ProfileID,
-			PlayerState: "picking",
+			ID:                  uint(roomUser.UserID),
+			Coin:                roomUser.User.Coin,
+			Name:                roomUser.User.Name,
+			Email:               roomUser.User.Email,
+			ProfileID:           roomUser.User.ProfileID,
+			PlayerState:         "picking",
+			MissionSuccessCount: len(roomUser.UserMissions),
 		}
 		ownedCount := 0
 		for _, card := range roomUser.Cards {
@@ -142,12 +143,13 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		timer = roomUser.Room.Timer
 		password = roomUser.Room.Password
 		user := entity.User{
-			ID:          uint(roomUser.UserID),
-			Coin:        roomUser.User.Coin,
-			Name:        roomUser.User.Name,
-			Email:       roomUser.User.Email,
-			ProfileID:   roomUser.User.ProfileID,
-			PlayerState: "picking",
+			ID:                  uint(roomUser.UserID),
+			Coin:                roomUser.User.Coin,
+			Name:                roomUser.User.Name,
+			Email:               roomUser.User.Email,
+			ProfileID:           roomUser.User.ProfileID,
+			PlayerState:         "picking",
+			MissionSuccessCount: len(roomUser.UserMissions),
 		}
 		ownedCount := 0
 		for _, card := range roomUser.Cards {
@@ -173,7 +175,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 				ownedCount++
 			}
-			if ownedCount == 6 {
+			if ownedCount == 4 {
 				user.PlayerState = "done"
 				pickedCount++
 			}
@@ -306,4 +308,33 @@ func CalcIdenticalPairs(cards entity.WSRequestWinEntity) bool {
 		}
 	}
 	return result
+}
+func CreateUserMissionDTO(missionEntity entity.V2WSMissionEntity) *mysql.UserMissions {
+	userMissionDTO := mysql.UserMissions{
+		UserID:    int(missionEntity.UserID),
+		MissionID: int(missionEntity.MissionID),
+		RoomID:    int(missionEntity.RoomID),
+	}
+	return &userMissionDTO
+}
+
+func CreateUserMissionCardDTO(missionEntity entity.V2WSMissionEntity, userMissionID int) *[]mysql.UserMissionCards {
+	var userMissionCardDTO []mysql.UserMissionCards
+	for _, cardID := range missionEntity.Cards {
+		userMissionCardDTO = append(userMissionCardDTO, mysql.UserMissionCards{
+			UserMissionID: userMissionID,
+			CardID:        cardID,
+		})
+	}
+	return &userMissionCardDTO
+}
+
+func CreateUserBirdCardDTO(importSingleCard entity.WSImportSingleCardEntity) *mysql.UserBirdCards {
+	userBirdCardDTO := mysql.UserBirdCards{
+		UserID: int(importSingleCard.UserID),
+		RoomID: int(importSingleCard.RoomID),
+		CardID: int(importSingleCard.CardID),
+		State:  "owned",
+	}
+	return &userBirdCardDTO
 }

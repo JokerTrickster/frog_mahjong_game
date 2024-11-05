@@ -20,12 +20,12 @@ func NewListCardGameHandler(c *echo.Echo, useCase _interface.IListCardGameUseCas
 	handler := &ListCardGameHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/game/cards", handler.ListCard)
+	c.GET("/v2.1/game/cards", handler.ListCard)
 	return handler
 }
 
 // 카드 정보 리스트 가져오기
-// @Router /v0.1/game/cards [get]
+// @Router /v2.1/game/cards [get]
 // @Summary 카드 정보 리스트 가져오기
 // @Description
 // @Description ■ errCode with 400
