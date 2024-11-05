@@ -237,7 +237,7 @@ create table bird_cards (
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('나팔고리', '1.png', '나팔고리 입니다', 203, 'water', 'right');
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('아메리카멧도요', '2.png', '아메리카멧도요 입니다', 46, 'forest field', 'right');
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('볼티모어꾀꼬리', '3.png', '볼티모어꾀꼬리 입니다', 30, 'all', 'right');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('검은왕관해오라기', '4.png', '검은왕관해오라기 입니다', 112, 'water', 'right',);
+INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('검은왕관해오라기', '4.png', '검은왕관해오라기 입니다', 112, 'water', 'right');
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('흰뺨따오기', '5.png', '흰뺨따오기 입니다', 91, 'water', 'left');
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('수리부엉이', '6.png', '수리부엉이 입니다', 112, 'forest', 'center');
 INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction) VALUES ('검독수리', '7.png', '검독수리 입니다', 201, 'field water', 'right');
