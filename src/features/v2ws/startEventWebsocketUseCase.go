@@ -36,59 +36,16 @@ func StartUpdateRoomUsers(roomUsers []mysql.RoomUsers) ([]mysql.RoomUsers, error
 	return roomUsers, nil
 }
 
-/*
-					card 구성
-	 1 2 3 4 5 6 7 8 9  (모두 레드) , 중 그린 발 레드
-	 1 2 3 4 5 6 7 8 9  (1,5,7,9는 노말, 나머지 그린) , 중 그린 발 레드
-	 1 2 3 4 5 6 7 8 9  (1,5,7,9는 노말, 나머지 그린) , 중 그린 발 레드
-	 1 2 3 4 5 6 7 8 9  (1,5,7,9는 노말, 나머지 그린) , 중 그린 발 레드
-*/
-const (
-	red        = "red"
-	green      = "green"
-	normal     = "normal"
-	allGreen   = "allGreen"
-	superRed   = "superRed"
-	tangYao    = "tangYao"
-	chanTa     = "chanTa"
-	chinYao    = "chinYao"
-	dora       = "dora"
-	same       = "same"
-	continuous = "continuous"
-)
-
-var cardNames = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "chung", "bal"}
-
-func CreateInitCards(roomID uint) []mysql.Cards {
-	cards := make([]mysql.Cards, 0)
-	cardID := 1
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 11; j++ {
-			card := mysql.Cards{
-				RoomID: int(roomID),
-				Name:   cardNames[j],
-				State:  "none",
-				CardID: cardID,
-			}
-			cardID++
-			if i == 0 {
-				card.Color = red
-			} else {
-				// 1,5,7,9는 노말, 나머지 그린
-				if j == 0 || j == 4 || j == 6 || j == 8 {
-					card.Color = normal
-				} else {
-					card.Color = green
-				}
-			}
-			if card.Name == "chung" {
-				card.Color = red
-			} else if card.Name == "bal" {
-				card.Color = green
-			}
-
-			cards = append(cards, card)
-		}
+func CreateInitCards(roomID uint, count int) []mysql.UserBirdCards {
+	cards := make([]mysql.UserBirdCards, 0)
+	// 총 카드 수 만큼 생성하면 된다.
+	for i := 0; i < count; i++ {
+		cards = append(cards, mysql.UserBirdCards{
+			RoomID: int(roomID),
+			CardID: i + 1,
+			State:  "none",
+			UserID: 0,
+		})
 	}
 
 	return cards

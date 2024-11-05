@@ -126,4 +126,26 @@ type BirdCards struct {
 	Size          int    `json:"size" gorm:"column:size"`
 	Habitat       string `json:"habitat" gorm:"column:habitat"`
 	BeakDirection string `json:"beakDirection" gorm:"column:beak_direction"`
+	State         string `json:"state" gorm:"column:state"` // owned, discard, none, opened
+}
+
+type UserMissions struct {
+	gorm.Model
+	UserID    int `json:"userID" gorm:"column:user_id"`
+	MissionID int `json:"missionID" gorm:"column:mission_id"`
+	RoomID    int `json:"roomID" gorm:"column:room_id"`
+}
+
+type UserMissionCards struct {
+	gorm.Model
+	UserMissionID int `json:"userMissionID" gorm:"column:user_mission_id"`
+	CardID        int `json:"cardID" gorm:"column:card_id"`
+}
+
+type UserBirdCards struct {
+	gorm.Model
+	UserID int    `json:"userID" gorm:"column:user_id"`
+	CardID int    `json:"cardID" gorm:"column:card_id"`
+	RoomID int    `json:"roomID" gorm:"column:room_id"`
+	State  string `json:"state" gorm:"column:state"`
 }

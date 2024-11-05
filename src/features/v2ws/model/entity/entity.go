@@ -57,6 +57,7 @@ type RoomInfo struct {
 	Users     []*User    `json:"users"`     // 유저 정보
 	GameInfo  *GameInfo  `json:"gameInfo"`  // 게임 정보
 	ErrorInfo *ErrorInfo `json:"errorInfo"` // 에러 정보
+
 }
 
 type ErrorInfo struct {
@@ -65,16 +66,17 @@ type ErrorInfo struct {
 	Type string `json:"type"`
 }
 type User struct {
-	ID             uint    `json:"id"`
-	Email          string  `json:"email"`
-	Name           string  `json:"name"`
-	PlayerState    string  `json:"playerState"`    // 카드를 모두 선택했다면 done, 아니면 선택중이라면 picking
-	IsOwner        bool    `json:"isOwner"`        // 방장 여부
-	Cards          []*Card `json:"cards"`          // 소유하고 있는 카드
-	DiscardedCards []*Card `json:"discardedCards"` //버린 카드
-	PickedCards    []*Card `json:"pickedCards"`    // 선택한 카드
-	Coin           int     `json:"coin"`           // 보유하고 있는 코인
-	ProfileID      int     `json:"profileID"`      // 프로필 ID
+	ID                  uint    `json:"id"`
+	Email               string  `json:"email"`
+	Name                string  `json:"name"`
+	PlayerState         string  `json:"playerState"`         // 카드를 모두 선택했다면 done, 아니면 선택중이라면 picking
+	IsOwner             bool    `json:"isOwner"`             // 방장 여부
+	Cards               []*Card `json:"cards"`               // 소유하고 있는 카드
+	DiscardedCards      []*Card `json:"discardedCards"`      //버린 카드
+	PickedCards         []*Card `json:"pickedCards"`         // 선택한 카드
+	Coin                int     `json:"coin"`                // 보유하고 있는 코인
+	ProfileID           int     `json:"profileID"`           // 프로필 ID
+	MissionSuccessCount int     `json:"missionSuccessCount"` // 미션 성공 횟수
 }
 type GameInfo struct {
 	PlayTurn   int    `json:"playTurn"`
@@ -102,16 +104,17 @@ type Card struct {
 
 type RoomUsers struct {
 	gorm.Model
-	UserID         int                  `json:"userID" gorm:"column:user_id"`
-	RoomID         int                  `json:"roomID" gorm:"column:room_id"`
-	Score          int                  `json:"score" gorm:"column:score"`
-	OwnedCardCount int                  `json:"ownedCardCount" gorm:"column:owned_card_count"`
-	PlayerState    string               `json:"playerState" gorm:"column:player_state"`
-	TurnNumber     int                  `json:"turnNumber" gorm:"column:turn_number"`
-	User           mysql.Users          `gorm:"foreignKey:UserID"`
-	Room           mysql.Rooms          `gorm:"foreignKey:RoomID"`
-	RoomMission    []mysql.RoomMissions `gorm:"foreignKey:RoomID;references:RoomID"`
-	Cards          []mysql.Cards        `gorm:"foreignKey:UserID;references:UserID"`
+	UserID         int                   `json:"userID" gorm:"column:user_id"`
+	RoomID         int                   `json:"roomID" gorm:"column:room_id"`
+	Score          int                   `json:"score" gorm:"column:score"`
+	OwnedCardCount int                   `json:"ownedCardCount" gorm:"column:owned_card_count"`
+	PlayerState    string                `json:"playerState" gorm:"column:player_state"`
+	TurnNumber     int                   `json:"turnNumber" gorm:"column:turn_number"`
+	User           mysql.Users           `gorm:"foreignKey:UserID"`
+	Room           mysql.Rooms           `gorm:"foreignKey:RoomID"`
+	RoomMission    []mysql.RoomMissions  `gorm:"foreignKey:RoomID;references:RoomID"`
+	Cards          []mysql.UserBirdCards `gorm:"foreignKey:UserID;references:UserID"`
+	UserMissions   []mysql.UserMissions  `gorm:"foreignKey:UserID;references:UserID"`
 }
 
 func (c *WSClient) Close() {

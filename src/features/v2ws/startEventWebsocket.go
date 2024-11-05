@@ -60,18 +60,20 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		}
 
 		// 기존 카드가 있다면 모두 제거한다.
-		err = repository.StartDeleteCards(ctx, tx, roomID)
+		err = repository.StartDeleteCards(ctx, tx, uID)
 		if err != nil {
 			return err
 		}
-
-		// cards 데이터 생성
-		cards := CreateInitCards(roomID)
-		err = repository.StartCreateCards(ctx, tx, roomID, cards)
+		count, err := repository.StartCountBirdCard(ctx, tx)
 		if err != nil {
 			return err
 		}
-
+		// 카드를 생성한다.
+		cards := CreateInitCards(roomID, count)
+		err = repository.StartCreateCards(ctx, tx, cards)
+		if err != nil {
+			return err
+		}
 		// 미션을 랜덤으로 3개 생성한다.
 		err = repository.StartCreateMissions(ctx, tx, roomID)
 		if err != nil {

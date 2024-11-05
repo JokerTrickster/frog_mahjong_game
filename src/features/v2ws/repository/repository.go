@@ -13,7 +13,7 @@ type JoinEventWebsocketRepository struct {
 
 func FindAllOpenCards(c context.Context, roomID int) ([]int, error) {
 	var cards []int
-	if err := mysql.GormMysqlDB.WithContext(c).Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "opened").Pluck("card_id", &cards).Error; err != nil {
+	if err := mysql.GormMysqlDB.WithContext(c).Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "opened").Pluck("card_id", &cards).Error; err != nil {
 		return nil, err
 	}
 	return cards, nil

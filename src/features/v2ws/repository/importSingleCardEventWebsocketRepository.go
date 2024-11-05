@@ -11,8 +11,10 @@ import (
 
 func ImportSingleCardFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
+		return db.Where("room_id = ?", roomID)
 	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
 	}
@@ -26,29 +28,20 @@ func ImportSingleCardUpdateAllCardState(c context.Context, roomID uint) error {
 	return nil
 }
 
-func ImportSingleCardFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.Cards, error) {
-	dora := mysql.Cards{}
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "dora").First(&dora).Error
+// 카드정보가 존재하면 상태를 업데이트하고 없으면 카드를 생성한다.
+func ImportSingleCardCreateCard(c context.Context, tx *gorm.DB, userBirdCardDTO *mysql.UserBirdCards) error {
+	// 카드 정보가 존재하는지 확인
+	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ? and card_id = ?", userBirdCardDTO.RoomID, userBirdCardDTO.CardID).Updates(userBirdCardDTO).Error
 	if err != nil {
-		return nil, fmt.Errorf("도라 카드를 찾을 수 없습니다. %v", err.Error())
+		return fmt.Errorf("카드 조회 및 업데이트 실패 %v", err.Error())
 	}
-	return &dora, nil
-}
-func ImportSingleCardUpdateCardState(c context.Context, tx *gorm.DB, entity *entity.WSImportSingleCardEntity) error {
-	// 카드 상태 업데이트
-	// room_id, card_id, state로 찾고 카드 업데이트할 때 트랜잭션 처리해줘
-	card := entity.Cards
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ?", card.RoomID, card.CardID).Updates(&mysql.Cards{State: "picked", UserID: card.UserID}).Error
-	if err != nil {
-		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
-	}
+
 	return nil
 }
 
 func ImportSingleCardUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, entity *entity.WSImportSingleCardEntity) error {
 	// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
-	card := entity.Cards
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", card.RoomID, card.UserID).Update("owned_card_count", gorm.Expr("owned_card_count + 1")).Error
+	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count + 1")).Error
 	if err != nil {
 		return fmt.Errorf("방 유저 카드 카운트 업데이트 실패 %v", err.Error())
 	}
@@ -68,7 +61,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, roomID uint) error {
 	// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
 	// 현재 오픈 카드가 몇개 있는지 카운트 한다.
 	var count int64
-	err := mysql.GormMysqlDB.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "opened").Count(&count).Error
+	err := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "opened").Count(&count).Error
 	if err != nil {
 		return fmt.Errorf("오픈 카드 카운트 실패 %v", err.Error())
 	}
@@ -78,7 +71,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, roomID uint) error {
 		// 상태가 'none'인 카드 중에서 랜덤으로 openCardCount 수만큼 카드 ID를 가져온다.
 		var cardIDs []int
 		err = mysql.GormMysqlDB.WithContext(ctx).
-			Model(&mysql.Cards{}).
+			Model(&mysql.UserBirdCards{}).
 			Where("room_id = ? AND state = ?", roomID, "none").
 			Order("RAND()").
 			Limit(int(openCardCount)).
@@ -90,7 +83,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, roomID uint) error {
 		// 선택된 카드들의 상태를 opened로 변경한다.
 		if len(cardIDs) > 0 {
 			err = mysql.GormMysqlDB.WithContext(ctx).
-				Model(&mysql.Cards{}).
+				Model(&mysql.UserBirdCards{}).
 				Where("room_id = ? AND card_id IN ?", roomID, cardIDs).
 				Update("state", "opened").Error
 			if err != nil {

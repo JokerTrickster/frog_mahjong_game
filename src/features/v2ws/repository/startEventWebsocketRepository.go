@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"main/features/v2ws/model/entity"
 	"main/utils/db/mysql"
+	"math/rand"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -13,14 +15,16 @@ func StartFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]ent
 	var roomUsers []entity.RoomUsers
 	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
+		return db.Where("room_id = ?", roomID)
 	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
 	}
 	return roomUsers, nil
 }
 
-func StartDeleteCards(ctx context.Context, tx *gorm.DB, roomID uint) error {
-	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Delete(&mysql.Cards{})
+func StartDeleteCards(ctx context.Context, tx *gorm.DB, userID uint) error {
+	err := tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&mysql.UserBirdCards{})
 	if err.Error != nil {
 		if err.Error == gorm.ErrRecordNotFound {
 			return nil
@@ -93,7 +97,7 @@ func StartDiffCoin(ctx context.Context, tx *gorm.DB, roomID uint) error {
 }
 
 // 카드 데이터 생성
-func StartCreateCards(ctx context.Context, tx *gorm.DB, roomID uint, cards []mysql.Cards) error {
+func StartCreateCards(ctx context.Context, tx *gorm.DB, cards []mysql.UserBirdCards) error {
 	err := tx.WithContext(ctx).Create(&cards)
 	if err.Error != nil {
 		return fmt.Errorf("카드 정보 생성 실패: %v", err.Error)
@@ -104,30 +108,39 @@ func StartCreateCards(ctx context.Context, tx *gorm.DB, roomID uint, cards []mys
 
 // 랜덤으로 카드 3장 상태를 opened으로 변경한다.
 func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
-	// 상태가 'none'인 카드 중에서 랜덤으로 3개의 카드 ID를 가져온다.
-	var cardIDs []int
-	err := mysql.GormMysqlDB.WithContext(ctx).
-		Model(&mysql.Cards{}).
-		Where("room_id = ? AND state = ?", roomID, "none").
-		Order("RAND()").
-		Limit(3).
-		Pluck("card_id", &cardIDs).Error
+	// 카드 총 수를 가져온다.
+	var count int64
+	err := mysql.GormMysqlDB.Model(&mysql.BirdCards{}).Count(&count).Error
 	if err != nil {
-		return nil, fmt.Errorf("카드 조회 실패: %v", err.Error())
+		return nil, fmt.Errorf("카드 총 수 조회 실패: %v", err.Error())
 	}
 
-	// 선택된 카드들의 상태를 opened로 변경한다.
-	if len(cardIDs) > 0 {
-		err = mysql.GormMysqlDB.WithContext(ctx).
-			Model(&mysql.Cards{}).
-			Where("room_id = ? AND card_id IN ?", roomID, cardIDs).
-			Update("state", "opened").Error
+	// 카드 총 수에서 랜덤으로 3개의 카드 ID를 가져온다. (rand를 통해 3개의 카드를 뽑는다.)
+	openCards := make([]int, count)
+	for i := 0; i < int(count); i++ {
+		openCards[i] = i + 1
+	}
+
+	// 배열을 랜덤하게 섞음
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(int(count), func(i, j int) {
+		openCards[i], openCards[j] = openCards[j], openCards[i]
+	})
+	// opened 상태로 카드 생성한다.
+	for i := 0; i < 3; i++ {
+		userBirdCardDTO := &mysql.UserBirdCards{
+			RoomID: int(roomID),
+			UserID: 0,
+			CardID: openCards[i],
+			State:  "opened",
+		}
+		err = mysql.GormMysqlDB.Create(userBirdCardDTO).Error
 		if err != nil {
-			return nil, fmt.Errorf("카드 상태 업데이트 실패: %v", err.Error())
+			return nil, fmt.Errorf("유저 카드 생성 실패: %v", err.Error())
 		}
 	}
 
-	return cardIDs, nil
+	return openCards[:3], nil
 }
 
 // 미션을 랜덤으로 3개 생성한다.
@@ -158,4 +171,13 @@ func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
 	}
 
 	return nil
+}
+
+func StartCountBirdCard(ctx context.Context, tx *gorm.DB) (int, error) {
+	var count int64
+	err := tx.WithContext(ctx).Model(&mysql.BirdCards{}).Count(&count).Error
+	if err != nil {
+		return 0, fmt.Errorf("카드 수 조회 실패: %v", err.Error())
+	}
+	return int(count), nil
 }
