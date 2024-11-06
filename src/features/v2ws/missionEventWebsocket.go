@@ -35,28 +35,26 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 	for _, cardID := range req.Cards {
 		missionEntity.Cards = append(missionEntity.Cards, cardID)
 	}
-	fmt.Println(missionEntity)
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	// 미션 정보 생성한다.
+	userMissionDTO := CreateUserMissionDTO(missionEntity)
+	userMissionID, err := repository.MissionCreateUserMission(ctx, userMissionDTO)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
+	err = repository.MissionCreateUserMissionCard(ctx, userMissionCardDTO)
+	if err != nil {
+		fmt.Println(err)
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보 체크 (소유하고 있는지 체크)
 		err := repository.MissionFindAllCards(ctx, tx, &missionEntity)
-		if err != nil {
-			return err
-		}
-
-		// 미션 정보 생성한다.
-		userMissionDTO := CreateUserMissionDTO(missionEntity)
-		userMissionID, err := repository.MissionCreateUserMission(ctx, userMissionDTO)
-
-		if err != nil {
-			return err
-		}
-
-		userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
-		err = repository.MissionCreateUserMissionCard(ctx, userMissionCardDTO)
 		if err != nil {
 			return err
 		}

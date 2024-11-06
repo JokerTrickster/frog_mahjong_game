@@ -38,10 +38,6 @@ type IResultGameHandler interface {
 	Result(c echo.Context) error
 }
 
-type IV2ReportGameHandler interface {
-	V2Report(c echo.Context) error
-}
-
 type IReportGameHandler interface {
 	Report(c echo.Context) error
 }
@@ -63,6 +59,15 @@ type IListCardGameHandler interface {
 	ListCard(c echo.Context) error
 }
 
+// v2
 type IV2DeckCardGameHandler interface {
 	V2DeckCard(c echo.Context) error
+}
+
+type IV2ResultGameHandler interface {
+	V2Result(c echo.Context) error
+}
+
+type IV2ReportGameHandler interface {
+	V2Report(c echo.Context) error
 }

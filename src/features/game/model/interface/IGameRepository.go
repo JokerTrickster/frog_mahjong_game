@@ -53,10 +53,6 @@ type IResultGameRepository interface {
 	GetDoraCard(c context.Context, req *request.ReqResult) (mysql.Cards, error)
 }
 
-type IV2ReportGameRepository interface {
-	SaveReport(c context.Context, reportDTO *mysql.Reports) error
-}
-
 type IReportGameRepository interface {
 	SaveReport(c context.Context, reportDTO *mysql.Reports) error
 }
@@ -77,6 +73,16 @@ type ICreateMissionGameRepository interface {
 type IListCardGameRepository interface {
 	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
 }
+
+// v2
 type IV2DeckCardGameRepository interface {
 	CheckRoomUser(c context.Context, userID int, roomID int) error
+}
+
+type IV2ReportGameRepository interface {
+	SaveReport(c context.Context, reportDTO *mysql.Reports) error
+}
+type IV2ResultGameRepository interface {
+	GetUserMissions(c context.Context, req *request.ReqV2Result) ([]*mysql.UserMissions, error)
+	GetUserMissionCards(c context.Context, missionID uint) ([]*mysql.UserMissionCards, error)
 }
