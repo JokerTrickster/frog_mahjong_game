@@ -126,17 +126,11 @@ func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
 	rand.Shuffle(int(count), func(i, j int) {
 		openCards[i], openCards[j] = openCards[j], openCards[i]
 	})
-	// opened 상태로 카드 생성한다.
+	// opened 상태로 카드 상태 업데이트 한다.
 	for i := 0; i < 3; i++ {
-		userBirdCardDTO := &mysql.UserBirdCards{
-			RoomID: int(roomID),
-			UserID: 0,
-			CardID: openCards[i],
-			State:  "opened",
-		}
-		err = mysql.GormMysqlDB.Create(userBirdCardDTO).Error
+		err = mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("card_id = ?", openCards[i]).Update("state", "opened").Error
 		if err != nil {
-			return nil, fmt.Errorf("유저 카드 생성 실패: %v", err.Error())
+			return nil, fmt.Errorf("카드 상태 업데이트 실패: %v", err.Error())
 		}
 	}
 

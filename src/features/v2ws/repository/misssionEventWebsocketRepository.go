@@ -11,15 +11,17 @@ import (
 
 func MissionFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Preload("BirdCards", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID)
-	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+	// Preload의 모든 관계를 명확히 로드하고 Joins로 적절히 연결
+	if err := tx.Preload("User").
+		Preload("Room").
+		Preload("RoomMission").
+		Preload("Cards").
+		Preload("UserMissions", "room_id = ?", roomID). // Preload에 명확한 조건 추가
+		Where("room_id = ?", roomID).
+		Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
 	}
-	fmt.Println("roomUsers: ", roomUsers[0].UserMissions)
-	fmt.Println("roomUsers: ", roomUsers[1].UserMissions)
+
 	return roomUsers, nil
 }
 

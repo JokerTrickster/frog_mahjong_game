@@ -1877,6 +1877,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2.1/game/result": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "게임 결과 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqV2Result"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResV2Result"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v2.1/game/{roomID}/deck": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -2504,6 +2550,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ReqV2Result": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqValidatePassword": {
             "type": "object",
             "properties": {
@@ -2892,6 +2949,34 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "response.ResV2Result": {
+            "type": "object",
+            "properties": {
+                "missions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ResultMission"
+                    }
+                },
+                "winner": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ResultMission": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "missionID": {
+                    "type": "integer"
                 }
             }
         }

@@ -41,9 +41,6 @@ type IResultGameUseCase interface {
 	Result(c context.Context, userID uint, req *request.ReqResult) (response.ResResult, error)
 }
 
-type IV2ReportGameUseCase interface {
-	V2Report(c context.Context, userID uint, req *request.ReqV2Report) error
-}
 type IReportGameUseCase interface {
 	Report(c context.Context, userID uint, req *request.ReqReport) error
 }
@@ -67,4 +64,10 @@ type IListCardGameUseCase interface {
 }
 type IV2DeckCardGameUseCase interface {
 	V2DeckCard(c context.Context, userID, roomID int) (response.ResV2DeckCardGame, error)
+}
+type IV2ReportGameUseCase interface {
+	V2Report(c context.Context, userID uint, req *request.ReqV2Report) error
+}
+type IV2ResultGameUseCase interface {
+	V2Result(c context.Context, req *request.ReqV2Result) (response.ResV2Result, error)
 }

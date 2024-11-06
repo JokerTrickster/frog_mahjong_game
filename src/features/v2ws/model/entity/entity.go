@@ -113,8 +113,8 @@ type RoomUsers struct {
 	User           mysql.Users           `gorm:"foreignKey:UserID"`
 	Room           mysql.Rooms           `gorm:"foreignKey:RoomID"`
 	RoomMission    []mysql.RoomMissions  `gorm:"foreignKey:RoomID;references:RoomID"`
-	Cards          []mysql.UserBirdCards `gorm:"foreignKey:UserID;references:UserID"`
-	UserMissions   []mysql.UserMissions  `gorm:"foreignKey:UserID;references:UserID"`
+	Cards          []mysql.UserBirdCards `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
+	UserMissions   []mysql.UserMissions  `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 }
 
 func (c *WSClient) Close() {
