@@ -2623,6 +2623,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "nest": {
+                    "type": "string"
+                },
                 "size": {
                     "type": "integer"
                 }
@@ -2774,6 +2777,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.BirdCard"
                     }
+                },
+                "totalCount": {
+                    "type": "integer"
                 }
             }
         },

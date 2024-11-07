@@ -124,9 +124,9 @@ type BirdCards struct {
 	Image         string `json:"image" gorm:"column:image"`
 	Description   string `json:"description" gorm:"column:description"`
 	Size          int    `json:"size" gorm:"column:size"`
-	Habitat       string `json:"habitat" gorm:"column:habitat"`
-	BeakDirection string `json:"beakDirection" gorm:"column:beak_direction"`
-	State         string `json:"state" gorm:"column:state"` // owned, discard, none, opened
+	Habitat       string `json:"habitat" gorm:"column:habitat"`              // water, forest, field
+	BeakDirection string `json:"beakDirection" gorm:"column:beak_direction"` //left, right, center
+	Nest          string `json:"nest" gorm:"column:nest"`                    //그릇형 bowl, 구멍둥지 cavity, 자유형 wild, 땅둥지 ground, 평평형 platform
 }
 
 type UserMissions struct {

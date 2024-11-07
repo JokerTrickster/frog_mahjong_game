@@ -467,8 +467,10 @@ func CreateMissionDTO(req *request.ReqCreateMission) *mysql.Missions {
 	}
 }
 
-func CreateResListCard(cards []*mysql.BirdCards) response.ResListCardGame {
-	res := response.ResListCardGame{}
+func CreateResListCard(cards []*mysql.BirdCards, count int) response.ResListCardGame {
+	res := response.ResListCardGame{
+		TotalCount: count,
+	}
 	for _, card := range cards {
 		c := response.BirdCard{
 			ID:            int(card.ID),
@@ -476,6 +478,7 @@ func CreateResListCard(cards []*mysql.BirdCards) response.ResListCardGame {
 			Size:          card.Size,
 			Habitat:       card.Habitat,
 			BeakDirection: card.BeakDirection,
+			Nest:          card.Nest,
 		}
 		// s3 에서 서명된 url로 응답
 		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), card.Image, _aws.ImgTypeCard)

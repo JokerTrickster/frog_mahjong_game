@@ -24,8 +24,12 @@ func (d *ListCardGameUseCase) ListCard(c context.Context) (response.ResListCardG
 	if err != nil {
 		return response.ResListCardGame{}, err
 	}
+	count, err := d.Repository.CountAllBirdCard(ctx)
+	if err != nil {
+		return response.ResListCardGame{}, err
+	}
 
-	res := CreateResListCard(cards)
+	res := CreateResListCard(cards,count)
 	return res, nil
 
 }

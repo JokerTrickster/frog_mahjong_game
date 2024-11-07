@@ -1,7 +1,8 @@
 package response
 
 type ResListCardGame struct {
-	Cards []BirdCard `json:"cards"`
+	Cards      []BirdCard `json:"cards"`
+	TotalCount int        `json:"totalCount"`
 }
 
 type BirdCard struct {
@@ -11,4 +12,5 @@ type BirdCard struct {
 	Size          int    `json:"size"`
 	Habitat       string `json:"habitat"`
 	BeakDirection string `json:"beakDirection"`
+	Nest          string `json:"nest"`
 }
