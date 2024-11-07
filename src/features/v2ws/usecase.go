@@ -334,7 +334,7 @@ func CreateUserBirdCardDTO(importSingleCard entity.WSImportSingleCardEntity) *my
 		UserID: int(importSingleCard.UserID),
 		RoomID: int(importSingleCard.RoomID),
 		CardID: int(importSingleCard.CardID),
-		State:  "owned",
+		State:  "picked",
 	}
 	return &userBirdCardDTO
 }
