@@ -21,3 +21,12 @@ func (d *ListCardGameRepository) FindAllBirdCard(c context.Context) ([]*mysql.Bi
 	}
 	return cards, nil
 }
+
+func (d *ListCardGameRepository) CountAllBirdCard(c context.Context) (int, error) {
+	var count int64
+	err := d.GormDB.Model(&mysql.BirdCards{}).Count(&count).Error
+	if err != nil {
+		return 0, utils.ErrorMsg(c, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
+	}
+	return int(count), nil
+}

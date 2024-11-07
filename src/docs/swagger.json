@@ -2612,6 +2612,9 @@
                 "name": {
                     "type": "string"
                 },
+                "nest": {
+                    "type": "string"
+                },
                 "size": {
                     "type": "integer"
                 }
@@ -2763,6 +2766,9 @@
                     "items": {
                         "$ref": "#/definitions/response.BirdCard"
                     }
+                },
+                "totalCount": {
+                    "type": "integer"
                 }
             }
         },

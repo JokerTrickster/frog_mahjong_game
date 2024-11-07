@@ -72,6 +72,7 @@ type ICreateMissionGameRepository interface {
 }
 type IListCardGameRepository interface {
 	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
+	CountAllBirdCard(c context.Context) (int, error)
 }
 
 // v2
