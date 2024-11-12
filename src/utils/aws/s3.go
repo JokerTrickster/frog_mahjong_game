@@ -29,7 +29,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		path:       "cards",
 		width:      512,
 		height:     512,
-		expireTime: 24 * time.Hour,
+		expireTime: 10 * time.Hour,
 	},
 }
 

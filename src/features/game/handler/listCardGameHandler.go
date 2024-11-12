@@ -60,7 +60,7 @@ func (d *ListCardGameHandler) ListCard(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		err = _redis.Client.Set(ctx, cacheKey, data, 24*time.Hour).Err()
+		err = _redis.Client.Set(ctx, cacheKey, data, 1*time.Hour).Err()
 		if err != nil {
 			return err
 		}
