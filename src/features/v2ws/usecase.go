@@ -75,7 +75,7 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 					UserID: uint(card.UserID),
 				})
 			} else {
-				user.Cards = append(user.Cards, &entity.Card{
+				user.PickedCards = append(user.PickedCards, &entity.Card{
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
@@ -113,6 +113,7 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 		RoomID:     uint(roomID),
 		Password:   password,
 		MissionIDs: missionIDs,
+		AllPicked:  false,
 	}
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true
