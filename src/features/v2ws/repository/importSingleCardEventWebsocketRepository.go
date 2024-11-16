@@ -21,7 +21,7 @@ func ImportSingleCardFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID u
 	return roomUsers, nil
 }
 func ImportSingleCardUpdateAllCardState(c context.Context, roomID uint) error {
-	err := mysql.GormMysqlDB.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "owned").Error
+	err := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "owned").Error
 	if err != nil {
 		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
 	}
