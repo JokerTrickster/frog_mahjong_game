@@ -1,6 +1,6 @@
 package request
 
 type ReqV2WSMissionEvent struct {
-	MissionID int   `json:"missionID"`
-	Cards     []int `json:"cards"`
+	MissionIDs []int `json:"missionIDs"`
+	Cards      []int `json:"cards"`
 }
