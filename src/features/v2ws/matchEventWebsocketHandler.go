@@ -63,9 +63,22 @@ func match(c echo.Context) error {
 		fmt.Println(err)
 		return nil
 	}
-
-	// 대기중인 방이 있는지 체크
+	// 비즈니스 로직
+	// 기존 유저 정보들을 모두 삭제한다.
+	// rooms 에 owner_id 가 userID 일치하는 방은 모두 삭제한다.
 	ctx := context.Background()
+	err = repository.MatchDeleteRooms(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	// room_users 에 user_id 가 userID 일치하는 데이터는 모두 삭제한다.
+	err = repository.MatchDeleteRoomUsers(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	// 대기중인 방이 있는지 체크
 	var roomID uint
 
 	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))

@@ -119,3 +119,19 @@ func MatchFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint) e
 	}
 	return nil
 }
+
+func MatchDeleteRooms(ctx context.Context, uID uint) error {
+	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.Rooms{})
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete rooms: %v", result.Error)
+	}
+	return nil
+}
+
+func MatchDeleteRoomUsers(ctx context.Context, uID uint) error {
+	result := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", uID).Delete(&mysql.RoomUsers{})
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete room users: %v", result.Error)
+	}
+	return nil
+}

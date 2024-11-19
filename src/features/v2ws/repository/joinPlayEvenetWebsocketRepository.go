@@ -118,3 +118,19 @@ func JoinPlayFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint
 	}
 	return nil
 }
+
+func JoinPlayDeleteRooms(ctx context.Context, userID uint) error {
+	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", userID).Delete(&mysql.Rooms{})
+	if result.Error != nil {
+		return fmt.Errorf("방 삭제 실패: %v", result.Error)
+	}
+	return nil
+}
+
+func JoinPlayDeleteRoomUsers(ctx context.Context, userID uint) error {
+	result := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).Delete(&mysql.RoomUsers{})
+	if result.Error != nil {
+		return fmt.Errorf("방 유저 삭제 실패: %v", result.Error)
+	}
+	return nil
+}

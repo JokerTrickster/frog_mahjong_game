@@ -62,12 +62,28 @@ func playTogether(c echo.Context) error {
 		return nil
 	}
 
-	// 대기중인 방이 있는지 체크
+	// 비즈니스 로직
 	ctx := context.Background()
+
+	// rooms에 owner_id가 userID인 데이터 모두 삭제
+	err = repository.PlayTogetherDeleteRooms(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	// room_users에 user_id가 userID인 데이터 모두 삭제
+	err = repository.PlayTogetherDeleteRoomUsers(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	// 대기중인 방이 있는지 체크
 	var roomID uint
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		//숫자로 이루어진 6개 랜덤값을 생성한다.
+		//숫자로 이루어진 4개 랜덤값을 생성한다.
 		password := CreateRandomPassword()
 		// 방 생성
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
@@ -81,11 +97,7 @@ func playTogether(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		// 기존에 룸 유저 정보가 있으면 지운다.
-		err = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if err != nil {
-			return err
-		}
+
 		// room_user 생성
 		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "ready")
 		err = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
