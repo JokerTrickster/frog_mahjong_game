@@ -63,8 +63,24 @@ func joinPlay(c echo.Context) error {
 		return nil
 	}
 
+	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
+
+	// rooms에 owner_id가 userID인 데이터 모두 삭제
+	err = repository.JoinPlayDeleteRooms(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	// room_users 에 user_id가 userID인 데이터 모두 삭제
+	err = repository.JoinPlayDeleteRoomUsers(ctx, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	var roomID uint
 
 	rooms, err := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
@@ -80,11 +96,7 @@ func joinPlay(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		// 기존에 룸 유저 정보가 있으면 지운다.
-		err = repository.JoinPlayFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if err != nil {
-			return err
-		}
+
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "ready")
 		err = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
