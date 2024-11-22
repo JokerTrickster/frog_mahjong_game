@@ -1014,6 +1014,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/games/images/upload-report": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저가 존재하지 않음\n■ errCode with 401\nINVALID_AUTH_CODE : 인증 코드 검증 실패\nTOKEN_BAD : 잘못된 토큰\nINVALID_ACCESS_TOKEN : 잘못된 액세스 토큰\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nGEMINI_INTERNAL_SERVER : Gemini 서버 내부 오류",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "새 카드 이미지 업로드 리포트",
+                "parameters": [
+                    {
+                        "description": "type",
+                        "name": "type",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqReportImageUploadGame"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/profiles": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -2555,6 +2594,23 @@ const docTemplate = `{
                 },
                 "targetUserID": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.ReqReportImageUploadGame": {
+            "type": "object",
+            "properties": {
+                "failedList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "successList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

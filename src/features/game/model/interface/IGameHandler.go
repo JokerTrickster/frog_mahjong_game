@@ -83,3 +83,7 @@ type ISaveCardImageGameHandler interface {
 type IUpdateCardGameHandler interface {
 	UpdateCard(c echo.Context) error
 }
+
+type IReportImageUploadGameHandler interface {
+	ReportImageUpload(c echo.Context) error
+}

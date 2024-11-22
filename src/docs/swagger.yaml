@@ -188,6 +188,17 @@ definitions:
       targetUserID:
         type: integer
     type: object
+  request.ReqReportImageUploadGame:
+    properties:
+      failedList:
+        items:
+          type: string
+        type: array
+      successList:
+        items:
+          type: string
+        type: array
+    type: object
   request.ReqRequestPassword:
     properties:
       email:
@@ -1469,6 +1480,44 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 게임 승리 요청
+      tags:
+      - game
+  /v0.1/games/images/upload-report:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저가 존재하지 않음
+        ■ errCode with 401
+        INVALID_AUTH_CODE : 인증 코드 검증 실패
+        TOKEN_BAD : 잘못된 토큰
+        INVALID_ACCESS_TOKEN : 잘못된 액세스 토큰
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        GEMINI_INTERNAL_SERVER : Gemini 서버 내부 오류
+      parameters:
+      - description: type
+        in: body
+        name: type
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqReportImageUploadGame'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 새 카드 이미지 업로드 리포트
       tags:
       - game
   /v0.1/profiles:

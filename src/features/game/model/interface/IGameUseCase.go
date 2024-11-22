@@ -84,3 +84,7 @@ type ISaveCardImageGameUseCase interface {
 type IUpdateCardGameUseCase interface {
 	UpdateCard(c context.Context, req *request.ReqUpdateCard) error
 }
+
+type IReportImageUploadGameUseCase interface {
+	ReportImageUpload(c context.Context, req *request.ReqReportImageUploadGame) error
+}

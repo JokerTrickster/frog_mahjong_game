@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Upload Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .list-section {
+            margin-top: 20px;
+        }
+
+        .list-section h3 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+
+        .list-section ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-section ul li {
+            background-color: #f9f9f9;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            background-color: #f2f2f2;
+            color: #555;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            새 카드 이미지 업로드 리포트
+        </div>
+        <div class="content">
+            <p>안녕하세요,</p>
+            <p>새로운 카드 이미지 업로드가 완료되었습니다. 아래는 업로드 결과입니다:</p>
+            <div class="list-section">
+                <h3>성공한 카드 리스트:</h3>
+                <ul>
+                    {{#each successList}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="list-section">
+                <h3>실패한 카드 리스트:</h3>
+                <ul>
+                    {{#each failList}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <p>감사합니다.</p>
+        </div>
+        <div class="footer">
+            &copy; 2024 JokerTrickster. All rights reserved.
+        </div>
+    </div>
+</body>
+
+</html>

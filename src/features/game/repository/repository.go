@@ -84,3 +84,7 @@ type SaveCardImageGameRepository struct {
 type UpdateCardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ReportImageUploadGameRepository struct {
+	GormDB *gorm.DB
+}

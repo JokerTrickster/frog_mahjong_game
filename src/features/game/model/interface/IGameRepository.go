@@ -93,8 +93,12 @@ type ISaveCardInfoGameRepository interface {
 }
 
 type ISaveCardImageGameRepository interface {
+	FindOneUpdateCardImage(c context.Context, cardName string, newFileName string) error
 }
 
 type IUpdateCardGameRepository interface {
 	UpdateCard(c context.Context, updates mysql.BirdCards) error
+}
+
+type IReportImageUploadGameRepository interface {
 }
