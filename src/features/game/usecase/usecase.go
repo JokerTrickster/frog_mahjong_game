@@ -481,7 +481,7 @@ func CreateResListCard(cards []*mysql.BirdCards, count int) response.ResListCard
 			Nest:          card.Nest,
 		}
 		// s3 에서 서명된 url로 응답
-		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), card.Image, _aws.ImgTypeCard)
+		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), card.Image, _aws.ImgTypeBirdCard)
 		if err != nil {
 			fmt.Println(err)
 			return response.ResListCardGame{}
