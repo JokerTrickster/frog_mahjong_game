@@ -505,3 +505,18 @@ func CreateV2RandomCardIDList() response.ResV2DeckCardGame {
 	return res
 
 }
+
+func CreateBirdCardsDTO(req *request.ReqSaveCardInfo) []mysql.BirdCards {
+	birdCardsDTO := make([]mysql.BirdCards, 0)
+	for _, card := range req.Cards {
+		birdCardsDTO = append(birdCardsDTO, mysql.BirdCards{
+			Name:          card.Name,
+			Size:          card.Size,
+			Habitat:       card.Habitat,
+			BeakDirection: card.BeakDirection,
+			Nest:          card.Nest,
+			Image:         card.Image,
+		})
+	}
+	return birdCardsDTO
+}

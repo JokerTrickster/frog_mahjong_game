@@ -73,3 +73,7 @@ type V2ReportGameRepository struct {
 type V2ResultGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type SaveCardInfoGameRepository struct {
+	GormDB *gorm.DB
+}

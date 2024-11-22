@@ -87,3 +87,7 @@ type IV2ResultGameRepository interface {
 	GetUserMissions(c context.Context, req *request.ReqV2Result) ([]*mysql.UserMissions, error)
 	GetUserMissionCards(c context.Context, missionID uint) ([]*mysql.UserMissionCards, error)
 }
+
+type ISaveCardInfoGameRepository interface {
+	SaveCardInfo(c context.Context, birdCardsDTO []mysql.BirdCards) error
+}

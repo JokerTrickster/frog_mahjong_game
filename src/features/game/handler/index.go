@@ -27,4 +27,5 @@ func NewGameHandler(c *echo.Echo) {
 	NewListCardGameHandler(c, usecase.NewListCardGameUseCase(repository.NewListCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2DeckCardGameHandler(c, usecase.NewV2DeckCardGameUseCase(repository.NewV2DeckCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2ResultGameHandler(c, usecase.NewV2ResultGameUseCase(repository.NewV2ResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewSaveCardInfoGameHandler(c, usecase.NewSaveCardInfoGameUseCase(repository.NewSaveCardInfoGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

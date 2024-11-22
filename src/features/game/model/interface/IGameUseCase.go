@@ -71,3 +71,7 @@ type IV2ReportGameUseCase interface {
 type IV2ResultGameUseCase interface {
 	V2Result(c context.Context, req *request.ReqV2Result) (response.ResV2Result, error)
 }
+
+type ISaveCardInfoGameUseCase interface {
+	SaveCardInfo(c context.Context, req *request.ReqSaveCardInfo) error
+}

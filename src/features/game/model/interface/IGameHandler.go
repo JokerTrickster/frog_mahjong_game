@@ -71,3 +71,7 @@ type IV2ResultGameHandler interface {
 type IV2ReportGameHandler interface {
 	V2Report(c echo.Context) error
 }
+
+type ISaveCardInfoGameHandler interface {
+	SaveCardInfo(c echo.Context) error
+}

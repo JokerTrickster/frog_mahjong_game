@@ -490,6 +490,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/game/cards": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "카드 정보를 저장한다.",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqSaveCardInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/game/dora": {
             "put": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -2263,6 +2302,29 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CardInfo": {
+            "type": "object",
+            "properties": {
+                "beakDirection": {
+                    "type": "string"
+                },
+                "habitat": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nest": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqCreate": {
             "type": "object",
             "required": [
@@ -2456,6 +2518,17 @@ const docTemplate = `{
                 },
                 "roomID": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.ReqSaveCardInfo": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.CardInfo"
+                    }
                 }
             }
         },
