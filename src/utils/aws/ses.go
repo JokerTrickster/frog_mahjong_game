@@ -16,6 +16,7 @@ const (
 	emailTypePassword = emailType("password")
 	emailTypeReport   = emailType("report")
 	emailTypeSignup   = emailType("signup")
+	emailTypeCardInfo = emailType("cardInfo")
 )
 
 const (
@@ -45,6 +46,19 @@ type ReqReportSES struct {
 	TargetUserID string
 	CategoryID   string
 	Reason       string
+}
+
+func EmailSendCardInfo(email []string, cardList []string) {
+	templateDataMap := map[string][]string{
+		"cardList": cardList,
+	}
+	templateDataJson, err := json.Marshal(templateDataMap)
+	if err != nil {
+		fmt.Println("Error marshaling template data:", err)
+		return
+	}
+
+	emailSend(email, emailTypeCardInfo, string(templateDataJson), "cardInfo")
 }
 
 func EmailSendPassword(email string, validateCode string) {
