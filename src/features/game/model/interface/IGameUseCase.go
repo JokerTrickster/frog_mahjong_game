@@ -80,3 +80,7 @@ type ISaveCardInfoGameUseCase interface {
 type ISaveCardImageGameUseCase interface {
 	SaveCardImage(c context.Context, e entity.SaveCardImageGameEntity) error
 }
+
+type IUpdateCardGameUseCase interface {
+	UpdateCard(c context.Context, req *request.ReqUpdateCard) error
+}

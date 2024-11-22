@@ -94,3 +94,7 @@ type ISaveCardInfoGameRepository interface {
 
 type ISaveCardImageGameRepository interface {
 }
+
+type IUpdateCardGameRepository interface {
+	UpdateCard(c context.Context, updates mysql.BirdCards) error
+}

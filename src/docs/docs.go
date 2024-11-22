@@ -491,6 +491,43 @@ const docTemplate = `{
             }
         },
         "/v0.1/game/cards": {
+            "put": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "카드 정보를 수정한다.(image x)",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqUpdateCard"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
                 "produces": [
@@ -2628,6 +2665,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ReqUpdateCard": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "$ref": "#/definitions/request.UpdateCard"
+                }
+            }
+        },
         "request.ReqUpdateUsers": {
             "type": "object",
             "properties": {
@@ -2710,6 +2755,29 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "cardID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.UpdateCard": {
+            "type": "object",
+            "properties": {
+                "beakDirection": {
+                    "type": "string"
+                },
+                "cardID": {
+                    "type": "integer"
+                },
+                "habitat": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nest": {
+                    "type": "string"
+                },
+                "size": {
                     "type": "integer"
                 }
             }

@@ -13,6 +13,8 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 /*
@@ -519,4 +521,32 @@ func CreateBirdCardsDTO(req *request.ReqSaveCardInfo) []mysql.BirdCards {
 		})
 	}
 	return birdCardsDTO
+}
+
+func UpdateBirdCardsDTO(req *request.ReqUpdateCard) mysql.BirdCards {
+	result := mysql.BirdCards{
+		Model: gorm.Model{
+			ID: uint(req.Card.CardID),
+		},
+	}
+	if req.Card.Name != "" {
+		result.Name = req.Card.Name
+	}
+
+	if req.Card.Size != 0 {
+		result.Size = req.Card.Size
+	}
+
+	if req.Card.Habitat != "" {
+		result.Habitat = req.Card.Habitat
+	}
+
+	if req.Card.BeakDirection != "" {
+		result.BeakDirection = req.Card.BeakDirection
+	}
+
+	if req.Card.Nest != "" {
+		result.Nest = req.Card.Nest
+	}
+	return result
 }
