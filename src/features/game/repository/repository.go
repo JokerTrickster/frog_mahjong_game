@@ -77,3 +77,7 @@ type V2ResultGameRepository struct {
 type SaveCardInfoGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type SaveCardImageGameRepository struct {
+	GormDB *gorm.DB
+}
