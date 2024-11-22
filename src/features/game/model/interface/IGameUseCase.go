@@ -2,6 +2,7 @@ package _interface
 
 import (
 	"context"
+	"main/features/game/model/entity"
 	"main/features/game/model/request"
 	"main/features/game/model/response"
 )
@@ -74,4 +75,8 @@ type IV2ResultGameUseCase interface {
 
 type ISaveCardInfoGameUseCase interface {
 	SaveCardInfo(c context.Context, req *request.ReqSaveCardInfo) error
+}
+
+type ISaveCardImageGameUseCase interface {
+	SaveCardImage(c context.Context, e entity.SaveCardImageGameEntity) error
 }

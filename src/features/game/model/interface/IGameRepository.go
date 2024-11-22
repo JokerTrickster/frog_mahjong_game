@@ -91,3 +91,6 @@ type IV2ResultGameRepository interface {
 type ISaveCardInfoGameRepository interface {
 	SaveCardInfo(c context.Context, birdCardsDTO []mysql.BirdCards) error
 }
+
+type ISaveCardImageGameRepository interface {
+}

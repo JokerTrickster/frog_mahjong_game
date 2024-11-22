@@ -31,6 +31,14 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		height:     512,
 		expireTime: 10 * time.Hour,
 	},
+	ImgTypeBirdCard: {
+		bucket:     func() string { return "dev-frog" },
+		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		path:       "wingspan/images",
+		width:      512,
+		height:     512,
+		expireTime: 10 * time.Hour,
+	},
 }
 
 func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename string, imgType ImgType) error {
@@ -67,9 +75,10 @@ func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename strin
 	}
 
 	_, err = awsClientS3Uploader.Upload(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", meta.path, filename)),
-		Body:   buf,
+		Bucket:      aws.String(bucket),
+		Key:         aws.String(fmt.Sprintf("%s/%s", meta.path, filename)),
+		Body:        buf,
+		ContentType: aws.String("image/png"),
 	})
 	if err != nil {
 		return fmt.Errorf("fail to upload image to s3 - bucket:%s / key:%s/%s", bucket, meta.path, filename)

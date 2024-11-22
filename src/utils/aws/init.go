@@ -22,8 +22,9 @@ var awsS3Signer *s3.PresignClient
 type ImgType uint8
 
 const (
-	ImgTypeProfile = ImgType(0)
-	ImgTypeCard    = ImgType(1)
+	ImgTypeProfile  = ImgType(0)
+	ImgTypeCard     = ImgType(1)
+	ImgTypeBirdCard = ImgType(2)
 )
 
 type imgMetaStruct struct {
