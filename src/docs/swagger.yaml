@@ -258,6 +258,11 @@ definitions:
       state:
         type: string
     type: object
+  request.ReqUpdateCard:
+    properties:
+      card:
+        $ref: '#/definitions/request.UpdateCard'
+    type: object
   request.ReqUpdateUsers:
     properties:
       name:
@@ -312,6 +317,21 @@ definitions:
   request.ScoreCard:
     properties:
       cardID:
+        type: integer
+    type: object
+  request.UpdateCard:
+    properties:
+      beakDirection:
+        type: string
+      cardID:
+        type: integer
+      habitat:
+        type: string
+      name:
+        type: string
+      nest:
+        type: string
+      size:
         type: integer
     type: object
   response.BirdCard:
@@ -1052,6 +1072,39 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 카드 정보를 저장한다.
+      tags:
+      - game
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqUpdateCard'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 카드 정보를 수정한다.(image x)
       tags:
       - game
   /v0.1/game/cards/image:
