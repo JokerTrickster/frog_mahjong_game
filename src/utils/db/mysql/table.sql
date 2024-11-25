@@ -234,36 +234,6 @@ create table bird_cards (
     nest varchar(255) -- 그릇형 bowl, 구멍둥지 cavity, 자유형 wild, 땅둥지 ground, 평평형 platform
 );
 
--- 새 서식지 : water, all, forest, field
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('나팔고리', '1.png', '나팔고리 입니다', 203, 'water', 'right','ground');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('아메리카멧도요', '2.png', '아메리카멧도요 입니다', 46, 'forest field', 'right','ground');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('볼티모어꾀꼬리', '3.png', '볼티모어꾀꼬리 입니다', 30, 'all', 'right','wild');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('검은왕관해오라기', '4.png', '검은왕관해오라기 입니다', 112, 'water', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('흰뺨따오기', '5.png', '흰뺨따오기 입니다', 91, 'water', 'left','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('수리부엉이', '6.png', '수리부엉이 입니다', 112, 'forest', 'center','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('검독수리', '7.png', '검독수리 입니다', 201, 'field water', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('가위꼬리솔딱새', '8.png', '가위꼬리솔딱새 입니다', 38, 'field', 'center','bowl');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('흰머리독수리', '9.png', '흰머리독수리 입니다', 203, 'water', 'right','platform');
-
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('푸른날개솔새', '10.png', '푸른날개솔새 입니다', 20, 'water field', 'right','bowl');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('노랑머리솔새', '11.png', '노랑머리솔새 입니다', 23, 'forest water', 'left','cavity');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('대서양코뿔바다오리', '12.png', '대서양코뿔바다오리 입니다', 53, 'water', 'right','wild');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('큰길달리기새', '13.png', '큰길달리기새 입니다', 56, 'field', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('갈색지빠귀', '14.png', '갈색지빠귀 입니다', 30, 'forest', 'right','wild');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('자줏빛쇠물닭', '15.png', '자줏빛쇠물닭 입니다', 56, 'water', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('북부넓적부리', '16.png', '북부넓적부리 입니다', 76, 'water', 'left','ground');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('대백로', '17.png', '대백로 입니다', 130, 'water', 'rifgr','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('두건솔새', '18.png', '두건솔새 입니다', 18, 'forest', 'right','bowl');
-
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('진홍저어새', '19.png', '진홍저어새 입니다', 127, 'water', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('붉은가슴밀화부리', '20.png', '붉은가슴밀화부리 입니다', 33, 'forest', 'left','bowl');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('큰아비', '21.png', '큰아비 입니다', 117, 'water', 'left','ground');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('서부비단풍금조', '22.png', '서부비단풍금조 입니다', 30, 'forest', 'right','bowl');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('뱀가마우지', '23.png', '뱀가마우지 입니다', 114, 'water', 'left','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('검은집게제비갈매기', '24.png', '검은집게제비갈매기 입니다', 112, 'water', 'right','ground');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('붉은매', '25.png', '붉은매 입니다', 142, 'field', 'right','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('고기잡이까마귀', '26.png', '고기잡이까마귀 입니다', 91, 'forest field water', 'rifgr','platform');
-INSERT INTO bird_cards (name, image, description, size, habitat, beak_direction,nest) VALUES ('나무황새', '27.png', '나무황새 입니다', 155, 'water', 'center','platform');
 
 CREATE TABLE user_missions (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -109,21 +109,21 @@ func StartCreateCards(ctx context.Context, tx *gorm.DB, cards []mysql.UserBirdCa
 // 랜덤으로 카드 3장 상태를 opened으로 변경한다.
 func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
 	// 카드 총 수를 가져온다.
-	var count int64
-	err := mysql.GormMysqlDB.Model(&mysql.BirdCards{}).Count(&count).Error
+	var birdCards []*mysql.BirdCards
+	err := mysql.GormMysqlDB.Model(&mysql.BirdCards{}).Find(&birdCards).Error
 	if err != nil {
 		return nil, fmt.Errorf("카드 총 수 조회 실패: %v", err.Error())
 	}
 
 	// 카드 총 수에서 랜덤으로 3개의 카드 ID를 가져온다. (rand를 통해 3개의 카드를 뽑는다.)
-	openCards := make([]int, count)
-	for i := 0; i < int(count); i++ {
-		openCards[i] = i + 1
+	openCards := make([]int, len(birdCards))
+	for i := 0; i < len(birdCards); i++ {
+		openCards[i] = int(birdCards[i].ID)
 	}
 
 	// 배열을 랜덤하게 섞음
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(int(count), func(i, j int) {
+	rand.Shuffle(len(birdCards), func(i, j int) {
 		openCards[i], openCards[j] = openCards[j], openCards[i]
 	})
 	// opened 상태로 카드 상태 업데이트 한다.
@@ -173,6 +173,6 @@ func StartBirdCard(ctx context.Context, tx *gorm.DB) ([]*mysql.BirdCards, error)
 	if err != nil {
 		return nil, fmt.Errorf("birdCards 조회 실패: %v", err.Error())
 	}
-
+	fmt.Println(len(birdCards))
 	return birdCards, nil
 }
