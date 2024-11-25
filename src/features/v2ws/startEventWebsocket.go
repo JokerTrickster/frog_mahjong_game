@@ -64,12 +64,12 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		count, err := repository.StartCountBirdCard(ctx, tx)
+		birdCards, err := repository.StartBirdCard(ctx, tx)
 		if err != nil {
 			return err
 		}
 		// 카드를 생성한다.
-		cards := CreateInitCards(roomID, count)
+		cards := CreateInitCards(roomID, birdCards)
 		err = repository.StartCreateCards(ctx, tx, cards)
 		if err != nil {
 			return err

@@ -167,11 +167,12 @@ func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
 	return nil
 }
 
-func StartCountBirdCard(ctx context.Context, tx *gorm.DB) (int, error) {
-	var count int64
-	err := tx.WithContext(ctx).Model(&mysql.BirdCards{}).Count(&count).Error
+func StartBirdCard(ctx context.Context, tx *gorm.DB) ([]*mysql.BirdCards, error) {
+	var birdCards []*mysql.BirdCards
+	err := tx.WithContext(ctx).Find(&birdCards).Error
 	if err != nil {
-		return 0, fmt.Errorf("카드 수 조회 실패: %v", err.Error())
+		return nil, fmt.Errorf("birdCards 조회 실패: %v", err.Error())
 	}
-	return int(count), nil
+
+	return birdCards, nil
 }

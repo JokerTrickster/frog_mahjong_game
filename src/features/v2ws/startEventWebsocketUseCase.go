@@ -36,13 +36,13 @@ func StartUpdateRoomUsers(roomUsers []mysql.RoomUsers) ([]mysql.RoomUsers, error
 	return roomUsers, nil
 }
 
-func CreateInitCards(roomID uint, count int) []mysql.UserBirdCards {
+func CreateInitCards(roomID uint, birdCards []*mysql.BirdCards) []mysql.UserBirdCards {
 	cards := make([]mysql.UserBirdCards, 0)
 	// 총 카드 수 만큼 생성하면 된다.
-	for i := 0; i < count; i++ {
+	for i := 0; i < len(birdCards); i++ {
 		cards = append(cards, mysql.UserBirdCards{
 			RoomID: int(roomID),
-			CardID: i + 1,
+			CardID: int(birdCards[i].ID),
 			State:  "none",
 			UserID: 0,
 		})
