@@ -54,6 +54,8 @@ func WSHandleMessages() {
 			JoinPlayEventWebsocket(&msg)
 		case "MISSION":
 			MissionEventWebsocket(&msg)
+		case "RANDOM":
+			RandomEventWebsocket(&msg)
 		}
 	}
 }
