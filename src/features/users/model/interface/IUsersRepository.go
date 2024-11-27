@@ -3,6 +3,7 @@ package _interface
 import (
 	"context"
 	"main/features/users/model/entity"
+	"main/features/users/model/request"
 	"main/utils/db/mysql"
 )
 
@@ -34,4 +35,8 @@ type IFullCoinUsersRepository interface {
 
 type IOneCoinUsersRepository interface {
 	OneCoin(ctx context.Context) error
+}
+
+type IAlertUsersRepository interface {
+	FindOneAndUpdateUsers(ctx context.Context, userID uint, req *request.ReqAlertUsers) error
 }

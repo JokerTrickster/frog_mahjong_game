@@ -27,3 +27,7 @@ type IFullCoinUsersHandler interface {
 type IOneCoinUsersHandler interface {
 	OneCoin(c echo.Context) error
 }
+
+type IAlertUsersHandler interface {
+	Alert(c echo.Context) error
+}

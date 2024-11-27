@@ -18,14 +18,15 @@ type Tokens struct {
 
 type Users struct {
 	gorm.Model
-	Name      string `json:"name" gorm:"column:name"`
-	Email     string `json:"email" gorm:"uniqueIndex;column:email"`
-	Password  string `json:"password" gorm:"column:password"`
-	Coin      int    `json:"coin" gorm:"column:coin"`
-	State     string `json:"state" gorm:"column:state"` //logout, wait, play
-	RoomID    int    `json:"roomID" gorm:"column:room_id"`
-	Provider  string `json:"provider" gorm:"column:provider"`
-	ProfileID int    `json:"profileID" gorm:"column:profile_id"`
+	Name         string `json:"name" gorm:"column:name"`
+	Email        string `json:"email" gorm:"uniqueIndex;column:email"`
+	Password     string `json:"password" gorm:"column:password"`
+	Coin         int    `json:"coin" gorm:"column:coin"`
+	State        string `json:"state" gorm:"column:state"` //logout, wait, play
+	RoomID       int    `json:"roomID" gorm:"column:room_id"`
+	Provider     string `json:"provider" gorm:"column:provider"`
+	ProfileID    int    `json:"profileID" gorm:"column:profile_id"`
+	AlertEnabled bool   `json:"alertEnabled" gorm:"column:alert_enabled"`
 }
 
 type Rooms struct {

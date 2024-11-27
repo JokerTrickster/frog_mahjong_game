@@ -76,6 +76,7 @@ CREATE TABLE users (
     state VARCHAR(50),
     profile_id INT default 1,
 	room_id INT,
+    alert_enabled TINYINT(1) DEFAULT 1, 
     provider VARCHAR(50),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
