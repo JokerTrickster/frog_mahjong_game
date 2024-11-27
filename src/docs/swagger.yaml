@@ -138,6 +138,11 @@ definitions:
       roomID:
         type: integer
     type: object
+  request.ReqFCMToken:
+    properties:
+      fcmToken:
+        type: string
+    type: object
   request.ReqLoan:
     properties:
       loanCardID:
@@ -598,6 +603,47 @@ definitions:
 info:
   contact: {}
 paths:
+  /v0.1/auth/fcm-token:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqFCMToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Fcm 토큰 저장
+      tags:
+      - auth
   /v0.1/auth/google:
     get:
       description: |-

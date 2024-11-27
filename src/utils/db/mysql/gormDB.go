@@ -150,3 +150,9 @@ type UserBirdCards struct {
 	RoomID int    `json:"roomID" gorm:"column:room_id"`
 	State  string `json:"state" gorm:"column:state"`
 }
+
+type UserTokens struct {
+	gorm.Model
+	UserID uint   `json:"userID" gorm:"column:user_id"`
+	Token  string `json:"token" gorm:"column:token"`
+}

@@ -90,6 +90,15 @@ VALUES ('test3', 'test3@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
 INSERT INTO users (name, email, password, coin, state, profile_id, room_id, provider) 
 VALUES ('test4', 'test4@test.com', 'asd123', 100, 'logout', 1, 1, 'email');
 
+CREATE TABLE user_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    token VARCHAR(1000),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
 
 CREATE TABLE room_users (

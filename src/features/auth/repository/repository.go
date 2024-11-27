@@ -40,3 +40,7 @@ type V02GoogleOauthCallbackAuthRepository struct {
 type RequestSignupAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type FCMTokenAuthRepository struct {
+	GormDB *gorm.DB
+}

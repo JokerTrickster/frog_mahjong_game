@@ -64,3 +64,7 @@ type IV02GoogleOauthCallbackAuthRepository interface {
 	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
 	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
 }
+
+type IFCMTokenAuthRepository interface {
+	SaveFCMToken(ctx context.Context, userID uint, token string) error
+}
