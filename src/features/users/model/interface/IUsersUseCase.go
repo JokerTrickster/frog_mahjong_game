@@ -30,3 +30,7 @@ type IFullCoinUsersUseCase interface {
 type IOneCoinUsersUseCase interface {
 	OneCoin(c context.Context) error
 }
+
+type IAlertUsersUseCase interface {
+	Alert(c context.Context, userID uint, e *request.ReqAlertUsers) error
+}

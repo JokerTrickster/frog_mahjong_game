@@ -28,3 +28,7 @@ type FullCoinUsersRepository struct {
 type OneCoinUsersRepository struct {
 	GormDB *gorm.DB
 }
+
+type AlertUsersRepository struct {
+	GormDB *gorm.DB
+}
