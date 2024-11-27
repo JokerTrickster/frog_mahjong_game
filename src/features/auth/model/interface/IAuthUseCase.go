@@ -44,3 +44,7 @@ type IValidatePasswordAuthUseCase interface {
 type IV02GoogleOauthCallbackAuthUseCase interface {
 	V02GoogleOauthCallback(c context.Context, code string) (response.ResV02GoogleOauthCallback, error)
 }
+
+type IFCMTokenAuthUseCase interface {
+	FCMToken(c context.Context, userID uint, req *request.ReqFCMToken) error
+}

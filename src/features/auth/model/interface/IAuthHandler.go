@@ -37,3 +37,7 @@ type IValidatePasswordAuthHandler interface {
 type IV02GoogleOauthCallbackAuthHandler interface {
 	V02GoogleOauthCallback(c echo.Context) error
 }
+
+type IFCMTokenAuthHandler interface {
+	FCMToken(c echo.Context) error
+}
