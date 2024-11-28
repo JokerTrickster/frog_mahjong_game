@@ -31,6 +31,11 @@ func (d *ReissueAuthUseCase) Reissue(c context.Context, req *request.ReqReissue)
 	if err != nil {
 		return response.ResReissue{}, err
 	}
+	// 디비에 토큰 있는지 체크
+	err = d.Repository.CheckToken(ctx, uID, req.RefreshToken)
+	if err != nil {
+		return response.ResReissue{}, err
+	}
 
 	// 2. 기존 토큰 삭제
 	err = d.Repository.DeleteToken(ctx, uID)
