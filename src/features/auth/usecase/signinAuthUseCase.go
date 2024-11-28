@@ -27,6 +27,18 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqSignin) (r
 		return response.ResSignin{}, err
 	}
 
+	// 기존 토큰이 있는지 체크
+	prevTokens, err := d.Repository.CheckToken(ctx, user.ID)
+	if err != nil {
+		return response.ResSignin{}, err
+	}
+	res := response.ResSignin{
+		IsDuplicateLogin: false,
+	}
+	if prevTokens != nil {
+		res.IsDuplicateLogin = true
+	}
+
 	// token create
 	accessToken, _, refreshToken, refreshTknExpiredAt, err := utils.GenerateToken(user.Email, user.ID)
 	if err != nil {
@@ -45,11 +57,9 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqSignin) (r
 	}
 
 	//response create
-	res := response.ResSignin{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		UserID:       user.ID,
-	}
+	res.AccessToken = accessToken
+	res.RefreshToken = refreshToken
+	res.UserID = user.ID
 
 	return res, nil
 }

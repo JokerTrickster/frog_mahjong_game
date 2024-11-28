@@ -21,7 +21,7 @@ func (g *V02GoogleOauthCallbackAuthRepository) DeleteToken(ctx context.Context, 
 	}
 	result := g.GormDB.Model(&token).Where("user_id = ?", uID).Delete(&token)
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(),uID), utils.ErrFromInternal)
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(), uID), utils.ErrFromInternal)
 	}
 	return nil
 }
@@ -34,7 +34,7 @@ func (g *V02GoogleOauthCallbackAuthRepository) SaveToken(ctx context.Context, uI
 	}
 	result := g.GormDB.Model(&token).Create(&token)
 	if result.Error != nil {
-		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(),uID), utils.ErrFromInternal)
+		return utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(), uID), utils.ErrFromInternal)
 	}
 	return nil
 }
@@ -48,7 +48,7 @@ func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
 	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?  ", entity.Email).Updates(&user)
 	if result.Error != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error(),entity), utils.ErrFromClient)
+		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error(), entity), utils.ErrFromClient)
 	}
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -56,7 +56,7 @@ func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.
 	// 변경된 사용자 정보를 가져옵니다.
 	err := g.GormDB.WithContext(ctx).Where("email = ?", entity.Email).First(&user).Error
 	if err != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error(),entity), utils.ErrFromInternal)
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error(), entity), utils.ErrFromInternal)
 	}
 	return user, nil
 }
@@ -64,11 +64,10 @@ func (g *V02GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.
 func (g *V02GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error) {
 	result := g.GormDB.WithContext(ctx).Create(user)
 	if result.Error != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(),user), utils.ErrFromInternal)
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(), user), utils.ErrFromInternal)
 	}
 	return user, nil
 }
-
 
 func (g *V02GoogleOauthCallbackAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error) {
 	profiles := make([]*mysql.Profiles, 0)
@@ -88,4 +87,16 @@ func (g *V02GoogleOauthCallbackAuthRepository) InsertOneUserProfile(ctx context.
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), userProfileDTOList), utils.ErrFromMysqlDB)
 	}
 	return nil
+}
+
+func (d *V02GoogleOauthCallbackAuthRepository) CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error) {
+	token := &mysql.Tokens{}
+	err := d.GormDB.WithContext(ctx).Where("user_id = ?", uID).First(&token).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), uID), utils.ErrFromMysqlDB)
+	}
+	return token, nil
 }

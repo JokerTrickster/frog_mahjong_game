@@ -18,6 +18,7 @@ type ISigninAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error)
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
+	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
 }
 
 type ILogoutAuthRepository interface {
@@ -63,6 +64,7 @@ type IV02GoogleOauthCallbackAuthRepository interface {
 	CreateUser(ctx context.Context, user *mysql.Users) (*mysql.Users, error)
 	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
 	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
+	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
 }
 
 type IFCMTokenAuthRepository interface {

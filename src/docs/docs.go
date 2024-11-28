@@ -3255,6 +3255,9 @@ const docTemplate = `{
                 "accessToken": {
                     "type": "string"
                 },
+                "isDuplicateLogin": {
+                    "type": "boolean"
+                },
                 "refreshToken": {
                     "type": "string"
                 },
@@ -3279,6 +3282,9 @@ const docTemplate = `{
             "properties": {
                 "accessToken": {
                     "type": "string"
+                },
+                "isDuplicateLogin": {
+                    "type": "boolean"
                 },
                 "refreshToken": {
                     "type": "string"
