@@ -73,7 +73,7 @@ func (d *SigninAuthRepository) CheckToken(ctx context.Context, uID uint) (*mysql
 	}
 	err := d.GormDB.WithContext(ctx).Model(&token).Where("user_id = ?", uID).First(&token).Error
 	if err != nil {
-		if err != gorm.ErrRecordNotFound {
+		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error(), uID), utils.ErrFromInternal)
