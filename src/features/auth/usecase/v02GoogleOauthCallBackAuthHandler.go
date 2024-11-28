@@ -54,14 +54,26 @@ func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Con
 		// 기본 프로필 정보를 가져온다
 		profileIDList, err := d.Repository.FindAllBasicProfile(ctx)
 		if err != nil {
-			return response.ResV02GoogleOauthCallback{},err
+			return response.ResV02GoogleOauthCallback{}, err
 		}
 		userProfileDTOList := CreateUserProfileDTOList(user.ID, profileIDList)
 		// 유저 프로필 정보 insert
 		err = d.Repository.InsertOneUserProfile(ctx, userProfileDTOList)
 		if err != nil {
-			return response.ResV02GoogleOauthCallback{},err
+			return response.ResV02GoogleOauthCallback{}, err
 		}
+	}
+
+	// 기존 토큰이 있는지 체크
+	prevTokens, err := d.Repository.CheckToken(ctx, user.ID)
+	if err != nil {
+		return response.ResV02GoogleOauthCallback{}, err
+	}
+	res := response.ResV02GoogleOauthCallback{
+		IsDuplicateLogin: false,
+	}
+	if prevTokens != nil {
+		res.IsDuplicateLogin = true
 	}
 
 	//토큰 생성
@@ -83,11 +95,9 @@ func (d *V02GoogleOauthCallbackAuthUseCase) V02GoogleOauthCallback(c context.Con
 	}
 
 	//response create
-	res := response.ResV02GoogleOauthCallback{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		UserID:       user.ID,
-	}
+	res.AccessToken = accessToken
+	res.RefreshToken = refreshToken
+	res.UserID = user.ID
 
 	return res, nil
 }

@@ -554,6 +554,8 @@ definitions:
     properties:
       accessToken:
         type: string
+      isDuplicateLogin:
+        type: boolean
       refreshToken:
         type: string
       userID:
@@ -586,6 +588,8 @@ definitions:
     properties:
       accessToken:
         type: string
+      isDuplicateLogin:
+        type: boolean
       refreshToken:
         type: string
       userID:

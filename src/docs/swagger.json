@@ -3244,6 +3244,9 @@
                 "accessToken": {
                     "type": "string"
                 },
+                "isDuplicateLogin": {
+                    "type": "boolean"
+                },
                 "refreshToken": {
                     "type": "string"
                 },
@@ -3268,6 +3271,9 @@
             "properties": {
                 "accessToken": {
                     "type": "string"
+                },
+                "isDuplicateLogin": {
+                    "type": "boolean"
                 },
                 "refreshToken": {
                     "type": "string"
