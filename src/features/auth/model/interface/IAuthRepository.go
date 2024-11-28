@@ -29,6 +29,7 @@ type ILogoutAuthRepository interface {
 type IReissueAuthRepository interface {
 	SaveToken(ctx context.Context, token mysql.Tokens) error
 	DeleteToken(ctx context.Context, uID uint) error
+	CheckToken(ctx context.Context, uID uint, refreshToken string) error
 }
 
 type IGoogleOauthAuthRepository interface {
