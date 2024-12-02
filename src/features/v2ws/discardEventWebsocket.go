@@ -33,6 +33,17 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 비즈니스 로직
+	// 보유 카드수가 4장인지 체크
+	cardCount, err := repository.DiscardCardsOwnerCardCount(ctx, roomID, uID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if cardCount != 4 {
+		fmt.Println("보유 카드수가 4장이 아닙니다.")
+		return
+	}
+
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {

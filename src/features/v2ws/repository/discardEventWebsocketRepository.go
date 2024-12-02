@@ -47,3 +47,12 @@ func DiscardCardsUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, entity 
 	}
 	return nil
 }
+
+func DiscardCardsOwnerCardCount(c context.Context, roomID uint, userID uint) (int, error) {
+	var roomUsers mysql.RoomUsers
+	err := mysql.GormMysqlDB.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", roomID, userID).Find(&roomUsers).Error
+	if err != nil {
+		return 0, fmt.Errorf("카드 카운트 조회 실패 %v", err.Error())
+	}
+	return roomUsers.OwnedCardCount, nil
+}
