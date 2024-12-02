@@ -18,9 +18,20 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 
 	// 비즈니스 로직
+	//해당 방이 대기상태인지 체크한다.
+	roomState, err := repository.StartCheckRoomState(ctx, roomID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if roomState != "wait" {
+		fmt.Println("게임이 시작되었습니다.")
+		return
+	}
+
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방장이 게임 시작 요청했는지 체크
 		ownerID, err := repository.StartCheckOwner(ctx, tx, uID, roomID)
 		if err != nil {

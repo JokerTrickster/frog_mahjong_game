@@ -176,3 +176,12 @@ func StartBirdCard(ctx context.Context, tx *gorm.DB) ([]*mysql.BirdCards, error)
 	fmt.Println(len(birdCards))
 	return birdCards, nil
 }
+
+func StartCheckRoomState(ctx context.Context, roomID uint) (string, error) {
+	room := mysql.Rooms{}
+	err := mysql.GormMysqlDB.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
+	if err != nil {
+		return "", fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
+	}
+	return room.State, nil
+}
