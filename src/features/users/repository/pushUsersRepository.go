@@ -23,7 +23,7 @@ func (d *PushUsersRepository) FindUsersForNotifications(c context.Context) ([]my
 
 func (d *PushUsersRepository) FindOnePushToken(c context.Context, userID uint) (string, error) {
 	var userTokens mysql.UserTokens
-	err := d.GormDB.First(&userTokens, userID).Error
+	err := d.GormDB.Find(&userTokens).Where("user_id = ?", userID).Error
 	if err != nil {
 		return "", err
 	}
