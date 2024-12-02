@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	_interface "main/features/users/model/interface"
 	"main/features/users/model/request"
@@ -53,6 +54,8 @@ func (d *PushUsersHandler) Push(c echo.Context) error {
 	}
 	err := d.UseCase.Push(ctx, req)
 	if err != nil {
+		fmt.Println(err)
+		fmt.Println("여기 들어ㅏ오나?")
 		return err
 	}
 
