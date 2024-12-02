@@ -35,6 +35,10 @@ func InitServer() error {
 		fmt.Sprintf("db 초기화 에러 : %s", err.Error())
 		return err
 	}
+	if err := InitNotice(); err != nil {
+		fmt.Sprintf("notice 초기화 에러 : %s", err.Error())
+		return err
+	}
 	if !Env.IsLocal {
 		if err := InitLogging(); err != nil {
 			return err

@@ -17,4 +17,5 @@ func NewUsersHandler(c *echo.Echo) {
 	NewFullCoinUsersHandler(c, usecase.NewFullCoinUsersUseCase(repository.NewFullCoinUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewOneCoinUsersHandler(c, usecase.NewOneCoinUsersUseCase(repository.NewOneCoinUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewAlertUsersHandler(c, usecase.NewAlertUsersUseCase(repository.NewAlertUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewPushUsersHandler(c, usecase.NewPushUsersUseCase(repository.NewPushUsersRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

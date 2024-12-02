@@ -31,3 +31,7 @@ type IOneCoinUsersHandler interface {
 type IAlertUsersHandler interface {
 	Alert(c echo.Context) error
 }
+
+type IPushUsersHandler interface {
+	Push(c echo.Context) error
+}
