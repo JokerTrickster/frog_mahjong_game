@@ -34,3 +34,7 @@ type IOneCoinUsersUseCase interface {
 type IAlertUsersUseCase interface {
 	Alert(c context.Context, userID uint, e *request.ReqAlertUsers) error
 }
+
+type IPushUsersUseCase interface {
+	Push(c context.Context, req *request.ReqPushUsers) error
+}

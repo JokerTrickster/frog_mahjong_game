@@ -32,3 +32,7 @@ type OneCoinUsersRepository struct {
 type AlertUsersRepository struct {
 	GormDB *gorm.DB
 }
+
+type PushUsersRepository struct {
+	GormDB *gorm.DB
+}

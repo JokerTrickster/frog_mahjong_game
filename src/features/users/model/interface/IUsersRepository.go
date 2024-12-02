@@ -40,3 +40,8 @@ type IOneCoinUsersRepository interface {
 type IAlertUsersRepository interface {
 	FindOneAndUpdateUsers(ctx context.Context, userID uint, req *request.ReqAlertUsers) error
 }
+
+type IPushUsersRepository interface {
+	FindUsersForNotifications(ctx context.Context) ([]mysql.Users, error)
+	FindOnePushToken(ctx context.Context, userID uint) (string, error)
+}

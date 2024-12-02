@@ -38,6 +38,7 @@ const (
 	ErrFromAwsS3    = IErrFrom("aws_s3")
 	ErrFromAwsSsm   = IErrFrom("aws_ssm")
 	ErrFromNaver    = IErrFrom("naver")
+	ErrFromFirebase = IErrFrom("firebase")
 )
 
 // basic error

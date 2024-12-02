@@ -175,6 +175,15 @@ definitions:
           $ref: '#/definitions/request.Card'
         type: array
     type: object
+  request.ReqPushUsers:
+    properties:
+      message:
+        type: string
+      role:
+        type: string
+      title:
+        type: string
+    type: object
   request.ReqReady:
     properties:
       playerState:
@@ -2260,6 +2269,44 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 유저 프로필 리스트 가져오기
+      tags:
+      - user
+  /v0.1/users/push:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저가 존재하지 않음
+        ■ errCode with 401
+        INVALID_AUTH_CODE : 인증 코드 검증 실패
+        TOKEN_BAD : 잘못된 토큰
+        INVALID_ACCESS_TOKEN : 잘못된 액세스 토큰
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: 메시지 내용
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqPushUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 전체 유저 메시지 전송하기
       tags:
       - user
   /v0.2/auth/google/callback:
