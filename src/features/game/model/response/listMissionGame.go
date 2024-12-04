@@ -5,6 +5,8 @@ type ResListMissionGame struct {
 }
 
 type Mission struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
 }

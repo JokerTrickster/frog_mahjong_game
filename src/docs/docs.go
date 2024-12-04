@@ -3156,8 +3156,14 @@ const docTemplate = `{
         "response.Mission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "image": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

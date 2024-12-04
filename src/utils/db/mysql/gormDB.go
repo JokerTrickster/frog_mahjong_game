@@ -111,6 +111,7 @@ type Missions struct {
 	gorm.Model
 	Name        string `json:"name" gorm:"column:name"`
 	Description string `json:"description" gorm:"column:description"`
+	Image       string `json:"image" gorm:"column:image"`
 }
 
 type RoomMissions struct {

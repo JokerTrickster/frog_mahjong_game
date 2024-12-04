@@ -25,6 +25,7 @@ const (
 	ImgTypeProfile  = ImgType(0)
 	ImgTypeCard     = ImgType(1)
 	ImgTypeBirdCard = ImgType(2)
+	ImgTypeMission  = ImgType(3)
 )
 
 type imgMetaStruct struct {

@@ -454,11 +454,19 @@ func CreateRandomCardIDList() response.ResDeckCardGame {
 func CreateResListMission(missionList []*mysql.Missions) response.ResListMissionGame {
 	res := response.ResListMissionGame{}
 	for _, mission := range missionList {
-		mission := response.Mission{
-			ID:    int(mission.ID),
-			Title: mission.Name,
+		m := response.Mission{
+			ID:          int(mission.ID),
+			Title:       mission.Name,
+			Description: mission.Description,
 		}
-		res.Missions = append(res.Missions, mission)
+		if mission.Image != "" {
+			imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), mission.Image, _aws.ImgTypeMission)
+			if err != nil {
+				return response.ResListMissionGame{}
+			}
+			m.Image = imageUrl
+		}
+		res.Missions = append(res.Missions, m)
 	}
 	return res
 }
