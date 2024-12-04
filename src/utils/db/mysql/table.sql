@@ -16,7 +16,8 @@ create table missions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL, 
     name VARCHAR(255),
-    description VARCHAR(255)
+    description VARCHAR(255),
+    image VARCHAR(500)
 );
 
 INSERT INTO missions (name, description) VALUES ('새 크기가 60cm 이상', '새 크기가 60cm 이상인 새를 완성해주세요');
