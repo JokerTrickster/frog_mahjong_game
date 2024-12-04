@@ -71,3 +71,8 @@ type IV02GoogleOauthCallbackAuthRepository interface {
 type IFCMTokenAuthRepository interface {
 	SaveFCMToken(ctx context.Context, userID uint, token string) error
 }
+
+type ICheckSigninAuthRepository interface {
+	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.Users, error)
+	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
+}

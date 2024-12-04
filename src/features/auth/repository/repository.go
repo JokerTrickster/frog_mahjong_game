@@ -44,3 +44,7 @@ type RequestSignupAuthRepository struct {
 type FCMTokenAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type CheckSigninAuthRepository struct {
+	GormDB *gorm.DB
+}

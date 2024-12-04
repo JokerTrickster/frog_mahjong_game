@@ -48,3 +48,7 @@ type IV02GoogleOauthCallbackAuthUseCase interface {
 type IFCMTokenAuthUseCase interface {
 	FCMToken(c context.Context, userID uint, req *request.ReqFCMToken) error
 }
+
+type ICheckSigninAuthUseCase interface {
+	CheckSignin(c context.Context, req *request.ReqCheckSignin) (bool, error)
+}
