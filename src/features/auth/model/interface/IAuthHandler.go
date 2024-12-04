@@ -41,3 +41,7 @@ type IV02GoogleOauthCallbackAuthHandler interface {
 type IFCMTokenAuthHandler interface {
 	FCMToken(c echo.Context) error
 }
+
+type ICheckSigninAuthHandler interface {
+	CheckSignin(c echo.Context) error
+}
