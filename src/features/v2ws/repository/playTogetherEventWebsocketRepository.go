@@ -12,6 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
+func PlayTogetherFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
+	}
+	return roomUsers, nil
+}
 func PlayTogetherFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
 	roomUser := mysql.RoomUsers{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
@@ -67,14 +74,6 @@ func PlayTogetherInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO
 		return fmt.Errorf("방 유저 정보 생성 실패: %v", result.Error)
 	}
 	return nil
-}
-
-func PlayTogetherFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
-	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
-	}
-	return roomUsers, nil
 }
 
 func PlayTogetherFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
@@ -146,5 +145,34 @@ func PlayTogetherDeleteRoomUsers(ctx context.Context, uID uint) error {
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete room users: %v", result.Error)
 	}
+	return nil
+}
+
+func PlayTogetherCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
+	// 랜덤으로 미션 ID 3개를 가져온다.
+	var missionIDs []int
+	err := tx.WithContext(ctx).
+		Model(&mysql.Missions{}).
+		Order("RAND()").
+		Limit(3).
+		Pluck("id", &missionIDs).Error
+	if err != nil {
+		return fmt.Errorf("미션 조회 실패: %v", err.Error())
+	}
+
+	// 미션 정보를 생성한다.
+	roomMissions := make([]mysql.RoomMissions, 0)
+	for _, missionID := range missionIDs {
+		roomMission := mysql.RoomMissions{
+			RoomID:    int(roomID),
+			MissionID: missionID,
+		}
+		roomMissions = append(roomMissions, roomMission)
+	}
+	err = tx.WithContext(ctx).Create(&roomMissions).Error
+	if err != nil {
+		return fmt.Errorf("미션 생성 실패: %v", err.Error())
+	}
+
 	return nil
 }
