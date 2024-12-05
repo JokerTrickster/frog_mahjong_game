@@ -44,7 +44,11 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-
+		// 미션 3개를 생성한다.
+		err = repository.PlayTogetherCreateMissions(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
 		preloadUsers, err = repository.PlayTogetherFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			return err
@@ -67,7 +71,7 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo,0)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	if len(preloadUsers) == req.Count {

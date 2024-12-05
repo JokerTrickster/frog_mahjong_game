@@ -85,11 +85,6 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		// 미션을 랜덤으로 3개 생성한다.
-		err = repository.StartCreateMissions(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
 
 		preloadUsers, err = repository.StartFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {

@@ -38,7 +38,18 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-
+		//해당 방에 미션이 존재하는지 체크한다.
+		roomMission, err := repository.MatchFindOneRoomMission(ctx, tx, roomID)
+		if err != nil {
+			return err
+		}
+		if len(roomMission) == 0 {
+			// 미션을 랜덤으로 3개 생성한다.
+			err = repository.MatchCreateMissions(ctx, tx, roomID)
+			if err != nil {
+				return err
+			}
+		}
 		preloadUsers, err = repository.MatchFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			return err
@@ -61,7 +72,7 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo,0)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	if len(preloadUsers) == req.Count {

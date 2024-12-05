@@ -12,6 +12,14 @@ import (
 	"gorm.io/gorm"
 )
 
+func MatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
+	}
+
+	return roomUsers, nil
+}
 func MatchFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
 	roomUser := mysql.RoomUsers{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
@@ -67,14 +75,6 @@ func MatchInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.
 		return fmt.Errorf("방 유저 정보 생성 실패: %v", result.Error)
 	}
 	return nil
-}
-
-func MatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
-	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
-	}
-	return roomUsers, nil
 }
 
 func MatchFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
@@ -134,4 +134,43 @@ func MatchDeleteRoomUsers(ctx context.Context, uID uint) error {
 		return fmt.Errorf("failed to delete room users: %v", result.Error)
 	}
 	return nil
+}
+
+// 미션을 랜덤으로 3개 생성한다.
+func MatchCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
+	// 랜덤으로 미션 ID 3개를 가져온다.
+	var missionIDs []int
+	err := tx.WithContext(ctx).
+		Model(&mysql.Missions{}).
+		Order("RAND()").
+		Limit(3).
+		Pluck("id", &missionIDs).Error
+	if err != nil {
+		return fmt.Errorf("미션 조회 실패: %v", err.Error())
+	}
+
+	// 미션 정보를 생성한다.
+	roomMissions := make([]mysql.RoomMissions, 0)
+	for _, missionID := range missionIDs {
+		roomMission := mysql.RoomMissions{
+			RoomID:    int(roomID),
+			MissionID: missionID,
+		}
+		roomMissions = append(roomMissions, roomMission)
+	}
+	err = tx.WithContext(ctx).Create(&roomMissions).Error
+	if err != nil {
+		return fmt.Errorf("미션 생성 실패: %v", err.Error())
+	}
+
+	return nil
+}
+
+func MatchFindOneRoomMission(ctx context.Context, tx *gorm.DB, roomID uint) ([]mysql.RoomMissions, error) {
+	var roomMissions []mysql.RoomMissions
+	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Find(&roomMissions).Error
+	if err != nil {
+		return nil, fmt.Errorf("방 미션 조회 실패: %v", err.Error())
+	}
+	return roomMissions, nil
 }
