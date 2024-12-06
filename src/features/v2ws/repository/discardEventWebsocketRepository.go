@@ -7,6 +7,7 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func DiscardCardsFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
@@ -22,7 +23,7 @@ func DiscardCardsFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint)
 }
 
 func DiscardCardUpdateAllCardState(c context.Context, tx *gorm.DB, roomID uint) error {
-	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "discard").Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "discard").Error
 	if err != nil {
 		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
 	}
@@ -32,7 +33,7 @@ func DiscardCardUpdateAllCardState(c context.Context, tx *gorm.DB, roomID uint) 
 func DiscardCardsUpdateCardState(c context.Context, tx *gorm.DB, entity *entity.WSDiscardCardsEntity) error {
 	// 카드 상태 업데이트
 	// room_id, card_id, state로 찾고 카드 업데이트할 때 트랜잭션 처리해줘
-	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ? and card_id = ? and state = ?", entity.RoomID, entity.CardID, "owned").Updates(&mysql.Cards{State: "picked", UserID: int(entity.UserID)}).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.UserBirdCards{}).Where("room_id = ? and card_id = ? and state = ?", entity.RoomID, entity.CardID, "owned").Updates(&mysql.Cards{State: "picked", UserID: int(entity.UserID)}).Error
 	if err != nil {
 		return fmt.Errorf("카드 버리기 상태 업데이트 실패 %v", err.Error())
 	}
@@ -41,7 +42,7 @@ func DiscardCardsUpdateCardState(c context.Context, tx *gorm.DB, entity *entity.
 
 func DiscardCardsUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, entity *entity.WSDiscardCardsEntity) error {
 	// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count - 1")).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count - 1")).Error
 	if err != nil {
 		return fmt.Errorf("방 유저 카드 카운트 업데이트 실패 %v", err.Error())
 	}

@@ -340,3 +340,5 @@ func CreateUserBirdCardDTO(importSingleCard entity.WSImportSingleCardEntity) *my
 	}
 	return &userBirdCardDTO
 }
+
+

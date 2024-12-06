@@ -47,14 +47,14 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		return
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 카드 상태 없데이트
+		// user_bird_cards 테이블에 카드 상태 없데이트
 		userBirdCardDTO := CreateUserBirdCardDTO(importSingleCardEntity)
 		err := repository.ImportSingleCardCreateCard(ctx, tx, userBirdCardDTO)
 		if err != nil {
 			return err
 		}
 		// 소유 카드 수 업데이트
-		// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
+		// 유저id로 room_users 테이블에서 찾아서 card_count를 더한 후 업데이트 한다.
 		err = repository.ImportSingleCardUpdateRoomUserCardCount(ctx, tx, &importSingleCardEntity)
 		if err != nil {
 			return err
@@ -73,6 +73,8 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
+		ErrorHandling(roomID, uID, &roomInfoMsg)
+		return
 	}
 
 	//유저 상태를 변경한다. (방에 참여)
@@ -81,59 +83,54 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
 
 		if roomInfoMsg.GameInfo.AllPicked == true {
-			// 카드 상태 picked -> owned 로 변경한다.
-			// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
-			err = repository.ImportSingleCardUpdateAllCardState(ctx, roomID)
-			if err != nil {
-				fmt.Println(err)
-			}
-			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-			err := repository.ImportSingleCardUpdateOpenCards(ctx, roomID)
-			if err != nil {
-				fmt.Println(err)
-			}
+			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+				// 카드 상태 picked -> owned 로 변경한다.
+				// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
+				err = repository.ImportSingleCardUpdateAllCardState(ctx, tx, roomID)
+				if err != nil {
+					return err
+				}
+				// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
+				err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
+				if err != nil {
+					return err
+				}
 
-			// 오픈 카드 정보를 가져온다.
-			openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
+				// 오픈 카드 정보를 가져온다.
+				openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
+				if err != nil {
+					return err
+				}
+				roomInfoMsg.GameInfo.OpenCards = openCards
+				return nil
+			})
 			if err != nil {
-				fmt.Println(err)
+				roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+					Code: 500,
+					Msg:  err.Error(),
+					Type: _errors.ErrInternalServer,
+				}
+				ErrorHandling(roomID, uID, &roomInfoMsg)
+				return
 			}
-			roomInfoMsg.GameInfo.OpenCards = openCards
 		}
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
 
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
+		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+
+		for client := range clients {
+			filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+
+			// 구조체를 JSON 문자열로 변환 (마샬링)
+			message, err := CreateMessage(&filterRoomInfoMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
+			msg.Message = message
+			err = client.WriteJSON(msg)
+			if err != nil {
+				fmt.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
 			}
 		}
 	}

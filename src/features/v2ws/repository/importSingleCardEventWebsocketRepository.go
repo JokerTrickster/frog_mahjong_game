@@ -7,6 +7,7 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func ImportSingleCardFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
@@ -20,8 +21,8 @@ func ImportSingleCardFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID u
 	}
 	return roomUsers, nil
 }
-func ImportSingleCardUpdateAllCardState(c context.Context, roomID uint) error {
-	err := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "owned").Error
+func ImportSingleCardUpdateAllCardState(c context.Context, tx *gorm.DB, roomID uint) error {
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "owned").Error
 	if err != nil {
 		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
 	}
@@ -31,7 +32,7 @@ func ImportSingleCardUpdateAllCardState(c context.Context, roomID uint) error {
 // 카드정보가 존재하면 상태를 업데이트하고 없으면 카드를 생성한다.
 func ImportSingleCardCreateCard(c context.Context, tx *gorm.DB, userBirdCardDTO *mysql.UserBirdCards) error {
 	// 카드 정보가 존재하는지 확인
-	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ? and card_id = ?", userBirdCardDTO.RoomID, userBirdCardDTO.CardID).Updates(userBirdCardDTO).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.UserBirdCards{}).Where("room_id = ? and card_id = ?", userBirdCardDTO.RoomID, userBirdCardDTO.CardID).Updates(userBirdCardDTO).Error
 	if err != nil {
 		return fmt.Errorf("카드 조회 및 업데이트 실패 %v", err.Error())
 	}
@@ -41,7 +42,7 @@ func ImportSingleCardCreateCard(c context.Context, tx *gorm.DB, userBirdCardDTO 
 
 func ImportSingleCardUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, entity *entity.WSImportSingleCardEntity) error {
 	// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count + 1")).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.RoomUsers{}).Where("room_id = ? AND user_id = ?", entity.RoomID, entity.UserID).Update("owned_card_count", gorm.Expr("owned_card_count + 1")).Error
 	if err != nil {
 		return fmt.Errorf("방 유저 카드 카운트 업데이트 실패 %v", err.Error())
 	}
@@ -50,14 +51,14 @@ func ImportSingleCardUpdateRoomUserCardCount(c context.Context, tx *gorm.DB, ent
 
 func ImportSingleCardFindAllCard(c context.Context, tx *gorm.DB, roomID uint, userID uint) ([]*mysql.Cards, error) {
 	cards := make([]*mysql.Cards, 0)
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and user_id = ?", roomID, userID).Find(&cards).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.Cards{}).Where("room_id = ? and user_id = ?", roomID, userID).Find(&cards).Error
 	if err != nil {
 		return nil, fmt.Errorf("카드를 찾을 수 없습니다. %v", err.Error())
 	}
 	return cards, nil
 }
 
-func ImportSingleCardUpdateOpenCards(ctx context.Context, roomID uint) error {
+func ImportSingleCardUpdateOpenCards(ctx context.Context, tx *gorm.DB, roomID uint) error {
 	// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
 	// 현재 오픈 카드가 몇개 있는지 카운트 한다.
 	var count int64
