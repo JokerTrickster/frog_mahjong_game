@@ -90,3 +90,28 @@ func HandlePingPong(wsClient *entity.WSClient) {
 
 	}
 }
+
+func ErrorHandling(roomID uint, userID uint, err *entity.RoomInfo) {
+
+	msg := entity.WSMessage{
+		RoomID: roomID,
+		UserID: userID,
+	}
+	// 에러 처리
+	if clients, ok := entity.WSClients[roomID]; ok {
+		for client := range clients {
+			//이벤트 요청한 유저에게 에러 메시지 전송
+			if clients[client].UserID == userID {
+				message, err := CreateMessage(err)
+				if err != nil {
+					fmt.Println(err)
+				}
+				msg.Message = message
+				err = client.WriteJSON(msg)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}
+}

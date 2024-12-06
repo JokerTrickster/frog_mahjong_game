@@ -71,6 +71,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
+		ErrorHandling(roomID, uID, &roomInfoMsg)
 	}
 
 	//유저 상태를 변경한다. (방에 참여)
@@ -99,44 +100,26 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
+				ErrorHandling(roomID, uID, &roomInfoMsg)
 			}
 			roomInfoMsg = *DiscardCreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
 			roomInfoMsg.GameInfo.AllPicked = true
 		}
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
 
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
+		for client := range clients {
+			filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+
+			// 구조체를 JSON 문자열로 변환 (마샬링)
+			message, err := CreateMessage(&filterRoomInfoMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
+			msg.Message = message
+			err = client.WriteJSON(msg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
 			}
 		}
 	}

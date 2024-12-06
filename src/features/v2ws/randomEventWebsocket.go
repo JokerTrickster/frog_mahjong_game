@@ -70,12 +70,12 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		if roomInfoMsg.GameInfo.AllPicked == true {
 			// 카드 상태 picked -> owned 로 변경한다.
 			// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
-			err = repository.ImportSingleCardUpdateAllCardState(ctx, roomID)
+			err = repository.RandomUpdateAllCardState(ctx, roomID)
 			if err != nil {
 				fmt.Println(err)
 			}
 			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-			err := repository.ImportSingleCardUpdateOpenCards(ctx, roomID)
+			err := repository.RandomUpdateOpenCards(ctx, roomID)
 			if err != nil {
 				fmt.Println(err)
 			}

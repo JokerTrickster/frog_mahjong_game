@@ -116,3 +116,11 @@ func RandomUpdateOpenCards(ctx context.Context, roomID uint) error {
 
 	return nil
 }
+
+func RandomUpdateAllCardState(c context.Context, roomID uint) error {
+	err := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "picked").Update("state", "owned").Error
+	if err != nil {
+		return fmt.Errorf("카드 상태 업데이트 실패 %v", err.Error())
+	}
+	return nil
+}
