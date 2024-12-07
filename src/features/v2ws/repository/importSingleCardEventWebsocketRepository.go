@@ -62,7 +62,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, tx *gorm.DB, roomID ui
 	// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
 	// 현재 오픈 카드가 몇개 있는지 카운트 한다.
 	var count int64
-	err := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "opened").Count(&count).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "opened").Count(&count).Error
 	if err != nil {
 		return fmt.Errorf("오픈 카드 카운트 실패 %v", err.Error())
 	}
@@ -71,7 +71,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, tx *gorm.DB, roomID ui
 
 		// 상태가 'none'인 카드 중에서 랜덤으로 openCardCount 수만큼 카드 ID를 가져온다.
 		var cardIDs []int
-		err = mysql.GormMysqlDB.WithContext(ctx).
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).WithContext(ctx).
 			Model(&mysql.UserBirdCards{}).
 			Where("room_id = ? AND state = ?", roomID, "none").
 			Order("RAND()").
@@ -83,7 +83,7 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, tx *gorm.DB, roomID ui
 
 		// 선택된 카드들의 상태를 opened로 변경한다.
 		if len(cardIDs) > 0 {
-			err = mysql.GormMysqlDB.WithContext(ctx).
+			err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).WithContext(ctx).
 				Model(&mysql.UserBirdCards{}).
 				Where("room_id = ? AND card_id IN ?", roomID, cardIDs).
 				Update("state", "opened").Error
