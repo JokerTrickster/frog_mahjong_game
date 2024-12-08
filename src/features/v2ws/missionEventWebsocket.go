@@ -38,22 +38,23 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	// 미션 정보 생성한다.
-	for _, missionID := range req.MissionIDs {
-		missionEntity.MissionID = missionID
 
-		userMissionDTO := CreateUserMissionDTO(missionEntity)
-		userMissionID, err := repository.MissionCreateUserMission(ctx, userMissionDTO)
-		if err != nil {
-			fmt.Println(err)
-		}
-		userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
-		err = repository.MissionCreateUserMissionCard(ctx, userMissionCardDTO)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+		// 미션 정보 생성한다.
+		for _, missionID := range req.MissionIDs {
+			missionEntity.MissionID = missionID
+
+			userMissionDTO := CreateUserMissionDTO(missionEntity)
+			userMissionID, err := repository.MissionCreateUserMission(ctx,tx, userMissionDTO)
+			if err != nil {
+				fmt.Println(err)
+			}
+			userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
+			err = repository.MissionCreateUserMissionCard(ctx,tx, userMissionCardDTO)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 		// 카드 정보 체크 (소유하고 있는지 체크)
 		err := repository.MissionFindAllCards(ctx, tx, &missionEntity)
 		if err != nil {
