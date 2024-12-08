@@ -68,17 +68,21 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 1)
 
 		if roomInfoMsg.GameInfo.AllPicked == true {
-			// 카드 상태 picked -> owned 로 변경한다.
-			// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
-			err = repository.RandomUpdateAllCardState(ctx, roomID)
-			if err != nil {
-				fmt.Println(err)
-			}
-			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-			err := repository.RandomUpdateOpenCards(ctx, roomID)
-			if err != nil {
-				fmt.Println(err)
-			}
+			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+
+				// 카드 상태 picked -> owned 로 변경한다.
+				// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
+				err = repository.RandomUpdateAllCardState(ctx, tx, roomID)
+				if err != nil {
+					fmt.Println(err)
+				}
+				// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
+				err := repository.RandomUpdateOpenCards(ctx, tx, roomID)
+				if err != nil {
+					fmt.Println(err)
+				}
+				return nil
+			})
 
 			// 오픈 카드 정보를 가져온다.
 			openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
@@ -87,40 +91,21 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 			}
 			roomInfoMsg.GameInfo.OpenCards = openCards
 		}
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
 
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
+		for client := range clients {
+			filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+
+			// 구조체를 JSON 문자열로 변환 (마샬링)
+			message, err := CreateMessage(&filterRoomInfoMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
+			msg.Message = message
+			err = client.WriteJSON(msg)
+			if err != nil {
+				fmt.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
 			}
 		}
 	}
