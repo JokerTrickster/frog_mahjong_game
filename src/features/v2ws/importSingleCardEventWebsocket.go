@@ -95,13 +95,6 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 				if err != nil {
 					return err
 				}
-
-				// 오픈 카드 정보를 가져온다.
-				openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
-				if err != nil {
-					return err
-				}
-				roomInfoMsg.GameInfo.OpenCards = openCards
 				return nil
 			})
 			if err != nil {
@@ -114,7 +107,13 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 				return
 			}
 		}
-
+		// 오픈 카드 정보를 가져온다.
+		openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		roomInfoMsg.GameInfo.OpenCards = openCards
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 
 		for client := range clients {
