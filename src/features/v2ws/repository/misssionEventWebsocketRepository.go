@@ -7,6 +7,7 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func MissionFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
@@ -35,16 +36,16 @@ func MissionFindAllCards(c context.Context, tx *gorm.DB, missionEntity *entity.V
 	return nil
 }
 
-func MissionCreateUserMission(ctx context.Context, userMissionDTO *mysql.UserMissions) (uint, error) {
-	err := mysql.GormMysqlDB.Create(userMissionDTO).Error
+func MissionCreateUserMission(ctx context.Context, tx *gorm.DB, userMissionDTO *mysql.UserMissions) (uint, error) {
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Create(userMissionDTO).Error
 	if err != nil {
 		return 0, fmt.Errorf("유저 미션 생성 실패 %v", err.Error())
 	}
 	return userMissionDTO.ID, nil
 }
 
-func MissionCreateUserMissionCard(ctx context.Context, userMissionCardDTO *[]mysql.UserMissionCards) error {
-	err := mysql.GormMysqlDB.Create(userMissionCardDTO).Error
+func MissionCreateUserMissionCard(ctx context.Context, tx *gorm.DB, userMissionCardDTO *[]mysql.UserMissionCards) error {
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Create(userMissionCardDTO).Error
 	if err != nil {
 		return fmt.Errorf("유저 미션 카드 생성 실패 %v", err.Error())
 	}
