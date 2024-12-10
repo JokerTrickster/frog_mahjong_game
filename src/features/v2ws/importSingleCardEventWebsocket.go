@@ -82,7 +82,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		// 메시지 생성
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
 
-		if roomInfoMsg.GameInfo.AllPicked == true {
+		if roomInfoMsg.GameInfo.AllPicked {
 			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 				// 카드 상태 picked -> owned 로 변경한다.
 				// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
@@ -90,11 +90,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 				if err != nil {
 					return err
 				}
-				// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-				err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
-				if err != nil {
-					return err
-				}
+
 				return nil
 			})
 			if err != nil {
@@ -107,6 +103,15 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 				return
 			}
 		}
+		err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
+			err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+			return nil
+		})
 		// 오픈 카드 정보를 가져온다.
 		openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
 		if err != nil {
