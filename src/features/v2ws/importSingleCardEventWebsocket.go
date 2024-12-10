@@ -37,15 +37,24 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
 	// 카드수가 4장 미만인지 체크
-	cardCount, err := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
+	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
 	if err != nil {
-		fmt.Println(err)
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(roomID, uID, &roomInfoMsg)
 		return
 	}
 	if cardCount > 3 {
 		// 해당 이벤트를 처리하지 않는다.
 		return
 	}
+	// 카드가 이미 선택되었는지 체크
+	newErr = repository.ImportSingleCardFindOneCard(ctx, roomID, importSingleCardEntity.CardID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(roomID, uID, &roomInfoMsg)
+		return
+	}
+
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// user_bird_cards 테이블에 카드 상태 없데이트
 		userBirdCardDTO := CreateUserBirdCardDTO(importSingleCardEntity)

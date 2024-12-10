@@ -32,13 +32,16 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		UserID: uID,
 		Count:  req.Count,
 	}
-
+	
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// none 카드 중 count만큼 랜덤으로 owned로 변경한다.
 		err := repository.RandomUpdateRandomCards(ctx, tx, &RandomEntity)
+		if err != nil {
+			return err
+		}
 
 		// 소유 카드 수 업데이트
 		// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.

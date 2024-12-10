@@ -6,6 +6,8 @@ import (
 	"main/features/v2ws/model/entity"
 	"main/utils/db/mysql"
 
+	_errors "main/features/v2ws/model/errors"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -96,11 +98,26 @@ func ImportSingleCardUpdateOpenCards(ctx context.Context, tx *gorm.DB, roomID ui
 	return nil
 }
 
-func ImportSingleCardOwnerCardCount(ctx context.Context, roomID uint, userID uint) (int, error) {
+func ImportSingleCardOwnerCardCount(ctx context.Context, roomID uint, userID uint) (int, *entity.ErrorInfo) {
 	var roomUsers mysql.RoomUsers
 	err := mysql.GormMysqlDB.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", roomID, userID).Find(&roomUsers).Error
 	if err != nil {
-		return 0, fmt.Errorf("카드 카운트 조회 실패 %v", err.Error())
+		return 0, &entity.ErrorInfo{Code: _errors.ErrCodeInternal, Msg: err.Error(), Type: _errors.ErrInternalServer}
+	}
+	if roomUsers.OwnedCardCount > 3 {
+		return 0, &entity.ErrorInfo{Code: _errors.ErrCodeBadRequest, Msg: "카드를 4장 이상 가지"}
 	}
 	return roomUsers.OwnedCardCount, nil
+}
+
+func ImportSingleCardFindOneCard(ctx context.Context, roomID uint, cardID uint) *entity.ErrorInfo {
+	var card mysql.UserBirdCards
+	result := mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("room_id = ? AND card_id = ? AND (state = ? OR state = ?)", roomID, cardID, "opened", "none").Find(&card)
+	if result.Error != nil {
+		return &entity.ErrorInfo{Code: 500, Msg: result.Error.Error(), Type: _errors.ErrInternalServer}
+	}
+	if result.RowsAffected == 0 {
+		return &entity.ErrorInfo{Code: _errors.ErrCodeBadRequest, Msg: "이미 카드를 가지고 갔습니다.", Type: _errors.ErrNotFoundCard}
+	}
+	return nil
 }
