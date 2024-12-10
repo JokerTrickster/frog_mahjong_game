@@ -1,5 +1,7 @@
 package _errors
 
+import "net/http"
+
 var (
 	ErrWrongPassword  = "ERR_WRONG_PASSWORD"
 	ErrInternalServer = "ERR_INTERNAL_SERVER"
@@ -10,4 +12,10 @@ var (
 	ErrDBServer       = "ERR_DB_SERVER"
 	ErrInvalidToken   = "ERR_INVALID_TOKEN"
 	ErrRoomOut        = "ROOM_OUT"
+	ErrNotFoundCard   = "ERR_NOT_FOUND_CARD"
+)
+
+var (
+	ErrCodeBadRequest = http.StatusBadRequest
+	ErrCodeInternal   = http.StatusInternalServerError
 )
