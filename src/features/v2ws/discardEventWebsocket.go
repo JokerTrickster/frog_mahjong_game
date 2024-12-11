@@ -71,7 +71,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
-		ErrorHandling(roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 	}
 
 	//유저 상태를 변경한다. (방에 참여)
@@ -100,7 +100,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
-				ErrorHandling(roomID, uID, &roomInfoMsg)
+				ErrorHandling(msg,roomID, uID, &roomInfoMsg)
 			}
 			roomInfoMsg = *DiscardCreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
 			roomInfoMsg.GameInfo.AllPicked = true
