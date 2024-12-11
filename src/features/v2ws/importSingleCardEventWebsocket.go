@@ -40,7 +40,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
 	if cardCount > 3 {
@@ -51,7 +51,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	newErr = repository.ImportSingleCardFindOneCard(ctx, roomID, importSingleCardEntity.CardID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
 
@@ -82,7 +82,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
-		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
 
@@ -102,25 +102,37 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 
 				return nil
 			})
+
 			if err != nil {
 				roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
 					Code: 500,
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
-				ErrorHandling(msg,roomID, uID, &roomInfoMsg)
+				ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+				return
+			}
+			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+				// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
+				err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
+				return nil
+			})
+
+			if err != nil {
+				roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+					Code: 500,
+					Msg:  err.Error(),
+					Type: _errors.ErrInternalServer,
+				}
+				ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 				return
 			}
 		}
-		err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-			// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-			err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
-			if err != nil {
-				fmt.Println(err)
-				return err
-			}
-			return nil
-		})
+
 		// 오픈 카드 정보를 가져온다.
 		openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
 		if err != nil {
