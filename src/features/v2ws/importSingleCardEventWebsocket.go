@@ -40,7 +40,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
 		return
 	}
 	if cardCount > 3 {
@@ -51,7 +51,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	newErr = repository.ImportSingleCardFindOneCard(ctx, roomID, importSingleCardEntity.CardID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
 		return
 	}
 
@@ -82,7 +82,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
-		ErrorHandling(roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg,roomID, uID, &roomInfoMsg)
 		return
 	}
 
@@ -108,7 +108,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
-				ErrorHandling(roomID, uID, &roomInfoMsg)
+				ErrorHandling(msg,roomID, uID, &roomInfoMsg)
 				return
 			}
 		}

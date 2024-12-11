@@ -91,12 +91,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 	}
 }
 
-func ErrorHandling(roomID uint, userID uint, err *entity.RoomInfo) {
-
-	msg := entity.WSMessage{
-		RoomID: roomID,
-		UserID: userID,
-	}
+func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, err *entity.RoomInfo) {
 	// 에러 처리
 	if clients, ok := entity.WSClients[roomID]; ok {
 		for client := range clients {
