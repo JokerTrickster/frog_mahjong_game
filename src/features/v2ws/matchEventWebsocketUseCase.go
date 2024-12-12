@@ -27,3 +27,13 @@ func CreateMatchRoomUserDTO(uID uint, roomID int, playerState string) mysql.Room
 	}
 	return result
 }
+
+func CreateMatchUserItemDTO(uID uint, roomID uint, item mysql.Items) mysql.UserItems {
+	result := mysql.UserItems{
+		UserID:        int(uID),
+		RoomID:        int(roomID),
+		ItemID:        int(item.ID),
+		RemainingUses: item.MaxUses,
+	}
+	return result
+}

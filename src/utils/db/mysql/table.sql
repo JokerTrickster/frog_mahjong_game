@@ -284,32 +284,33 @@ CREATE TABLE user_bird_cards (
 );
 
 
-CREATE TABLE foods (
+CREATE TABLE items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
-    name VARCHAR(255) NOT NULL,
-    food_image_id INT,
-    FOREIGN KEY (food_image_id) REFERENCES food_images(id)
+    name VARCHAR(255), -- 아이템 이름
+    description VARCHAR(500), -- 아이템 설명
+    max_uses INT DEFAULT 0 -- 아이템 최대 사용 가능 횟수
 );
 
-CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    type ENUM('time', 'type', 'scenario', 'theme') NOT NULL COMMENT '카테고리 유형'
-);
+INSERT INTO items (name, description, max_uses) 
+VALUES 
+('cards change', '카드덱 교체',  3),
+('missions change', '미션 교체',  1),
+('get discarded card', '버린 카드 가져오기', 3);
 
-CREATE TABLE food_categories (
+
+CREATE TABLE user_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
-    food_id INT NOT NULL,
-    category_id INT NOT NULL,
-    FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    user_id INT, -- 유저 ID
+    item_id INT, -- 아이템 ID
+    room_id INT, -- 룸 ID
+    remaining_uses INT DEFAULT 0, -- 남은 사용 횟수
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
+	FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 );

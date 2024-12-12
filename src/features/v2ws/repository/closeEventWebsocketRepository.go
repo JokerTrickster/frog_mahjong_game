@@ -11,7 +11,7 @@ import (
 
 func CloseFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+	if err := tx.Preload("User").Preload("UserItems").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
 	}
 	return roomUsers, nil

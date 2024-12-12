@@ -14,7 +14,7 @@ import (
 
 func MatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+	if err := tx.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
 	}
 
@@ -173,4 +173,24 @@ func MatchFindOneRoomMission(ctx context.Context, tx *gorm.DB, roomID uint) ([]m
 		return nil, fmt.Errorf("방 미션 조회 실패: %v", err.Error())
 	}
 	return roomMissions, nil
+}
+
+func MatchFindAllItems(ctx context.Context, tx *gorm.DB) ([]mysql.Items, error) {
+	var items []mysql.Items
+	err := tx.WithContext(ctx).Find(&items).Error
+	if err != nil {
+		return nil, fmt.Errorf("아이템 조회 실패: %v", err.Error())
+	}
+	return items, nil
+}
+
+func MatchInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO mysql.UserItems) error {
+	result := tx.WithContext(ctx).Create(&userItemDTO)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("유저 아이템 생성 실패")
+	}
+	if result.Error != nil {
+		return fmt.Errorf("유저 아이템 생성 실패: %v", result.Error)
+	}
+	return nil
 }
