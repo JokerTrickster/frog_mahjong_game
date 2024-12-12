@@ -56,6 +56,8 @@ func WSHandleMessages() {
 			MissionEventWebsocket(&msg)
 		case "RANDOM":
 			RandomEventWebsocket(&msg)
+		case "ITEM_CHANGE":
+			ItemChangeEventWebsocket(&msg)
 		}
 	}
 }

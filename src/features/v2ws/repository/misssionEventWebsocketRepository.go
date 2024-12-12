@@ -13,6 +13,7 @@ import (
 func MissionFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
 	if err := tx.Preload("User").
+		Preload("UserItems").
 		Preload("Room").
 		Preload("RoomMission").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {

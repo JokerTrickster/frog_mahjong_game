@@ -74,6 +74,7 @@ type User struct {
 	Cards               []*Card `json:"cards"`               // 소유하고 있는 카드
 	DiscardedCards      []*Card `json:"discardedCards"`      //버린 카드
 	PickedCards         []*Card `json:"pickedCards"`         // 선택한 카드
+	Items               []*Item `json:"items"`               // 아이템 남은 횟수 (아이템ID, 남은 횟수)
 	Coin                int     `json:"coin"`                // 보유하고 있는 코인
 	ProfileID           int     `json:"profileID"`           // 프로필 ID
 	MissionSuccessCount int     `json:"missionSuccessCount"` // 미션 성공 횟수
@@ -102,6 +103,10 @@ type Card struct {
 	UserID uint `json:"userID"`
 }
 
+type Item struct {
+	ItemID        uint `json:"itemID"`
+	RemainingUses int  `json:"remainingUses"`
+}
 type RoomUsers struct {
 	gorm.Model
 	UserID         int                   `json:"userID" gorm:"column:user_id"`
@@ -115,6 +120,7 @@ type RoomUsers struct {
 	RoomMission    []mysql.RoomMissions  `gorm:"foreignKey:RoomID;references:RoomID"`
 	Cards          []mysql.UserBirdCards `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 	UserMissions   []mysql.UserMissions  `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
+	UserItems      []mysql.UserItems     `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 }
 
 func (c *WSClient) Close() {

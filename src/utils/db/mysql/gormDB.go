@@ -157,3 +157,18 @@ type UserTokens struct {
 	UserID uint   `json:"userID" gorm:"column:user_id"`
 	Token  string `json:"token" gorm:"column:token"`
 }
+
+type Items struct {
+	gorm.Model
+	Name        string `json:"name" gorm:"column:name"`
+	Description string `json:"description" gorm:"column:description"`
+	MaxUses     int    `json:"maxUses" gorm:"column:max_uses"`
+}
+
+type UserItems struct {
+	gorm.Model
+	UserID        int `json:"userID" gorm:"column:user_id"`
+	ItemID        int `json:"itemID" gorm:"column:item_id"`
+	RoomID        int `json:"roomID" gorm:"column:room_id"`
+	RemainingUses int `json:"remainingUses" gorm:"column:remaining_uses"`
+}

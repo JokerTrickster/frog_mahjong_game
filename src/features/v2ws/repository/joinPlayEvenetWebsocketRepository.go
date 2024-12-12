@@ -134,3 +134,23 @@ func JoinPlayDeleteRoomUsers(ctx context.Context, userID uint) error {
 	}
 	return nil
 }
+
+func JoinFindAllItems(ctx context.Context, tx *gorm.DB) ([]mysql.Items, error) {
+	var items []mysql.Items
+	err := tx.WithContext(ctx).Find(&items).Error
+	if err != nil {
+		return nil, fmt.Errorf("아이템 조회 실패: %v", err.Error())
+	}
+	return items, nil
+}
+
+func JoinInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO mysql.UserItems) error {
+	result := tx.WithContext(ctx).Create(&userItemDTO)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("유저 아이템 생성 실패")
+	}
+	if result.Error != nil {
+		return fmt.Errorf("유저 아이템 생성 실패: %v", result.Error)
+	}
+	return nil
+}

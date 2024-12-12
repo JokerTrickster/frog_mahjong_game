@@ -62,6 +62,13 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 			PlayerState:         "picking",
 			MissionSuccessCount: len(roomUser.UserMissions),
 		}
+		for _, item := range roomUser.UserItems {
+			userItem := entity.Item{
+				ItemID:        uint(item.ItemID),
+				RemainingUses: item.RemainingUses,
+			}
+			user.Items = append(user.Items, &userItem)
+		}
 		ownedCount := 0
 		for _, card := range roomUser.Cards {
 			if card.State == "owned" {
@@ -139,6 +146,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	password := ""
 	pickedCount := 0
 	missionIDs := make([]int, 0)
+
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
@@ -152,6 +160,14 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 			PlayerState:         "picking",
 			MissionSuccessCount: len(roomUser.UserMissions),
 		}
+		for _, item := range roomUser.UserItems {
+			userItem := entity.Item{
+				ItemID:        uint(item.ItemID),
+				RemainingUses: item.RemainingUses,
+			}
+			user.Items = append(user.Items, &userItem)
+		}
+
 		ownedCount := 0
 		for _, card := range roomUser.Cards {
 			if card.State == "owned" {
@@ -340,5 +356,3 @@ func CreateUserBirdCardDTO(importSingleCard entity.WSImportSingleCardEntity) *my
 	}
 	return &userBirdCardDTO
 }
-
-

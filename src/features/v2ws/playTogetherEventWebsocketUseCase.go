@@ -41,3 +41,13 @@ func CreatePlayTogetherRoomUserDTO(uID uint, roomID int, playerState string) mys
 	}
 	return result
 }
+
+func CreatePlayTogetherUserItemDTO(uID uint, roomID uint, item mysql.Items) mysql.UserItems {
+	result := mysql.UserItems{
+		UserID:        int(uID),
+		RoomID:        int(roomID),
+		ItemID:        int(item.ID),
+		RemainingUses: item.MaxUses,
+	}
+	return result
+}

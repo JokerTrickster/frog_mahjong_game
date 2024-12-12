@@ -14,7 +14,7 @@ import (
 
 func PlayTogetherFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+	if err := tx.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
 	}
 	return roomUsers, nil
@@ -174,5 +174,25 @@ func PlayTogetherCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) e
 		return fmt.Errorf("미션 생성 실패: %v", err.Error())
 	}
 
+	return nil
+}
+
+func PlayTogetherFindAllItems(ctx context.Context, tx *gorm.DB) ([]mysql.Items, error) {
+	var items []mysql.Items
+	err := tx.WithContext(ctx).Find(&items).Error
+	if err != nil {
+		return nil, fmt.Errorf("아이템 조회 실패: %v", err.Error())
+	}
+	return items, nil
+}
+
+func PlayTogetherInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO mysql.UserItems) error {
+	result := tx.WithContext(ctx).Create(&userItemDTO)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("유저 아이템 생성 실패")
+	}
+	if result.Error != nil {
+		return fmt.Errorf("유저 아이템 생성 실패: %v", result.Error)
+	}
 	return nil
 }

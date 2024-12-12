@@ -112,6 +112,20 @@ func match(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		// 아이템 정보들을 가져온다.
+		items, err := repository.MatchFindAllItems(ctx, tx)
+		if err != nil {
+			return err
+		}
+		for _, item := range items {
+			// user_items 아이템 정보 생성
+			userItemDTO := CreateMatchUserItemDTO(userID, roomID, item)
+			err = repository.MatchInsertOneUserItem(ctx, tx, userItemDTO)
+			if err != nil {
+				return err
+			}
+		}
+
 		return nil
 	})
 

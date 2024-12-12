@@ -14,7 +14,7 @@ import (
 
 func ImportSingleCardFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Preload("User").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
 	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID)
