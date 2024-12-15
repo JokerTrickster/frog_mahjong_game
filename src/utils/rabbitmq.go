@@ -40,7 +40,7 @@ func InitRabbitMQ() error {
 			dbInfos[2], //port
 		)
 	}
-
+	fmt.Println(connURL)
 	conn, err := amqp.Dial(connURL)
 	if err != nil {
 		fmt.Errorf("Failed to connect to RabbitMQ: %v", err)
