@@ -1,12 +1,16 @@
 package v2ws
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"main/features/v2ws/model/entity"
 	"main/utils"
 	"time"
 
 	"github.com/gorilla/websocket"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -21,45 +25,112 @@ const (
 )
 
 func WSHandleMessages() {
+	// 웹소켓 메시지를 큐에 넣기
+	go func() {
+		for {
+			msg := <-entity.WSBroadcast
 
-	for {
-		msg := <-entity.WSBroadcast
-		logging := utils.Log{}
-		logging.V2MakeWSLog(msg)
-		utils.LogInfo(logging)
-		switch msg.Event {
-		case "QUIT_GAME": // 방 나가기
-			CloseEventWebsocket(&msg)
-		case "START": // 게임 시작
-			StartEventWebsocket(&msg)
-		case "DISCARD":
-			DiscardCardsEventWebsocket(&msg)
-		case "IMPORT_SINGLE_CARD":
-			ImportSingleCardEventWebsocket(&msg)
-		case "GAME_OVER":
-			GameOverEventWebsocket(&msg)
-		case "CHAT":
-			ChatEventWebsocket(&msg)
-		case "REQUEST_WIN":
-			RequestWinEventWebsocket(&msg)
-		case "TIME_OUT_DISCARD":
-			TimeOutDiscardCardsEventWebsocket(&msg)
-		case "MATCH":
-			MatchEventWebsocket(&msg)
-		case "CANCEL_MATCH":
-			CancelMatchEventWebsocket(&msg)
-		case "PLAY_TOGETHER":
-			PlayTogetherEventWebsocket(&msg)
-		case "JOIN_PLAY":
-			JoinPlayEventWebsocket(&msg)
-		case "MISSION":
-			MissionEventWebsocket(&msg)
-		case "RANDOM":
-			RandomEventWebsocket(&msg)
-		case "ITEM_CHANGE":
-			ItemChangeEventWebsocket(&msg)
+			// 로그 생성
+			logging := utils.Log{}
+			logging.V2MakeWSLog(msg)
+			utils.LogInfo(logging)
+
+			// RabbitMQ에 메시지 발행
+			msgBytes, err := json.Marshal(msg)
+			if err != nil {
+				log.Printf("Failed to marshal WSMessage: %v", err)
+				continue
+			}
+
+			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+
+			err = utils.MQCH.PublishWithContext(ctx,
+				"",            // exchange
+				utils.MQ.Name, // routing key
+				false,         // mandatory
+				false,         // immediate
+				amqp.Publishing{
+					ContentType: "application/json",
+					Body:        msgBytes,
+				})
+			if err != nil {
+				log.Printf("Failed to publish a message: %v", err)
+			}
 		}
+	}()
+	// 큐에서 메시지 소비 및 처리
+	go func() {
+		msgs, err := utils.MQCH.Consume(
+			utils.MQ.Name, // Queue
+			"",            // Consumer
+			false,         // Auto-Ack (수동 Ack 사용)
+			false,         // Exclusive
+			false,         // No-local
+			false,         // No-wait
+			nil,           // Args
+		)
+		if err != nil {
+			log.Fatalf("Failed to register a consumer: %v", err)
+		}
+
+		for d := range msgs {
+			processMessage(d)
+		}
+	}()
+}
+func processMessage(d amqp.Delivery) {
+	var msg entity.WSMessage
+
+	// JSON 파싱
+	err := json.Unmarshal(d.Body, &msg)
+	if err != nil {
+		log.Printf("Failed to unmarshal JSON: %v", err)
+		d.Nack(false, false) // 메시지 처리 실패 -> 재처리하지 않음
+		return
 	}
+
+	log.Printf(" [x] Received: %s", msg)
+
+	// 이벤트 처리
+	switch msg.Event {
+	case "QUIT_GAME":
+		CloseEventWebsocket(&msg)
+	case "START":
+		StartEventWebsocket(&msg)
+	case "DISCARD":
+		DiscardCardsEventWebsocket(&msg)
+	case "IMPORT_SINGLE_CARD":
+		ImportSingleCardEventWebsocket(&msg)
+	case "GAME_OVER":
+		GameOverEventWebsocket(&msg)
+	case "CHAT":
+		ChatEventWebsocket(&msg)
+	case "REQUEST_WIN":
+		RequestWinEventWebsocket(&msg)
+	case "TIME_OUT_DISCARD":
+		TimeOutDiscardCardsEventWebsocket(&msg)
+	case "MATCH":
+		MatchEventWebsocket(&msg)
+	case "CANCEL_MATCH":
+		CancelMatchEventWebsocket(&msg)
+	case "PLAY_TOGETHER":
+		PlayTogetherEventWebsocket(&msg)
+	case "JOIN_PLAY":
+		JoinPlayEventWebsocket(&msg)
+	case "MISSION":
+		MissionEventWebsocket(&msg)
+	case "RANDOM":
+		RandomEventWebsocket(&msg)
+	case "ITEM_CHANGE":
+		ItemChangeEventWebsocket(&msg)
+	default:
+		log.Printf("Unknown event: %s", msg.Event)
+		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
+		return
+	}
+
+	// 처리 성공 시 Ack
+	d.Ack(false)
 }
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
