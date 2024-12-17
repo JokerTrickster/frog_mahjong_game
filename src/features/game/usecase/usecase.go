@@ -470,10 +470,11 @@ func CreateResListMission(missionList []*mysql.Missions) response.ResListMission
 	}
 	return res
 }
-func CreateMissionDTO(req *request.ReqCreateMission) *mysql.Missions {
+func CreateMissionDTO(req *request.ReqCreateMission, fileName string) *mysql.Missions {
 	return &mysql.Missions{
 		Name:        req.Name,
 		Description: req.Description,
+		Image:       fileName,
 	}
 }
 

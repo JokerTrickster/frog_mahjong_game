@@ -2097,13 +2097,22 @@ const docTemplate = `{
                 "summary": "미션 생성하기",
                 "parameters": [
                     {
-                        "description": "json body",
-                        "name": "json",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ReqCreateMission"
-                        }
+                        "type": "file",
+                        "description": "미션 이미지 파일",
+                        "name": "image",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "미션 제목",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "미션 설명",
+                        "name": "description",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2653,17 +2662,6 @@ const docTemplate = `{
                 },
                 "timer": {
                     "type": "integer"
-                }
-            }
-        },
-        "request.ReqCreateMission": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },

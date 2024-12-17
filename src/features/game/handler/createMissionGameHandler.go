@@ -35,7 +35,9 @@ func NewCreateMissionGameHandler(c *echo.Echo, useCase _interface.ICreateMission
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Produce json
-// @Param json body request.ReqCreateMission true "json body"
+// @Param image formData file false "미션 이미지 파일"
+// @Param title formData string false "미션 제목"
+// @Param description formData string false "미션 설명"
 // @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
@@ -43,12 +45,23 @@ func NewCreateMissionGameHandler(c *echo.Echo, useCase _interface.ICreateMission
 func (d *CreateMissionGameHandler) CreateMission(c echo.Context) error {
 
 	ctx := context.Background()
+	file, err := c.FormFile("image")
+	if err != nil {
+		return err
+	}
+	title := c.FormValue("title")
+	description := c.FormValue("description")
+
 	//business logic
-	req := &request.ReqCreateMission{}
+	req := &request.ReqCreateMission{
+		Image:       file,
+		Name:        title,
+		Description: description,
+	}
 	if err := utils.ValidateReq(c, req); err != nil {
 		return err
 	}
-	err := d.UseCase.CreateMission(ctx, req)
+	err = d.UseCase.CreateMission(ctx, req)
 	if err != nil {
 		return err
 	}
