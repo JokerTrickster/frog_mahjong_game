@@ -81,7 +81,7 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
-			} else {
+			} else if card.State == "picked" {
 				user.PickedCards = append(user.PickedCards, &entity.Card{
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
@@ -92,10 +92,11 @@ func DiscardCreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUse
 				})
 				ownedCount++
 			}
-			if ownedCount == 1 {
-				user.PlayerState = "done"
-				pickedCount++
-			}
+
+		}
+		if ownedCount == 1 {
+			user.PlayerState = "done"
+			pickedCount++
 		}
 		roomID = roomUser.RoomID
 
@@ -181,7 +182,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
-			} else {
+			} else if card.State == "picked" {
 				user.Cards = append(user.Cards, &entity.Card{
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
@@ -192,10 +193,11 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 				})
 				ownedCount++
 			}
-			if ownedCount == 4 {
-				user.PlayerState = "done"
-				pickedCount++
-			}
+
+		}
+		if ownedCount == 4 {
+			user.PlayerState = "done"
+			pickedCount++
 		}
 		roomID = roomUser.RoomID
 
