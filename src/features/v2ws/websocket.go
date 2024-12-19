@@ -93,8 +93,6 @@ func processMessage(d amqp.Delivery) {
 		return
 	}
 
-	log.Printf(" [x] Received: %s", msg)
-
 	// 이벤트 처리
 	switch msg.Event {
 	case "QUIT_GAME":
@@ -204,7 +202,6 @@ func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *e
 	// If the room has no active sessions, delete it
 	if len(entity.RoomSessions[roomID]) == 0 {
 		delete(entity.RoomSessions, roomID)
-		fmt.Printf("Room %d deleted as it has no active sessions.\n", roomID)
 	}
 }
 
@@ -219,8 +216,6 @@ func closeAndRemoveClient(client *entity.WSClient, sessionID string, roomID uint
 	// Remove from WSClients and RoomSessions
 	delete(entity.WSClients, sessionID)
 	removeSessionFromRoom(roomID, sessionID)
-
-	fmt.Printf("Client with session %s removed from room %d.\n", sessionID, roomID)
 }
 
 // Generate a new sessionID
