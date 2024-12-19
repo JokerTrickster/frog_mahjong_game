@@ -57,6 +57,7 @@ func AbnormalErrorHandling(roomID uint, sessionID string) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
+	fmt.Println("비정상 에러 핸들러 호출 세션 ID : ", sessionID)
 
 	// 클라이언트에 메시지 전송
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)

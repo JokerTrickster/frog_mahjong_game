@@ -8,6 +8,8 @@ import (
 	"main/features/v2ws/model/request"
 	"main/utils"
 	"main/utils/db/mysql"
+	_redis "main/utils/db/redis"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -202,4 +204,22 @@ func MatchFindOneAbnormalRoomID(ctx context.Context, uID uint) (uint, error) {
 		return 0, fmt.Errorf("방 유저 정보 조회 에러: %v", err)
 	}
 	return uint(user.RoomID), nil
+}
+
+func MatchRedisSessionGet(ctx context.Context, sessionID string) (uint, error) {
+	redisKey := fmt.Sprintf("abnormal_session:%s", sessionID)
+	roomID, err := _redis.Client.Get(ctx, redisKey).Uint64()
+	if err != nil {
+		return 0, nil
+	}
+	return uint(roomID), nil
+}
+
+func MatchRedisSessionSet(ctx context.Context, sessionID string, roomID uint) error {
+	redisKey := fmt.Sprintf("abnormal_session:%s", sessionID)
+	err := _redis.Client.Set(ctx, redisKey, roomID, 3*time.Minute).Err()
+	if err != nil {
+		return fmt.Errorf("세션 저장 실패: %v", err)
+	}
+	return nil
 }

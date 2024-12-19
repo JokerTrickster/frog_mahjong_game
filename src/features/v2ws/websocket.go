@@ -25,7 +25,7 @@ reconnectTime : 클라이언트가 연결을 잃었을 때 다시 연결을 시�
 const (
 	WriteWait  = 10 * time.Second
 	PongWait   = 30 * time.Second    // 30초마다 퐁 메시지를 수신
-	PingPeriod = (PongWait * 6) / 10 // 18초마다 핑 메시지 전송
+	PingPeriod = (PongWait * 5) / 10 // 6초마다 핑 메시지 전송
 )
 
 func WSHandleMessages() {
@@ -155,16 +155,11 @@ func HandlePingPong(wsClient *entity.WSClient) {
 	for {
 		select {
 		case <-ticker.C:
-			// Check if the connection is already closed
-			if wsClient.Closed {
-				fmt.Printf("Connection for session %s is already closed.\n", wsClient.SessionID)
-				return
-			}
 
 			// Send Ping message
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
-
+				wsClient.Closed = true
 				// Handle abnormal connection termination
 				AbnormalErrorHandling(wsClient.RoomID, wsClient.SessionID)
 				return
@@ -188,15 +183,19 @@ func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *e
 				}
 				msg.Message = message
 
-				// Send the error message
+				// Attempt to send the error message
 				err = client.Conn.WriteJSON(msg)
 				if err != nil {
 					fmt.Printf("Error sending message to session %s (user %d): %v\n", sessionID, userID, err)
 
-					// Close the connection and remove the session
-					client.Conn.Close()
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(roomID, sessionID)
+					// Mark the client as closed (instead of immediate removal)
+					client.Closed = true
+
+					// Optionally retry sending the message (if needed)
+					// Retry logic can be implemented here
+
+					// Remove the client only after retries or severe errors
+					closeAndRemoveClient(client, sessionID, roomID)
 				}
 			}
 		}
@@ -207,6 +206,21 @@ func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *e
 		delete(entity.RoomSessions, roomID)
 		fmt.Printf("Room %d deleted as it has no active sessions.\n", roomID)
 	}
+}
+
+// closeAndRemoveClient safely closes a client and removes it from session lists
+func closeAndRemoveClient(client *entity.WSClient, sessionID string, roomID uint) {
+	// Close the connection if not already closed
+	if !client.Closed {
+		client.Conn.Close()
+		client.Closed = true
+	}
+
+	// Remove from WSClients and RoomSessions
+	delete(entity.WSClients, sessionID)
+	removeSessionFromRoom(roomID, sessionID)
+
+	fmt.Printf("Client with session %s removed from room %d.\n", sessionID, roomID)
 }
 
 // Generate a new sessionID

@@ -9,6 +9,7 @@ import (
 	"main/features/v2ws/repository"
 	"main/utils"
 	"main/utils/db/mysql"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -41,30 +42,19 @@ func match(c echo.Context) error {
 		fmt.Printf("Failed to parse token: %v\n", err)
 		return nil
 	}
-
-	var roomID uint
-	var sessionID string
-
 	// 1. 재접속 확인
 	// 유저 상태가 abnormal 이면 해당 roomID를 가지고 온다.
-	roomID, err = repository.MatchFindOneAbnormalRoomID(context.Background(), userID)
-	if err != nil {
-		fmt.Printf("Failed to find abnormal room: %v\n", err)
-		return nil
-	}
-	if roomID != 0 {
-		for _, sid := range entity.RoomSessions[roomID] {
-			if client, ok := entity.WSClients[sid]; ok && client.UserID == userID {
-				sessionID = sid
-				roomID = client.RoomID
-
-				// 기존 연결 복구
-				restoreSession(ws, sessionID, roomID, userID)
-				return nil
-			}
+	if req.SessionID != "" {
+		fmt.Println("세션이 있지? ", req.SessionID)
+		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
+		if roomID != 0 {
+			fmt.Println("기존 연결 복구")
+			// 기존 연결 복구
+			restoreSession(ws, req.SessionID, roomID, userID)
+			return nil
 		}
+		fmt.Println("세션 정보가 없습니다.========== ", roomID)
 	}
-
 	// 2. 비즈니스 로직
 	ctx := context.Background()
 
@@ -88,6 +78,7 @@ func match(c echo.Context) error {
 		return nil
 	}
 	// 트랜잭션으로 방 생성/업데이트 처리
+	var roomID uint
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		if rooms.ID == 0 {
 			// 방 생성
@@ -97,6 +88,7 @@ func match(c echo.Context) error {
 				return err
 			}
 			roomID = uint(newRoomID)
+			fmt.Println("새로 방을 만들었습니다. 방 번호는", roomID)
 		} else {
 			roomID = rooms.ID
 		}
@@ -122,7 +114,14 @@ func match(c echo.Context) error {
 	}
 
 	// 세션 ID 생성
+	var sessionID string
 	sessionID = generateSessionID()
+	// 세션 ID 저장
+	err = repository.MatchRedisSessionSet(ctx, sessionID, roomID)
+	if err != nil {
+		fmt.Printf("Failed to save session: %v\n", err)
+		return nil
+	}
 
 	// defer ws.Close()
 
@@ -133,8 +132,17 @@ func match(c echo.Context) error {
 
 // 기존 연결 복구
 func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	// 타이머 취소
+	if timer, ok := reconnectTimers.Load(sessionID); ok {
+		timer.(*time.Timer).Stop()
+		reconnectTimers.Delete(sessionID)
+		fmt.Printf("Reconnection successful for session %s in room %d. Timer canceled.\n", sessionID, roomID)
+	}
 	if client, ok := entity.WSClients[sessionID]; ok {
+		fmt.Println("기존 연결 해제========")
+		fmt.Println(client.RoomID, client.SessionID, client.UserID)
 		// 기존 연결 닫기
+		client.Closed = true
 		client.Conn.Close()
 
 		// 새로운 연결로 갱신
@@ -148,6 +156,23 @@ func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID ui
 		go HandlePingPong(client)
 
 		// 메시지 처리 루프 시작
+		go readMessages(ws, sessionID, roomID, userID)
+	} else {
+		fmt.Println("세션 정보가 없습니다.========== ", sessionID)
+		// 새로운 세션으로 등록
+		entity.WSClients[sessionID] = &entity.WSClient{
+			Conn:      ws,
+			SessionID: sessionID,
+			RoomID:    roomID,
+			UserID:    userID,
+			Closed:    false,
+		}
+		fmt.Println(len(entity.WSClients))
+		entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+		fmt.Printf("New connection established for Session %s in Room %d by User %d.\n", sessionID, roomID, userID)
+
+		// 핑/퐁 및 메시지 처리 시작
+		go HandlePingPong(entity.WSClients[sessionID])
 		go readMessages(ws, sessionID, roomID, userID)
 	}
 }
@@ -179,20 +204,39 @@ func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userI
 
 // 메시지 읽기 및 처리
 func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
-	defer ws.Close()
+	client := entity.WSClients[sessionID]
+	defer func() {
+		// 연결 종료 시 세션 정리
+		client.Closed = true
+		ws.Close()
+		delete(entity.WSClients, sessionID)
+		removeSessionFromRoom(roomID, sessionID)
+		fmt.Println("Session", sessionID, "closed. Read loop stopped.")
+
+		// 방 삭제 여부 확인
+		if len(entity.RoomSessions[roomID]) == 0 {
+			delete(entity.RoomSessions, roomID)
+			log.Printf("Room %d deleted as it has no active sessions.", roomID)
+		}
+	}()
+
 	for {
+		if client.Closed {
+			log.Printf("Session %s is closed. Stopping read loop.", sessionID)
+			return
+		}
+
 		var msg entity.WSMessage
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("Error reading message: %v", err)
-
-			// 연결 종료 및 세션 정리
-			delete(entity.WSClients, sessionID)
-			removeSessionFromRoom(roomID, sessionID)
-
-			// 방이 비었으면 삭제
-			if len(entity.RoomSessions[roomID]) == 0 {
-				delete(entity.RoomSessions, roomID)
+			if closeErr, ok := err.(*websocket.CloseError); ok {
+				if closeErr.Code == websocket.CloseNormalClosure {
+					log.Printf("Session %s closed normally (Code 1000).", sessionID)
+					break
+				}
+				log.Printf("Session %s closed with error: %v", sessionID, closeErr)
+			} else {
+				log.Printf("Error reading message for session %s: %v", sessionID, err)
 			}
 			break
 		}
@@ -202,6 +246,5 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 		msg.UserID = userID
 		msg.SessionID = sessionID
 		entity.WSBroadcast <- msg
-
 	}
 }
