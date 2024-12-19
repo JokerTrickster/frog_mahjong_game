@@ -85,21 +85,19 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+	// 유저 상태를 변경한다. (방에 참여)
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
 		// 메시지 생성
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo, int(req.CardID))
 
+		// 모든 유저가 카드를 선택했을 경우 처리
 		if roomInfoMsg.GameInfo.AllPicked {
-			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-				// 카드 상태 picked -> owned 로 변경한다.
-				// 모든 유저가 카드를 선택했을 때, 모든 유저의 카드 상태를 picked -> owned 로 변경한다.
-				err = repository.ImportSingleCardUpdateAllCardState(ctx, tx, roomID)
+			// 카드 상태를 picked -> owned로 변경
+			err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+				err := repository.ImportSingleCardUpdateAllCardState(ctx, tx, msg.RoomID)
 				if err != nil {
 					return err
 				}
-
 				return nil
 			})
 
@@ -109,12 +107,13 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
-				ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+				ErrorHandling(msg, msg.RoomID, msg.UserID, &roomInfoMsg)
 				return
 			}
+
+			// 오픈 카드 업데이트
 			err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-				// 오픈 카드가 비어 있다면 새로운 카드를 오픈한다.
-				err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, roomID)
+				err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, msg.RoomID)
 				if err != nil {
 					fmt.Println(err)
 					return err
@@ -128,35 +127,47 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 					Msg:  err.Error(),
 					Type: _errors.ErrInternalServer,
 				}
-				ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+				ErrorHandling(msg, msg.RoomID, msg.UserID, &roomInfoMsg)
 				return
 			}
 		}
 
 		// 오픈 카드 정보를 가져온다.
-		openCards, err := repository.FindAllOpenCards(ctx, int(roomID))
+		openCards, err := repository.FindAllOpenCards(ctx, int(msg.RoomID))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		roomInfoMsg.GameInfo.OpenCards = openCards
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 
-		for client := range clients {
-			filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+		// 방의 모든 유저에게 메시지 전달
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists {
+				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
 
-			// 구조체를 JSON 문자열로 변환 (마샬링)
-			message, err := CreateMessage(&filterRoomInfoMsg)
-			if err != nil {
-				fmt.Println(err)
-			}
-			msg.Message = message
-			err = client.WriteJSON(msg)
-			if err != nil {
-				fmt.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
+				// 구조체를 JSON 문자열로 변환 (마샬링)
+				message, err := CreateMessage(&filterRoomInfoMsg)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				msg.Message = message
+				err = client.Conn.WriteJSON(msg)
+				if err != nil {
+					fmt.Printf("Error sending message to user %d: %v\n", client.UserID, err)
+					client.Close()
+
+					// 클라이언트를 종료 및 정리
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(client.RoomID, sessionID)
+				}
 			}
 		}
+
+		// 방이 비어 있으면 삭제
+		if len(entity.RoomSessions[msg.RoomID]) == 0 {
+			delete(entity.RoomSessions, msg.RoomID)
+		}
 	}
+
 }

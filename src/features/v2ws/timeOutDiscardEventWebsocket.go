@@ -60,55 +60,67 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
+	// 유저 상태를 변경한다. (방에 참여)
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
 		// 메시지 생성
-		//게임턴 계산
-		playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo,0)
+		// 게임 턴 계산
+		playTurn := CalcPlayTurn(req.PlayTurn, len(sessionIDs))
+		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo, 0)
 
-		
-
-		//카드 정보 저장
+		// 카드 정보 저장
 		doraCardInfo := entity.Card{}
 		doraCardInfo.CardID = uint(doraDTO.CardID)
 
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+		// 에러 발생 시 이벤트 요청한 유저에게만 메시지 전달
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
 					// 구조체를 JSON 문자열로 변환 (마샬링)
 					message, err := CreateMessage(&roomInfoMsg)
 					if err != nil {
 						fmt.Println(err)
 					}
 					msg.Message = message
-					err = client.WriteJSON(msg)
+					err = client.Conn.WriteJSON(msg)
 					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
+						log.Printf("Error sending message to user %d: %v", client.UserID, err)
+						client.Conn.Close()
+						delete(entity.WSClients, sessionID)
 					}
+
+					// 방에서도 해당 세션 제거
+					removeSessionFromRoom(client.RoomID, sessionID)
 				}
 			}
 		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
+			// 정상적인 경우 모든 방 유저에게 메시지 브로드캐스트
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists {
+					// 각 클라이언트에 맞는 메시지 생성
+					filterRoomInfoMsg := Deepcopy(roomInfoMsg)
 
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
+					// 구조체를 JSON 문자열로 변환 (마샬링)
+					message, err := CreateMessage(&filterRoomInfoMsg)
+					if err != nil {
+						fmt.Println(err)
+					}
+					msg.Message = message
+					err = client.Conn.WriteJSON(msg)
+					if err != nil {
+						log.Printf("Error broadcasting to user %d: %v", client.UserID, err)
+						client.Conn.Close()
+						delete(entity.WSClients, sessionID)
+
+						// 방에서도 해당 세션 제거
+						removeSessionFromRoom(client.RoomID, sessionID)
+					}
 				}
 			}
+		}
+
+		// 방이 비어 있으면 삭제
+		if len(entity.RoomSessions[msg.RoomID]) == 0 {
+			delete(entity.RoomSessions, msg.RoomID)
 		}
 	}
 }

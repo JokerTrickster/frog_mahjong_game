@@ -3,14 +3,12 @@ package v2ws
 import (
 	"context"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
 	"main/utils/db/mysql"
 
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -40,42 +38,41 @@ import (
 func playTogether(c echo.Context) error {
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("WebSocket upgrade failed: %v\n", err)
 		return nil
 	}
 
 	req := &request.ReqWSPlayTogether{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Invalid request: %v\n", err)
 		return nil
 	}
 
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Token verification failed: %v\n", err)
 		return nil
 	}
 
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to parse token: %v\n", err)
 		return nil
 	}
 
 	// 비즈니스 로직
 	ctx := context.Background()
 
-	// rooms에 owner_id가 userID인 데이터 모두 삭제
+	// 기존 방과 유저 데이터 삭제
 	err = repository.PlayTogetherDeleteRooms(ctx, userID)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to delete rooms: %v\n", err)
 		return nil
 	}
 
-	// room_users에 user_id가 userID인 데이터 모두 삭제
 	err = repository.PlayTogetherDeleteRoomUsers(ctx, userID)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to delete room users: %v\n", err)
 		return nil
 	}
 
@@ -83,8 +80,9 @@ func playTogether(c echo.Context) error {
 	var roomID uint
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		//숫자로 이루어진 4개 랜덤값을 생성한다.
+		// 숫자로 이루어진 4자리 랜덤 패스워드 생성
 		password := CreateRandomPassword()
+
 		// 방 생성
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
 		newRoomID, err := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
@@ -92,7 +90,8 @@ func playTogether(c echo.Context) error {
 			return err
 		}
 		roomID = uint(newRoomID)
-		// room 유저 수 증가
+
+		// 방에 유저 추가
 		err = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
 		if err != nil {
 			return err
@@ -105,62 +104,100 @@ func playTogether(c echo.Context) error {
 			return err
 		}
 
-		// 아이템 정보들을 가져온다.
+		// 아이템 정보 가져오기
 		items, err := repository.PlayTogetherFindAllItems(ctx, tx)
 		if err != nil {
 			return err
 		}
+
+		// 유저 아이템 추가
 		for _, item := range items {
-			// user_items 아이템 정보 생성
 			userItemDTO := CreatePlayTogetherUserItemDTO(userID, roomID, item)
 			err = repository.PlayTogetherInsertOneUserItem(ctx, tx, userItemDTO)
 			if err != nil {
 				return err
 			}
 		}
-
 		return nil
 	})
+	if err != nil {
+		fmt.Printf("Transaction error: %v\n", err)
+		return nil
+	}
 
 	defer ws.Close()
+
+	// sessionID 생성
+	sessionID := generateSessionID()
+
+	// 초기 메시지 처리
 	var initialMsg entity.WSMessage
 	err = ws.ReadJSON(&initialMsg)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to read initial message: %v\n", err)
 		return nil
 	}
 
 	initialMsg.UserID = userID
-	// 첫 번째 레벨 맵 초기화
-	if entity.WSClients == nil {
-		entity.WSClients = make(map[uint]map[*websocket.Conn]*entity.WSClient)
+	initialMsg.RoomID = roomID
+	initialMsg.SessionID = sessionID
+
+	// 첫 번째 레벨 맵 초기화 (RoomSessions)
+	if entity.RoomSessions == nil {
+		entity.RoomSessions = make(map[uint][]string)
 	}
 
-	// 두 번째 레벨 맵 초기화
-	if entity.WSClients[roomID] == nil {
-		entity.WSClients[roomID] = make(map[*websocket.Conn]*entity.WSClient)
+	// 두 번째 레벨 맵 초기화 (WSClients)
+	if entity.WSClients == nil {
+		entity.WSClients = make(map[string]*entity.WSClient)
 	}
+
+	// 방 세션에 sessionID 추가
+	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+
+	// sessionID를 WSClients에 등록
 	wsClient := &entity.WSClient{
-		RoomID: roomID,
-		UserID: userID,
-		Conn:   ws,
-		Closed: false,
+		RoomID:    roomID,
+		UserID:    userID,
+		SessionID: sessionID,
+		Conn:      ws,
+		Closed:    false,
 	}
-	entity.WSClients[roomID][ws] = wsClient
+	entity.WSClients[sessionID] = wsClient
+
+	// 메시지 브로드캐스트
 	entity.WSBroadcast <- initialMsg
+
+	// Ping/Pong 관리 시작
 	go HandlePingPong(wsClient)
 
+	// 메시지 수신 루프
 	for {
 		var msg entity.WSMessage
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error: %v", err)
-			delete(entity.WSClients[roomID], ws)
+			fmt.Printf("Error reading message for session %s: %v\n", sessionID, err)
+
+			// 비정상 종료 처리
+			wsClient.Closed = true
+			AbnormalErrorHandling(roomID, sessionID)
 			break
 		}
+
+		// 메시지 처리
 		msg.RoomID = roomID
 		msg.UserID = userID
+		msg.SessionID = sessionID
 		entity.WSBroadcast <- msg
+	}
+
+	// 연결 종료 및 클라이언트 정리
+	delete(entity.WSClients, sessionID)
+	removeSessionFromRoom(roomID, sessionID)
+
+	if len(entity.RoomSessions[roomID]) == 0 {
+		delete(entity.RoomSessions, roomID)
+		fmt.Printf("Room %d deleted as it is empty.\n", roomID)
 	}
 
 	return nil

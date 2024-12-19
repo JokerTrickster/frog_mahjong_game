@@ -194,3 +194,12 @@ func MatchInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO mysql.
 	}
 	return nil
 }
+
+func MatchFindOneAbnormalRoomID(ctx context.Context, uID uint) (uint, error) {
+	user := mysql.Users{}
+	err := mysql.GormMysqlDB.WithContext(ctx).Where("id = ? and state = ?", uID, "abnormal").First(&user).Error
+	if err != nil {
+		return 0, fmt.Errorf("방 유저 정보 조회 에러: %v", err)
+	}
+	return uint(user.RoomID), nil
+}

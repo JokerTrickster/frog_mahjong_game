@@ -39,7 +39,7 @@ func AbnormalDeleteRoom(c context.Context, tx *gorm.DB, AbnormalEntity *entity.W
 
 // 유저 상태 변경 (play -> wait)
 func AbnormalUpdateUsers(c context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.Users{}).Where("room_id = ?", AbnormalEntity.RoomID).Update("state", "wait").Error
+	err := tx.Model(&mysql.Users{}).Where("room_id = ?", AbnormalEntity.RoomID).Update("state", "abnormal").Error
 	if err != nil {
 		return fmt.Errorf("유저 상태 변경 실패 %v", err.Error())
 	}

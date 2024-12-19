@@ -45,12 +45,12 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 			missionEntity.MissionID = missionID
 
 			userMissionDTO := CreateUserMissionDTO(missionEntity)
-			userMissionID, err := repository.MissionCreateUserMission(ctx,tx, userMissionDTO)
+			userMissionID, err := repository.MissionCreateUserMission(ctx, tx, userMissionDTO)
 			if err != nil {
 				fmt.Println(err)
 			}
 			userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
-			err = repository.MissionCreateUserMissionCard(ctx,tx, userMissionCardDTO)
+			err = repository.MissionCreateUserMissionCard(ctx, tx, userMissionCardDTO)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -85,30 +85,46 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+	// 유저 상태를 변경한다. (방에 참여)
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
+		// 에러 발생 시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					err := client.WriteJSON(msg)
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+					// 에러 메시지 전송
+					err := client.Conn.WriteJSON(msg)
 					if err != nil {
-						fmt.Printf("error: %v", err)
+						fmt.Printf("Error sending message to user %d: %v\n", client.UserID, err)
 						client.Close()
-						delete(clients, client)
+
+						// 클라이언트를 종료 및 정리
+						delete(entity.WSClients, sessionID)
+						removeSessionFromRoom(client.RoomID, sessionID)
 					}
 				}
 			}
 		} else {
-			for client := range clients {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
+			// 정상적인 경우 방의 모든 유저에게 메시지 전송
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists {
+					// 메시지 전송
+					err := client.Conn.WriteJSON(msg)
+					if err != nil {
+						fmt.Printf("Error sending message to user %d: %v\n", client.UserID, err)
+						client.Close()
+
+						// 클라이언트를 종료 및 정리
+						delete(entity.WSClients, sessionID)
+						removeSessionFromRoom(client.RoomID, sessionID)
+					}
 				}
 			}
 		}
+
+		// 방이 비어 있으면 삭제
+		if len(entity.RoomSessions[msg.RoomID]) == 0 {
+			delete(entity.RoomSessions, msg.RoomID)
+		}
 	}
+
 }

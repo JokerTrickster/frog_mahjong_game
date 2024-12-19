@@ -9,19 +9,23 @@ import (
 	"main/utils"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+/*
+	웹소켓 핑퐁 관리
+
+PingPeriod : 서버가 클라이언트에게 Ping 메시지를 전송하는 주기 (PongWait보다 작아야 함 일반적으로 PongWait의 50 ~ 90%)
+PongWait : 서버가 클라이언트로부터 Pong 메시지를 수신해야 하는 최대 대기 시간 (Pong 응답을 보내지 않으면 연결이 끊겼다고 판단)
+WriteWait : 서버가 클라이언트에 데이터를 쓸 수 있는 최대 시간이다.
+reconnectTime : 클라이언트가 연결을 잃었을 때 다시 연결을 시도할 수 있는 시간 (PongWait보다 크거나 같아야 된다. )
+*/
 const (
-	// 클라이언트에 메시지를 쓸 수 있는 시간입니다.
-	WriteWait = 10 * time.Second
-
-	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
-	PongWait = 30 * time.Second
-
-	// 핑을 보낼 수 있는 기간입니다. (PongWait 보다 작아야 된다.)
-	PingPeriod = (PongWait * 9) / 10
+	WriteWait  = 10 * time.Second
+	PongWait   = 30 * time.Second    // 30초마다 퐁 메시지를 수신
+	PingPeriod = (PongWait * 6) / 10 // 18초마다 핑 메시지 전송
 )
 
 func WSHandleMessages() {
@@ -137,49 +141,92 @@ func processMessage(d amqp.Delivery) {
 func HandlePingPong(wsClient *entity.WSClient) {
 	ws := wsClient.Conn
 
-	// Setting up the Pong handler
+	// Set initial deadline for Pong
 	ws.SetReadDeadline(time.Now().Add(PongWait))
 	ws.SetPongHandler(func(string) error {
+		// Update the deadline on Pong receipt
 		ws.SetReadDeadline(time.Now().Add(PongWait))
 		return nil
 	})
 
 	ticker := time.NewTicker(PingPeriod)
 	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:
-			// 연결이 이미 닫혀있는지 확인
-			if wsClient.IsClosed() {
+			// Check if the connection is already closed
+			if wsClient.Closed {
+				fmt.Printf("Connection for session %s is already closed.\n", wsClient.SessionID)
 				return
 			}
+
+			// Send Ping message
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
-				fmt.Println("Error sending ping:", err)
-				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID)
+				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
+
+				// Handle abnormal connection termination
+				AbnormalErrorHandling(wsClient.RoomID, wsClient.SessionID)
 				return
 			}
-
 		}
-
 	}
 }
 
-func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, err *entity.RoomInfo) {
-	// 에러 처리
-	if clients, ok := entity.WSClients[roomID]; ok {
-		for client := range clients {
-			//이벤트 요청한 유저에게 에러 메시지 전송
-			if clients[client].UserID == userID {
-				message, err := CreateMessage(err)
+// ErrorHandling processes errors and sends them to the corresponding client.
+func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *entity.RoomInfo) {
+	// Retrieve all sessionIDs for the room
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// Find the client associated with the sessionID
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == userID {
+				// Create an error message
+				message, err := CreateMessage(roomError)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Error creating error message:", err)
+					continue
 				}
 				msg.Message = message
-				err = client.WriteJSON(msg)
+
+				// Send the error message
+				err = client.Conn.WriteJSON(msg)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Printf("Error sending message to session %s (user %d): %v\n", sessionID, userID, err)
+
+					// Close the connection and remove the session
+					client.Conn.Close()
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(roomID, sessionID)
 				}
 			}
+		}
+	}
+
+	// If the room has no active sessions, delete it
+	if len(entity.RoomSessions[roomID]) == 0 {
+		delete(entity.RoomSessions, roomID)
+		fmt.Printf("Room %d deleted as it has no active sessions.\n", roomID)
+	}
+}
+
+// Generate a new sessionID
+func generateSessionID() string {
+	return uuid.New().String() // Generate a new UUID
+}
+
+// Add a sessionID to the room
+func addSessionToRoom(roomID uint, sessionID string) {
+	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+}
+
+// Remove a sessionID from the room
+func removeSessionFromRoom(roomID uint, sessionID string) {
+	sessions := entity.RoomSessions[roomID]
+	for i, id := range sessions {
+		if id == sessionID {
+			// Remove sessionID from the room
+			entity.RoomSessions[roomID] = append(sessions[:i], sessions[i+1:]...)
+			break
 		}
 	}
 }
