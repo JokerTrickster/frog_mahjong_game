@@ -2343,53 +2343,7 @@ const docTemplate = `{
         },
         "/v2.1/rooms/match/ws": {
             "get": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ws"
-                ],
-                "summary": "랜덤으로 방 매칭 (ws)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "access token",
-                        "name": "tkn",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "timer",
-                        "name": "timer",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "count",
-                        "name": "count",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
+                "responses": {}
             }
         },
         "/v2.1/rooms/play/together/ws": {

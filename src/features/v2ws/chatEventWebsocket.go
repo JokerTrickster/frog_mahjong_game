@@ -49,39 +49,54 @@ func ChatEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		// 메시지 생성
-
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
+	// 유저 상태를 변경한다. (방에 참여)
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
+		// 에러 발생 시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if ChatInfo.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+					// 메시지 설정
 					msg.Message = req.Message
 					msg.ChatID = ChatID
 
-					err = client.WriteJSON(msg)
+					// 메시지 전송
+					err := client.Conn.WriteJSON(msg)
 					if err != nil {
-						log.Printf("error: %v", err)
+						log.Printf("Error sending message to user %d: %v", client.UserID, err)
+
+						// 클라이언트를 종료 및 정리
 						client.Close()
-						delete(clients, client)
+						delete(entity.WSClients, sessionID)
+						removeSessionFromRoom(client.RoomID, sessionID)
 					}
 				}
 			}
 		} else {
-			for client := range clients {
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				msg.Message = req.Message
-				msg.ChatID = ChatID
-				err = client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
+			// 정상적인 경우 모든 유저에게 메시지 브로드캐스트
+			for _, sessionID := range sessionIDs {
+				if client, exists := entity.WSClients[sessionID]; exists {
+					// 메시지 설정
+					msg.Message = req.Message
+					msg.ChatID = ChatID
+
+					// 메시지 전송
+					err := client.Conn.WriteJSON(msg)
+					if err != nil {
+						log.Printf("Error broadcasting to user %d: %v", client.UserID, err)
+
+						// 클라이언트를 종료 및 정리
+						client.Close()
+						delete(entity.WSClients, sessionID)
+						removeSessionFromRoom(client.RoomID, sessionID)
+					}
 				}
 			}
 		}
+
+		// 방이 비어 있으면 삭제
+		if len(entity.RoomSessions[msg.RoomID]) == 0 {
+			delete(entity.RoomSessions, msg.RoomID)
+		}
 	}
+
 }

@@ -15,24 +15,27 @@ var (
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		}}
-	WSClients   = make(map[uint]map[*websocket.Conn]*WSClient)
-	WSBroadcast = make(chan WSMessage)
+	WSClients    = make(map[string]*WSClient) // sessionID -> WSClient
+	WSBroadcast  = make(chan WSMessage)       // 브로드캐스트 메시지
+	RoomSessions = make(map[uint][]string)    // roomID -> sessionID 리스트
 )
 
 type WSClient struct {
-	RoomID uint
-	UserID uint
-	Conn   *websocket.Conn
-	Closed bool // 연결이 닫혔는지 여부를 추적하는 필드
+	SessionID string // 고유 세션 ID
+	RoomID    uint
+	UserID    uint
+	Conn      *websocket.Conn
+	Closed    bool // 연결이 닫혔는지 여부를 추적하는 필드
 }
 
 type WSMessage struct {
-	Message string `json:"message"`
-	Event   string `json:"event"`
-	RoomID  uint   `json:"roomID"`
-	UserID  uint   `json:"userID"`
-	ChatID  uint   `json:"chatID"`
-	Name    string `json:"name"`
+	Message   string `json:"message"`
+	Event     string `json:"event"`
+	RoomID    uint   `json:"roomID"`
+	UserID    uint   `json:"userID"`
+	ChatID    uint   `json:"chatID"`
+	SessionID string `json:"sessionID"`
+	Name      string `json:"name"`
 }
 
 type ChatInfo struct {
