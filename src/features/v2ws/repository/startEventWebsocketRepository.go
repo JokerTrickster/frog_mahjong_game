@@ -11,9 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+func StartFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+	if err := mysql.GormMysqlDB.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
 	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID)
@@ -77,8 +77,8 @@ func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mys
 }
 
 // 방 상태 업데이트 (wait -> play)
-func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, state string) error {
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", "play")
+func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, roomUpdateData mysql.Rooms) error {
+	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Updates(roomUpdateData)
 	if err.Error != nil {
 		return fmt.Errorf("방 상태 업데이트 실패: %v", err.Error)
 	}

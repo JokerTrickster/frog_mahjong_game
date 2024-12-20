@@ -47,7 +47,8 @@ CREATE TABLE rooms (
     password VARCHAR(255),
     state VARCHAR(50),
     owner_id INT,
-    timer INT
+    timer INT,
+    start_time TIMESTAMP
 );
 
 INSERT INTO rooms (current_count, max_count, min_count, name, password, state, owner_id)

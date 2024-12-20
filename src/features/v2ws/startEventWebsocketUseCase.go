@@ -2,6 +2,7 @@ package v2ws
 
 import (
 	"main/utils/db/mysql"
+	"time"
 
 	"golang.org/x/exp/rand"
 )
@@ -49,4 +50,12 @@ func CreateInitCards(roomID uint, birdCards []*mysql.BirdCards) []mysql.UserBird
 	}
 
 	return cards
+}
+
+func StartUpdateRoom(roomID uint) mysql.Rooms {
+	//시작 시간 (epoch time milliseconds)
+	return mysql.Rooms{
+		State:     "play",
+		StartTime: time.Now(),
+	}
 }

@@ -58,8 +58,9 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// room 데이터 상태 변경 (대기 -> 플레이)
-		err = repository.StartUpdateRoom(ctx, tx, roomID, "play")
+		// room 데이터 값 변경 (상태 변경, 시작 시간 추가)
+		roomUpdateData := StartUpdateRoom(roomID)
+		err = repository.StartUpdateRoom(ctx, tx, roomID, roomUpdateData)
 		if err != nil {
 			return err
 		}
@@ -86,10 +87,6 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		preloadUsers, err = repository.StartFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
 		return nil
 	})
 	if err != nil {
@@ -99,7 +96,11 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
-
+	preloadUsers, err = repository.StartFindAllRoomUsers(ctx, roomID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 	openCards, err := repository.StartUpdateCardState(ctx, roomID)

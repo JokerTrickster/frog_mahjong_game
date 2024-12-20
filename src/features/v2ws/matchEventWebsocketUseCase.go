@@ -1,6 +1,9 @@
 package v2ws
 
-import "main/utils/db/mysql"
+import (
+	"main/utils/db/mysql"
+	"time"
+)
 
 func CreateMatchRoomDTO(uID uint, count int, timer int) mysql.Rooms {
 	result := mysql.Rooms{
@@ -12,6 +15,7 @@ func CreateMatchRoomDTO(uID uint, count int, timer int) mysql.Rooms {
 		Timer:        timer,
 		PlayTurn:     0,
 		Name:         "speed match",
+		StartTime:    time.Now(),
 	}
 	return result
 }

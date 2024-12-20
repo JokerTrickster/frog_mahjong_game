@@ -151,6 +151,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	password := ""
 	pickedCount := 0
 	missionIDs := make([]int, 0)
+	var startTime int64
 
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
@@ -204,10 +205,17 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 			pickedCount++
 		}
 		roomID = roomUser.RoomID
-
+		// 방장 여부 추가
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
 		}
+		//시작 시간 추가
+		if !roomUser.Room.StartTime.IsZero() {
+			// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
+			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 3000
+		}
+
+		// 미션 정보 저장
 		if len(missionIDs) == 0 {
 			for _, mission := range roomUser.RoomMission {
 				missionIDs = append(missionIDs, mission.MissionID)
@@ -228,6 +236,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		Winner:     0,
 		MissionIDs: missionIDs,
 		AllPicked:  false,
+		StartTime:  startTime,
 	}
 	if pickedCount == len(preloadUsers) {
 		gameInfo.AllPicked = true
