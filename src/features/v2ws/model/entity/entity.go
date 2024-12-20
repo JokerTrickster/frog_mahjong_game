@@ -93,6 +93,7 @@ type GameInfo struct {
 	Password   string `json:"password"`   // 방 비밀번호
 	Winner     uint   `json:"winner"`     // 승리자 ID
 	OpenCards  []int  `json:"openCards"`  // 공개된 카드
+	StartTime  int64  `json:"startTime"`  // 게임 시작 시간 (epoch time in milliseconds)
 }
 
 /*

@@ -1,6 +1,10 @@
 package mysql
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // 전체, 한식, 중식, 일식, 양식, 분식, 패스트푸드, 카페, 술집, 기타
 type Times struct {
@@ -31,15 +35,16 @@ type Users struct {
 
 type Rooms struct {
 	gorm.Model
-	CurrentCount int    `json:"currentCount" gorm:"column:current_count"`
-	MaxCount     int    `json:"maxCount" gorm:"column:max_count"`
-	MinCount     int    `json:"minCount" gorm:"column:min_count"`
-	Name         string `json:"name" gorm:"column:name"`
-	Password     string `json:"password" gorm:"column:password"`
-	State        string `json:"state" gorm:"column:state"` //wait, play, end
-	OwnerID      int    `json:"ownerID" gorm:"column:owner_id"`
-	PlayTurn     int    `json:"playTurn" gorm:"column:play_turn"`
-	Timer        int    `json:"timeOut" gorm:"column:timer"`
+	CurrentCount int       `json:"currentCount" gorm:"column:current_count"`
+	MaxCount     int       `json:"maxCount" gorm:"column:max_count"`
+	MinCount     int       `json:"minCount" gorm:"column:min_count"`
+	Name         string    `json:"name" gorm:"column:name"`
+	Password     string    `json:"password" gorm:"column:password"`
+	State        string    `json:"state" gorm:"column:state"` //wait, play, end
+	OwnerID      int       `json:"ownerID" gorm:"column:owner_id"`
+	PlayTurn     int       `json:"playTurn" gorm:"column:play_turn"`
+	Timer        int       `json:"timeOut" gorm:"column:timer"`
+	StartTime    time.Time `json:"startTime" gorm:"column:start_time"`
 }
 
 type RoomUsers struct {

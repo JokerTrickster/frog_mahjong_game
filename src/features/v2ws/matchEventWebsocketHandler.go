@@ -19,26 +19,26 @@ func match(c echo.Context) error {
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		fmt.Printf("WebSocket upgrade failed: %v\n", err)
-		return nil
+		return err
 	}
 
 	req := &request.ReqWSMatch{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		fmt.Printf("Invalid request: %v\n", err)
-		return nil
+		return err
 	}
 
 	//토큰 검증
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
 		fmt.Printf("Token verification failed: %v\n", err)
-		return nil
+		return err
 	}
 
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
 		fmt.Printf("Failed to parse token: %v\n", err)
-		return nil
+		return err
 	}
 
 	// 재접속 확인
