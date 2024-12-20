@@ -159,7 +159,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
 				wsClient.Closed = true
 				// Handle abnormal connection termination
-				AbnormalErrorHandling(wsClient.RoomID, wsClient.SessionID)
+				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 				return
 			}
 		}

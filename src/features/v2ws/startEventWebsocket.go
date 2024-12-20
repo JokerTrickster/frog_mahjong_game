@@ -33,27 +33,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방장이 게임 시작 요청했는지 체크
-		ownerID, err := repository.StartCheckOwner(ctx, tx, uID, roomID)
-		if err != nil {
-			return err
-		}
-
-		// 방에 있는 유저들이 모두 레디 상태인지 확인
-		roomUsers, err := repository.StartCheckReady(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
-		if allReady := CheckRoomUsersReady(roomUsers, ownerID); !allReady {
-			return fmt.Errorf("모든 유저가 준비하지 않았습니다.")
-		}
-
-		// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
-		updatedRoomUsers, err := StartUpdateRoomUsers(roomUsers)
-		if err != nil {
-			return err
-		}
-		// room user 데이터 변경 (대기 -> 플레이)
-		err = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
+		err := repository.StartCheckOwner(ctx, tx, uID, roomID)
 		if err != nil {
 			return err
 		}

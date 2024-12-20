@@ -166,6 +166,12 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 			PlayerState:         "picking",
 			MissionSuccessCount: len(roomUser.UserMissions),
 		}
+		//유저 상태 변경 (비정상적인 경우)
+		if roomUser.RoomUsers.PlayerState == "disconnected" {
+			user.PlayerState = "disconnected"
+		}
+
+		// 아이템 정보 저장
 		for _, item := range roomUser.UserItems {
 			userItem := entity.Item{
 				ItemID:        uint(item.ItemID),
@@ -413,6 +419,10 @@ func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID ui
 		// 핑/퐁 및 메시지 처리 시작
 		go HandlePingPong(entity.WSClients[sessionID])
 		go readMessages(ws, sessionID, roomID, userID)
+	}
+	err := repository.ReconnectedUpdateRoomUser(context.TODO(), roomID, userID)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
