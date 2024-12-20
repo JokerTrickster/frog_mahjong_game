@@ -442,6 +442,7 @@ func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userI
 // 메시지 읽기 및 처리
 func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
 	client := entity.WSClients[sessionID]
+	fmt.Println(client)
 	defer func() {
 		// 연결 종료 시 세션 정리
 		client.Closed = true
