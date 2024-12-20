@@ -61,6 +61,17 @@ func joinPlay(c echo.Context) error {
 		fmt.Printf("Failed to parse token: %v\n", err)
 		return nil
 	}
+	// 재접속 확인
+	// 유저 상태가 abnormal 이면 해당 roomID를 가지고 온다.
+	if req.SessionID != "" {
+		roomID, _ := repository.JoinRedisSessionGet(context.Background(), req.SessionID)
+		if roomID != 0 {
+			// 기존 연결 복구
+			restoreSession(ws, req.SessionID, roomID, userID)
+			// 연결한 유저에게 메시지 정보를 전달해야 된다.
+			return nil
+		}
+	}
 
 	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
@@ -127,80 +138,15 @@ func joinPlay(c echo.Context) error {
 		return nil
 	}
 
-	defer ws.Close()
-
 	// sessionID 생성
 	sessionID := generateSessionID()
-
-	// 초기 메시지 처리
-	var initialMsg entity.WSMessage
-	err = ws.ReadJSON(&initialMsg)
+	// 세션 ID 저장
+	err = repository.PlayTogetherRedisSessionSet(ctx, sessionID, roomID)
 	if err != nil {
-		fmt.Printf("Failed to read initial message: %v\n", err)
+		fmt.Printf("Failed to save session: %v\n", err)
 		return nil
 	}
 
-	initialMsg.UserID = userID
-	initialMsg.RoomID = roomID
-	initialMsg.SessionID = sessionID
-
-	// 첫 번째 레벨 맵 초기화 (RoomSessions)
-	if entity.RoomSessions == nil {
-		entity.RoomSessions = make(map[uint][]string)
-	}
-
-	// 두 번째 레벨 맵 초기화 (WSClients)
-	if entity.WSClients == nil {
-		entity.WSClients = make(map[string]*entity.WSClient)
-	}
-
-	// 방 세션에 sessionID 추가
-	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
-
-	// sessionID를 WSClients에 등록
-	wsClient := &entity.WSClient{
-		RoomID:    roomID,
-		UserID:    userID,
-		SessionID: sessionID,
-		Conn:      ws,
-		Closed:    false,
-	}
-	entity.WSClients[sessionID] = wsClient
-
-	// 메시지 브로드캐스트
-	entity.WSBroadcast <- initialMsg
-
-	// Ping/Pong 관리 시작
-	go HandlePingPong(wsClient)
-
-	// 메시지 수신 루프
-	for {
-		var msg entity.WSMessage
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			fmt.Printf("Error reading message for session %s: %v\n", sessionID, err)
-
-			// 비정상 종료 처리
-			wsClient.Closed = true
-			AbnormalErrorHandling(roomID, sessionID)
-			break
-		}
-
-		// 메시지 처리
-		msg.RoomID = roomID
-		msg.UserID = userID
-		msg.SessionID = sessionID
-		entity.WSBroadcast <- msg
-	}
-
-	// 연결 종료 및 클라이언트 정리
-	delete(entity.WSClients, sessionID)
-	removeSessionFromRoom(roomID, sessionID)
-
-	if len(entity.RoomSessions[roomID]) == 0 {
-		delete(entity.RoomSessions, roomID)
-		fmt.Printf("Room %d deleted as it is empty.\n", roomID)
-	}
-
+	registerNewSession(ws, sessionID, roomID, userID)
 	return nil
 }

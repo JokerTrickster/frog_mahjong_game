@@ -8,6 +8,8 @@ import (
 	"main/features/v2ws/model/request"
 	"main/utils"
 	"main/utils/db/mysql"
+	_redis "main/utils/db/redis"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -193,6 +195,23 @@ func PlayTogetherInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO
 	}
 	if result.Error != nil {
 		return fmt.Errorf("유저 아이템 생성 실패: %v", result.Error)
+	}
+	return nil
+}
+func PlayTogetherRedisSessionGet(ctx context.Context, sessionID string) (uint, error) {
+	redisKey := fmt.Sprintf("abnormal_session:%s", sessionID)
+	roomID, err := _redis.Client.Get(ctx, redisKey).Uint64()
+	if err != nil {
+		return 0, nil
+	}
+	return uint(roomID), nil
+}
+
+func PlayTogetherRedisSessionSet(ctx context.Context, sessionID string, roomID uint) error {
+	redisKey := fmt.Sprintf("abnormal_session:%s", sessionID)
+	err := _redis.Client.Set(ctx, redisKey, roomID, 3*time.Minute).Err()
+	if err != nil {
+		return fmt.Errorf("세션 저장 실패: %v", err)
 	}
 	return nil
 }
