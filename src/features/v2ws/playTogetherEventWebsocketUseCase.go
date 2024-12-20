@@ -31,13 +31,13 @@ func CreatePlayTogetherRoomDTO(uID uint, count int, timer int, password string) 
 	return result
 }
 
-func CreatePlayTogetherRoomUserDTO(uID uint, roomID int, playerState string) mysql.RoomUsers {
+func CreatePlayTogetherRoomUserDTO(uID uint, roomID int) mysql.RoomUsers {
 	result := mysql.RoomUsers{
 		UserID:         int(uID),
 		RoomID:         roomID,
 		Score:          0,
 		OwnedCardCount: 0,
-		PlayerState:    playerState,
+		PlayerState:    "play",
 		TurnNumber:     0,
 	}
 	return result

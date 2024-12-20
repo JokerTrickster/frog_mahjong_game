@@ -18,3 +18,11 @@ func FindAllOpenCards(c context.Context, roomID int) ([]int, error) {
 	}
 	return cards, nil
 }
+
+func ReconnectedUpdateRoomUser(c context.Context, roomID uint, userID uint) error {
+	err := mysql.GormMysqlDB.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", roomID, userID).Update("player_state", "play").Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

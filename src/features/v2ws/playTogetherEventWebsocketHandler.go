@@ -98,7 +98,7 @@ func playTogether(c echo.Context) error {
 		}
 
 		// room_user 생성
-		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "ready")
+		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID))
 		err = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
 			return err

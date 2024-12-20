@@ -7,18 +7,6 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-func CheckRoomUsersReady(roomUsers []mysql.RoomUsers, ownerID uint) bool {
-	for _, ru := range roomUsers {
-		if ru.UserID == int(ownerID) {
-			continue
-		}
-		if ru.PlayerState != "ready" {
-			return false
-		}
-	}
-	return true
-}
-
 func StartUpdateRoomUsers(roomUsers []mysql.RoomUsers) ([]mysql.RoomUsers, error) {
 	visited := make(map[int]bool, len(roomUsers)+1)
 

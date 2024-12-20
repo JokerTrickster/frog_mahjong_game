@@ -14,20 +14,20 @@ import (
 var reconnectTimers sync.Map // 재접속 타이머를 관리하는 맵
 
 // 비정상적인 에러를 처리하는 함수
-func AbnormalErrorHandling(roomID uint, sessionID string) {
+func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 	ctx := context.TODO()
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-
 	// 비정상적인 유저 상태 처리
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		abnormalEntity := entity.WSAbnormalEntity{
 			RoomID:         roomID,
+			UserID:         userID,
 			AbnormalUserID: getUserIDFromSessionID(sessionID),
 		}
 
 		// 유저 상태 변경
-		if err := repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity); err != nil {
+		if err := repository.AbnormalUpdateRoomUsers(ctx, tx, &abnormalEntity); err != nil {
 			return err
 		}
 

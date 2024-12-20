@@ -111,7 +111,7 @@ func joinPlay(c echo.Context) error {
 		}
 
 		// 방 유저 정보 추가
-		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "ready")
+		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
 		err = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
 			return err

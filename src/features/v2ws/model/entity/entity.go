@@ -125,6 +125,7 @@ type RoomUsers struct {
 	Cards          []mysql.UserBirdCards `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 	UserMissions   []mysql.UserMissions  `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 	UserItems      []mysql.UserItems     `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
+	RoomUsers      mysql.RoomUsers       `gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"`
 }
 
 func (c *WSClient) Close() {

@@ -11,7 +11,7 @@ import (
 
 func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
+	if err := tx.Preload("User").Preload("Room").Preload("RoomUsers").Preload("Cards", func(db *gorm.DB) *gorm.DB {
 		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
 	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
 		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
@@ -37,9 +37,9 @@ func AbnormalDeleteRoom(c context.Context, tx *gorm.DB, AbnormalEntity *entity.W
 	return nil
 }
 
-// 유저 상태 변경 (play -> wait)
-func AbnormalUpdateUsers(c context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.Users{}).Where("room_id = ?", AbnormalEntity.RoomID).Update("state", "abnormal").Error
+// 룸 유저 상태 변경 (play -> wait)
+func AbnormalUpdateRoomUsers(c context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
+	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", AbnormalEntity.RoomID, AbnormalEntity.UserID).Update("player_state", "disconnected").Error
 	if err != nil {
 		return fmt.Errorf("유저 상태 변경 실패 %v", err.Error())
 	}
