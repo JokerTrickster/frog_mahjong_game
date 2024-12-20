@@ -4,11 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"main/features/v2ws/model/entity"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
 	"strings"
+	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
@@ -357,4 +361,118 @@ func CreateUserBirdCardDTO(importSingleCard entity.WSImportSingleCardEntity) *my
 		State:  "picked",
 	}
 	return &userBirdCardDTO
+}
+
+// 기존 연결 복구
+func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	// 타이머 취소
+	if timer, ok := reconnectTimers.Load(sessionID); ok {
+		timer.(*time.Timer).Stop()
+		reconnectTimers.Delete(sessionID)
+		fmt.Printf("Reconnection successful for session %s in room %d. Timer canceled.\n", sessionID, roomID)
+	}
+	if client, ok := entity.WSClients[sessionID]; ok {
+		fmt.Println("바로 연결하면 여기 들어올거 같다.")
+		// 기존 연결 닫기
+		client.Closed = true
+		client.Conn.Close()
+
+		// 새로운 연결로 갱신
+		client.Conn = ws
+		client.Closed = false
+		entity.WSClients[sessionID] = client
+
+		fmt.Printf("User %d reconnected to Room %d with Session %s.\n", userID, roomID, sessionID)
+
+		// 핑/퐁 핸들링 재시작
+		go HandlePingPong(client)
+
+		// 메시지 처리 루프 시작
+		go readMessages(ws, sessionID, roomID, userID)
+	} else {
+		// 새로운 세션으로 등록
+		entity.WSClients[sessionID] = &entity.WSClient{
+			Conn:      ws,
+			SessionID: sessionID,
+			RoomID:    roomID,
+			UserID:    userID,
+			Closed:    false,
+		}
+		entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+		fmt.Printf("New connection established for Session %s in Room %d by User %d.\n", sessionID, roomID, userID)
+
+		// 핑/퐁 및 메시지 처리 시작
+		go HandlePingPong(entity.WSClients[sessionID])
+		go readMessages(ws, sessionID, roomID, userID)
+	}
+}
+
+// 새로운 세션 등록
+func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	// 세션 등록
+	wsClient := &entity.WSClient{
+		SessionID: sessionID,
+		RoomID:    roomID,
+		UserID:    userID,
+		Conn:      ws,
+		Closed:    false,
+	}
+	entity.WSClients[sessionID] = wsClient
+
+	// 방에 세션 추가
+	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+
+	// 핑/퐁 핸들링 시작
+	go HandlePingPong(wsClient)
+
+	// 메시지 처리 루프 시작
+	go readMessages(ws, sessionID, roomID, userID)
+
+}
+
+// 메시지 읽기 및 처리
+func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	client := entity.WSClients[sessionID]
+	defer func() {
+		// 연결 종료 시 세션 정리
+		client.Closed = true
+		ws.Close()
+		delete(entity.WSClients, sessionID)
+		removeSessionFromRoom(roomID, sessionID)
+		fmt.Println("Session", sessionID, "closed. Read loop stopped.")
+
+		// 방 삭제 여부 확인
+		if len(entity.RoomSessions[roomID]) == 0 {
+			delete(entity.RoomSessions, roomID)
+			log.Printf("Room %d deleted as it has no active sessions.", roomID)
+		}
+	}()
+
+	for {
+		if client.Closed {
+			log.Printf("Session %s is closed. Stopping read loop.", sessionID)
+			return
+		}
+
+		var msg entity.WSMessage
+		err := ws.ReadJSON(&msg)
+		if err != nil {
+			if closeErr, ok := err.(*websocket.CloseError); ok {
+				if closeErr.Code == websocket.CloseNormalClosure {
+					log.Printf("Session %s closed normally (Code 1000).", sessionID)
+					break
+				}
+				log.Printf("Session %s closed with error: %v", sessionID, closeErr)
+			} else {
+				log.Printf("Error reading message for session %s: %v", sessionID, err)
+			}
+			break
+		}
+
+		// 메시지 브로드캐스트
+		msg.RoomID = roomID
+		msg.UserID = userID
+		msg.SessionID = sessionID
+		entity.WSBroadcast <- msg
+	}
 }
