@@ -95,6 +95,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
+	msg.SessionID = ""
 	// 유저 상태를 변경한다. (방에 참여)
 	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
 		// 에러 발생 시 이벤트 요청한 유저에게만 메시지를 전달한다.
