@@ -76,39 +76,13 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
-	// 유저 상태를 변경한다. (방에 참여)
-	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
-		// 메시지 생성
-		roomInfoMsg := *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 1)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 
-		for _, sessionID := range sessionIDs {
-			if client, exists := entity.WSClients[sessionID]; exists {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Printf("Error marshalling message: %v\n", err)
-					continue
-				}
-
-				msg.Message = message
-				err = client.Conn.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("Error sending message to user %d: %v\n", client.UserID, err)
-					client.Close()
-
-					// 클라이언트를 종료 및 정리
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(client.RoomID, sessionID)
-				}
-			}
-		}
-
-		// 방이 비어 있으면 삭제
-		if len(entity.RoomSessions[msg.RoomID]) == 0 {
-			delete(entity.RoomSessions, msg.RoomID)
-		}
+	message, err := CreateMessage(&roomInfoMsg)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-
+	msg.Message = message
+	sendMessageToClients(roomID, msg)
 }

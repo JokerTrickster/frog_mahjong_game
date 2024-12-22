@@ -25,28 +25,6 @@ func waitForReconnection(roomID uint, sessionID string, preloadUsers []entity.Ro
 	reconnectTimers.Store(sessionID, timer)
 }
 
-// 클라이언트에 메시지 전송
-func sendMessageToClients(roomID uint, roomInfoMsg entity.RoomInfo) {
-	message, err := CreateMessage(&roomInfoMsg)
-	if err != nil {
-		fmt.Printf("Failed to create message: %v\n", err)
-		return
-	}
-
-	// 방에 있는 모든 클라이언트에 메시지 전송
-	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
-		for _, sessionID := range sessionIDs {
-			if client, exists := entity.WSClients[sessionID]; exists {
-				if err := client.Conn.WriteJSON(entity.WSMessage{Message: message}); err != nil {
-					fmt.Printf("Failed to send message to session %s: %v\n", sessionID, err)
-					client.Close()
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(roomID, sessionID)
-				}
-			}
-		}
-	}
-}
 
 // 세션 정리 (재접속 실패 시 호출)
 func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUsers) {

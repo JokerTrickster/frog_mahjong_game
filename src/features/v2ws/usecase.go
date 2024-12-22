@@ -270,15 +270,6 @@ func CreateChatMessage(chatInfoMsg *entity.ChatInfo) (string, error) {
 
 	return string(jsonData), nil
 }
-func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
-	// 구조체를 JSON 문자열로 변환 (마샬링)
-	jsonData, err := json.Marshal(roomInfoMsg)
-	if err != nil {
-		return "", fmt.Errorf("JSON 마샬링 에러: %s", err)
-	}
-
-	return string(jsonData), nil
-}
 
 func CalcScore(cards []*mysql.Cards, score int) error {
 	if score >= 5 {
@@ -495,4 +486,30 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 		msg.SessionID = sessionID
 		entity.WSBroadcast <- msg
 	}
+}
+
+// 클라이언트에 메시지 전송
+func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	// 방에 있는 모든 클라이언트에 메시지 전송
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists {
+				if err := client.Conn.WriteJSON(msg); err != nil {
+					fmt.Printf("Failed to send message to session %s: %v\n", sessionID, err)
+					client.Close()
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(roomID, sessionID)
+				}
+			}
+		}
+	}
+}
+func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
+	// 구조체를 JSON 문자열로 변환 (마샬링)
+	jsonData, err := json.Marshal(roomInfoMsg)
+	if err != nil {
+		return "", fmt.Errorf("JSON 마샬링 에러: %s", err)
+	}
+
+	return string(jsonData), nil
 }

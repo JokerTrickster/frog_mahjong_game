@@ -78,53 +78,12 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 		roomInfoMsg.GameInfo.IsFull = true
 		roomInfoMsg.GameInfo.AllReady = true
 	}
-	// 구조체를 JSON 문자열로 변환 (마샬링)
+
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	msg.Message = message
-	msg.RoomID = roomID
-
-	// 방 유저들에게 메시지 전달
-	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
-		// 에러 발생 시 이벤트 요청한 유저에게만 메시지를 전달
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for _, sessionID := range sessionIDs {
-				if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
-					// 메시지 전송
-					if err := client.Conn.WriteJSON(msg); err != nil {
-						fmt.Printf("Error sending message to session %s: %v\n", sessionID, err)
-
-						// 클라이언트 종료 및 세션 제거
-						client.Close()
-						delete(entity.WSClients, sessionID)
-						removeSessionFromRoom(msg.RoomID, sessionID)
-					}
-				}
-			}
-		} else {
-			// 정상적인 경우 방의 모든 유저에게 메시지 전송
-			for _, sessionID := range sessionIDs {
-				if client, exists := entity.WSClients[sessionID]; exists {
-					// 메시지 전송
-					if err := client.Conn.WriteJSON(msg); err != nil {
-						fmt.Printf("Error sending message to session %s: %v\n", sessionID, err)
-
-						// 클라이언트 종료 및 세션 제거
-						client.Close()
-						delete(entity.WSClients, sessionID)
-						removeSessionFromRoom(msg.RoomID, sessionID)
-					}
-				}
-			}
-		}
-
-		// 방이 비어 있으면 삭제
-		if len(entity.RoomSessions[msg.RoomID]) == 0 {
-			delete(entity.RoomSessions, msg.RoomID)
-			fmt.Printf("Room %d deleted as it is empty.\n", msg.RoomID)
-		}
-	}
-
+	sendMessageToClients(roomID, msg)
 }

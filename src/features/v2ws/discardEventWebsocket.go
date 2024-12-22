@@ -109,35 +109,12 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			roomInfoMsg.GameInfo.AllPicked = true
 		}
 
-		// 방의 모든 유저에게 메시지 전송
-		for _, sessionID := range sessionIDs {
-			if client, exists := entity.WSClients[sessionID]; exists {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-
-				msg.Message = message
-				err = client.Conn.WriteJSON(msg)
-				if err != nil {
-					log.Printf("Error sending message to user %d: %v", client.UserID, err)
-					client.Close()
-
-					// 클라이언트 정리
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(client.RoomID, sessionID)
-				}
-			}
+		message, err := CreateMessage(&roomInfoMsg)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
-
-		// 방이 비어 있으면 삭제
-		if len(entity.RoomSessions[msg.RoomID]) == 0 {
-			delete(entity.RoomSessions, msg.RoomID)
-		}
+		msg.Message = message
+		sendMessageToClients(roomID, msg)
 	}
-
 }
