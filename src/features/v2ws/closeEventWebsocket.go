@@ -3,7 +3,6 @@ package v2ws
 import (
 	"context"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
@@ -17,6 +16,7 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
+	roomID := msg.RoomID
 	req := request.ReqWSClose{
 		RoomID: uint(msg.RoomID),
 	}
@@ -28,24 +28,32 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 		// RoomsID에 해당하는 userID를 삭제한다.
 		err := repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// Rooms 현재 인원수를 -1한다.
 		roomDTO, err := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// user에 rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
 		err = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		if roomDTO.CurrentCount == 0 {
 			// 방 삭제
 			err = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 
 		} else if roomDTO.CurrentCount == 1 {
@@ -54,11 +62,15 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			//룸에 남아있는 유저 정보를 가져온다.
 			roomUserDTO, err := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 			userDTO, err := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 
 			// 해당 유저를 방장으로 업데이트 한다.
@@ -67,12 +79,16 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			// rooms -> owner 변경
 			err = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		preloadUsers, err = repository.CloseFindAllRoomUsers(ctx, tx, req.RoomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})
@@ -86,39 +102,12 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
-	// 구조체를 JSON 문자열로 변환 (마샬링)
+
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	msg.Message = message
-	// 유저 상태를 변경한다. (방에 참여)
-	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
-		for _, sessionID := range sessionIDs {
-			if client, exists := entity.WSClients[sessionID]; exists {
-				// 방을 나간 유저 클로즈 처리
-				if client.UserID == msg.UserID {
-					client.Close()
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(client.RoomID, sessionID)
-				} else {
-					// 나머지 유저에게 메시지 전달
-					err := client.Conn.WriteJSON(msg)
-					if err != nil {
-						log.Printf("Error sending message to user %d: %v", client.UserID, err)
-
-						// 클라이언트 종료 및 정리
-						client.Close()
-						delete(entity.WSClients, sessionID)
-						removeSessionFromRoom(client.RoomID, sessionID)
-					}
-				}
-			}
-		}
-
-		// 방이 비어 있으면 삭제
-		if len(entity.RoomSessions[msg.RoomID]) == 0 {
-			delete(entity.RoomSessions, msg.RoomID)
-		}
-	}
+	sendMessageToClients(roomID, msg)
 }

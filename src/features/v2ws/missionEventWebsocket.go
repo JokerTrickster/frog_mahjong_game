@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -47,33 +46,37 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 			userMissionDTO := CreateUserMissionDTO(missionEntity)
 			userMissionID, err := repository.MissionCreateUserMission(ctx, tx, userMissionDTO)
 			if err != nil {
-				fmt.Println(err)
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 			userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
 			err = repository.MissionCreateUserMissionCard(ctx, tx, userMissionCardDTO)
 			if err != nil {
-				fmt.Println(err)
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		// 카드 정보 체크 (소유하고 있는지 체크)
 		err := repository.MissionFindAllCards(ctx, tx, &missionEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		preloadUsers, err = repository.MissionFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성

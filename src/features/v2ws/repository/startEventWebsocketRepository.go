@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/utils/db/mysql"
 	"math/rand"
 	"time"
@@ -11,135 +12,169 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, error) {
+func StartFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	if err := mysql.GormMysqlDB.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Preload("Cards", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-	}).Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID)
-	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	err := mysql.GormMysqlDB.Preload("User").
+		Preload("UserItems").
+		Preload("Room").
+		Preload("RoomMission").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).
+		Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID)
+		}).
+		Where("room_id = ?", roomID).
+		Find(&roomUsers).Error
+	if err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("room_users 조회 실패: %v", err.Error()),
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
 
-func StartDeleteCards(ctx context.Context, tx *gorm.DB, userID uint) error {
-	err := tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&mysql.UserBirdCards{})
-	if err.Error != nil {
-		if err.Error == gorm.ErrRecordNotFound {
-			return nil
+func StartDeleteCards(ctx context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&mysql.UserBirdCards{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("카드 삭제 실패: %v", err.Error()),
+			Type: _errors.ErrDeleteFailed,
 		}
-		return fmt.Errorf("카드 삭제 실패 %v", err.Error)
 	}
 	return nil
 }
 
-// 방장이 시작했는지 체크
-func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) error {
+func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) *entity.ErrorInfo {
 	room := mysql.Rooms{}
 	err := tx.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  fmt.Sprintf("방 정보를 찾을 수 없습니다. %v", err.Error()),
+			Type: _errors.ErrRoomNotFound,
+		}
 	}
 	if room.OwnerID != int(uID) {
-		return fmt.Errorf("방장만 게임을 시작할 수 있습니다.")
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeForbidden,
+			Msg:  "방장만 게임을 시작할 수 있습니다.",
+			Type: _errors.ErrUnauthorizedAction,
+		}
 	}
 	return nil
 }
 
-// 방 유저들이 모두 준비했는지 체크
-func StartCheckReady(ctx context.Context, tx *gorm.DB, roomID uint) ([]mysql.RoomUsers, error) {
-
+func StartCheckReady(ctx context.Context, tx *gorm.DB, roomID uint) ([]mysql.RoomUsers, *entity.ErrorInfo) {
 	roomUsers := make([]mysql.RoomUsers, 0)
 	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Find(&roomUsers).Error
 	if err != nil {
-		return nil, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", err)
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  fmt.Sprintf("방 유저 정보를 찾을 수 없습니다. %v", err.Error()),
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
-
 	return roomUsers, nil
 }
 
-// 방 유저 데이터 업데이트
-func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mysql.RoomUsers) error {
-
-	// 각 사용자 정보를 순회하며 각각 업데이트
+func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mysql.RoomUsers) *entity.ErrorInfo {
 	for _, user := range updateRoomUsers {
 		err := tx.WithContext(ctx).Model(&mysql.RoomUsers{}).
 			Where("room_id = ? AND user_id = ?", user.RoomID, user.UserID).
-			Updates(user)
-
-		if err.Error != nil {
-			return fmt.Errorf("방 유저 정보 업데이트 실패: %v", err.Error)
+			Updates(user).Error
+		if err != nil {
+			return &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("방 유저 정보 업데이트 실패: %v", err.Error()),
+				Type: _errors.ErrUpdateFailed,
+			}
 		}
 	}
-
 	return nil
 }
 
-// 방 상태 업데이트 (wait -> play)
-func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, roomUpdateData mysql.Rooms) error {
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Updates(roomUpdateData)
-	if err.Error != nil {
-		return fmt.Errorf("방 상태 업데이트 실패: %v", err.Error)
+func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, roomUpdateData mysql.Rooms) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).
+		Where("id = ? AND state = ?", roomID, "wait").
+		Updates(roomUpdateData).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 상태 업데이트 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
-
 	return nil
 }
 
-// 유저들 코인 -1 차감한다.
-func StartDiffCoin(ctx context.Context, tx *gorm.DB, roomID uint) error {
-	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("room_id = ?", roomID).Update("coin", gorm.Expr("coin - 1"))
-	if err.Error != nil {
-		return fmt.Errorf("유저 코인 차감 실패: %v", err.Error)
+func StartDiffCoin(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Model(&mysql.Users{}).
+		Where("room_id = ?", roomID).
+		Update("coin", gorm.Expr("coin - 1")).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 코인 차감 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
-
 	return nil
 }
 
-// 카드 데이터 생성
-func StartCreateCards(ctx context.Context, tx *gorm.DB, cards []mysql.UserBirdCards) error {
-	err := tx.WithContext(ctx).Create(&cards)
-	if err.Error != nil {
-		return fmt.Errorf("카드 정보 생성 실패: %v", err.Error)
+func StartCreateCards(ctx context.Context, tx *gorm.DB, cards []mysql.UserBirdCards) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Create(&cards).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("카드 정보 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
 	}
-
 	return nil
 }
 
-// 랜덤으로 카드 3장 상태를 opened으로 변경한다.
-func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, error) {
-	// 카드 총 수를 가져온다.
+func StartUpdateCardState(ctx context.Context, roomID uint) ([]int, *entity.ErrorInfo) {
 	var birdCards []*mysql.BirdCards
 	err := mysql.GormMysqlDB.Model(&mysql.BirdCards{}).Find(&birdCards).Error
 	if err != nil {
-		return nil, fmt.Errorf("카드 총 수 조회 실패: %v", err.Error())
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("카드 총 수 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
 	}
 
-	// 카드 총 수에서 랜덤으로 3개의 카드 ID를 가져온다. (rand를 통해 3개의 카드를 뽑는다.)
 	openCards := make([]int, len(birdCards))
 	for i := 0; i < len(birdCards); i++ {
 		openCards[i] = int(birdCards[i].ID)
 	}
 
-	// 배열을 랜덤하게 섞음
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(birdCards), func(i, j int) {
 		openCards[i], openCards[j] = openCards[j], openCards[i]
 	})
-	// opened 상태로 카드 상태 업데이트 한다.
+
 	for i := 0; i < 3; i++ {
-		err = mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).Where("card_id = ?", openCards[i]).Update("state", "opened").Error
+		err = mysql.GormMysqlDB.Model(&mysql.UserBirdCards{}).
+			Where("card_id = ?", openCards[i]).
+			Update("state", "opened").Error
 		if err != nil {
-			return nil, fmt.Errorf("카드 상태 업데이트 실패: %v", err.Error())
+			return nil, &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("카드 상태 업데이트 실패: %v", err.Error()),
+				Type: _errors.ErrUpdateFailed,
+			}
 		}
 	}
 
 	return openCards[:3], nil
 }
 
-// 미션을 랜덤으로 3개 생성한다.
-func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
-	// 랜덤으로 미션 ID 3개를 가져온다.
+func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
 	var missionIDs []int
 	err := tx.WithContext(ctx).
 		Model(&mysql.Missions{}).
@@ -147,41 +182,53 @@ func StartCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) error {
 		Limit(3).
 		Pluck("id", &missionIDs).Error
 	if err != nil {
-		return fmt.Errorf("미션 조회 실패: %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("미션 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
 	}
 
-	// 미션 정보를 생성한다.
 	roomMissions := make([]mysql.RoomMissions, 0)
 	for _, missionID := range missionIDs {
-		roomMission := mysql.RoomMissions{
+		roomMissions = append(roomMissions, mysql.RoomMissions{
 			RoomID:    int(roomID),
 			MissionID: missionID,
-		}
-		roomMissions = append(roomMissions, roomMission)
+		})
 	}
 	err = tx.WithContext(ctx).Create(&roomMissions).Error
 	if err != nil {
-		return fmt.Errorf("미션 생성 실패: %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("미션 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
 	}
-
 	return nil
 }
 
-func StartBirdCard(ctx context.Context, tx *gorm.DB) ([]*mysql.BirdCards, error) {
+func StartBirdCard(ctx context.Context, tx *gorm.DB) ([]*mysql.BirdCards, *entity.ErrorInfo) {
 	var birdCards []*mysql.BirdCards
 	err := tx.WithContext(ctx).Find(&birdCards).Error
 	if err != nil {
-		return nil, fmt.Errorf("birdCards 조회 실패: %v", err.Error())
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("birdCards 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
 	}
-	fmt.Println(len(birdCards))
 	return birdCards, nil
 }
 
-func StartCheckRoomState(ctx context.Context, roomID uint) (string, error) {
+func StartCheckRoomState(ctx context.Context, roomID uint) (string, *entity.ErrorInfo) {
 	room := mysql.Rooms{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return "", fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
+		return "", &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  fmt.Sprintf("방 정보를 찾을 수 없습니다. %v", err.Error()),
+			Type: _errors.ErrRoomNotFound,
+		}
 	}
 	return room.State, nil
 }

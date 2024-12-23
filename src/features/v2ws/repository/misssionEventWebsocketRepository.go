@@ -4,51 +4,71 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func MissionFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+func MissionFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").
+	err := tx.Preload("User").
 		Preload("UserItems").
 		Preload("Room").
 		Preload("RoomMission").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Order("updated_at ASC")
 		}).
-		Preload("UserMissions", "room_id = ?", roomID). // Preload 조건 명확히 유지
+		Preload("UserMissions", "room_id = ?", roomID).
 		Where("room_id = ?", roomID).
-		Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+		Find(&roomUsers).Error
+	if err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("room_users 조회 실패: %v", err.Error()),
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
 
 // 카드 정보 체크 (소유하고 있는지 체크)
-func MissionFindAllCards(c context.Context, tx *gorm.DB, missionEntity *entity.V2WSMissionEntity) error {
+func MissionFindAllCards(ctx context.Context, tx *gorm.DB, missionEntity *entity.V2WSMissionEntity) *entity.ErrorInfo {
 	cards := make([]*mysql.Cards, 0)
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and user_id = ? and card_id IN ?", missionEntity.RoomID, missionEntity.UserID, missionEntity.Cards).Find(&cards).Error
+	err := tx.Model(&mysql.Cards{}).
+		Where("room_id = ? AND user_id = ? AND card_id IN ?", missionEntity.RoomID, missionEntity.UserID, missionEntity.Cards).
+		Find(&cards).Error
 	if err != nil {
-		return fmt.Errorf("카드를 찾을 수 없습니다. %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("카드 조회 실패: %v", err.Error()),
+			Type: _errors.ErrNotFoundCard,
+		}
 	}
 	return nil
 }
 
-func MissionCreateUserMission(ctx context.Context, tx *gorm.DB, userMissionDTO *mysql.UserMissions) (uint, error) {
+func MissionCreateUserMission(ctx context.Context, tx *gorm.DB, userMissionDTO *mysql.UserMissions) (uint, *entity.ErrorInfo) {
 	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Create(userMissionDTO).Error
 	if err != nil {
-		return 0, fmt.Errorf("유저 미션 생성 실패 %v", err.Error())
+		return 0, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 미션 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
 	}
 	return userMissionDTO.ID, nil
 }
 
-func MissionCreateUserMissionCard(ctx context.Context, tx *gorm.DB, userMissionCardDTO *[]mysql.UserMissionCards) error {
+func MissionCreateUserMissionCard(ctx context.Context, tx *gorm.DB, userMissionCardDTO *[]mysql.UserMissionCards) *entity.ErrorInfo {
 	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Create(userMissionCardDTO).Error
 	if err != nil {
-		return fmt.Errorf("유저 미션 카드 생성 실패 %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 미션 카드 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
 	}
 	return nil
 }

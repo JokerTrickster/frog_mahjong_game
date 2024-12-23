@@ -76,25 +76,26 @@ func joinPlay(c echo.Context) error {
 	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
+	var roomInfoMsg entity.RoomInfo
 
-	// 기존 방과 유저 데이터 삭제
-	err = repository.JoinPlayDeleteRooms(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete rooms: %v\n", err)
-		return nil
+	// rooms에 기존 데이터 모두 삭제
+	newErr := repository.JoinPlayDeleteRooms(ctx, userID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		return fmt.Errorf("%s", newErr.Msg)
 	}
 
-	err = repository.JoinPlayDeleteRoomUsers(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete room users: %v\n", err)
+	// room_users에 기존 데이터 모두 삭제
+	newErr = repository.JoinPlayDeleteRoomUsers(ctx, userID)
+	if newErr != nil {
+		fmt.Printf("Failed to delete room users: %v\n", newErr.Msg)
 		return nil
 	}
-
 	var roomID uint
 
-	// 방 찾기
-	rooms, err := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
-	if err != nil {
+	// 조인 가능한 방 찾기
+	rooms, newErr := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
+	if newErr != nil {
 		message := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "비밀번호를 잘못 입력했습니다.")
 		ws.WriteMessage(websocket.CloseMessage, message)
 		return nil
@@ -105,22 +106,25 @@ func joinPlay(c echo.Context) error {
 		roomID = rooms.ID
 
 		// 방 유저 수 증가
-		err = repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
+		err := repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 방 유저 정보 추가
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
 		err = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 아이템 정보 가져오기
 		items, err := repository.JoinFindAllItems(ctx, tx)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 유저 아이템 추가
@@ -128,7 +132,8 @@ func joinPlay(c echo.Context) error {
 			userItemDTO := CreateJoinUserItemDTO(userID, roomID, item)
 			err = repository.JoinInsertOneUserItem(ctx, tx, userItemDTO)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		return nil
@@ -141,9 +146,9 @@ func joinPlay(c echo.Context) error {
 	// sessionID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	err = repository.PlayTogetherRedisSessionSet(ctx, sessionID, roomID)
-	if err != nil {
-		fmt.Printf("Failed to save session: %v\n", err)
+	newErr = repository.PlayTogetherRedisSessionSet(ctx, sessionID, roomID)
+	if newErr != nil {
+		fmt.Printf("Failed to save session: %v\n", newErr.Msg)
 		return nil
 	}
 

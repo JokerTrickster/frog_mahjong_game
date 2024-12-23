@@ -54,53 +54,70 @@ func match(c echo.Context) error {
 	}
 	// 2. 비즈니스 로직
 	ctx := context.Background()
-
+	var roomInfoMsg entity.RoomInfo
 	// 기존 데이터 삭제
-	err = repository.MatchDeleteRooms(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete rooms: %v\n", err)
-		return nil
+	newErr := repository.MatchDeleteRooms(ctx, userID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		return fmt.Errorf("%s", newErr.Msg)
 	}
 
-	err = repository.MatchDeleteRoomUsers(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete room users: %v\n", err)
-		return nil
+	newErr = repository.MatchDeleteRoomUsers(ctx, userID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		return fmt.Errorf("%s", newErr.Msg)
 	}
 
 	// 대기중인 방 찾기
-	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
-	if err != nil && err != gorm.ErrRecordNotFound {
-		fmt.Printf("Failed to find waiting room: %v\n", err)
-		return nil
+	rooms, newErr := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
+	if newErr != nil && newErr.Msg != gorm.ErrRecordNotFound.Error() {
+		roomInfoMsg.ErrorInfo = newErr
+		return fmt.Errorf("%s", newErr.Msg)
 	}
 	// 트랜잭션으로 방 생성/업데이트 처리
 	var roomID uint
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		if rooms.ID == 0 {
+		if rooms == nil {
 			// 방 생성
 			roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
 			newRoomID, err := repository.MatchInsertOneRoom(ctx, roomDTO)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				return fmt.Errorf("%s", err.Msg)
 			}
 			roomID = uint(newRoomID)
 			utils.LogInfo(fmt.Sprintf("Room %d created by User %d.", roomID, userID))
 		} else {
 			roomID = rooms.ID
 		}
-
 		// 방 유저 정보 업데이트
-		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		err := repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
 		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
+		}
+		// 아이템 정보들을 가져온다.
+		items, err := repository.MatchFindAllItems(ctx, tx)
+		if err != nil {
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
+		}
+		for _, item := range items {
+			// user_items 아이템 정보 생성
+			userItemDTO := CreateMatchUserItemDTO(userID, roomID, item)
+			err = repository.MatchInsertOneUserItem(ctx, tx, userItemDTO)
+			if err != nil {
+				roomInfoMsg.ErrorInfo = err
+				return fmt.Errorf("%s", err.Msg)
+			}
 		}
 
 		return nil
@@ -113,10 +130,10 @@ func match(c echo.Context) error {
 	// 세션 ID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	err = repository.MatchRedisSessionSet(ctx, sessionID, roomID)
-	if err != nil {
-		fmt.Printf("Failed to save session: %v\n", err)
-		return nil
+	newErr = repository.MatchRedisSessionSet(ctx, sessionID, roomID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		return fmt.Errorf("%s", newErr.Msg)
 	}
 
 	// defer ws.Close()

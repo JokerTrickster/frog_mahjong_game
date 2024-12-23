@@ -167,12 +167,12 @@ func HandlePingPong(wsClient *entity.WSClient) {
 }
 
 // ErrorHandling processes errors and sends them to the corresponding client.
-func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *entity.RoomInfo) {
+func ErrorHandling(msg *entity.WSMessage, roomError *entity.RoomInfo) {
 	// Retrieve all sessionIDs for the room
-	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
 		for _, sessionID := range sessionIDs {
 			// Find the client associated with the sessionID
-			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == userID {
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
 				// Create an error message
 				message, err := CreateMessage(roomError)
 				if err != nil {
@@ -184,7 +184,7 @@ func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *e
 				// Attempt to send the error message
 				err = client.Conn.WriteJSON(msg)
 				if err != nil {
-					fmt.Printf("Error sending message to session %s (user %d): %v\n", sessionID, userID, err)
+					fmt.Printf("Error sending message to session %s (user %d): %v\n", sessionID, msg.UserID, err)
 
 					// Mark the client as closed (instead of immediate removal)
 					client.Closed = true
@@ -193,15 +193,15 @@ func ErrorHandling(msg *entity.WSMessage, roomID uint, userID uint, roomError *e
 					// Retry logic can be implemented here
 
 					// Remove the client only after retries or severe errors
-					closeAndRemoveClient(client, sessionID, roomID)
+					closeAndRemoveClient(client, sessionID, msg.RoomID)
 				}
 			}
 		}
 	}
 
 	// If the room has no active sessions, delete it
-	if len(entity.RoomSessions[roomID]) == 0 {
-		delete(entity.RoomSessions, roomID)
+	if len(entity.RoomSessions[msg.RoomID]) == 0 {
+		delete(entity.RoomSessions, msg.RoomID)
 	}
 }
 

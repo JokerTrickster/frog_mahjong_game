@@ -2,6 +2,7 @@ package v2ws
 
 import (
 	"context"
+	"fmt"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/repository"
@@ -28,13 +29,13 @@ func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 
 		// 유저 상태 변경
 		if err := repository.AbnormalUpdateRoomUsers(ctx, tx, &abnormalEntity); err != nil {
-			return err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 방 유저 정보 조회
 		users, err := repository.AbnormalFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers = users
 
@@ -59,7 +60,18 @@ func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 	// 클라이언트에 메시지 전송
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
 	roomInfoMsg.GameInfo.AllReady = false
-	sendMessageToClients(roomID, roomInfoMsg)
+
+	message, err := CreateMessage(&roomInfoMsg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	msg := entity.WSMessage{
+		RoomID:  roomID,
+		UserID:  userID,
+		Message: message,
+	}
+	sendMessageToClients(roomID, &msg)
 
 	// 재접속 대기 시작
 	waitForReconnection(roomID, sessionID, preloadUsers)

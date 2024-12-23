@@ -62,23 +62,21 @@ func playTogether(c echo.Context) error {
 
 	// 비즈니스 로직
 	ctx := context.Background()
-
-	// 기존 방과 유저 데이터 삭제
-	err = repository.PlayTogetherDeleteRooms(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete rooms: %v\n", err)
-		return nil
-	}
-
-	err = repository.PlayTogetherDeleteRoomUsers(ctx, userID)
-	if err != nil {
-		fmt.Printf("Failed to delete room users: %v\n", err)
-		return nil
-	}
-
-	// 대기중인 방이 있는지 체크
 	var roomID uint
+	var roomInfoMsg entity.RoomInfo
+	// 기존 방과 유저 데이터 삭제
+	newErr := repository.PlayTogetherDeleteRooms(ctx, userID)
+	if newErr != nil {
+		fmt.Printf("Failed to delete rooms: %v\n", newErr.Msg)
+		return nil
+	}
 
+	newErr = repository.PlayTogetherDeleteRoomUsers(ctx, userID)
+	if newErr != nil {
+		fmt.Printf("Failed to delete room users: %v\n", newErr.Msg)
+		return nil
+	}
+	// 대기중인 방이 있는지 체크
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 숫자로 이루어진 4자리 랜덤 패스워드 생성
 		password := CreateRandomPassword()
@@ -87,27 +85,31 @@ func playTogether(c echo.Context) error {
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
 		newRoomID, err := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 		roomID = uint(newRoomID)
 
 		// 방에 유저 추가
 		err = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// room_user 생성
 		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID))
 		err = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 아이템 정보 가져오기
 		items, err := repository.PlayTogetherFindAllItems(ctx, tx)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 유저 아이템 추가
@@ -115,7 +117,8 @@ func playTogether(c echo.Context) error {
 			userItemDTO := CreatePlayTogetherUserItemDTO(userID, roomID, item)
 			err = repository.PlayTogetherInsertOneUserItem(ctx, tx, userItemDTO)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		return nil
@@ -128,9 +131,9 @@ func playTogether(c echo.Context) error {
 	// sessionID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	err = repository.PlayTogetherRedisSessionSet(ctx, sessionID, roomID)
-	if err != nil {
-		fmt.Printf("Failed to save session: %v\n", err)
+	newErr = repository.PlayTogetherRedisSessionSet(ctx, sessionID, roomID)
+	if newErr != nil {
+		fmt.Printf("Failed to save session: %v\n", newErr)
 		return nil
 	}
 
