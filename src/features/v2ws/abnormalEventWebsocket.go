@@ -41,9 +41,9 @@ func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 
 		// 에러 메시지 설정
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  "상대방이 게임 도중 나가서 강제 종료됐습니다.",
-			Type: _errors.ErrAbnormalExit,
+			Code: _errors.ErrCodeInternal,
+			Msg:  "상대방이 게임 도중 나가서 강제 중단되었습니다.",
+			Type: _errors.ErrGameTerminated,
 		}
 		return nil
 	})

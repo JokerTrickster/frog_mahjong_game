@@ -10,6 +10,7 @@ var (
 	ErrRoomFull              = "ERR_ROOM_FULL"
 	ErrBadRequest            = "ERR_BAD_REQUEST"
 	ErrAbnormalExit          = "ERR_ABNORMAL_EXIT"
+	ErrDisconnect            = "ERR_DISCONNECT"
 	ErrDBServer              = "ERR_DB_SERVER"
 	ErrInvalidToken          = "ERR_INVALID_TOKEN"
 	ErrRoomOut               = "ERR_ROOM_OUT"
@@ -29,7 +30,7 @@ var (
 	ErrUnauthorizedAction    = "ERR_UNAUTHORIZED_ACTION"
 	ErrFetchFailed           = "ERR_FETCH_FAILED"
 	ErrAlreadyGame           = "ERR_ALREADY_GAME"
-	// 에러 타입 정의
+	ErrGameTerminated        = "ERR_GAME_TERMINATED" // 게임 강제 중단
 )
 
 var (
