@@ -20,9 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-      - name: Build Docker Image
-        run: |
-          docker build --memory=2g --memory-swap=2g -t your-image-name .
+
       - name: prepare envs
         id: vars
         run: |
@@ -40,12 +38,19 @@ jobs:
         run: |
           LOKI_URL=$(aws ssm get-parameter --region "ap-northeast-2" --name "dev_common_mysql_host" --with-decryption --query "Parameter.Value" --output text)
           echo "LOKI_URL=${LOKI_URL}" >> $GITHUB_ENV    
+      - name: enable BuildKit
+        run: echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
       - name: build & tag image
         run: |
           V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
           echo $V
-          docker build -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} --build-arg LOKI_URL=${LOKI_URL} -f ./deployment/Dockerfile ./src/
-          docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+          docker build --cache-from ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest \
+          --memory 2g --memory-swap 2g \
+          -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} \
+          --build-arg VERSION=${V} --build-arg LOKI_URL=${LOKI_URL} \
+          -f ./deployment/Dockerfile ./src/
+          docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} \
+          ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
       - name: push image
         id: image
         run: |
