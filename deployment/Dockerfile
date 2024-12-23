@@ -1,7 +1,11 @@
 FROM golang:1.22.1-alpine AS builder
 WORKDIR /build/
-RUN rm -rf ./*
+# 의존성 캐시 단계 추가
+COPY go.mod go.sum ./
+RUN go mod download
+# 소스 코드 복사
 COPY . .
+# 빌드 실행
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -ldflags '-s' -installsuffix cgo -o main .
 
 # FINAL STAGE

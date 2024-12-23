@@ -20,6 +20,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+      - name: Build Docker Image
+        run: |
+          docker build --memory=2g --memory-swap=2g -t your-image-name .
       - name: prepare envs
         id: vars
         run: |
