@@ -19,73 +19,88 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	//해당 방이 대기상태인지 체크한다.
-	roomState, err := repository.StartCheckRoomState(ctx, roomID)
-	if err != nil {
-		fmt.Println(err)
+	preloadUsers := []entity.RoomUsers{}
+	roomInfoMsg := entity.RoomInfo{}
+	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 	if roomState != "wait" {
-		fmt.Println("게임이 시작되었습니다.")
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: _errors.ErrCodeBadRequest,
+			Msg:  "게임이 시작되었습니다.",
+			Type: _errors.ErrAlreadyGame,
+		}
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 
-	roomInfoMsg := entity.RoomInfo{}
-	preloadUsers := []entity.RoomUsers{}
-	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방장이 게임 시작 요청했는지 체크
 		err := repository.StartCheckOwner(ctx, tx, uID, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// room 데이터 값 변경 (상태 변경, 시작 시간 추가)
 		roomUpdateData := StartUpdateRoom(roomID)
 		err = repository.StartUpdateRoom(ctx, tx, roomID, roomUpdateData)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 유저들 코인 -1 차감한다.
 		err = repository.StartDiffCoin(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 기존 카드가 있다면 모두 제거한다.
 		err = repository.StartDeleteCards(ctx, tx, uID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		birdCards, err := repository.StartBirdCard(ctx, tx)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// 카드를 생성한다.
 		cards := CreateInitCards(roomID, birdCards)
 		err = repository.StartCreateCards(ctx, tx, cards)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		return nil
 	})
+
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
-	preloadUsers, err = repository.StartFindAllRoomUsers(ctx, roomID)
-	if err != nil {
-		fmt.Println(err)
+	preloadUsers, newErr = repository.StartFindAllRoomUsers(ctx, roomID)
+	if newErr != nil {
+		fmt.Println(newErr)
 		return
 	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
-	openCards, err := repository.StartUpdateCardState(ctx, roomID)
-	if err != nil {
-		fmt.Println(err)
+	openCards, newErr := repository.StartUpdateCardState(ctx, roomID)
+	if newErr != nil {
+		fmt.Println(newErr)
 	}
 	roomInfoMsg.GameInfo.OpenCards = openCards
 
@@ -94,7 +109,6 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(msg)
 	msg.Message = message
 	msg.SessionID = ""
 	sendMessageToClients(roomID, msg)

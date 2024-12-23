@@ -29,13 +29,13 @@ func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 
 		// 유저 상태 변경
 		if err := repository.AbnormalUpdateRoomUsers(ctx, tx, &abnormalEntity); err != nil {
-			return err
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 방 유저 정보 조회
 		users, err := repository.AbnormalFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers = users
 

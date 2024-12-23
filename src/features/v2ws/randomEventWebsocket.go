@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -40,29 +39,31 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		// none 카드 중 count만큼 랜덤으로 owned로 변경한다.
 		err := repository.RandomUpdateRandomCards(ctx, tx, &RandomEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 소유 카드 수 업데이트
 		// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
 		err = repository.RandomUpdateRoomUserCardCount(ctx, tx, &RandomEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
 		preloadUsers, err = repository.RandomFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성
@@ -73,17 +74,18 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 			// 카드 상태를 picked -> owned로 변경
 			err := repository.RandomUpdateAllCardState(ctx, tx, msg.RoomID)
 			if err != nil {
-				fmt.Printf("Error updating card state: %v\n", err)
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 
 			// 오픈 카드가 비어 있다면 새로운 카드를 오픈
 			err = repository.RandomUpdateOpenCards(ctx, tx, msg.RoomID)
 			if err != nil {
-				fmt.Printf("Error updating open cards: %v\n", err)
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
-
 			return nil
 		})
 
@@ -104,7 +106,6 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	msg.Message = message

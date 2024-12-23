@@ -28,31 +28,41 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	roomID, err := repository.MatchFindOneRoomUsers(ctx, uID)
-	if err != nil {
-		log.Fatalf("방 유저 정보 조회 에러: %s", err)
+	roomID, newErr := repository.MatchFindOneRoomUsers(ctx, uID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
+		return
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		//유저 정보를 업데이트 한다.
-		err = repository.MatchFindOneAndUpdateUser(ctx, tx, uID, roomID)
+		err := repository.MatchFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		//해당 방에 미션이 존재하는지 체크한다.
-		roomMission, err := repository.MatchFindOneRoomMission(ctx, tx, roomID)
-		if err != nil {
-			return err
+		roomMission, newErr := repository.MatchFindOneRoomMission(ctx, tx, roomID)
+		if newErr != nil {
+			roomInfoMsg.ErrorInfo = newErr
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		if len(roomMission) == 0 {
 			// 미션을 랜덤으로 3개 생성한다.
 			err = repository.MatchCreateMissions(ctx, tx, roomID)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		preloadUsers, err = repository.MatchFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})

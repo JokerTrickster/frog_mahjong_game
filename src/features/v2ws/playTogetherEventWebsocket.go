@@ -28,30 +28,40 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	roomID, err := repository.PlayTogetherFindOneRoomUsers(ctx, uID)
-	if err != nil {
-		log.Fatalf("방 유저 정보 조회 에러: %s", err)
+	roomID, newErr := repository.PlayTogetherFindOneRoomUsers(ctx, uID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
+		return
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방 정보를 업데이트 한다. (타이머, 인원 수)
 		err := repository.PlayTogetherFindOneAndUpdateRoom(ctx, tx, roomID, uint(req.Count), uint(req.Timer))
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		//유저 정보를 업데이트 한다.
 		err = repository.PlayTogetherFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// 미션 3개를 생성한다.
 		err = repository.PlayTogetherCreateMissions(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers, err = repository.PlayTogetherFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})

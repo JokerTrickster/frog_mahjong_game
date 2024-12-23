@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -40,40 +39,34 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 	newErr := repository.ItemChangeCheck(ctx, ItemChangeEntity)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 아이템 사용 (오픈된 카드를 교체한다.)
-		err = repository.ItemChange(ctx, tx, ItemChangeEntity)
+		err := repository.ItemChange(ctx, tx, ItemChangeEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// 아이템 사용 횟수를 -1 감소한다.
 		err = repository.ItemChangeConsumeUserItems(ctx, tx, ItemChangeEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 	// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
-	preloadUsers, err = repository.ItemChangeFindAllRoomUsers(ctx, roomID)
-	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+	preloadUsers, newEer := repository.ItemChangeFindAllRoomUsers(ctx, roomID)
+	if newEer != nil {
 		return
 	}
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -40,25 +39,27 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		// 카드 상태 없데이트
 		err := repository.TimeOutDiscardCardsUpdateCardState(ctx, tx, &TimeOutDiscardCardsEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		doraDTO, err = repository.TimeOutDiscardCardsFindOneDora(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers, err = repository.TimeOutDiscardCardsFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성

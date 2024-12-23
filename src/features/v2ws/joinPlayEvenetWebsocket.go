@@ -28,21 +28,32 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	roomID, err := repository.JoinPlayFindOneRoomUsers(ctx, uID)
-	if err != nil {
-		log.Fatalf("방 유저 정보 조회 에러: %s", err)
+	roomID, newErr := repository.JoinPlayFindOneRoomUsers(ctx, uID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
+		return
 	}
-	roomDTO, err := repository.JoinPlayFindOneRoom(ctx, roomID)
+	roomDTO, newErr := repository.JoinPlayFindOneRoom(ctx, roomID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
+		return
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		//유저 정보를 업데이트 한다.
-		err = repository.JoinPlayFindOneAndUpdateUser(ctx, tx, uID, roomID)
+		err := repository.JoinPlayFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		preloadUsers, err = repository.JoinPlayFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})

@@ -42,17 +42,23 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		// 카드 정보 체크 (소유하고 있는지 체크)
 		_, err := repository.RequestWinFindAllCards(ctx, tx, &requestWinEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 유저 상태 변경
 		err = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers, err = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		return nil

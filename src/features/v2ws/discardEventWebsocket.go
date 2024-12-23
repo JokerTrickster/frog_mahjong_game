@@ -34,44 +34,51 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	// 보유 카드수가 4장인지 체크
-	cardCount, err := repository.DiscardCardsOwnerCardCount(ctx, roomID, uID)
-	if err != nil {
-		fmt.Println(err)
+	roomInfoMsg := entity.RoomInfo{}
+	preloadUsers := []entity.RoomUsers{}
+	cardCount, newErr := repository.DiscardCardsOwnerCardCount(ctx, roomID, uID)
+	if newErr != nil {
+		roomInfoMsg.ErrorInfo = newErr
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 	if cardCount != 4 {
-		fmt.Println("보유 카드수가 4장이 아닙니다.")
+		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
+			Code: _errors.ErrCodeBadRequest,
+			Msg:  "카드를 4장 선택해주세요.",
+			Type: _errors.ErrBadRequest,
+		}
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 
-	roomInfoMsg := entity.RoomInfo{}
-	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
 		err := repository.DiscardCardsUpdateCardState(ctx, tx, &DiscardCardsEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// 소유 카드 수 업데이트
 		// 유저id로 room_users에서 찾아서 card_count를 뺀 후 업데이트 한다.
 		err = repository.DiscardCardsUpdateRoomUserCardCount(ctx, tx, &DiscardCardsEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		preloadUsers, err = repository.DiscardCardsFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+		return
 	}
 	// 유저 상태를 변경한다. (방에 참여)
 	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
@@ -85,23 +92,22 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 				err := repository.DiscardCardUpdateAllCardState(ctx, tx, msg.RoomID)
 				if err != nil {
-					return err
+					roomInfoMsg.ErrorInfo = err
+					ErrorHandling(msg, &roomInfoMsg)
+					return fmt.Errorf("%s", err.Msg)
 				}
 				preloadUsers, err = repository.DiscardCardsFindAllRoomUsers(ctx, tx, msg.RoomID)
 				if err != nil {
-					return err
+					roomInfoMsg.ErrorInfo = err
+					ErrorHandling(msg, &roomInfoMsg)
+					return fmt.Errorf("%s", err.Msg)
 				}
 				return nil
 			})
 
 			// 에러 처리
 			if err != nil {
-				roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-					Code: 500,
-					Msg:  err.Error(),
-					Type: _errors.ErrInternalServer,
-				}
-				ErrorHandling(msg, msg.RoomID, msg.UserID, &roomInfoMsg)
+				return
 			}
 
 			// 게임 상태 갱신

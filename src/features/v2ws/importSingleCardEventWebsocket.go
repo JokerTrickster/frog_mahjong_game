@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -40,7 +39,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 	if cardCount > 3 {
@@ -51,7 +50,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	newErr = repository.ImportSingleCardFindOneCard(ctx, roomID, importSingleCardEntity.CardID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
+		ErrorHandling(msg, &roomInfoMsg)
 		return
 	}
 
@@ -60,29 +59,29 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		userBirdCardDTO := CreateUserBirdCardDTO(importSingleCardEntity)
 		err := repository.ImportSingleCardCreateCard(ctx, tx, userBirdCardDTO)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		// 소유 카드 수 업데이트
 		// 유저id로 room_users 테이블에서 찾아서 card_count를 더한 후 업데이트 한다.
 		err = repository.ImportSingleCardUpdateRoomUserCardCount(ctx, tx, &importSingleCardEntity)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 
 		// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
 		preloadUsers, err = repository.ImportSingleCardFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			return err
+			roomInfoMsg.ErrorInfo = err
+			ErrorHandling(msg, &roomInfoMsg)
+			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
-		ErrorHandling(msg, roomID, uID, &roomInfoMsg)
 		return
 	}
 	// 유저 상태를 변경한다. (방에 참여)
@@ -94,18 +93,14 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 			err := repository.ImportSingleCardUpdateAllCardState(ctx, tx, msg.RoomID)
 			if err != nil {
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 			return nil
 		})
 
 		if err != nil {
-			roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-				Code: 500,
-				Msg:  err.Error(),
-				Type: _errors.ErrInternalServer,
-			}
-			ErrorHandling(msg, msg.RoomID, msg.UserID, &roomInfoMsg)
 			return
 		}
 
@@ -113,19 +108,14 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 			err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, msg.RoomID)
 			if err != nil {
-				fmt.Println(err)
-				return err
+				roomInfoMsg.ErrorInfo = err
+				ErrorHandling(msg, &roomInfoMsg)
+				return fmt.Errorf("%s", err.Msg)
 			}
 			return nil
 		})
 
 		if err != nil {
-			roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-				Code: 500,
-				Msg:  err.Error(),
-				Type: _errors.ErrInternalServer,
-			}
-			ErrorHandling(msg, msg.RoomID, msg.UserID, &roomInfoMsg)
 			return
 		}
 	}
