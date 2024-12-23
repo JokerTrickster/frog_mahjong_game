@@ -157,6 +157,8 @@ func HandlePingPong(wsClient *entity.WSClient) {
 			// Send Ping message
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
+				// Notify all users in the same room about the disconnection
+				
 				wsClient.Closed = true
 				// Handle abnormal connection termination
 				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
@@ -236,6 +238,39 @@ func removeSessionFromRoom(roomID uint, sessionID string) {
 			// Remove sessionID from the room
 			entity.RoomSessions[roomID] = append(sessions[:i], sessions[i+1:]...)
 			break
+		}
+	}
+}
+
+func broadcastDisconnectionMessage(wsClient *entity.WSClient) {
+	roomID := wsClient.RoomID
+	userID := wsClient.UserID
+
+	// Create a disconnection error message
+	disconnectionMessage := &entity.WSMessage{
+		Event:   "DISCONNECTION",
+		RoomID:  roomID,
+		UserID:  userID,
+		Message: "User disconnected due to a network issue.",
+	}
+
+	// Retrieve all sessionIDs for the room
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// Find the client associated with the sessionID
+			if client, exists := entity.WSClients[sessionID]; exists {
+				// Send the disconnection message
+				err := client.Conn.WriteJSON(disconnectionMessage)
+				if err != nil {
+					fmt.Printf("Error sending disconnection message to session %s: %v\n", sessionID, err)
+
+					// Mark the client as closed
+					client.Closed = true
+
+					// Safely close and remove the client
+					closeAndRemoveClient(client, sessionID, roomID)
+				}
+			}
 		}
 	}
 }
