@@ -11,12 +11,24 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func PlayTogetherFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	err := tx.Preload("User").Preload("UserItems").Preload("Room").Preload("RoomMission").Where("room_id = ?", roomID).Find(&roomUsers).Error
-	if err != nil {
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Preload("User").
+		Preload("UserItems").
+		Preload("Room").
+		Preload("RoomMission").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).
+		Preload("UserMissions", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID)
+		}).
+		Where("room_id = ?", roomID).
+		Find(&roomUsers).Error; err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("room_users 조회 실패: %v", err.Error()),
