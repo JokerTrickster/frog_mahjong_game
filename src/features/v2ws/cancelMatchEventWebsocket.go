@@ -106,4 +106,6 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
+
+	disconnectClient(uID, roomID)
 }
