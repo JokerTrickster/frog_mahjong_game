@@ -158,10 +158,15 @@ func HandlePingPong(wsClient *entity.WSClient) {
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
 				// Notify all users in the same room about the disconnection
-				
-				wsClient.Closed = true
+
+				// wsClient.Closed = true
+				if !wsClient.Canceled {
+					fmt.Println("여기 들어와야 되는데 안들어오나??")
+					AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
+					return
+				}
 				// Handle abnormal connection termination
-				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
+				// AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 				return
 			}
 		}
@@ -272,5 +277,30 @@ func broadcastDisconnectionMessage(wsClient *entity.WSClient) {
 				}
 			}
 		}
+	}
+}
+
+func disconnectClient(userID, roomID uint) {
+	fmt.Println("연결 끊는다. ", userID, roomID)
+	// RoomID에 연결된 모든 세션을 검색
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// 특정 userID를 가진 클라이언트를 찾는다.
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == userID {
+				// 클라이언트 연결 종료
+				client.Conn.Close()
+				client.Closed = true
+				client.Canceled = true
+
+				// 세션 및 클라이언트 데이터 정리
+				delete(entity.WSClients, sessionID)
+				removeSessionFromRoom(roomID, sessionID)
+
+				fmt.Printf("User %d disconnected from room %d\n", userID, roomID)
+				break
+			}
+		}
+	} else {
+		fmt.Printf("Room %d does not exist or has no active sessions\n", roomID)
 	}
 }
