@@ -160,7 +160,8 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				// Notify all users in the same room about the disconnection
 
 				// wsClient.Closed = true
-				if !wsClient.Closed {
+				if !wsClient.Canceled {
+					fmt.Println("여기 들어와야 되는데 안들어오나??")
 					AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
@@ -280,6 +281,7 @@ func broadcastDisconnectionMessage(wsClient *entity.WSClient) {
 }
 
 func disconnectClient(userID, roomID uint) {
+	fmt.Println("연결 끊는다. ", userID, roomID)
 	// RoomID에 연결된 모든 세션을 검색
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
 		for _, sessionID := range sessionIDs {
@@ -288,6 +290,7 @@ func disconnectClient(userID, roomID uint) {
 				// 클라이언트 연결 종료
 				client.Conn.Close()
 				client.Closed = true
+				client.Canceled = true
 
 				// 세션 및 클라이언트 데이터 정리
 				delete(entity.WSClients, sessionID)
