@@ -19,6 +19,7 @@ var (
 	ErrRoomUsersNotFound     = "ERR_ROOM_USERS_NOT_FOUND"
 	ErrDeleteCardFailed      = "ERR_DELETE_CARD_FAILED"
 	ErrDeleteRoomFailed      = "ERR_DELETE_ROOM_FAILED"
+	ErrDeleteRoomUserFailed  = "ERR_DELETE_ROOM_USER_FAILED"
 	ErrUpdateUserStateFailed = "ERR_UPDATE_USER_STATE_FAILED"
 	ErrUserNotFound          = "ERR_USER_NOT_FOUND"
 	ErrRoomNotFound          = "ERR_ROOM_NOT_FOUND"

@@ -250,6 +250,7 @@ func MatchRedisSessionSet(ctx context.Context, sessionID string, roomID uint) *e
 	return nil
 }
 
+
 func MatchDeleteRooms(ctx context.Context, uID uint) *entity.ErrorInfo {
 	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.Rooms{})
 	if result.Error != nil {

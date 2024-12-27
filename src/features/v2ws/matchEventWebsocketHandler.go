@@ -47,6 +47,10 @@ func match(c echo.Context) error {
 		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
 		if roomID != 0 {
 			// 기존 연결 복구
+			if client, exists := entity.WSClients[req.SessionID]; exists {
+				closeAndRemoveClient(client, req.SessionID, roomID)
+			}
+
 			restoreSession(ws, req.SessionID, roomID, userID)
 			// 연결한 유저에게 메시지 정보를 전달해야 된다.
 			return nil
@@ -129,6 +133,7 @@ func match(c echo.Context) error {
 
 	// 세션 ID 생성
 	sessionID := generateSessionID()
+
 	// 세션 ID 저장
 	newErr = repository.MatchRedisSessionSet(ctx, sessionID, roomID)
 	if newErr != nil {

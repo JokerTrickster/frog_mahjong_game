@@ -67,6 +67,7 @@ func joinPlay(c echo.Context) error {
 		roomID, _ := repository.JoinRedisSessionGet(context.Background(), req.SessionID)
 		if roomID != 0 {
 			// 기존 연결 복구
+			fmt.Println("재접속 복구를 시도한다. ", roomID, userID)
 			restoreSession(ws, req.SessionID, roomID, userID)
 			// 연결한 유저에게 메시지 정보를 전달해야 된다.
 			return nil
