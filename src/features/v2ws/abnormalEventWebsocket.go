@@ -14,7 +14,7 @@ import (
 
 var reconnectTimers sync.Map // 재접속 타이머를 관리하는 맵
 
-// 비정상적인 에러를 처리하는 함수
+// 비정상 연결로 인해 게임 강제 중단
 func AbnormalErrorHandling(roomID, userID uint, sessionID string) {
 	ctx := context.TODO()
 	roomInfoMsg := entity.RoomInfo{}

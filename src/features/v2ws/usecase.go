@@ -377,54 +377,16 @@ func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID ui
 		reconnectTimers.Delete(sessionID)
 		fmt.Printf("Reconnection successful for session %s in room %d. Timer canceled.\n", sessionID, roomID)
 	}
-	fmt.Println("test ", sessionID)
-	fmt.Println(len(entity.WSClients))
-	fmt.Println(entity.WSClients)
-	fmt.Println(entity.WSClients[sessionID])
-	if client, ok := entity.WSClients[sessionID]; ok {
-		fmt.Println("바로 연결하면 여기 들어올거 같다.")
-		// client.Conn.Close()
-		client.Closed = true
-		client.Canceled = true
+	// 세션 ID 생성
+	newSessionID := generateSessionID()
 
-		// 새로운 연결로 갱신
-		newClient := &entity.WSClient{
-			SessionID: sessionID,
-			RoomID:    roomID,
-			UserID:    userID,
-			Conn:      ws,
-			Closed:    false,
-			Canceled:  false,
-		}
-		entity.WSClients[sessionID] = newClient
-
-		fmt.Printf("User %d reconnected to Room %d with Session %s.\n", userID, roomID, sessionID)
-
-		// 핑/퐁 핸들링 재시작
-		go HandlePingPong(newClient)
-
-		// 메시지 처리 루프 시작
-		go readMessages(ws, sessionID, roomID, userID)
-	} else {
-		// 새로운 세션으로 등록
-		entity.WSClients[sessionID] = &entity.WSClient{
-			Conn:      ws,
-			SessionID: sessionID,
-			RoomID:    roomID,
-			UserID:    userID,
-			Closed:    false,
-		}
-		entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
-		fmt.Printf("New connection established for Session %s in Room %d by User %d.\n", sessionID, roomID, userID)
-
-		// 핑/퐁 및 메시지 처리 시작
-		go HandlePingPong(entity.WSClients[sessionID])
-		go readMessages(ws, sessionID, roomID, userID)
+	// 세션 ID 저장
+	newErr := repository.MatchRedisSessionSet(context.TODO(), newSessionID, roomID)
+	if newErr != nil {
+		fmt.Println(newErr)
 	}
-	err := repository.ReconnectedUpdateRoomUser(context.TODO(), roomID, userID)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// 새로운 세션으로 등록
+	registerNewSession(ws, newSessionID, roomID, userID)
 }
 
 // 새로운 세션 등록
@@ -459,9 +421,6 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 	defer func() {
 		// 연결 종료 시 세션 정리
 		client.Closed = true
-		// ws.Close()
-		// delete(entity.WSClients, sessionID)
-		// removeSessionFromRoom(roomID, sessionID)
 		fmt.Println("Session", sessionID, "closed. Read loop stopped.")
 	}()
 
@@ -501,10 +460,11 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 		for _, sessionID := range sessionIDs {
 			if client, exists := entity.WSClients[sessionID]; exists {
 				if err := client.Conn.WriteJSON(msg); err != nil {
+					fmt.Println("failed to send ", client)
 					fmt.Printf("Failed to send message to session %s: %v\n", sessionID, err)
-					// client.Close()
-					// delete(entity.WSClients, sessionID)
-					// removeSessionFromRoom(roomID, sessionID)
+					client.Close()
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(roomID, sessionID)
 				}
 			}
 		}

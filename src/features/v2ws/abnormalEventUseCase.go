@@ -118,7 +118,6 @@ func broadcastToRoom(roomID uint, msg entity.WSMessage) {
 			if client, exists := entity.WSClients[sessionID]; exists {
 				err := client.Conn.WriteJSON(msg)
 				if err != nil {
-					fmt.Printf("Failed to send message to session %s: %v\n", sessionID, err)
 					client.Closed = true
 				}
 			}

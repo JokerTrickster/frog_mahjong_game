@@ -24,8 +24,8 @@ WriteWait : 서버가 클라이언트에 데이터를 쓸 수 있는 최대 시�
 reconnectTime : 클라이언트가 연결을 잃었을 때 다시 연결을 시도할 수 있는 시간 (PongWait보다 크거나 같아야 된다. )
 */
 const (
-	WriteWait  = 10 * time.Second
-	PongWait   = 30 * time.Second    // 30초마다 퐁 메시지를 수신
+	WriteWait  = 5 * time.Second
+	PongWait   = 10 * time.Second    // 10초마다 퐁 메시지를 수신
 	PingPeriod = (PongWait * 5) / 10 // 6초마다 핑 메시지 전송
 )
 
@@ -157,17 +157,12 @@ func HandlePingPong(wsClient *entity.WSClient) {
 
 			// Send Ping message
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
-				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
 				// Notify all users in the same room about the disconnection
-
 				// false이면
-				if !wsClient.Canceled {
-					fmt.Println("비정상 메시지를 전송한다. ", wsClient.RoomID, wsClient.UserID)
+				if wsClient.Closed {
 					AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
-				// Handle abnormal connection termination
-				// AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 				return
 			}
 		}
@@ -192,11 +187,8 @@ func ErrorHandling(msg *entity.WSMessage, roomError *entity.RoomInfo) {
 				// Attempt to send the error message
 				err = client.Conn.WriteJSON(msg)
 				if err != nil {
-					fmt.Printf("Error sending message to session %s (user %d): %v\n", sessionID, msg.UserID, err)
-
 					// Mark the client as closed (instead of immediate removal)
 					client.Closed = true
-
 					// Optionally retry sending the message (if needed)
 					// Retry logic can be implemented here
 
@@ -231,11 +223,6 @@ func generateSessionID() string {
 	return uuid.New().String() // Generate a new UUID
 }
 
-// Add a sessionID to the room
-func addSessionToRoom(roomID uint, sessionID string) {
-	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
-}
-
 // Remove a sessionID from the room
 func removeSessionFromRoom(roomID uint, sessionID string) {
 	sessions := entity.RoomSessions[roomID]
@@ -248,41 +235,7 @@ func removeSessionFromRoom(roomID uint, sessionID string) {
 	}
 }
 
-func broadcastDisconnectionMessage(wsClient *entity.WSClient) {
-	roomID := wsClient.RoomID
-	userID := wsClient.UserID
-
-	// Create a disconnection error message
-	disconnectionMessage := &entity.WSMessage{
-		Event:   "DISCONNECTION",
-		RoomID:  roomID,
-		UserID:  userID,
-		Message: "User disconnected due to a network issue.",
-	}
-
-	// Retrieve all sessionIDs for the room
-	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
-		for _, sessionID := range sessionIDs {
-			// Find the client associated with the sessionID
-			if client, exists := entity.WSClients[sessionID]; exists {
-				// Send the disconnection message
-				err := client.Conn.WriteJSON(disconnectionMessage)
-				if err != nil {
-					fmt.Printf("Error sending disconnection message to session %s: %v\n", sessionID, err)
-
-					// Mark the client as closed
-					client.Closed = true
-
-					// Safely close and remove the client
-					closeAndRemoveClient(client, sessionID, roomID)
-				}
-			}
-		}
-	}
-}
-
 func disconnectClient(userID, roomID uint) {
-	fmt.Println("모든 연결 끊는다. ", userID, roomID)
 	// RoomID에 연결된 모든 세션을 검색
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
 		for _, sessionID := range sessionIDs {
@@ -291,7 +244,6 @@ func disconnectClient(userID, roomID uint) {
 				// 클라이언트 연결 종료
 				client.Conn.Close()
 				client.Closed = true
-				client.Canceled = true
 				// redis 세션 id 삭제
 				newErr := repository.RedisSessionDelete(context.TODO(), sessionID)
 				if newErr != nil {

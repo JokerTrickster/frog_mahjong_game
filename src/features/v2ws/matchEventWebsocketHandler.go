@@ -47,7 +47,10 @@ func match(c echo.Context) error {
 		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
 		if roomID != 0 {
 			// 기존 연결 복구
-			fmt.Println("재접속 복구를 시도한다. ", roomID, userID, req.SessionID)
+			if client, exists := entity.WSClients[req.SessionID]; exists {
+				closeAndRemoveClient(client, req.SessionID, roomID)
+			}
+
 			restoreSession(ws, req.SessionID, roomID, userID)
 			// 연결한 유저에게 메시지 정보를 전달해야 된다.
 			return nil

@@ -26,7 +26,6 @@ type WSClient struct {
 	UserID    uint
 	Conn      *websocket.Conn
 	Closed    bool // 연결이 닫혔는지 여부를 추적하는 필드
-	Canceled  bool
 }
 
 type WSMessage struct {
@@ -131,7 +130,6 @@ type RoomUsers struct {
 
 func (c *WSClient) Close() {
 	c.Closed = true
-	c.Canceled = true
 	c.Conn.Close()
 }
 
