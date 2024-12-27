@@ -67,12 +67,21 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		if err := repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity); err != nil {
 			return fmt.Errorf("Failed to delete room: %s", err.Msg)
 		}
+		// 방 유저 정보 삭제
+		if err := repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); err != nil {
+			return fmt.Errorf("Failed to delete room users: %s", err.Msg)
+		}
+
 		return nil
 	})
-
 	// 에러 처리
 	if err != nil {
 		fmt.Printf("Cleanup error: %v\n", err)
+	}
+	// 레디스 세션값 삭제
+	newErr := repository.RedisSessionDelete(ctx, sessionID)
+	if newErr != nil {
+		fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
 	}
 
 	// 클라이언트 연결 종료 및 제거

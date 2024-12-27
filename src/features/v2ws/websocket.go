@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"main/features/v2ws/model/entity"
+	"main/features/v2ws/repository"
 	"main/utils"
 	"time"
 
@@ -159,9 +160,9 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				fmt.Printf("Error sending ping for session %s: %v\n", wsClient.SessionID, err)
 				// Notify all users in the same room about the disconnection
 
-				// wsClient.Closed = true
+				// false이면
 				if !wsClient.Canceled {
-					fmt.Println("여기 들어와야 되는데 안들어오나??")
+					fmt.Println("비정상 메시지를 전송한다. ", wsClient.RoomID, wsClient.UserID)
 					AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
@@ -281,7 +282,7 @@ func broadcastDisconnectionMessage(wsClient *entity.WSClient) {
 }
 
 func disconnectClient(userID, roomID uint) {
-	fmt.Println("연결 끊는다. ", userID, roomID)
+	fmt.Println("모든 연결 끊는다. ", userID, roomID)
 	// RoomID에 연결된 모든 세션을 검색
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
 		for _, sessionID := range sessionIDs {
@@ -291,6 +292,11 @@ func disconnectClient(userID, roomID uint) {
 				client.Conn.Close()
 				client.Closed = true
 				client.Canceled = true
+				// redis 세션 id 삭제
+				newErr := repository.RedisSessionDelete(context.TODO(), sessionID)
+				if newErr != nil {
+					fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
+				}
 
 				// 세션 및 클라이언트 데이터 정리
 				delete(entity.WSClients, sessionID)

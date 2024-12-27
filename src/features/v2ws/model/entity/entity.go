@@ -131,6 +131,7 @@ type RoomUsers struct {
 
 func (c *WSClient) Close() {
 	c.Closed = true
+	c.Canceled = true
 	c.Conn.Close()
 }
 

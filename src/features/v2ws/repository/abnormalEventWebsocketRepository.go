@@ -22,12 +22,12 @@ func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]
 
 // 카드 정보 모두 삭제
 func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.Cards{}).Error
+	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.UserBirdCards{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("카드 삭제 실패: %v", err),
-			Type:_errors. ErrDeleteCardFailed,
+			Type: _errors.ErrDeleteCardFailed,
 		}
 	}
 	return nil
@@ -41,6 +41,19 @@ func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("방 삭제 실패: %v", err),
 			Type: _errors.ErrDeleteRoomFailed,
+		}
+	}
+	return nil
+}
+
+// 방 유저 정보 삭제
+func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.RoomUsers{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 유저 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteRoomUserFailed,
 		}
 	}
 	return nil

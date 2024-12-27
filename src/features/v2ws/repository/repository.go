@@ -2,7 +2,11 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/utils/db/mysql"
+	_redis "main/utils/db/redis"
 
 	"gorm.io/gorm"
 )
@@ -24,5 +28,20 @@ func ReconnectedUpdateRoomUser(c context.Context, roomID uint, userID uint) erro
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func RedisSessionDelete(ctx context.Context, sessionID string) *entity.ErrorInfo {
+	redisKey := fmt.Sprintf("abnormal_session:%s", sessionID)
+	// Redis에서 키 삭제
+	err := _redis.Client.Del(ctx, redisKey).Err()
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("세션 삭제 실패: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+
 	return nil
 }
