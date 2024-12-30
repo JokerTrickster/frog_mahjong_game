@@ -9,6 +9,7 @@ import (
 
 type IGetUsersRepository interface {
 	FindOneUser(ctx context.Context, userID int) (mysql.Users, error)
+	CheckDisconnect(ctx context.Context, userID int) (int64, error)
 }
 
 type IListUsersRepository interface {
