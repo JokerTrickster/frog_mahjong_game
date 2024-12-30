@@ -23,9 +23,13 @@ func (d *GetUsersUseCase) Get(c context.Context, userID int) (response.ResGetUse
 	if err != nil {
 		return response.ResGetUser{}, err
 	}
+	disconnected, err := d.Repository.CheckDisconnect(ctx, userID)
+	if err != nil{
+		return response.ResGetUser{}, err
+	}	
 
 	// create ResGetUser
-	res := CreateResGetUser(userDTO)
+	res := CreateResGetUser(userDTO,disconnected)
 
 	return res, nil
 }

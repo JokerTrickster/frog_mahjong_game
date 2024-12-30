@@ -3147,6 +3147,9 @@ const docTemplate = `{
                 "coin": {
                     "type": "integer"
                 },
+                "disconnected": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },

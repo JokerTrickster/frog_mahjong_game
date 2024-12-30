@@ -24,14 +24,17 @@ func CreateUpdateUsersEntitySQL(userID uint, req *request.ReqUpdateUsers) entity
 	return result
 }
 
-func CreateResGetUser(userDTO mysql.Users) response.ResGetUser {
-	return response.ResGetUser{
-		UserID:    int(userDTO.ID),
-		Email:     userDTO.Email,
-		Name:      userDTO.Name,
-		Coin:      userDTO.Coin,
-		ProfileID: userDTO.ProfileID,
+func CreateResGetUser(userDTO mysql.Users, disconnected int64) response.ResGetUser {
+	result := response.ResGetUser{
+		UserID:       int(userDTO.ID),
+		Email:        userDTO.Email,
+		Name:         userDTO.Name,
+		Coin:         userDTO.Coin,
+		ProfileID:    userDTO.ProfileID,
+		Disconnected: disconnected,
 	}
+
+	return result
 }
 
 func CreateResListUser(users []mysql.Users, total int) response.ResListUser {
