@@ -9,6 +9,7 @@ import (
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
+	"main/utils"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -17,10 +18,13 @@ import (
 func MatchEventWebsocket(msg *entity.WSMessage) {
 	ctx := context.Background()
 	uID := msg.UserID
-
+	decryptedMessage, err := utils.DecryptAES(msg.Message)
+	if err != nil {
+		log.Fatalf("AES 복호화 에러: %s", err)
+	}
 	//string to struct
 	req := request.ReqWSMatchEvent{}
-	err := json.Unmarshal([]byte(msg.Message), &req)
+	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
 		log.Fatalf("JSON 언마샬링 에러: %s", err)
 	}

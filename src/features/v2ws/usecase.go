@@ -8,6 +8,7 @@ import (
 	"main/features/v2ws/model/entity"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
+	"main/utils"
 	"main/utils/db/mysql"
 	"strings"
 	"time"
@@ -455,13 +456,19 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	// 메시지 암호화
+	encryptedMessage, err := utils.EncryptAES(msg.Message)
+	if err != nil {
+		fmt.Printf("Failed to encrypt message: %v\n", err)
+		return
+	}
+	msg.Message = encryptedMessage
+
 	// 방에 있는 모든 클라이언트에 메시지 전송
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
 		for _, sessionID := range sessionIDs {
 			if client, exists := entity.WSClients[sessionID]; exists {
 				if err := client.Conn.WriteJSON(msg); err != nil {
-					fmt.Println("failed to send ", client)
-					fmt.Printf("Failed to send message to session %s: %v\n", sessionID, err)
 					client.Close()
 					delete(entity.WSClients, sessionID)
 					removeSessionFromRoom(roomID, sessionID)
@@ -469,6 +476,11 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 			}
 		}
 	}
+}
+func SendWebSocketCloseMessage(ws *websocket.Conn, closeCode int, message string) error {
+	closeMessage := websocket.FormatCloseMessage(closeCode, message)
+	err := ws.WriteMessage(websocket.CloseMessage, closeMessage)
+	return err
 }
 func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)

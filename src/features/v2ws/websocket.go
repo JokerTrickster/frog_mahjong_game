@@ -182,7 +182,16 @@ func ErrorHandling(msg *entity.WSMessage, roomError *entity.RoomInfo) {
 					fmt.Println("Error creating error message:", err)
 					continue
 				}
-				msg.Message = message
+
+				// encrypt the message
+				encryptedMessage, err := utils.EncryptAES(message)
+				if err != nil {
+					fmt.Println("Error encrypting message:", err)
+					continue
+				}
+
+				// Set the encrypted message
+				msg.Message = encryptedMessage
 
 				// Attempt to send the error message
 				err = client.Conn.WriteJSON(msg)
