@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
 	"main/utils/db/mysql"
 
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -67,7 +67,6 @@ func joinPlay(c echo.Context) error {
 		roomID, _ := repository.JoinRedisSessionGet(context.Background(), req.SessionID)
 		if roomID != 0 {
 			// 기존 연결 복구
-			fmt.Println("재접속 복구를 시도한다. ", roomID, userID)
 			restoreSession(ws, req.SessionID, roomID, userID)
 			// 연결한 유저에게 메시지 정보를 전달해야 된다.
 			return nil
@@ -97,8 +96,7 @@ func joinPlay(c echo.Context) error {
 	// 조인 가능한 방 찾기
 	rooms, newErr := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
 	if newErr != nil {
-		message := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "비밀번호를 잘못 입력했습니다.")
-		ws.WriteMessage(websocket.CloseMessage, message)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, "비밀번호를 잘못 입력했습니다.")
 		return nil
 	}
 
