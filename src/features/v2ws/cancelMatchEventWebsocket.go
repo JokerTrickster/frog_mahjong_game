@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
 
@@ -81,18 +80,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
-		if roomInfoMsg.ErrorInfo.Msg == "방이 꽉 찼습니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrRoomFull
-		} else if roomInfoMsg.ErrorInfo.Msg == "비밀번호가 일치하지 않습니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrWrongPassword
-		} else if roomInfoMsg.ErrorInfo.Msg == "게임 중인 방입니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrGameInProgress
-		}
+		return
 	}
 
 	// 메시지 생성
