@@ -41,7 +41,7 @@ jobs:
         run: |
           V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
           echo $V
-          docker build --memory=1.5g --cpus=1.0 -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} --build-arg LOKI_URL=${LOKI_URL} -f ./deployment/Dockerfile ./src/
+          DOCKER_BUILDKIT=1 docker build --memory=1.5g -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} --build-arg LOKI_URL=${LOKI_URL} -f ./deployment/Dockerfile ./src/
           docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
       - name: push image
         id: image
