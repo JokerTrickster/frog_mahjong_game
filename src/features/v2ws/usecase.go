@@ -472,9 +472,7 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 		for _, sessionID := range sessionIDs {
 			if client, exists := entity.WSClients[sessionID]; exists {
 				if err := client.Conn.WriteJSON(msg); err != nil {
-					client.Close()
-					delete(entity.WSClients, sessionID)
-					removeSessionFromRoom(roomID, sessionID)
+					client.Closed = true
 				}
 			}
 		}

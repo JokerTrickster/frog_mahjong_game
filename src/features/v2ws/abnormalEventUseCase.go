@@ -29,30 +29,18 @@ func waitForReconnection(roomID uint, sessionID string, preloadUsers []entity.Ro
 // 세션 정리 (재접속 실패 시 호출)
 func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUsers) {
 	ctx := context.TODO()
-	fmt.Println("연결을 끊었습니다. ")
-	roomInfoMsg := entity.RoomInfo{}
-	errorInfo := &entity.ErrorInfo{
-		Code: _errors.ErrCodeInternal,
-		Msg:  "상대방이 연결이 끊겼습니다. 강제로 게임을 종료합니다.",
-		Type: _errors.ErrAbnormalExit,
-	}
-	roomInfoMsg.ErrorInfo = errorInfo
-	message, err := CreateMessage(&roomInfoMsg)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	msg := entity.WSMessage{
-		RoomID:  roomID,
-		Event:   "ERROR",
-		Message: message,
-	}
 
-	broadcastToRoom(roomID, msg)
+	msg := &entity.WSMessage{
+		RoomID: roomID,
+		Event:  "ERROR",
+	}
+	errMsg := CreateErrorMessage(_errors.ErrCodeInternal, _errors.ErrAbnormalExit, "상대방이 연결이 끊겼습니다. 강제로 게임을 종료합니다.")
+	msg.Message = errMsg
+	sendMessageToClients(roomID, msg)
 
 	fmt.Printf("Cleaning up session %s for room %d...\n", sessionID, roomID)
 
-	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		abnormalEntity := entity.WSAbnormalEntity{
 			RoomID:         roomID,
 			AbnormalUserID: getUserIDFromSessionID(sessionID),
@@ -110,17 +98,4 @@ func getUserIDFromSessionID(sessionID string) uint {
 		return client.UserID
 	}
 	return 0
-}
-func broadcastToRoom(roomID uint, msg entity.WSMessage) {
-	// 방에 속한 모든 세션에 메시지 전송
-	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
-		for _, sessionID := range sessionIDs {
-			if client, exists := entity.WSClients[sessionID]; exists {
-				err := client.Conn.WriteJSON(msg)
-				if err != nil {
-					client.Closed = true
-				}
-			}
-		}
-	}
 }

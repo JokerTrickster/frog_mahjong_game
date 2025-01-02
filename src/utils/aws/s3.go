@@ -50,7 +50,6 @@ var imgMeta = map[ImgType]imgMetaStruct{
 }
 
 func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename string, imgType ImgType) error {
-
 	meta, ok := imgMeta[imgType]
 	if !ok {
 		return fmt.Errorf("not available meta info for imgType - %v", imgType)
@@ -68,13 +67,13 @@ func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename strin
 		return fmt.Errorf("fail to load image - %v", err)
 	}
 
-	if meta.width < 1 || meta.height < 1 {
-		if (meta.width < 1 && meta.height < img.Bounds().Size().Y) ||
-			(meta.height < 1 && meta.width < img.Bounds().Size().X) {
-			img = imaging.Resize(img, meta.width, meta.height, imaging.Lanczos)
-		}
-	} else {
-		img = imaging.Fill(img, meta.width, meta.height, imaging.Center, imaging.Lanczos)
+	// 비율 유지하며 리사이즈
+	if meta.width > 0 && meta.height > 0 {
+		img = imaging.Fit(img, meta.width, meta.height, imaging.Lanczos)
+	} else if meta.width > 0 {
+		img = imaging.Resize(img, meta.width, 0, imaging.Lanczos)
+	} else if meta.height > 0 {
+		img = imaging.Resize(img, 0, meta.height, imaging.Lanczos)
 	}
 
 	buf := new(bytes.Buffer)
