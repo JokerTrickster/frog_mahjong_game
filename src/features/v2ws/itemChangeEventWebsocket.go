@@ -67,7 +67,6 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
-
 		return nil
 	})
 	if err != nil {
