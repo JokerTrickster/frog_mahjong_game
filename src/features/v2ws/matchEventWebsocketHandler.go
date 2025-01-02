@@ -21,7 +21,6 @@ func match(c echo.Context) error {
 		fmt.Printf("WebSocket upgrade failed: %v\n", err)
 		return err
 	}
-
 	req := &request.ReqWSMatch{}
 	if err := utils.ValidateReq(c, req); err != nil {
 		fmt.Printf("Invalid request: %v\n", err)
