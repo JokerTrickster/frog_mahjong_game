@@ -27,15 +27,17 @@ RUN apk add --no-cache curl unzip && \
 
 # 실행 파일 복사
 COPY --from=builder /build/main .
-
-# Promtail 설정 파일 복사
+# 현재 위치와 /app 디렉토리 확인
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
-COPY ./promtail-config.yaml /etc/promtail/promtail-config.yaml
-RUN sed -i "s|http://loki:3100/loki/api/v1/push|http://${LOKI_URL}:3100/loki/api/v1/push|" /etc/promtail/promtail-config.yaml
-
-# 환경 변수 및 실행 설정
 ARG LOKI_URL
 ENV LOKI_URL=${LOKI_URL}
+COPY ./promtail-config.yaml /etc/promtail/promtail-config.yaml
+RUN chmod 755 /etc/promtail/promtail-config.yaml 
+RUN sed -i "s|http://loki:3100/loki/api/v1/push|http://${LOKI_URL}:3100/loki/api/v1/push|" /etc/promtail/promtail-config.yaml
+RUN echo "cat /etc/promtail/promtail-config.yaml" | cat /etc/promtail/promtail-config.yaml
+RUN echo 'export $(strings /proc/1/environ | grep AWS_CONTAINER_CREDENTIALS_RELATIVE_URI)' >> /root/.profile
+ARG VERSION
+ENV VER $VERSION
 EXPOSE 80
 EXPOSE 3100
 CMD ["sh", "-c", "promtail -config.file=/etc/promtail/promtail-config.yaml & ./main"]
