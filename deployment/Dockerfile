@@ -25,6 +25,9 @@ RUN apk add --no-cache curl unzip && \
     rm /promtail.zip && \
     apk del curl unzip
 
+# 로그 디렉토리 생성 및 권한 설정
+RUN mkdir -p /logs && chmod 755 /logs
+
 # 실행 파일 복사
 COPY --from=builder /build/main .
 # 현재 위치와 /app 디렉토리 확인
