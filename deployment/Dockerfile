@@ -7,10 +7,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # 소스 코드 복사
-COPY ./src ./src
+COPY . .
 
 # 빌드 실행
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -ldflags '-s' -installsuffix cgo -o main ./src
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -ldflags '-s' -installsuffix cgo -o main .
 
 # 실행 단계
 FROM alpine:3.15 AS runner
