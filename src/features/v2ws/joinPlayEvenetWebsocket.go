@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
@@ -20,13 +19,17 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 	uID := msg.UserID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(msg.RoomID, msg)
 	}
 	//string to struct
 	req := request.ReqWSJoinPlayEvent{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(msg.RoomID, msg)
 	}
 
 	//비즈니스 로직
@@ -35,13 +38,13 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 	roomID, newErr := repository.JoinPlayFindOneRoomUsers(ctx, uID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 	roomDTO, newErr := repository.JoinPlayFindOneRoom(ctx, roomID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
@@ -49,14 +52,14 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 		err := repository.JoinPlayFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
 		preloadUsers, err = repository.JoinPlayFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil

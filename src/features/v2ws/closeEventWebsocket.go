@@ -29,21 +29,21 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 		err := repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		// Rooms 현재 인원수를 -1한다.
 		roomDTO, err := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		// user에 rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
 		err = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -52,7 +52,7 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			err = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 
@@ -63,13 +63,13 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			roomUserDTO, err := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			userDTO, err := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 
@@ -80,14 +80,14 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 			err = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		preloadUsers, err = repository.CloseFindAllRoomUsers(ctx, tx, req.RoomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil

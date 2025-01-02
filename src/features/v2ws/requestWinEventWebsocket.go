@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
@@ -22,13 +21,17 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 	//string to struct
 	req := request.ReqV2WSWinEvent{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 
 	requestWinEntity := entity.V2WSRequestWinEntity{
@@ -47,7 +50,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		_, err := repository.RequestWinFindAllCards(ctx, tx, &requestWinEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -55,13 +58,13 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		err = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers, err = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 

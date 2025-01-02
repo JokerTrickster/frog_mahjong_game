@@ -160,57 +160,12 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				// Notify all users in the same room about the disconnection
 				// false이면
 				if wsClient.Closed {
-					AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
+					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
 				return
 			}
 		}
-	}
-}
-
-// ErrorHandling processes errors and sends them to the corresponding client.
-func ErrorHandling(msg *entity.WSMessage, roomError *entity.RoomInfo) {
-	// Retrieve all sessionIDs for the room
-	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
-		for _, sessionID := range sessionIDs {
-			// Find the client associated with the sessionID
-			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
-				// Create an error message
-				message, err := CreateMessage(roomError)
-				if err != nil {
-					fmt.Println("Error creating error message:", err)
-					continue
-				}
-
-				// encrypt the message
-				encryptedMessage, err := utils.EncryptAES(message)
-				if err != nil {
-					fmt.Println("Error encrypting message:", err)
-					continue
-				}
-
-				// Set the encrypted message
-				msg.Message = encryptedMessage
-
-				// Attempt to send the error message
-				err = client.Conn.WriteJSON(msg)
-				if err != nil {
-					// Mark the client as closed (instead of immediate removal)
-					client.Closed = true
-					// Optionally retry sending the message (if needed)
-					// Retry logic can be implemented here
-
-					// Remove the client only after retries or severe errors
-					closeAndRemoveClient(client, sessionID, msg.RoomID)
-				}
-			}
-		}
-	}
-
-	// If the room has no active sessions, delete it
-	if len(entity.RoomSessions[msg.RoomID]) == 0 {
-		delete(entity.RoomSessions, msg.RoomID)
 	}
 }
 

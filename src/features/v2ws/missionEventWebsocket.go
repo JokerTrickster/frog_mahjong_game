@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
@@ -21,13 +21,18 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
+
 	}
 	//string to struct
 	req := request.ReqV2WSMissionEvent{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 
 	missionEntity := entity.V2WSMissionEntity{
@@ -51,14 +56,14 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 			userMissionID, err := repository.MissionCreateUserMission(ctx, tx, userMissionDTO)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			userMissionCardDTO := CreateUserMissionCardDTO(missionEntity, int(userMissionID))
 			err = repository.MissionCreateUserMissionCard(ctx, tx, userMissionCardDTO)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 		}
@@ -66,14 +71,14 @@ func MissionEventWebsocket(msg *entity.WSMessage) {
 		err := repository.MissionFindAllCards(ctx, tx, &missionEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
 		preloadUsers, err = repository.MissionFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
