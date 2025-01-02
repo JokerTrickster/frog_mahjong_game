@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # 빌드 실행
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -ldflags '-s' -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w' -o main .
 
 # 실행 단계
 FROM alpine:3.15 AS runner
