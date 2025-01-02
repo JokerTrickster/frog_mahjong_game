@@ -30,13 +30,13 @@ func GameOverEventWebsocket(msg *entity.WSMessage) {
 		err := repository.GameOverUpdateRoomUsers(ctx, tx, &GameOverEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		preloadUsers, err = repository.GameOverFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 

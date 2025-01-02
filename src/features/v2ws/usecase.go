@@ -456,6 +456,9 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	// 로그 메시지 생성
+	utils.LogError(msg.Message)
+
 	// 메시지 암호화
 	encryptedMessage, err := utils.EncryptAES(msg.Message)
 	if err != nil {
@@ -477,11 +480,85 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 		}
 	}
 }
+
+// 특정 크라이언트에 메시지 전송
+func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
+	// 로그 메시지 생성
+	utils.LogError(msg.Message)
+
+	// 메시지 암호화
+	encryptedMessage, err := utils.EncryptAES(msg.Message)
+	if err != nil {
+		fmt.Printf("Failed to encrypt message: %v\n", err)
+		return
+	}
+	msg.Message = encryptedMessage
+
+	// 방에 있는 모든 클라이언트에 메시지 전송
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+				if err := client.Conn.WriteJSON(msg); err != nil {
+					client.Close()
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(roomID, sessionID)
+				}
+			}
+		}
+	}
+}
+
 func SendWebSocketCloseMessage(ws *websocket.Conn, closeCode int, message string) error {
 	closeMessage := websocket.FormatCloseMessage(closeCode, message)
 	err := ws.WriteMessage(websocket.CloseMessage, closeMessage)
 	return err
 }
+
+// SendErrorMessage processes errors and sends them to the corresponding client.
+func SendErrorMessage(msg *entity.WSMessage, roomError *entity.RoomInfo) {
+	// Retrieve all sessionIDs for the room
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// Find the client associated with the sessionID
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+				// Create an error message
+				message, err := CreateMessage(roomError)
+				if err != nil {
+					fmt.Println("Error creating error message:", err)
+					continue
+				}
+
+				// encrypt the message
+				encryptedMessage, err := utils.EncryptAES(message)
+				if err != nil {
+					fmt.Println("Error encrypting message:", err)
+					continue
+				}
+
+				// Set the encrypted message
+				msg.Message = encryptedMessage
+
+				// Attempt to send the error message
+				err = client.Conn.WriteJSON(msg)
+				if err != nil {
+					// Mark the client as closed (instead of immediate removal)
+					client.Closed = true
+					// Optionally retry sending the message (if needed)
+					// Retry logic can be implemented here
+
+					// Remove the client only after retries or severe errors
+					closeAndRemoveClient(client, sessionID, msg.RoomID)
+				}
+			}
+		}
+	}
+
+	// If the room has no active sessions, delete it
+	if len(entity.RoomSessions[msg.RoomID]) == 0 {
+		delete(entity.RoomSessions, msg.RoomID)
+	}
+}
+
 func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	jsonData, err := json.Marshal(roomInfoMsg)
@@ -490,4 +567,18 @@ func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	}
 
 	return string(jsonData), nil
+}
+
+func CreateErrorMessage(errCode int, errType, errMsg string) string {
+	msg := entity.RoomInfo{}
+	msg.ErrorInfo = &entity.ErrorInfo{
+		Code: errCode,
+		Type: errType,
+		Msg:  errMsg,
+	}
+	message, err := CreateMessage(&msg)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return message
 }

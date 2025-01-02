@@ -10,6 +10,8 @@ var (
 	ErrRoomFull              = "ERR_ROOM_FULL"
 	ErrBadRequest            = "ERR_BAD_REQUEST"
 	ErrAbnormalExit          = "ERR_ABNORMAL_EXIT"
+	ErrCryptoFailed          = "ERR_CRYPTO_FAILED"
+	ErrUnmarshalFailed       = "ERR_UNMARSHAL_FAILED"
 	ErrDisconnect            = "ERR_DISCONNECT"
 	ErrDBServer              = "ERR_DB_SERVER"
 	ErrInvalidToken          = "ERR_INVALID_TOKEN"

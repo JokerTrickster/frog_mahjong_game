@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
@@ -22,13 +22,17 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	// 복호화 후 JSON 언마샬링
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 	//string to struct
 	req := request.ReqWSImportSingleCard{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 
 	importSingleCardEntity := entity.WSImportSingleCardEntity{
@@ -44,7 +48,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
 	if err != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 	if cardCount > 3 {
@@ -55,7 +59,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	newErr = repository.ImportSingleCardFindOneCard(ctx, roomID, importSingleCardEntity.CardID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 
@@ -65,7 +69,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		err := repository.ImportSingleCardCreateCard(ctx, tx, userBirdCardDTO)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		// 소유 카드 수 업데이트
@@ -73,7 +77,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		err = repository.ImportSingleCardUpdateRoomUserCardCount(ctx, tx, &importSingleCardEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -81,7 +85,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		preloadUsers, err = repository.ImportSingleCardFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
@@ -99,7 +103,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			err := repository.ImportSingleCardUpdateAllCardState(ctx, tx, msg.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			return nil
@@ -114,7 +118,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 			err := repository.ImportSingleCardUpdateOpenCards(ctx, tx, msg.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			return nil

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AbnormalErrorHandling(roomID, userID uint) {
+func AbnormalSendErrorMessage(roomID, userID uint) {
 	// 비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
 
 	//business logic

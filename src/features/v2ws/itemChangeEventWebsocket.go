@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
@@ -22,13 +22,17 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 	// 복호화 후 JSON 언마샬링
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 	//string to struct
 	req := request.ReqWSItemChange{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 
 	ItemChangeEntity := entity.WSItemChangeEntity{
@@ -44,7 +48,7 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 	newErr := repository.ItemChangeCheck(ctx, ItemChangeEntity)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 
@@ -53,14 +57,14 @@ func ItemChangeEventWebsocket(msg *entity.WSMessage) {
 		err := repository.ItemChange(ctx, tx, ItemChangeEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		// 아이템 사용 횟수를 -1 감소한다.
 		err = repository.ItemChangeConsumeUserItems(ctx, tx, ItemChangeEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
@@ -20,13 +19,17 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	uID := msg.UserID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(msg.RoomID, msg)
 	}
 	//string to struct
 	req := request.ReqWSMatchEvent{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(msg.RoomID, msg)
 	}
 
 	//비즈니스 로직
@@ -35,7 +38,7 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	roomID, newErr := repository.MatchFindOneRoomUsers(ctx, uID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
@@ -43,14 +46,14 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 		err := repository.MatchFindOneAndUpdateUser(ctx, tx, uID, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		//해당 방에 미션이 존재하는지 체크한다.
 		roomMission, newErr := repository.MatchFindOneRoomMission(ctx, tx, roomID)
 		if newErr != nil {
 			roomInfoMsg.ErrorInfo = newErr
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", newErr.Msg)
 		}
 		if len(roomMission) == 0 {
@@ -58,14 +61,14 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 			err = repository.MatchCreateMissions(ctx, tx, roomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		preloadUsers, err = repository.MatchFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil

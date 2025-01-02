@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
@@ -21,13 +21,17 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 	roomID := msg.RoomID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		log.Fatalf("AES 복호화 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 	//string to struct
 	req := request.ReqWSRandom{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
+		msg.Message = errMsg
+		sendMessageToClient(roomID, msg)
 	}
 
 	RandomEntity := entity.WSRandomEntity{
@@ -44,7 +48,7 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		err := repository.RandomUpdateRandomCards(ctx, tx, &RandomEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -53,7 +57,7 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		err = repository.RandomUpdateRoomUserCardCount(ctx, tx, &RandomEntity)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -61,7 +65,7 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 		preloadUsers, err = repository.RandomFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil
@@ -79,7 +83,7 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 			err := repository.RandomUpdateAllCardState(ctx, tx, msg.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 
@@ -87,7 +91,7 @@ func RandomEventWebsocket(msg *entity.WSMessage) {
 			err = repository.RandomUpdateOpenCards(ctx, tx, msg.RoomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			return nil

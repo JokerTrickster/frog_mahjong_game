@@ -35,7 +35,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 		err := repository.CancelMatchDeleteOneRoomUser(ctx, tx, roomID, uID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -43,7 +43,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 		err = repository.CancelMatchFindOneAndUpdateUser(ctx, tx, uID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -51,7 +51,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 		roomDTO, err := repository.CancelMatchFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		//
@@ -61,21 +61,21 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 			roomUserID, err := repository.CancelMatchFindOneRoomUser(ctx, tx, roomID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 			//해당 유저ID를 방장으로 변경한다.
 			err = repository.CancelMatchUpdateRoomOwner(ctx, tx, roomID, roomUserID)
 			if err != nil {
 				roomInfoMsg.ErrorInfo = err
-				ErrorHandling(msg, &roomInfoMsg)
+				SendErrorMessage(msg, &roomInfoMsg)
 				return fmt.Errorf("%s", err.Msg)
 			}
 		}
 		preloadUsers, err = repository.CancelMatchFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		return nil

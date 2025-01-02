@@ -96,7 +96,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 			}
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				fmt.Println("Error sending ping:", err)
-				AbnormalErrorHandling(wsClient.RoomID, wsClient.UserID)
+				AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID)
 				return
 			}
 

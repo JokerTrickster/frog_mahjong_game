@@ -24,7 +24,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
 	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 	if roomState != "wait" {
@@ -33,7 +33,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 			Msg:  "게임이 시작되었습니다.",
 			Type: _errors.ErrAlreadyGame,
 		}
-		ErrorHandling(msg, &roomInfoMsg)
+		SendErrorMessage(msg, &roomInfoMsg)
 		return
 	}
 
@@ -42,7 +42,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		err := repository.StartCheckOwner(ctx, tx, uID, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -51,7 +51,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		err = repository.StartUpdateRoom(ctx, tx, roomID, roomUpdateData)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -59,7 +59,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		err = repository.StartDiffCoin(ctx, tx, roomID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
@@ -67,13 +67,13 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		err = repository.StartDeleteCards(ctx, tx, uID)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		birdCards, err := repository.StartBirdCard(ctx, tx)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 		// 카드를 생성한다.
@@ -81,7 +81,7 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		err = repository.StartCreateCards(ctx, tx, cards)
 		if err != nil {
 			roomInfoMsg.ErrorInfo = err
-			ErrorHandling(msg, &roomInfoMsg)
+			SendErrorMessage(msg, &roomInfoMsg)
 			return fmt.Errorf("%s", err.Msg)
 		}
 
