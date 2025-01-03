@@ -34,7 +34,6 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
-	doraDTO := &mysql.FrogUserCards{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
@@ -48,10 +47,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		doraDTO, err = repository.DiscardCardsFindOneDora(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
+
 		preloadUsers, err = repository.DiscardCardsFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			return err
@@ -75,11 +71,6 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 
 		// 론 가능 여부를 true로 변경
 		roomInfoMsg.GameInfo.IsLoanAllowed = true
-
-		//카드 정보 저장
-		doraCardInfo := entity.Card{}
-		doraCardInfo.CardID = uint(doraDTO.CardID)
-		roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {

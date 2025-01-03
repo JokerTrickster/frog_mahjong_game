@@ -39,7 +39,6 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
-	doraDTO := &mysql.FrogUserCards{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
@@ -53,10 +52,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-		doraDTO, err = repository.ImportSingleCardFindOneDora(ctx, tx, roomID)
-		if err != nil {
-			return err
-		}
+
 		// 현재 참여하고 있는 유저에 대한 정보를 가져와서 메시지 전달한다.
 		preloadUsers, err = repository.ImportSingleCardFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
@@ -76,11 +72,6 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	if clients, ok := entity.WSClients[msg.RoomID]; ok {
 		// 메시지 생성
 		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
-
-		//카드 정보 저장
-		doraCardInfo := entity.Card{}
-		doraCardInfo.CardID = uint(doraDTO.CardID)
-		roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {

@@ -34,7 +34,6 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
-	doraDTO := &mysql.FrogUserCards{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 소유하고 있는 카드인지 체크
@@ -45,25 +44,6 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 
 		// 카드 정보를 롤백한다.
 		err = repository.FailedLoanRollbackCard(ctx, tx, &loanEntity)
-		if err != nil {
-			return err
-		}
-
-		// // 패널티를 부여한다. (코인 차감)
-		// penaltyCoin := (len(entity.WSClients[msg.RoomID]) - 1) * 2
-		// err = repository.FailedLoanPenalty(ctx, tx, &loanEntity, penaltyCoin)
-		// if err != nil {
-		// 	return err
-		// }
-
-		// // 모든 플레이어에게 코인 추가
-		// err = repository.FailedLoanAddCoin(ctx, tx, &loanEntity)
-		// if err != nil {
-		// 	return err
-		// }
-
-		//dora 카드 가져오기
-		doraDTO, err = repository.LoanCardFindOneDora(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}
@@ -93,11 +73,6 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 
 		// 론 실패한 유저ID 저장
 		roomInfoMsg.GameInfo.FailedLoanUserID = uID
-
-		//도라 카드 정보 저장
-		doraCardInfo := entity.Card{}
-		doraCardInfo.CardID = uint(doraDTO.CardID)
-		roomInfoMsg.GameInfo.Dora = &doraCardInfo
 
 		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
 		if roomInfoMsg.ErrorInfo != nil || err != nil {
