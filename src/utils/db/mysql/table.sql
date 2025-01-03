@@ -48,6 +48,7 @@ CREATE TABLE rooms (
     state VARCHAR(50),
     owner_id INT,
     timer INT,
+    game_id INT,
     start_time TIMESTAMP
 );
 

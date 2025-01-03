@@ -45,6 +45,7 @@ type Rooms struct {
 	PlayTurn     int       `json:"playTurn" gorm:"column:play_turn"`
 	Timer        int       `json:"timeOut" gorm:"column:timer"`
 	StartTime    time.Time `json:"startTime" gorm:"column:start_time"`
+	GameID       int       `json:"gameID" gorm:"column:game_id"` // 1: 개굴작 2: 윙스팬
 }
 
 type RoomUsers struct {

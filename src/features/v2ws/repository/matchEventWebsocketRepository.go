@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"main/features/v2ws/model/entity"
 	_errors "main/features/v2ws/model/errors"
@@ -50,14 +51,21 @@ func MatchFindOneRoomUsers(ctx context.Context, userID uint) (uint, *entity.Erro
 	}
 	return uint(roomUser.RoomID), nil
 }
-
 func MatchFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, *entity.ErrorInfo) {
 	var roomsDTO mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
-		Where("deleted_at IS NULL AND min_count = ? AND max_count = ? AND timer = ? AND state = ? AND current_count < max_count", count, count, timer, "wait").
-		First(&roomsDTO).Error
+
+	query := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+		Where("deleted_at IS NULL").
+		Where("min_count = ?", count).
+		Where("max_count = ?", count).
+		Where("timer = ?", timer).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 2)
+
+	err := query.First(&roomsDTO).Error
 	if err != nil {
-		if err.Error() == "record not found" {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, &entity.ErrorInfo{
 				Code: _errors.ErrCodeNotFound,
 				Msg:  err.Error(),
@@ -70,6 +78,7 @@ func MatchFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Roo
 			Type: _errors.ErrInternalServer,
 		}
 	}
+
 	return &roomsDTO, nil
 }
 
@@ -249,7 +258,6 @@ func MatchRedisSessionSet(ctx context.Context, sessionID string, roomID uint) *e
 	}
 	return nil
 }
-
 
 func MatchDeleteRooms(ctx context.Context, uID uint) *entity.ErrorInfo {
 	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.Rooms{})
