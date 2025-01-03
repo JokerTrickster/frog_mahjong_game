@@ -62,12 +62,12 @@ func playTogether(c echo.Context) error {
 		return nil
 	}
 
-	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
 	var roomID uint
 
+	// 대기중인 방이 있는지 체크
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		//숫자로 이루어진 6개 랜덤값을 생성한다.
+		//숫자로 이루어진 4개 랜덤값을 생성한다.
 		password := CreateRandomPassword()
 		// 방 생성
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
@@ -94,6 +94,10 @@ func playTogether(c echo.Context) error {
 		}
 		return nil
 	})
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
 	defer ws.Close()
 	var initialMsg entity.WSMessage

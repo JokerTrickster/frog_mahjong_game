@@ -64,10 +64,9 @@ func match(c echo.Context) error {
 		return nil
 	}
 
-	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
 	var roomID uint
-
+	// 대기중인 방이 있는지 체크
 	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 

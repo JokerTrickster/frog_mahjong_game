@@ -22,7 +22,12 @@ func JoinPlayFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
 
 func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Rooms, error) {
 	var roomsDTO *mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and password = ? and state = ? and current_count < max_count", password, "wait").First(&roomsDTO).Error
+	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+		Where("password = ?", password).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 1).
+		First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
 			return &mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), "비밀번호가 잘못됐엇습니다.", utils.ErrFromClient)

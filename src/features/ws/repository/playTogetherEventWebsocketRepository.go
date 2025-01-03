@@ -23,7 +23,15 @@ func PlayTogetherFindOneRoomUsers(ctx context.Context, userID uint) (uint, error
 
 func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, error) {
 	var roomsDTO *mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and min_count = ? and max_count = ? and timer = ? and state = ? and current_count < max_count", count, count, timer, "wait").First(&roomsDTO).Error
+	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+		Where("min_count = ?", count).
+		Where("max_count = ?", count).
+		Where("timer = ?", timer).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 1).
+		First(&roomsDTO).Error
+
 	if err != nil {
 		if err.Error() == "record not found" {
 			return &mysql.Rooms{}, nil
