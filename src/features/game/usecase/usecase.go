@@ -478,8 +478,8 @@ func CreateMissionDTO(req *request.ReqCreateMission, fileName string) *mysql.Mis
 	}
 }
 
-func CreateResListCard(cards []*mysql.BirdCards, count int) response.ResListCardGame {
-	res := response.ResListCardGame{
+func CreateResV2ListCard(cards []*mysql.BirdCards, count int) response.ResV2ListCardGame {
+	res := response.ResV2ListCardGame{
 		TotalCount: count,
 	}
 	for _, card := range cards {
@@ -495,7 +495,7 @@ func CreateResListCard(cards []*mysql.BirdCards, count int) response.ResListCard
 		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), card.Image, _aws.ImgTypeBirdCard)
 		if err != nil {
 			fmt.Println(err)
-			return response.ResListCardGame{}
+			return response.ResV2ListCardGame{}
 		}
 		c.Image = imageUrl
 		res.Cards = append(res.Cards, c)
@@ -558,4 +558,20 @@ func UpdateBirdCardsDTO(req *request.ReqUpdateCard) mysql.BirdCards {
 		result.Nest = req.Card.Nest
 	}
 	return result
+}
+
+func CreateResListCard(cards []*mysql.FrogCards, count int) response.ResListCardGame {
+	res := response.ResListCardGame{
+		TotalCount: count,
+	}
+	for _, card := range cards {
+		c := response.FrogCard{
+			ID:    int(card.ID),
+			Name:  card.Name,
+			Color: card.Color,
+		}
+		res.Cards = append(res.Cards, c)
+	}
+	return res
+
 }

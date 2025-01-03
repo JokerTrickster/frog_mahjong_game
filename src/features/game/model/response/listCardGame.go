@@ -1,16 +1,12 @@
 package response
 
 type ResListCardGame struct {
-	Cards      []BirdCard `json:"cards"`
 	TotalCount int        `json:"totalCount"`
+	Cards      []FrogCard `json:"cards"`
 }
 
-type BirdCard struct {
-	ID            int    `json:"id"`
-	Name          string `json:"name"`
-	Image         string `json:"image"`
-	Size          int    `json:"size"`
-	Habitat       string `json:"habitat"`
-	BeakDirection string `json:"beakDirection"`
-	Nest          string `json:"nest"`
+type FrogCard struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
 }

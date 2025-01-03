@@ -71,11 +71,16 @@ type ICreateMissionGameRepository interface {
 	SaveMission(c context.Context, missionDTO *mysql.Missions) error
 }
 type IListCardGameRepository interface {
-	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
-	CountAllBirdCard(c context.Context) (int, error)
+	FindFrogCard(c context.Context) ([]*mysql.FrogCards, error)
+	CountFrogCard(c context.Context) (int, error)
 }
 
 // v2
+
+type IV2ListCardGameRepository interface {
+	FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error)
+	CountAllBirdCard(c context.Context) (int, error)
+}
 type IV2DeckCardGameRepository interface {
 	CheckRoomUser(c context.Context, userID int, roomID int) error
 }

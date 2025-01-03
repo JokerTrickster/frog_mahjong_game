@@ -193,6 +193,7 @@ type FrogCards struct {
 	gorm.Model
 	Name  string `json:"name" gorm:"column:name"`
 	Color string `json:"color" gorm:"column:color"`
+	Image string `json:"image" gorm:"column:image"`
 }
 
 type FrogUserCards struct {

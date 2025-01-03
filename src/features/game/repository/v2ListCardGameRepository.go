@@ -9,12 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewListCardGameRepository(gormDB *gorm.DB) _interface.IListCardGameRepository {
-	return &ListCardGameRepository{GormDB: gormDB}
+func NewV2ListCardGameRepository(gormDB *gorm.DB) _interface.IV2ListCardGameRepository {
+	return &V2ListCardGameRepository{GormDB: gormDB}
 }
 
-func (d *ListCardGameRepository) FindFrogCard(c context.Context) ([]*mysql.FrogCards, error) {
-	var cards []*mysql.FrogCards
+func (d *V2ListCardGameRepository) FindAllBirdCard(c context.Context) ([]*mysql.BirdCards, error) {
+	var cards []*mysql.BirdCards
 	err := d.GormDB.Model(&cards).Find(&cards).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(c, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
@@ -22,9 +22,9 @@ func (d *ListCardGameRepository) FindFrogCard(c context.Context) ([]*mysql.FrogC
 	return cards, nil
 }
 
-func (d *ListCardGameRepository) CountFrogCard(c context.Context) (int, error) {
+func (d *V2ListCardGameRepository) CountAllBirdCard(c context.Context) (int, error) {
 	var count int64
-	err := d.GormDB.Model(&mysql.FrogCards{}).Count(&count).Error
+	err := d.GormDB.Model(&mysql.BirdCards{}).Count(&count).Error
 	if err != nil {
 		return 0, utils.ErrorMsg(c, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
 	}

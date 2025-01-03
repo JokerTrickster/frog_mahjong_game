@@ -576,6 +576,32 @@ const docTemplate = `{
             }
         },
         "/v0.1/game/cards": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "개굴작 카드 정보 리스트 가져오기",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResListCardGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
             "put": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
                 "produces": [
@@ -2045,7 +2071,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ResListCardGame"
+                            "$ref": "#/definitions/response.ResV2ListCardGame"
                         }
                     },
                     "400": {
@@ -3042,6 +3068,20 @@ const docTemplate = `{
                 }
             }
         },
+        "response.FrogCard": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GoogleOauthCallbackRes": {
             "type": "object",
             "properties": {
@@ -3184,7 +3224,7 @@ const docTemplate = `{
                 "cards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.BirdCard"
+                        "$ref": "#/definitions/response.FrogCard"
                     }
                 },
                 "totalCount": {
@@ -3370,6 +3410,20 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "response.ResV2ListCardGame": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.BirdCard"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
                 }
             }
         },

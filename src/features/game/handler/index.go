@@ -24,11 +24,12 @@ func NewGameHandler(c *echo.Echo) {
 	NewListMissionGameHandler(c, usecase.NewListMissionGameUseCase(repository.NewListMissionGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2ReportGameHandler(c, usecase.NewV2ReportGameUseCase(repository.NewV2ReportGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewCreateMissionGameHandler(c, usecase.NewCreateMissionGameUseCase(repository.NewCreateMissionGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
-	NewListCardGameHandler(c, usecase.NewListCardGameUseCase(repository.NewListCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewV2ListCardGameHandler(c, usecase.NewV2ListCardGameUseCase(repository.NewV2ListCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2DeckCardGameHandler(c, usecase.NewV2DeckCardGameUseCase(repository.NewV2DeckCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2ResultGameHandler(c, usecase.NewV2ResultGameUseCase(repository.NewV2ResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewSaveCardInfoGameHandler(c, usecase.NewSaveCardInfoGameUseCase(repository.NewSaveCardInfoGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewSaveCardImageGameHandler(c, usecase.NewSaveCardImageGameUseCase(repository.NewSaveCardImageGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewUpdateCardGameHandler(c, usecase.NewUpdateCardGameUseCase(repository.NewUpdateCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewReportImageUploadGameHandler(c, usecase.NewReportImageUploadGameUseCase(repository.NewReportImageUploadGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewListCardGameHandler(c, usecase.NewListCardGameUseCase(repository.NewListCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

@@ -326,7 +326,8 @@ create table frog_cards(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     name VARCHAR(255),
-    color VARCHAR(50)
+    color VARCHAR(50),
+    image varchar(255)
 );
 
 create table frog_user_cards (
@@ -345,71 +346,58 @@ create table frog_user_cards (
 
 
 
-
 INSERT INTO frog_cards (name, color)
 VALUES
-    -- chung (all green)
-    ('chung', 'green'),
-    ('chung', 'green'),
-    ('chung', 'green'),
-    ('chung', 'green'),
-
-    -- bal (all red)
-    ('bal', 'red'),
-    ('bal', 'red'),
-    ('bal', 'red'),
-    ('bal', 'red'),
-
-    -- one (normal, green)
+    -- Red cards
     ('one', 'red'),
-    ('one', 'normal'),
-    ('one', 'normal'),
-    ('one', 'normal'),
-
-    -- two (green)
     ('two', 'red'),
-    ('two', 'green'),
-    ('two', 'green'),
-    ('two', 'green'),
-
-    -- three (green)
     ('three', 'red'),
-    ('three', 'green'),
-    ('three', 'green'),
-    ('three', 'green'),
-
-    -- four (green)
     ('four', 'red'),
-    ('four', 'green'),
-    ('four', 'green'),
-    ('four', 'green'),
-
-    -- five (normal)
     ('five', 'red'),
-    ('five', 'normal'),
-    ('five', 'normal'),
-    ('five', 'normal'),
-
-    -- six (green)
     ('six', 'red'),
-    ('six', 'green'),
-    ('six', 'green'),
-    ('six', 'green'),
-
-    -- seven (normal)
     ('seven', 'red'),
-    ('seven', 'normal'),
-    ('seven', 'normal'),
-    ('seven', 'normal'),
-
-    -- eight (green)
     ('eight', 'red'),
-    ('eight', 'green'),
-    ('eight', 'green'),
-    ('eight', 'green'),
-
-    -- nine (normal, green, red)
     ('nine', 'red'),
+    ('chung', 'red'),
+
+    -- Green and Normal cards
+    ('bal', 'green'),
+    ('one', 'normal'),
+    ('two', 'green'),
+    ('three', 'green'),
+    ('four', 'green'),
+    ('five', 'normal'),
+    ('six', 'green'),
+    ('seven', 'normal'),
+    ('eight', 'green'),
     ('nine', 'normal'),
+
+    -- Repeat for the sequence
+    ('chung', 'red'),
+    ('bal', 'green'),
+    ('one', 'normal'),
+    ('two', 'green'),
+    ('three', 'green'),
+    ('four', 'green'),
+    ('five', 'normal'),
+    ('six', 'green'),
+    ('seven', 'normal'),
+    ('eight', 'green'),
     ('nine', 'normal'),
-    ('nine', 'normal');
+
+    -- Third sequence
+    ('chung', 'red'),
+    ('bal', 'green'),
+    ('one', 'normal'),
+    ('two', 'green'),
+    ('three', 'green'),
+    ('four', 'green'),
+    ('five', 'normal'),
+    ('six', 'green'),
+    ('seven', 'normal'),
+    ('eight', 'green'),
+    ('nine', 'normal'),
+
+    -- Final sequence
+    ('chung', 'red'),
+    ('bal', 'green');

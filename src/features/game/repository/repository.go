@@ -41,6 +41,9 @@ type ResultGameRepository struct {
 type ReportGameRepository struct {
 	GormDB *gorm.DB
 }
+type ListCardGameRepository struct {
+	GormDB *gorm.DB
+}
 
 type MetaGameRepository struct {
 	GormDB *gorm.DB
@@ -58,11 +61,12 @@ type CreateMissionGameRepository struct {
 	GormDB *gorm.DB
 }
 
-type ListCardGameRepository struct {
+// v2
+
+type V2ListCardGameRepository struct {
 	GormDB *gorm.DB
 }
 
-// v2
 type V2DeckCardGameRepository struct {
 	GormDB *gorm.DB
 }
