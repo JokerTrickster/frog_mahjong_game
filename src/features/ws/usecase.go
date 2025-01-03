@@ -45,6 +45,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	timer := 30
 	roomID := 0
 	password := ""
+	doraID := 0
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
@@ -69,7 +70,10 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
+			} else if card.State == "dora" {
+				doraID = card.CardID
 			}
+
 		}
 		roomID = roomUser.RoomID
 
@@ -78,7 +82,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
-
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
 		PlayTurn:      playTurn,
@@ -88,6 +91,9 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		IsFull:        false,
 		RoomID:        uint(roomID),
 		Password:      password,
+		Dora: &entity.Card{
+			CardID: uint(doraID),
+		},
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
@@ -115,7 +121,7 @@ func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	return string(jsonData), nil
 }
 
-func CalcScore(cards []*mysql.Cards, score int) error {
+func CalcScore(cards []*mysql.FrogUserCards, score int) error {
 	if score >= 5 {
 		return nil
 	}

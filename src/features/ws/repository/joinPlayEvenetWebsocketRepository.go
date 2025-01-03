@@ -9,10 +9,24 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
+func JoinPlayFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+	}
+	return roomUsers, nil
+}
 func JoinPlayFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
-	roomUser := mysql.RoomUsers{}
+	roomUser := mysql.FrogRoomUsers{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
 	if err != nil {
 		return 0, fmt.Errorf("방 유저 정보 조회 에러: %v", err)
@@ -22,7 +36,12 @@ func JoinPlayFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
 
 func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Rooms, error) {
 	var roomsDTO *mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and password = ? and state = ? and current_count < max_count", password, "wait").First(&roomsDTO).Error
+	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+		Where("password = ?", password).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 1).
+		First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
 			return &mysql.Rooms{}, utils.ErrorMsg(ctx, utils.ErrRoomNotFound, utils.Trace(), "비밀번호가 잘못됐엇습니다.", utils.ErrFromClient)
@@ -57,7 +76,7 @@ func JoinPlayInsertOneRoom(ctx context.Context, RoomDTO mysql.Rooms) (int, error
 	}
 	return int(RoomDTO.ID), nil
 }
-func JoinPlayInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error {
+func JoinPlayInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO *mysql.FrogRoomUsers) error {
 	result := tx.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("방 유저 정보 생성 실패")
@@ -66,14 +85,6 @@ func JoinPlayInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mys
 		return fmt.Errorf("방 유저 정보 생성 실패: %v", result.Error)
 	}
 	return nil
-}
-
-func JoinPlayFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
-	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
-	}
-	return roomUsers, nil
 }
 
 func JoinPlayFindOneRoom(ctx context.Context, roomID uint) (mysql.Rooms, error) {
@@ -108,7 +119,7 @@ func JoinPlayindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, Roo
 }
 
 func JoinPlayFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint) error {
-	result := tx.WithContext(ctx).Where("user_id = ? ", uID).Delete(&mysql.RoomUsers{})
+	result := tx.WithContext(ctx).Where("user_id = ? ", uID).Delete(&mysql.FrogRoomUsers{})
 	// 방 유저 정보가 없는 경우
 	if result.RowsAffected == 0 {
 		return nil

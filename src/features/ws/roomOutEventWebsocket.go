@@ -24,7 +24,7 @@ func RoomOutEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSRoomOutEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 
 	// 비즈니스 로직

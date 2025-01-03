@@ -7,17 +7,24 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func CancelMatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
 	}
 	return roomUsers, nil
 }
 func CancelMatchDeleteOneRoomUser(ctx context.Context, tx *gorm.DB, roomID, uID uint) error {
-	roomUser := mysql.RoomUsers{}
+	roomUser := mysql.FrogRoomUsers{}
 	err := tx.Where("room_id = ? AND user_id = ?", roomID, uID).Delete(&roomUser).Error
 	if err != nil {
 		return err
@@ -60,7 +67,7 @@ func CancelMatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint)
 }
 
 func CancelMatchFindOneRoomUser(ctx context.Context, tx *gorm.DB, roomID uint) (uint, error) {
-	var roomUser mysql.RoomUsers
+	var roomUser mysql.FrogRoomUsers
 	result := tx.WithContext(ctx).Where("room_id = ?", roomID).First(&roomUser)
 	if result.Error != nil {
 		return 0, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", result.Error)

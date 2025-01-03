@@ -10,10 +10,25 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
+func MatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+	}
+	return roomUsers, nil
+}
+
 func MatchFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
-	roomUser := mysql.RoomUsers{}
+	roomUser := mysql.FrogRoomUsers{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
 	if err != nil {
 		return 0, fmt.Errorf("방 유저 정보 조회 에러: %v", err)
@@ -23,7 +38,14 @@ func MatchFindOneRoomUsers(ctx context.Context, userID uint) (uint, error) {
 
 func MatchFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, error) {
 	var roomsDTO *mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("deleted_at is null and min_count = ? and max_count = ? and timer = ? and state = ? and current_count < max_count", count, count, timer, "wait").First(&roomsDTO).Error
+	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+		Where("min_count = ?", count).
+		Where("max_count = ?", count).
+		Where("timer = ?", timer).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 1).
+		First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {
 			return &mysql.Rooms{}, nil
@@ -44,7 +66,7 @@ func MatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomI
 	}
 	return nil
 }
-func MatchInsertOneRoom(ctx context.Context, RoomDTO mysql.Rooms) (int, error) {
+func MatchInsertOneRoom(ctx context.Context, RoomDTO *mysql.Rooms) (int, error) {
 	//방 인원이 최대 인원이 최소 인원보다 많거나 같고, 최대 인원이 2명 이상이거나 최소 인원이 2명 이상이어야 한다.
 	if ((RoomDTO.MaxCount >= RoomDTO.MinCount) && (RoomDTO.MaxCount >= 2 || RoomDTO.MinCount >= 2)) == false {
 		return 0, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), _errors.ErrBadRequest, utils.ErrFromClient)
@@ -58,7 +80,7 @@ func MatchInsertOneRoom(ctx context.Context, RoomDTO mysql.Rooms) (int, error) {
 	}
 	return int(RoomDTO.ID), nil
 }
-func MatchInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.RoomUsers) error {
+func MatchInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO *mysql.FrogRoomUsers) error {
 	result := tx.WithContext(ctx).Create(&RoomUserDTO)
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("방 유저 정보 생성 실패")
@@ -67,14 +89,6 @@ func MatchInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO mysql.
 		return fmt.Errorf("방 유저 정보 생성 실패: %v", result.Error)
 	}
 	return nil
-}
-
-func MatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
-	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err)
-	}
-	return roomUsers, nil
 }
 
 func MatchFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
@@ -109,13 +123,21 @@ func MatchindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID
 }
 
 func MatchFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint) error {
-	result := tx.WithContext(ctx).Where("user_id = ? ", uID).Delete(&mysql.RoomUsers{})
+	result := tx.WithContext(ctx).Where("user_id = ? ", uID).Delete(&mysql.FrogRoomUsers{})
 	// 방 유저 정보가 없는 경우
 	if result.RowsAffected == 0 {
 		return nil
 	}
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete room user: %v", result.Error)
+	}
+	return nil
+}
+
+func MatchDeleteFrogCards(ctx context.Context, tx *gorm.DB, uID uint) error {
+	result := tx.WithContext(ctx).Model(&mysql.FrogUserCards{}).Where("user_id = ?", uID).Delete(&mysql.FrogUserCards{})
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete frog cards: %v", result.Error)
 	}
 	return nil
 }

@@ -7,33 +7,42 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func DoraFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
 	}
 	return roomUsers, nil
 }
-func DoraCheckFirstPlayer(c context.Context, tx *gorm.DB, userID uint, roomID uint) error {
-	var roomUsers mysql.RoomUsers
-	err := tx.Model(&roomUsers).Where("user_id = ? AND room_id = ? and turn_number = ?", userID, roomID, 1).First(&roomUsers)
-	if err.Error != nil {
-		return fmt.Errorf("첫번째 플레이어가 아닙니다. %v", err.Error)
+func DoraCheckFirstPlayer(ctx context.Context, tx *gorm.DB, userID, roomID uint) error {
+	var roomUser mysql.FrogRoomUsers
+	err := tx.Model(&mysql.FrogRoomUsers{}).
+		Where("user_id = ?", userID).
+		Where("room_id = ?", roomID).
+		Where("turn_number = ?", 1).
+		First(&roomUser).Error
+	if err != nil {
+		return fmt.Errorf("첫 번째 플레이어가 아닙니다: %v", err)
 	}
-
 	return nil
 }
 
-func DoraUpdateDoraCard(c context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
-
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and card_id = ?", entity.RoomID, entity.CardID).Update("state", "dora")
-	if err.Error != nil {
-		return fmt.Errorf("도라 카드 업데이트 실패 %v", err.Error)
+func DoraUpdateDoraCard(ctx context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
+	err := tx.Model(&mysql.FrogUserCards{}).
+		Where("room_id = ?", entity.RoomID).
+		Where("card_id = ?", entity.CardID).
+		Update("state", "dora").Error
+	if err != nil {
+		return fmt.Errorf("도라 카드 업데이트 실패: %v", err)
 	}
-
 	return nil
 }

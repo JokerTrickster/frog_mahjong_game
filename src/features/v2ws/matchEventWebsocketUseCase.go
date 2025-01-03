@@ -16,6 +16,7 @@ func CreateMatchRoomDTO(uID uint, count int, timer int) mysql.Rooms {
 		PlayTurn:     0,
 		Name:         "speed match",
 		StartTime:    time.Now(),
+		GameID: 2,
 	}
 	return result
 }

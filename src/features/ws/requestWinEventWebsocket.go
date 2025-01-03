@@ -24,7 +24,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSWinEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 
 	requestWinEntity := entity.WSRequestWinEntity{

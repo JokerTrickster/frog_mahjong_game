@@ -17,7 +17,7 @@ func ReadyFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.RoomUsers
 }
 func ReadyFindOneAndUpdateRoomUser(ctx context.Context, uID, roomID uint) error {
 	// Rooms user에 player state 를 변경한다.
-	RoomUser := mysql.RoomUsers{
+	RoomUser := mysql.FrogRoomUsers{
 		PlayerState: "ready",
 	}
 	err := mysql.GormMysqlDB.Model(&RoomUser).Where("user_id = ? AND room_id = ?", uID, roomID).Updates(RoomUser).Error

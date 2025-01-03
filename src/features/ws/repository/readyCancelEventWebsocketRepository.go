@@ -16,7 +16,7 @@ func ReadyCancelFindAllRoomUsers(ctx context.Context, roomID uint) ([]entity.Roo
 }
 func ReadyCancelFindOneAndUpdateRoomUser(ctx context.Context, uID, roomID uint) error {
 	// Rooms user에 player state 를 변경한다.
-	RoomUser := mysql.RoomUsers{
+	RoomUser := mysql.FrogRoomUsers{
 		PlayerState: "wait",
 	}
 	err := mysql.GormMysqlDB.Model(&RoomUser).Where("user_id = ? AND room_id = ?", uID, roomID).Updates(RoomUser).Error

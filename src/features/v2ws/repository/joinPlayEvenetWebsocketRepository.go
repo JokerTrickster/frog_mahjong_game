@@ -29,7 +29,11 @@ func JoinPlayFindOneRoomUsers(ctx context.Context, userID uint) (uint, *entity.E
 func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Rooms, *entity.ErrorInfo) {
 	var roomsDTO mysql.Rooms
 	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
-		Where("deleted_at IS NULL AND password = ? AND state = ? AND current_count < max_count", password, "wait").
+		Where("deleted_at IS NULL").
+		Where("password = ?", password).
+		Where("state = ?", "wait").
+		Where("current_count < max_count").
+		Where("game_id = ?", 2).
 		First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {

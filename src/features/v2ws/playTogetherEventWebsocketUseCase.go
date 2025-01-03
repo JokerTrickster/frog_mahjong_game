@@ -27,6 +27,7 @@ func CreatePlayTogetherRoomDTO(uID uint, count int, timer int, password string) 
 		Name:         "play together",
 		Password:     password,
 		StartTime:    time.Now(),
+		GameID:       2,
 	}
 	return result
 }

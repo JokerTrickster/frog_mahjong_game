@@ -64,11 +64,13 @@ func match(c echo.Context) error {
 		return nil
 	}
 
-	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
 	var roomID uint
-
+	// 대기중인 방이 있는지 체크
 	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
+	if err != nil {
+		return err
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		if rooms.ID == 0 && err == nil {
@@ -86,17 +88,28 @@ func match(c echo.Context) error {
 		// room 유저 수 증가
 		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
+		// 기존 카드 모두 제거한다.
+		err = repository.MatchDeleteFrogCards(ctx, tx, userID)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
 		// 기존에 룸 유저 정보가 있으면 지운다.
 		err = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, userID)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
+
 		// room_user 생성
-		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID), "ready")
+		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
 		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 		return nil

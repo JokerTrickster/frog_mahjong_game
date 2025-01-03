@@ -23,26 +23,21 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 방장이 게임 시작 요청했는지 체크
-		ownerID, err := repository.StartCheckOwner(ctx, tx, uID, roomID)
+		err := repository.StartCheckOwner(ctx, tx, uID, roomID)
 		if err != nil {
 			return err
 		}
 
-		// 방에 있는 유저들이 모두 레디 상태인지 확인
-		roomUsers, err := repository.StartCheckReady(ctx, tx, roomID)
+		roomUsers, err := repository.StartFindRoomUsers(ctx, tx, roomID)
 		if err != nil {
 			return err
 		}
-		if allReady := CheckRoomUsersReady(roomUsers, ownerID); !allReady {
-			return fmt.Errorf("모든 유저가 준비하지 않았습니다.")
-		}
-
-		// room user 데이터 변경 (대기 -> 플레이, 플레이 순번 랜덤으로 생성)
+		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
 		updatedRoomUsers, err := StartUpdateRoomUsers(roomUsers)
 		if err != nil {
 			return err
 		}
-		// room user 데이터 변경 (대기 -> 플레이)
+		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
 		err = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
 		if err != nil {
 			return err
@@ -53,16 +48,14 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		if err != nil {
 			return err
 		}
-
-		// 기존 카드가 있다면 모두 제거한다.
-		err = repository.StartDeleteCards(ctx, tx, roomID)
+		// 카드 정보 가져온다.
+		cards, err := repository.StartFindCards(ctx, tx)
 		if err != nil {
 			return err
 		}
-
 		// cards 데이터 생성
-		cards := CreateInitCards(roomID)
-		err = repository.StartCreateCards(ctx, tx, roomID, cards)
+		userCards := CreateInitCards(roomID, cards)
+		err = repository.StartCreateCards(ctx, tx, userCards)
 		if err != nil {
 			return err
 		}

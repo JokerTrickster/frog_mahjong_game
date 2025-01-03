@@ -24,7 +24,7 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSDora{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 	doraEntity := entity.WSDoraEntity{
 		RoomID: roomID,
