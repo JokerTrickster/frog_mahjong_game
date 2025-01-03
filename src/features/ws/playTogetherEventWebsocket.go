@@ -22,7 +22,7 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSPlayTogetherEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 
 	//비즈니스 로직
@@ -30,7 +30,7 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	roomID, err := repository.PlayTogetherFindOneRoomUsers(ctx, uID)
 	if err != nil {
-		log.Fatalf("방 유저 정보 조회 에러: %s", err)
+		log.Printf("방 유저 정보 조회 에러: %s", err)
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방 정보를 업데이트 한다. (타이머, 인원 수)

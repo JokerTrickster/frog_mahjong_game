@@ -34,11 +34,11 @@ func CloseChangeRoomOnwer(ctx context.Context, tx *gorm.DB, RoomID uint, ownerID
 	return nil
 }
 
-func CloseFindOneRoomUser(ctx context.Context, tx *gorm.DB, RoomID uint) (mysql.RoomUsers, error) {
-	var roomUser mysql.RoomUsers
+func CloseFindOneRoomUser(ctx context.Context, tx *gorm.DB, RoomID uint) (mysql.FrogRoomUsers, error) {
+	var roomUser mysql.FrogRoomUsers
 	result := tx.WithContext(ctx).Where("room_id = ?", RoomID).First(&roomUser)
 	if result.Error != nil {
-		return mysql.RoomUsers{}, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", result.Error)
+		return mysql.FrogRoomUsers{}, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", result.Error)
 	}
 	return roomUser, nil
 }
@@ -56,8 +56,8 @@ func CloseFindOneAndDeleteRoom(ctx context.Context, tx *gorm.DB, RoomID uint) er
 //
 
 func CloseFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint, RoomsID uint) error {
-	var roomUser mysql.RoomUsers
-	result := tx.WithContext(ctx).Model(&roomUser).Where("user_id = ? and room_id = ?", uID, RoomsID).Delete(&mysql.RoomUsers{})
+	var roomUser mysql.FrogRoomUsers
+	result := tx.WithContext(ctx).Model(&roomUser).Where("user_id = ? and room_id = ?", uID, RoomsID).Delete(&mysql.FrogRoomUsers{})
 	if result.Error != nil {
 		return fmt.Errorf("방 유저 정보를 삭제할 수 없습니다. %v", result.Error)
 	}

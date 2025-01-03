@@ -78,7 +78,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
-
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
 		PlayTurn:      playTurn,
@@ -115,7 +114,7 @@ func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	return string(jsonData), nil
 }
 
-func CalcScore(cards []*mysql.Cards, score int) error {
+func CalcScore(cards []*mysql.FrogUserCards, score int) error {
 	if score >= 5 {
 		return nil
 	}

@@ -23,7 +23,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSFailedLoan{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 	loanEntity := entity.WSLoanEntity{
 		RoomID:       roomID,
@@ -34,7 +34,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
-	doraDTO := &mysql.Cards{}
+	doraDTO := &mysql.FrogUserCards{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 소유하고 있는 카드인지 체크

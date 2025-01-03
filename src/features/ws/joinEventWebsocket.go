@@ -49,7 +49,7 @@ func JoinEventWebsocket(msg *entity.WSMessage) {
 		}
 
 		// 방 유저 정보를 생성한다.
-		RoomUserDTO, err := CreateRoomUserDTO(uID, int(req.RoomID), "wait")
+		RoomUserDTO, err := CreateRoomUserDTO(uID, int(req.RoomID))
 		if err != nil {
 			return err
 		}

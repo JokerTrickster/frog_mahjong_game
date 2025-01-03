@@ -1,14 +1,16 @@
 package ws
 
-import "main/utils/db/mysql"
+import (
+	"main/utils/db/mysql"
+)
 
-func CreateRoomUserDTO(uID uint, roomID int, playerState string) (mysql.RoomUsers, error) {
-	result := mysql.RoomUsers{
+func CreateRoomUserDTO(uID uint, roomID int) (mysql.FrogRoomUsers, error) {
+	result := mysql.FrogRoomUsers{
 		UserID:         int(uID),
 		RoomID:         roomID,
 		Score:          0,
 		OwnedCardCount: 0,
-		PlayerState:    playerState,
+		PlayerState:    "play",
 	}
 	return result, nil
 }

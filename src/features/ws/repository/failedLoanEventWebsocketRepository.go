@@ -7,20 +7,25 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func FailedLoanFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
 	}
 	return roomUsers, nil
 }
-func FailedLoanCardFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.Cards, error) {
-	dora := mysql.Cards{}
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "dora").First(&dora).Error
+func FailedLoanCardFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.FrogUserCards, error) {
+	dora := mysql.FrogUserCards{}
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ? and state = ?", roomID, "dora").First(&dora).Error
 	if err != nil {
 		return nil, fmt.Errorf("도라 카드를 찾을 수 없습니다. %v", err.Error())
 	}
@@ -29,7 +34,7 @@ func FailedLoanCardFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*my
 
 // 소유하고 있는 카드인지 체크
 func FailedLoanCheckCard(c context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) error {
-	var card mysql.Cards
+	var card mysql.FrogUserCards
 	err := tx.Model(&card).Where("room_id = ? AND state = ? and user_id = ? and card_id = ?", loanEntity.RoomID, "owned", loanEntity.UserID, loanEntity.CardID).Order("updated_at desc").First(&card).Error
 	if err != nil {
 		return fmt.Errorf("카드 소유 여부 확인 실패 %v", err.Error())
@@ -40,7 +45,7 @@ func FailedLoanCheckCard(c context.Context, tx *gorm.DB, loanEntity *entity.WSLo
 // 카드 정보를 롤백한다.
 func FailedLoanRollbackCard(c context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) error {
 
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? AND user_id = ? and card_id = ? and state = ?", loanEntity.RoomID, loanEntity.UserID, loanEntity.CardID, "owned").Updates(map[string]interface{}{"user_id": loanEntity.TargetUserID, "state": "discard"}).Error
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ? AND user_id = ? and card_id = ? and state = ?", loanEntity.RoomID, loanEntity.UserID, loanEntity.CardID, "owned").Updates(map[string]interface{}{"user_id": loanEntity.TargetUserID, "state": "discard"}).Error
 	if err != nil {
 		return fmt.Errorf("카드 대여 실패 %v", err.Error())
 	}

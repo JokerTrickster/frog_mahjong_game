@@ -24,7 +24,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSDiscardCards{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Fatalf("JSON 언마샬링 에러: %s", err)
+		log.Printf("JSON 언마샬링 에러: %s", err)
 	}
 	DiscardCardsEntity := entity.WSDiscardCardsEntity{
 		RoomID: roomID,
@@ -34,7 +34,7 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) {
 
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
-	doraDTO := &mysql.Cards{}
+	doraDTO := &mysql.FrogUserCards{}
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트

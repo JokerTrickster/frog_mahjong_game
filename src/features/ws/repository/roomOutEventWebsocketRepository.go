@@ -43,7 +43,7 @@ func RoomOutUpdateUser(ctx context.Context, tx *gorm.DB, targetUserID uint, room
 
 func RoomOutDeleteRoomUser(ctx context.Context, tx *gorm.DB, targetUserID uint, roomID uint) error {
 	// 룸 유저 정보 삭제
-	err := tx.WithContext(ctx).Model(&mysql.RoomUsers{}).Where("user_id = ? and room_id = ?", targetUserID, roomID).Delete(&mysql.RoomUsers{})
+	err := tx.WithContext(ctx).Model(&mysql.FrogRoomUsers{}).Where("user_id = ? and room_id = ?", targetUserID, roomID).Delete(&mysql.FrogRoomUsers{})
 
 	if err.Error != nil {
 		return fmt.Errorf("룸 유저 정보 삭제 실패 %v", err.Error)

@@ -7,21 +7,26 @@ import (
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Preload("User").Preload("Room").Preload("Cards", func(db *gorm.DB) *gorm.DB {
-		return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-	}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 에러: %v", err.Error())
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
 	}
 	return roomUsers, nil
 }
 
 // 카드 정보 모두 삭제
 func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.Cards{}).Error
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.FrogUserCards{}).Error
 	if err != nil {
 		return fmt.Errorf("카드 삭제 실패 %v", err.Error())
 	}

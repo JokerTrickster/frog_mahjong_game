@@ -48,7 +48,7 @@ CREATE TABLE rooms (
     state VARCHAR(50),
     owner_id INT,
     timer INT,
-    game_id INT,
+    game_id INT,    -- 개굴작 :1 , 윙스팬 : 2
     start_time TIMESTAMP
 );
 
@@ -119,19 +119,6 @@ CREATE TABLE room_users (
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
 
-CREATE TABLE cards (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    room_id INT,
-	user_id INT,
-    card_id INT,
-    name VARCHAR(255),
-    color VARCHAR(50),
-    state VARCHAR(50),
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
 
 CREATE TABLE chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -316,3 +303,113 @@ CREATE TABLE user_items (
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
 	FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 );
+
+
+create table frog_room_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    room_id INT,
+    score INT,
+    owned_card_count INT,
+    player_state VARCHAR(50),       -- 유저 게임 상태
+    turn_number INT default 0,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+);
+
+create table frog_cards(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    name VARCHAR(255),
+    color VARCHAR(50)
+);
+
+create table frog_user_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    room_id INT,
+    card_id INT,
+    state VARCHAR(50),
+    FOREIGN KEY (card_id) REFERENCES frog_cards(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
+
+
+
+
+
+INSERT INTO frog_cards (name, color)
+VALUES
+    -- chung (all green)
+    ('chung', 'green'),
+    ('chung', 'green'),
+    ('chung', 'green'),
+    ('chung', 'green'),
+
+    -- bal (all red)
+    ('bal', 'red'),
+    ('bal', 'red'),
+    ('bal', 'red'),
+    ('bal', 'red'),
+
+    -- one (normal, green)
+    ('one', 'red'),
+    ('one', 'normal'),
+    ('one', 'normal'),
+    ('one', 'normal'),
+
+    -- two (green)
+    ('two', 'red'),
+    ('two', 'green'),
+    ('two', 'green'),
+    ('two', 'green'),
+
+    -- three (green)
+    ('three', 'red'),
+    ('three', 'green'),
+    ('three', 'green'),
+    ('three', 'green'),
+
+    -- four (green)
+    ('four', 'red'),
+    ('four', 'green'),
+    ('four', 'green'),
+    ('four', 'green'),
+
+    -- five (normal)
+    ('five', 'red'),
+    ('five', 'normal'),
+    ('five', 'normal'),
+    ('five', 'normal'),
+
+    -- six (green)
+    ('six', 'red'),
+    ('six', 'green'),
+    ('six', 'green'),
+    ('six', 'green'),
+
+    -- seven (normal)
+    ('seven', 'red'),
+    ('seven', 'normal'),
+    ('seven', 'normal'),
+    ('seven', 'normal'),
+
+    -- eight (green)
+    ('eight', 'red'),
+    ('eight', 'green'),
+    ('eight', 'green'),
+    ('eight', 'green'),
+
+    -- nine (normal, green, red)
+    ('nine', 'red'),
+    ('nine', 'normal'),
+    ('nine', 'normal'),
+    ('nine', 'normal');

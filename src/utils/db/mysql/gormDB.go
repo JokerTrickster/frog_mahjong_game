@@ -178,3 +178,27 @@ type UserItems struct {
 	RoomID        int `json:"roomID" gorm:"column:room_id"`
 	RemainingUses int `json:"remainingUses" gorm:"column:remaining_uses"`
 }
+
+type FrogRoomUsers struct {
+	gorm.Model
+	UserID         int    `json:"userID" gorm:"column:user_id"`
+	RoomID         int    `json:"roomID" gorm:"column:room_id"`
+	Score          int    `json:"score" gorm:"column:score"`
+	OwnedCardCount int    `json:"ownedCardCount" gorm:"column:owned_card_count"`
+	PlayerState    string `json:"playerState" gorm:"column:player_state"`
+	TurnNumber     int    `json:"turnNumber" gorm:"column:turn_number"`
+}
+
+type FrogCards struct {
+	gorm.Model
+	Name  string `json:"name" gorm:"column:name"`
+	Color string `json:"color" gorm:"column:color"`
+}
+
+type FrogUserCards struct {
+	gorm.Model
+	UserID int    `json:"userID" gorm:"column:user_id"`
+	CardID int    `json:"cardID" gorm:"column:card_id"`
+	RoomID int    `json:"roomID" gorm:"column:room_id"`
+	State  string `json:"state" gorm:"column:state"`
+}

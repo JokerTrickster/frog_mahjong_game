@@ -18,9 +18,9 @@ func SuccessFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]e
 	}
 	return roomUsers, nil
 }
-func SuccessFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.Cards, error) {
-	dora := mysql.Cards{}
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and state = ?", roomID, "dora").First(&dora).Error
+func SuccessFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.FrogUserCards, error) {
+	dora := mysql.FrogUserCards{}
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ? and state = ?", roomID, "dora").First(&dora).Error
 	if err != nil {
 		return nil, fmt.Errorf("도라 카드를 찾을 수 없습니다. %v", err.Error())
 	}
@@ -28,9 +28,9 @@ func SuccessFindOneDora(c context.Context, tx *gorm.DB, roomID uint) (*mysql.Car
 }
 
 // 카드 정보 체크 (소유하고 있는지 체크)
-func SuccessFindAllCards(c context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) ([]*mysql.Cards, error) {
-	cards := make([]*mysql.Cards, 0)
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ? and user_id = ? and card_id IN ?", SuccessEntity.RoomID, SuccessEntity.UserID, SuccessEntity.Cards).Find(&cards).Error
+func SuccessFindAllCards(c context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) ([]*mysql.FrogUserCards, error) {
+	cards := make([]*mysql.FrogUserCards, 0)
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ? and user_id = ? and card_id IN ?", SuccessEntity.RoomID, SuccessEntity.UserID, SuccessEntity.Cards).Find(&cards).Error
 	if err != nil {
 		return nil, fmt.Errorf("카드를 찾을 수 없습니다. %v", err.Error())
 	}
@@ -39,7 +39,7 @@ func SuccessFindAllCards(c context.Context, tx *gorm.DB, SuccessEntity *entity.W
 
 // 카드 정보 모두 삭제
 func SuccessDeleteAllCards(ctx context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) error {
-	err := tx.Model(&mysql.Cards{}).Where("room_id = ?", SuccessEntity.RoomID).Delete(&mysql.Cards{}).Error
+	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ?", SuccessEntity.RoomID).Delete(&mysql.FrogUserCards{}).Error
 	if err != nil {
 		return fmt.Errorf("카드 삭제 실패 %v", err.Error())
 	}
@@ -48,7 +48,7 @@ func SuccessDeleteAllCards(ctx context.Context, tx *gorm.DB, SuccessEntity *enti
 
 // 유저 상태 변경 (play -> wait)
 func SuccessUpdateRoomUsers(c context.Context, tx *gorm.DB, SuccessEntity *entity.WSSuccessEntity) error {
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ?", SuccessEntity.RoomID).Update("player_state", "wait").Error
+	err := tx.Model(&mysql.FrogRoomUsers{}).Where("room_id = ?", SuccessEntity.RoomID).Update("player_state", "wait").Error
 	if err != nil {
 		return fmt.Errorf("방 유저 상태 변경 실패 %v", err.Error())
 	}
