@@ -12,21 +12,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ListCardGameHandler struct {
-	UseCase _interface.IListCardGameUseCase
+type V2ListCardGameHandler struct {
+	UseCase _interface.IV2ListCardGameUseCase
 }
 
-func NewListCardGameHandler(c *echo.Echo, useCase _interface.IListCardGameUseCase) _interface.IListCardGameHandler {
-	handler := &ListCardGameHandler{
+func NewV2ListCardGameHandler(c *echo.Echo, useCase _interface.IV2ListCardGameUseCase) _interface.IV2ListCardGameHandler {
+	handler := &V2ListCardGameHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/game/cards", handler.ListCard)
+	c.GET("/v2.1/game/cards", handler.V2ListCard)
 	return handler
 }
 
-// 개굴작 카드 정보 리스트 가져오기
-// @Router /v0.1/game/cards [get]
-// @Summary 개굴작 카드 정보 리스트 가져오기
+// 카드 정보 리스트 가져오기
+// @Router /v2.1/game/cards [get]
+// @Summary 카드 정보 리스트 가져오기
 // @Description
 // @Description ■ errCode with 400
 // @Description PARAM_BAD : 파라미터 오류
@@ -37,20 +37,20 @@ func NewListCardGameHandler(c *echo.Echo, useCase _interface.IListCardGameUseCas
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Produce json
-// @Success 200 {object} response.ResListCardGame
+// @Success 200 {object} response.ResV2ListCardGame
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags game
-func (d *ListCardGameHandler) ListCard(c echo.Context) error {
+func (d *V2ListCardGameHandler) V2ListCard(c echo.Context) error {
 	ctx := context.Background()
 
 	//business logic
 	//redis
-	cacheKey := "game:frog:cards"
+	cacheKey := "game:bird:cards"
 	cardData, err := _redis.Client.Get(ctx, cacheKey).Result()
 	if cardData == "" {
 		// 2. 캐시에 데이터가 없을 경우 UseCase에서 조회
-		res, err := d.UseCase.ListCard(ctx)
+		res, err := d.UseCase.V2ListCard(ctx)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (d *ListCardGameHandler) ListCard(c echo.Context) error {
 	}
 
 	// 5. 캐시된 데이터가 있을 경우 반환
-	var res response.ResListCardGame
+	var res response.ResV2ListCardGame
 	if err := json.Unmarshal([]byte(cardData), &res); err != nil {
 		return err
 	}

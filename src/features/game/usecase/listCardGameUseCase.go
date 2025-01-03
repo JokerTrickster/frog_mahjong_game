@@ -20,16 +20,16 @@ func (d *ListCardGameUseCase) ListCard(c context.Context) (response.ResListCardG
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 
-	cards, err := d.Repository.FindAllBirdCard(ctx)
+	cards, err := d.Repository.FindFrogCard(ctx)
 	if err != nil {
 		return response.ResListCardGame{}, err
 	}
-	count, err := d.Repository.CountAllBirdCard(ctx)
+	count, err := d.Repository.CountFrogCard(ctx)
 	if err != nil {
 		return response.ResListCardGame{}, err
 	}
 
-	res := CreateResListCard(cards,count)
+	res := CreateResListCard(cards, count)
 	return res, nil
 
 }
