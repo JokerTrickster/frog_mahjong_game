@@ -70,28 +70,5 @@ func MatchEventWebsocket(msg *entity.WSMessage) {
 	msg.Message = message
 	msg.RoomID = roomID
 
-	//방 유저들에게 메시지 전달
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					_ = client.WriteJSON(msg)
-					clientData := clients[client]
-					clientData.Close()
-					clients[client] = clientData
-					delete(clients, client)
-				}
-			}
-		} else {
-			for client := range clients {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
-	}
+	sendMessageToClients(roomID, msg)
 }

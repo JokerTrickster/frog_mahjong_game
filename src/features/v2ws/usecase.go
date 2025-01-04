@@ -401,8 +401,6 @@ func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userI
 		Closed:    false,
 	}
 	entity.WSClients[sessionID] = wsClient
-	fmt.Println("새로운 세션 등록", entity.WSClients[sessionID])
-	fmt.Println(entity.WSClients[sessionID], sessionID)
 
 	// 방에 세션 추가
 	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)

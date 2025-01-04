@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
@@ -95,38 +94,6 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 	}
 	msg.Message = message
 	msg.RoomID = roomID
+	sendMessageToClients(roomID, msg)
 
-	//방 유저들에게 메시지 전달
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					_ = client.WriteJSON(msg)
-					clientData := clients[client]
-					clientData.Close()
-					clients[client] = clientData
-					delete(clients, client)
-				}
-			}
-		} else {
-			for client := range clients {
-				//방나간 유저 클로즈 처리
-				if clients[client].UserID == msg.UserID {
-					clientData := clients[client]
-					clientData.Close()
-					clients[client] = clientData
-					delete(clients, client)
-				} else {
-					//나머지 유저에게 메시지 전달
-					err := client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		}
-	}
 }

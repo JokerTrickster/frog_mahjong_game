@@ -29,9 +29,9 @@ func InitHandler(e *echo.Echo) error {
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)
-	go ws.WSHandleMessages()
+	go ws.WSHandleMessages("frog")
 
-	go v2ws.WSHandleMessages()
+	go v2ws.WSHandleMessages("wingspan")
 
 	return nil
 }

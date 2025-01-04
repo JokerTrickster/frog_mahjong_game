@@ -4,9 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
+	"main/features/ws/repository"
+	"main/utils"
 	"main/utils/db/mysql"
+	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
@@ -126,4 +132,165 @@ func CalcScore(cards []*mysql.FrogUserCards, score int) error {
 		return nil
 	}
 	return fmt.Errorf("점수가 부족합니다.")
+}
+
+func CreateErrorMessage(errCode int, errType, errMsg string) string {
+	msg := entity.RoomInfo{}
+	msg.ErrorInfo = &entity.ErrorInfo{
+		Code: errCode,
+		Type: errType,
+		Msg:  errMsg,
+	}
+	message, err := CreateMessage(&msg)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return message
+}
+
+// 클라이언트에 메시지 전송
+func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	// 로그 메시지 생성
+	utils.LogError(msg.Message)
+
+	// // 메시지 암호화
+	// encryptedMessage, err := utils.EncryptAES(msg.Message)
+	// if err != nil {
+	// 	fmt.Printf("Failed to encrypt message: %v\n", err)
+	// 	return
+	// }
+	// msg.Message = encryptedMessage
+
+	// 방에 있는 모든 클라이언트에 메시지 전송
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists {
+				if err := client.Conn.WriteJSON(msg); err != nil {
+					client.Closed = true
+				}
+			}
+		}
+	}
+}
+
+// 특정 크라이언트에 메시지 전송
+func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
+	// 로그 메시지 생성
+	utils.LogError(msg.Message)
+
+	// // 메시지 암호화
+	// encryptedMessage, err := utils.EncryptAES(msg.Message)
+	// if err != nil {
+	// 	fmt.Printf("Failed to encrypt message: %v\n", err)
+	// 	return
+	// }
+	// msg.Message = encryptedMessage
+
+	// 방에 있는 모든 클라이언트에 메시지 전송
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+				if err := client.Conn.WriteJSON(msg); err != nil {
+					client.Close()
+					delete(entity.WSClients, sessionID)
+					removeSessionFromRoom(roomID, sessionID)
+				}
+			}
+		}
+	}
+}
+
+func SendWebSocketCloseMessage(ws *websocket.Conn, closeCode int, message string) error {
+	closeMessage := websocket.FormatCloseMessage(closeCode, message)
+	err := ws.WriteMessage(websocket.CloseMessage, closeMessage)
+	return err
+}
+
+// 기존 연결 복구
+func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	// 타이머 취소
+	if timer, ok := reconnectTimers.Load(sessionID); ok {
+		timer.(*time.Timer).Stop()
+		reconnectTimers.Delete(sessionID)
+		fmt.Printf("Reconnection successful for session %s in room %d. Timer canceled.\n", sessionID, roomID)
+	}
+	// 세션 ID 생성
+	newSessionID := generateSessionID()
+
+	// 세션 ID 저장
+	newErr := repository.RedisSessionSet(context.TODO(), newSessionID, roomID)
+	if newErr != nil {
+		fmt.Println(newErr)
+	}
+	// 새로운 세션으로 등록
+	registerNewSession(ws, newSessionID, roomID, userID)
+}
+
+// 새로운 세션 등록
+func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	// 세션 등록
+	wsClient := &entity.WSClient{
+		SessionID: sessionID,
+		RoomID:    roomID,
+		UserID:    userID,
+		Conn:      ws,
+		Closed:    false,
+	}
+	entity.WSClients[sessionID] = wsClient
+	fmt.Println(entity.WSClients[sessionID], sessionID)
+
+	// 방에 세션 추가
+	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
+	fmt.Println("룸 세션 수 ",len(entity.RoomSessions[roomID]))
+	// 핑/퐁 핸들링 시작
+	go HandlePingPong(wsClient)
+
+	// 메시지 처리 루프 시작
+	go readMessages(ws, sessionID, roomID, userID)
+
+}
+
+// 메시지 읽기 및 처리
+func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
+	client := entity.WSClients[sessionID]
+	defer func() {
+		// 연결 종료 시 세션 정리
+		client.Closed = true
+		fmt.Println("Session", sessionID, "closed. Read loop stopped.")
+	}()
+
+	for {
+		if client.Closed {
+			log.Printf("Session %s is closed. Stopping read loop.", sessionID)
+			return
+		}
+
+		var msg entity.WSMessage
+		err := ws.ReadJSON(&msg)
+		fmt.Println(msg)
+		if err != nil {
+			if closeErr, ok := err.(*websocket.CloseError); ok {
+				if closeErr.Code == websocket.CloseNormalClosure {
+					log.Printf("Session %s closed normally (Code 1000).", sessionID)
+					break
+				}
+				log.Printf("Session %s closed with error: %v", sessionID, closeErr)
+			} else {
+				log.Printf("Error reading message for session %s: %v", sessionID, err)
+			}
+			break
+		}
+
+		// 메시지 브로드캐스트
+		msg.RoomID = roomID
+		msg.UserID = userID
+		msg.SessionID = sessionID
+		entity.WSBroadcast <- msg
+		select {
+		case entity.WSBroadcast <- msg:
+			log.Printf("Message successfully sent to WSBroadcast: %+v", msg)
+		default:
+			log.Printf("WSBroadcast channel is full. Dropping message: %+v", msg)
+		}
+	}
 }

@@ -82,30 +82,6 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
+	sendMessageToClients(roomID, msg)
 
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					err := client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
-	}
 }

@@ -16,8 +16,10 @@ func FailOnError(err error, msg string) {
 	}
 }
 
-var MQ *amqp.Queue
-var MQCH *amqp.Channel
+var V2MQ *amqp.Queue
+var V1MQ *amqp.Queue
+var V1MQCH *amqp.Channel
+var V2MQCH *amqp.Channel
 
 func InitRabbitMQ() error {
 	var connURL string
@@ -47,15 +49,34 @@ func InitRabbitMQ() error {
 		return err
 	}
 
-	MQCH, err = conn.Channel()
+	V1MQCH, err = conn.Channel()
 	if err != nil {
 		fmt.Errorf("Failed to open a channel: %v", err)
 		return err
 	}
+	V2MQCH, err = conn.Channel()
+	if err != nil {
+		fmt.Errorf("Failed to open a channel: %v", err)
+		return err
+	}
+	v2queue, err := V2MQCH.QueueDeclare(
+		"wingspan", // name
+		false,      // durable
+		false,      // delete when unused
+		false,      // exclusive
+		false,      // no-wait
+		nil,        // arguments
+	)
+	if err != nil {
+		fmt.Errorf("Failed to declare a queue: %v", err)
+		return err
+	}
 
-	queue, err := MQCH.QueueDeclare(
-		"TEST", // name
-		false,  // durable
+	V2MQ = &v2queue
+
+	v1queue, err := V1MQCH.QueueDeclare(
+		"frog", // name
+		true,   // durable
 		false,  // delete when unused
 		false,  // exclusive
 		false,  // no-wait
@@ -66,7 +87,6 @@ func InitRabbitMQ() error {
 		return err
 	}
 
-	MQ = &queue
-
+	V1MQ = &v1queue
 	return nil
 }

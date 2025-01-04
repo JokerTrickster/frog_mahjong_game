@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	"main/features/ws/model/request"
 	"main/features/ws/repository"
@@ -63,8 +62,10 @@ func joinPlay(c echo.Context) error {
 		return nil
 	}
 
+	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
 	ctx := context.Background()
+	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
 
 	rooms, err := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
@@ -94,46 +95,16 @@ func joinPlay(c echo.Context) error {
 		return nil
 	})
 
-	defer ws.Close()
-	var initialMsg entity.WSMessage
-	err = ws.ReadJSON(&initialMsg)
-	if err != nil {
-		fmt.Println(err)
+	// sessionID 생성
+	sessionID := generateSessionID()
+	// 세션 ID 저장
+	newErr := repository.RedisSessionSet(ctx, sessionID, roomID)
+	if newErr != nil {
+		fmt.Printf("Failed to save session: %v\n", newErr.Msg)
 		return nil
 	}
 
-	initialMsg.UserID = userID
-	// 첫 번째 레벨 맵 초기화
-	if entity.WSClients == nil {
-		entity.WSClients = make(map[uint]map[*websocket.Conn]*entity.WSClient)
-	}
-
-	// 두 번째 레벨 맵 초기화
-	if entity.WSClients[roomID] == nil {
-		entity.WSClients[roomID] = make(map[*websocket.Conn]*entity.WSClient)
-	}
-	wsClient := &entity.WSClient{
-		RoomID: roomID,
-		UserID: userID,
-		Conn:   ws,
-		Closed: false,
-	}
-	entity.WSClients[roomID][ws] = wsClient
-	entity.WSBroadcast <- initialMsg
-	go HandlePingPong(wsClient)
-
-	for {
-		var msg entity.WSMessage
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			log.Printf("error: %v", err)
-			delete(entity.WSClients[roomID], ws)
-			break
-		}
-		msg.RoomID = roomID
-		msg.UserID = userID
-		entity.WSBroadcast <- msg
-	}
+	registerNewSession(ws, sessionID, roomID, userID)
 
 	return nil
 }

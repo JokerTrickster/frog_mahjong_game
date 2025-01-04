@@ -68,55 +68,20 @@ func LoanEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
+	// 메시지 생성
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
 
-	//유저들에게 메시지 전송한다.
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		// 메시지 생성
-		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
-
-		//론한 유저에 대한 정보를 게임정보에 저장한다.
-		LoanInfo := entity.LoanInfo{
-			CardID:       int(req.CardID),
-			UserID:       uID,
-			TargetUserID: req.TargetUserID,
-		}
-		roomInfoMsg.GameInfo.LoanInfo = &LoanInfo
-
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
+	//론한 유저에 대한 정보를 게임정보에 저장한다.
+	LoanInfo := entity.LoanInfo{
+		CardID:       int(req.CardID),
+		UserID:       uID,
+		TargetUserID: req.TargetUserID,
 	}
+	roomInfoMsg.GameInfo.LoanInfo = &LoanInfo
+	message, err := CreateMessage(&roomInfoMsg)
+	if err != nil {
+		fmt.Println(err)
+	}
+	msg.Message = message
+	sendMessageToClients(roomID, msg)
 }
