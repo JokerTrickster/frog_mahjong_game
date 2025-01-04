@@ -7,9 +7,12 @@ import (
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
+	"sync"
 
 	"gorm.io/gorm"
 )
+
+var reconnectTimers sync.Map
 
 func AbnormalSendErrorMessage(roomID, userID uint) {
 	// 비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
@@ -78,21 +81,5 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 		fmt.Println(err)
 	}
 	msg.Message = message
-	//방 유저들에게 메시지 전달
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		for client := range clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				fmt.Printf("message send error: %v", err)
-				client.Close()
-				delete(clients, client)
-			}
-			client.Close()
-			delete(clients, client)
-		}
-	}
-	if len(entity.WSClients[msg.RoomID]) == 0 {
-		delete(entity.WSClients, roomID)
-	}
+	sendMessageToClients(roomID, &msg)
 }

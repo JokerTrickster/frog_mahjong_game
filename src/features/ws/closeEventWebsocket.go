@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -92,25 +91,5 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		for client := range clients {
-			//방나간 유저 클로즈 처리
-			if clients[client].UserID == msg.UserID {
-				clientData := clients[client]
-				clientData.Close()
-				clients[client] = clientData
-				delete(clients, client)
-			} else {
-				//나머지 유저에게 메시지 전달
-				err := client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
-	}
+	sendMessageToClients(req.RoomID, msg)
 }

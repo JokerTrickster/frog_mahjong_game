@@ -51,18 +51,6 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			return err
 		}
 
-		// 론이 아닌 경우 모든 플레이어에게 점수 차감
-		diffCoin := int((requestWinEntity.Score) / (len(entity.WSClients[msg.RoomID]) - 1))
-		err = repository.RequestWinDiffCoin(ctx, tx, &requestWinEntity, diffCoin)
-		if err != nil {
-			return err
-		}
-		// 론이 아닌 경우 해당 유저에 코인 추가한다.
-		err = repository.RequestWinAddCoin(ctx, tx, &requestWinEntity)
-		if err != nil {
-			return err
-		}
-
 		// 유저 상태 변경
 		err = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
 		if err != nil {
@@ -108,30 +96,5 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
-
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					err := client.WriteJSON(msg)
-					if err != nil {
-						fmt.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
-	}
+	sendMessageToClients(roomID, msg)
 }

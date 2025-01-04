@@ -82,64 +82,30 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
+	// 메시지 생성
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
 
-	//유저들에게 메시지 전송한다.
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		// 메시지 생성
-		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
-
-		//승리 유저 카드 정보 순서 저장
-		cards := []*entity.Card{}
-		for _, card := range req.Cards {
-			cards = append(cards, &entity.Card{
-				CardID: card.CardID,
-				UserID: uID,
-			})
-		}
-		for i := 0; i < len(roomInfoMsg.Users); i++ {
-			if roomInfoMsg.Users[i].ID == uID {
-				roomInfoMsg.Users[i].Cards = cards
-				break
-			}
-		}
-
-		// 론 가능 여부를 true로 변경
-		roomInfoMsg.GameInfo.IsLoanAllowed = true
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
+	//승리 유저 카드 정보 순서 저장
+	cards := []*entity.Card{}
+	for _, card := range req.Cards {
+		cards = append(cards, &entity.Card{
+			CardID: card.CardID,
+			UserID: uID,
+		})
+	}
+	for i := 0; i < len(roomInfoMsg.Users); i++ {
+		if roomInfoMsg.Users[i].ID == uID {
+			roomInfoMsg.Users[i].Cards = cards
+			break
 		}
 	}
+
+	// 론 가능 여부를 true로 변경
+	roomInfoMsg.GameInfo.IsLoanAllowed = true
+	message, err := CreateMessage(&roomInfoMsg)
+	if err != nil {
+		fmt.Println(err)
+	}
+	msg.Message = message
+	sendMessageToClients(roomID, msg)
 }

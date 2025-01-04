@@ -1,12 +1,18 @@
 package ws
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"main/features/ws/model/entity"
+	"main/features/ws/repository"
 	"main/utils"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -20,58 +26,115 @@ const (
 	PingPeriod = (PongWait * 9) / 10
 )
 
-func WSHandleMessages() {
+func WSHandleMessages(gameName string) {
+	// 웹소켓 메시지를 큐에 넣기
+	go func() {
+		for {
+			msg := <-entity.WSBroadcast
+			// 로그 생성
+			logging := utils.Log{}
+			logging.MakeWSLog(msg)
+			utils.LogInfo(logging)
 
-	for {
-		msg := <-entity.WSBroadcast
-		logging := utils.Log{}
-		logging.MakeWSLog(msg)
-		utils.LogInfo(logging)
-		switch msg.Event {
-		case "JOIN": // 방 참여
-			JoinEventWebsocket(&msg)
-		case "QUIT_GAME": // 방 나가기
-			CloseEventWebsocket(&msg)
-		case "READY": // 게임 준비
-			ReadyEventWebsocket(&msg)
-		case "READY_CANCEL": // 게임 준비를 취소
-			ReadyCancelEventWebsocket(&msg)
-		case "START": // 게임 시작
-			StartEventWebsocket(&msg)
-		case "DORA":
-			DoraEventWebsocket(&msg)
-		case "IMPORT_CARDS":
-			ImportCardsEventWebsocket(&msg)
-		case "DISCARD":
-			DiscardCardsEventWebsocket(&msg)
-		case "IMPORT_SINGLE_CARD":
-			ImportSingleCardEventWebsocket(&msg)
-		case "LOAN":
-			LoanEventWebsocket(&msg)
-		case "FAILED_LOAN":
-			FailedLoanEventWebsocket(&msg)
-		case "SUCCESS_LOAN":
-			SuccessLoanEventWebsocket(&msg)
-		case "REQUEST_WIN":
-			RequestWinEventWebsocket(&msg)
-		case "GAME_OVER":
-			GameOverEventWebsocket(&msg)
-		case "ROOM_OUT":
-			RoomOutEventWebsocket(&msg)
-		case "CHAT":
-			ChatEventWebsocket(&msg)
-		case "TIME_OUT_DISCARD":
-			TimeOutDiscardCardsEventWebsocket(&msg)
-		case "MATCH":
-			MatchEventWebsocket(&msg)
-		case "CANCEL_MATCH":
-			CancelMatchEventWebsocket(&msg)
-		case "PLAY_TOGETHER":
-			PlayTogetherEventWebsocket(&msg)
-		case "JOIN_PLAY":
-			JoinPlayEventWebsocket(&msg)
+			// RabbitMQ에 메시지 발행
+			msgBytes, err := json.Marshal(msg)
+			if err != nil {
+				log.Printf("Failed to marshal WSMessage: %v", err)
+				continue
+			}
+
+			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+			err = utils.V1MQCH.PublishWithContext(ctx,
+				"",              // exchange
+				utils.V1MQ.Name, // routing key
+				false,           // mandatory
+				false,           // immediate
+				amqp.Publishing{
+					ContentType: "application/json",
+					Body:        msgBytes,
+				})
+			if err != nil {
+				fmt.Printf("Failed to publish a message: %v", err)
+			}
 		}
+	}()
+	// Consume messages
+	go func() {
+		msgs, err := utils.V1MQCH.Consume(
+			utils.V1MQ.Name, // Queue name
+			"",              // Consumer tag
+			false,           // Auto-ack (manual ack)
+			false,           // Exclusive
+			false,           // No-local
+			false,           // No-wait
+			nil,             // Arguments
+		)
+		if err != nil {
+			fmt.Printf("Failed to register consumer for %s: %v", gameName, err)
+		}
+
+		fmt.Printf("Waiting for messages for game: %s", gameName)
+		for msg := range msgs {
+			processMessage(gameName, msg)
+		}
+	}()
+}
+
+func processMessage(gameName string, d amqp.Delivery) {
+	var msg entity.WSMessage
+	// Parse JSON message
+	err := json.Unmarshal(d.Body, &msg)
+	if err != nil {
+		log.Printf("Failed to unmarshal JSON for %s: %v", gameName, err)
+		d.Nack(false, false) // Reject message, don't requeue
+		return
 	}
+
+	// Handle events
+	switch msg.Event {
+	case "QUIT_GAME":
+		CloseEventWebsocket(&msg)
+	case "START":
+		StartEventWebsocket(&msg)
+	case "DISCARD":
+		DiscardCardsEventWebsocket(&msg)
+	case "IMPORT_SINGLE_CARD":
+		ImportSingleCardEventWebsocket(&msg)
+	case "GAME_OVER":
+		GameOverEventWebsocket(&msg)
+	case "CHAT":
+		ChatEventWebsocket(&msg)
+	case "REQUEST_WIN":
+		RequestWinEventWebsocket(&msg)
+	case "TIME_OUT_DISCARD":
+		TimeOutDiscardCardsEventWebsocket(&msg)
+	case "MATCH":
+		MatchEventWebsocket(&msg)
+	case "CANCEL_MATCH":
+		CancelMatchEventWebsocket(&msg)
+	case "PLAY_TOGETHER":
+		PlayTogetherEventWebsocket(&msg)
+	case "JOIN_PLAY":
+		JoinPlayEventWebsocket(&msg)
+	// New events for additional games
+	case "DORA":
+		DoraEventWebsocket(&msg)
+	case "IMPORT_CARDS":
+		ImportCardsEventWebsocket(&msg)
+	case "LOAN":
+		LoanEventWebsocket(&msg)
+	case "FAILED_LOAN":
+		FailedLoanEventWebsocket(&msg)
+	case "SUCCESS_LOAN":
+		SuccessLoanEventWebsocket(&msg)
+	default:
+		log.Printf("Unknown event for %s: %s", gameName, msg.Event)
+		d.Nack(false, false) // Reject message, don't requeue
+		return
+	}
+
+	// Acknowledge message after successful processing
+	d.Ack(false)
 }
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
@@ -99,8 +162,64 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID)
 				return
 			}
-
 		}
+	}
+}
 
+// closeAndRemoveClient safely closes a client and removes it from session lists
+func closeAndRemoveClient(client *entity.WSClient, sessionID string, roomID uint) {
+	// Close the connection if not already closed
+	if !client.Closed {
+		client.Conn.Close()
+		client.Closed = true
+	}
+
+	// Remove from WSClients and RoomSessions
+	delete(entity.WSClients, sessionID)
+	removeSessionFromRoom(roomID, sessionID)
+}
+
+// Generate a new sessionID
+func generateSessionID() string {
+	return uuid.New().String() // Generate a new UUID
+}
+
+// Remove a sessionID from the room
+func removeSessionFromRoom(roomID uint, sessionID string) {
+	sessions := entity.RoomSessions[roomID]
+	for i, id := range sessions {
+		if id == sessionID {
+			// Remove sessionID from the room
+			entity.RoomSessions[roomID] = append(sessions[:i], sessions[i+1:]...)
+			break
+		}
+	}
+}
+
+func disconnectClient(userID, roomID uint) {
+	// RoomID에 연결된 모든 세션을 검색
+	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// 특정 userID를 가진 클라이언트를 찾는다.
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == userID {
+				// 클라이언트 연결 종료
+				client.Conn.Close()
+				client.Closed = true
+				// redis 세션 id 삭제
+				newErr := repository.RedisSessionDelete(context.TODO(), sessionID)
+				if newErr != nil {
+					fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
+				}
+
+				// 세션 및 클라이언트 데이터 정리
+				delete(entity.WSClients, sessionID)
+				removeSessionFromRoom(roomID, sessionID)
+
+				fmt.Printf("User %d disconnected from room %d\n", userID, roomID)
+				break
+			}
+		}
+	} else {
+		fmt.Printf("Room %d does not exist or has no active sessions\n", roomID)
 	}
 }

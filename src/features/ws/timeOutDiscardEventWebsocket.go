@@ -55,52 +55,17 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 			Type: _errors.ErrInternalServer,
 		}
 	}
+	// 메시지 생성
+	//게임턴 계산
+	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.RoomSessions[msg.RoomID]))
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
 
-	//유저 상태를 변경한다. (방에 참여)
-	if clients, ok := entity.WSClients[msg.RoomID]; ok {
-		// 메시지 생성
-		//게임턴 계산
-		playTurn := CalcPlayTurn(req.PlayTurn, len(entity.WSClients[msg.RoomID]))
-		roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
-
-		// 론 가능 여부를 true로 변경
-		roomInfoMsg.GameInfo.IsLoanAllowed = true
-
-		//에러 발생시 이벤트 요청한 유저에게만 메시지를 전달한다.
-		if roomInfoMsg.ErrorInfo != nil || err != nil {
-			for client := range clients {
-				if clients[client].UserID == msg.UserID {
-					// 구조체를 JSON 문자열로 변환 (마샬링)
-					message, err := CreateMessage(&roomInfoMsg)
-					if err != nil {
-						fmt.Println(err)
-					}
-					msg.Message = message
-					err = client.WriteJSON(msg)
-					if err != nil {
-						log.Printf("error: %v", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-			}
-		} else {
-			for client := range clients {
-				filterRoomInfoMsg := Deepcopy(roomInfoMsg)
-
-				// 구조체를 JSON 문자열로 변환 (마샬링)
-				message, err := CreateMessage(&filterRoomInfoMsg)
-				if err != nil {
-					fmt.Println(err)
-				}
-				msg.Message = message
-				err = client.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(clients, client)
-				}
-			}
-		}
+	// 론 가능 여부를 true로 변경
+	roomInfoMsg.GameInfo.IsLoanAllowed = true
+	message, err := CreateMessage(&roomInfoMsg)
+	if err != nil {
+		fmt.Println(err)
 	}
+	msg.Message = message
+	sendMessageToClients(msg.RoomID, msg)
 }

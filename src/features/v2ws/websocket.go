@@ -29,12 +29,11 @@ const (
 	PingPeriod = (PongWait * 5) / 10 // 6초마다 핑 메시지 전송
 )
 
-func WSHandleMessages() {
+func WSHandleMessages(gameName string) {
 	// 웹소켓 메시지를 큐에 넣기
 	go func() {
 		for {
 			msg := <-entity.WSBroadcast
-
 			// 로그 생성
 			logging := utils.Log{}
 			logging.V2MakeWSLog(msg)
@@ -49,11 +48,11 @@ func WSHandleMessages() {
 
 			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
-			err = utils.MQCH.PublishWithContext(ctx,
-				"",            // exchange
-				utils.MQ.Name, // routing key
-				false,         // mandatory
-				false,         // immediate
+			err = utils.V2MQCH.PublishWithContext(ctx,
+				"",              // exchange
+				utils.V2MQ.Name, // routing key
+				false,           // mandatory
+				false,           // immediate
 				amqp.Publishing{
 					ContentType: "application/json",
 					Body:        msgBytes,
@@ -63,37 +62,38 @@ func WSHandleMessages() {
 			}
 		}
 	}()
-	// 큐에서 메시지 소비 및 처리
+	// Consume messages
 	go func() {
-		msgs, err := utils.MQCH.Consume(
-			utils.MQ.Name, // Queue
-			"",            // Consumer
-			false,         // Auto-Ack (수동 Ack 사용)
-			false,         // Exclusive
-			false,         // No-local
-			false,         // No-wait
-			nil,           // Args
+		msgs, err := utils.V2MQCH.Consume(
+			utils.V2MQ.Name, // Queue name
+			"",              // Consumer tag
+			false,           // Auto-ack (manual ack)
+			false,           // Exclusive
+			false,           // No-local
+			false,           // No-wait
+			nil,             // Arguments
 		)
 		if err != nil {
-			log.Fatalf("Failed to register a consumer: %v", err)
+			log.Printf("Failed to register consumer for %s: %v", gameName, err)
 		}
 
-		for d := range msgs {
-			processMessage(d)
+		log.Printf("Waiting for messages for game: %s", gameName)
+		for msg := range msgs {
+			processMessage(gameName, msg)
 		}
 	}()
 }
-func processMessage(d amqp.Delivery) {
+
+func processMessage(gameName string, d amqp.Delivery) {
 	var msg entity.WSMessage
 
-	// JSON 파싱
+	// Parse JSON message
 	err := json.Unmarshal(d.Body, &msg)
 	if err != nil {
-		log.Printf("Failed to unmarshal JSON: %v", err)
-		d.Nack(false, false) // 메시지 처리 실패 -> 재처리하지 않음
+		log.Printf("Failed to unmarshal JSON for %s: %v", gameName, err)
+		d.Nack(false, false) // Reject message, don't requeue
 		return
 	}
-
 	// 이벤트 처리
 	switch msg.Event {
 	case "QUIT_GAME":
@@ -131,8 +131,7 @@ func processMessage(d amqp.Delivery) {
 		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
 		return
 	}
-
-	// 처리 성공 시 Ack
+	// Acknowledge message after successful processing
 	d.Ack(false)
 }
 
