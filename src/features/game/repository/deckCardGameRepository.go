@@ -16,10 +16,10 @@ func NewDeckCardGameRepository(gormDB *gorm.DB) _interface.IDeckCardGameReposito
 
 func (d *DeckCardGameRepository) CheckRoomUser(c context.Context, userID int, roomID int) error {
 	// room_id, user_id로 찾고 player_state가 play_turn인지 체크
-	var roomUser mysql.RoomUsers
+	var roomUser mysql.FrogRoomUsers
 	err := d.GormDB.Model(&roomUser).Where("room_id = ? AND user_id = ?", roomID, userID).First(&roomUser).Error
 	if err != nil {
-		return utils.ErrorMsg(c, utils.ErrBadRequest, utils.Trace(), utils.HandleError(_errors.ErrBadRequest.Error(),userID,roomID), utils.ErrFromMysqlDB)
+		return utils.ErrorMsg(c, utils.ErrBadRequest, utils.Trace(), utils.HandleError(_errors.ErrBadRequest.Error(), userID, roomID), utils.ErrFromMysqlDB)
 	}
 	return nil
 
