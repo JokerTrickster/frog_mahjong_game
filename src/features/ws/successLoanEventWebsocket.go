@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -23,7 +22,8 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSSuccessEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Printf("JSON 언마샬링 에러: %s", err)
+		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
+		return
 	}
 	successEntity := entity.WSSuccessEntity{
 		RoomID: roomID,
@@ -43,44 +43,46 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보 체크 (소유하고 있는지 체크)
-		cards, err := repository.SuccessFindAllCards(ctx, tx, &successEntity)
-		if err != nil {
-			return err
+		cards, newErr := repository.SuccessFindAllCards(ctx, tx, &successEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 카드 정보로 점수 체크한다.
-		err = CalcScore(cards, successEntity.Score)
-		if err != nil {
-			return err
+		newErr = CalcScore(cards, successEntity.Score)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 론인 경우 해당 유저에 코인 차감한다.
-		err = repository.SuccessLoanDiffCoin(ctx, tx, &successEntity)
-		if err != nil {
-			return err
+		newErr = repository.SuccessLoanDiffCoin(ctx, tx, &successEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 론인 경우 해당 유저에 코인 추가한다.
-		err = repository.SuccessLoanAddCoin(ctx, tx, &successEntity)
-		if err != nil {
-			return err
+		newErr = repository.SuccessLoanAddCoin(ctx, tx, &successEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 유저 상태 변경
-		err = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
-		if err != nil {
-			return err
+		newErr = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
-		preloadUsers, err = repository.SuccessFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)

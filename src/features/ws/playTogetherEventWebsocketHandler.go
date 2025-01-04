@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
 	"main/features/ws/repository"
 	"main/utils"
@@ -38,25 +39,25 @@ import (
 func playTogether(c echo.Context) error {
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	req := &request.ReqWSPlayTogether{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
@@ -71,31 +72,34 @@ func playTogether(c echo.Context) error {
 		password := CreateRandomPassword()
 		// 방 생성
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
-		newRoomID, err := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
-		if err != nil {
-			return err
+		newRoomID, newErr := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		roomID = uint(newRoomID)
 		// room 유저 수 증가
-		err = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
-		if err != nil {
-			return err
+		newErr = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 기존에 룸 유저 정보가 있으면 지운다.
-		err = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if err != nil {
-			return err
+		newErr = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// room_user 생성
 		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "ready")
-		err = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
-		if err != nil {
-			return err
+		newErr = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 
@@ -104,7 +108,7 @@ func playTogether(c echo.Context) error {
 	// 세션 ID 저장
 	newErr := repository.RedisSessionSet(ctx, sessionID, roomID)
 	if newErr != nil {
-		fmt.Printf("Failed to save session: %v\n", newErr)
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
 		return nil
 	}
 

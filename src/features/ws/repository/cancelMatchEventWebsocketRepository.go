@@ -2,15 +2,16 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func CancelMatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+// CancelMatchFindAllRoomUsers retrieves all room users with necessary preloads
+func CancelMatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
 	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("room_id = ?", roomID).
@@ -18,68 +19,95 @@ func CancelMatchFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) 
 		Preload("Room").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+		}).Find(&roomUsers).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  "room_users 조회 실패",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
-func CancelMatchDeleteOneRoomUser(ctx context.Context, tx *gorm.DB, roomID, uID uint) error {
-	roomUser := mysql.FrogRoomUsers{}
-	err := tx.Where("room_id = ? AND user_id = ?", roomID, uID).Delete(&roomUser).Error
-	if err != nil {
-		return err
+
+// CancelMatchDeleteOneRoomUser deletes a room user by room ID and user ID
+func CancelMatchDeleteOneRoomUser(ctx context.Context, tx *gorm.DB, roomID, uID uint) *entity.ErrorInfo {
+	if err := tx.Where("room_id = ? AND user_id = ?", roomID, uID).Delete(&mysql.FrogRoomUsers{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방 유저 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
+		}
 	}
 	return nil
 }
 
-func CancelMatchFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.Rooms, error) {
+// CancelMatchFindOneAndUpdateRoom updates room information and deletes it if empty
+func CancelMatchFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.Rooms, *entity.ErrorInfo) {
 	var room mysql.Rooms
-	result := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).First(&room)
-	if result.Error != nil {
-		return &mysql.Rooms{}, fmt.Errorf("방 정보를 찾을 수 없습니다. %v", result.Error)
+	if err := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).First(&room).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  "방 정보를 찾을 수 없습니다",
+			Type: _errors.ErrRoomNotFound,
+		}
 	}
 	room.CurrentCount--
-	result = tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).Updates(room)
-	if result.Error != nil {
-		return &mysql.Rooms{}, fmt.Errorf("방 인원을 업데이트할 수 없습니다. %v", result.Error)
+	if err := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).Updates(room).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방 인원을 업데이트할 수 없습니다",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
-
 	if room.CurrentCount == 0 {
-		result = tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).Delete(&room)
-		if result.Error != nil {
-			return &mysql.Rooms{}, fmt.Errorf("방 정보를 삭제할 수 없습니다. %v", result.Error)
+		if err := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).Delete(&room).Error; err != nil {
+			return nil, &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  "방 삭제 실패",
+				Type: _errors.ErrDeleteFailed,
+			}
 		}
 	}
 	return &room, nil
 }
 
-func CancelMatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint) error {
+// CancelMatchFindOneAndUpdateUser updates user information to default state
+func CancelMatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint) *entity.ErrorInfo {
 	user := &mysql.Users{
 		RoomID: 1,
 		State:  "wait",
 	}
-	err := tx.Model(&user).Where("id = ?", uID).Updates(user).Error
-	if err != nil {
-		return err
+	if err := tx.Model(user).Where("id = ?", uID).Updates(user).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "유저 정보 업데이트 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
-
 	return nil
 }
 
-func CancelMatchFindOneRoomUser(ctx context.Context, tx *gorm.DB, roomID uint) (uint, error) {
+// CancelMatchFindOneRoomUser retrieves the first room user for a given room ID
+func CancelMatchFindOneRoomUser(ctx context.Context, tx *gorm.DB, roomID uint) (uint, *entity.ErrorInfo) {
 	var roomUser mysql.FrogRoomUsers
-	result := tx.WithContext(ctx).Where("room_id = ?", roomID).First(&roomUser)
-	if result.Error != nil {
-		return 0, fmt.Errorf("방 유저 정보를 찾을 수 없습니다. %v", result.Error)
+	if err := tx.WithContext(ctx).Where("room_id = ?", roomID).First(&roomUser).Error; err != nil {
+		return 0, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  "방 유저 정보를 찾을 수 없습니다",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return uint(roomUser.UserID), nil
 }
 
-func CancelMatchUpdateRoomOwner(ctx context.Context, tx *gorm.DB, roomID uint, roomUserID uint) error {
-	var room mysql.Rooms
-	result := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).Update("owner_id", roomUserID)
-	if result.Error != nil {
-		return fmt.Errorf("방장 변경 실패: %v", result.Error)
+// CancelMatchUpdateRoomOwner updates the owner of the room
+func CancelMatchUpdateRoomOwner(ctx context.Context, tx *gorm.DB, roomID uint, roomUserID uint) *entity.ErrorInfo {
+	if err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("owner_id", roomUserID).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방장 변경 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }

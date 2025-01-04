@@ -127,25 +127,20 @@ func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	return string(jsonData), nil
 }
 
-func CalcScore(cards []*mysql.FrogUserCards, score int) error {
+func CalcScore(cards []*mysql.FrogUserCards, score int) *entity.ErrorInfo {
 	if score >= 5 {
 		return nil
 	}
-	return fmt.Errorf("점수가 부족합니다.")
+	return CreateErrorMessage(400, "BadRequest", "점수가 부족합니다.")
 }
 
-func CreateErrorMessage(errCode int, errType, errMsg string) string {
-	msg := entity.RoomInfo{}
-	msg.ErrorInfo = &entity.ErrorInfo{
+func CreateErrorMessage(errCode int, errType, errMsg string) *entity.ErrorInfo {
+	result := &entity.ErrorInfo{
 		Code: errCode,
 		Type: errType,
 		Msg:  errMsg,
 	}
-	message, err := CreateMessage(&msg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return message
+	return result
 }
 
 // 클라이언트에 메시지 전송
@@ -201,6 +196,7 @@ func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
 }
 
 func SendWebSocketCloseMessage(ws *websocket.Conn, closeCode int, message string) error {
+	utils.LogError(message)
 	closeMessage := websocket.FormatCloseMessage(closeCode, message)
 	err := ws.WriteMessage(websocket.CloseMessage, closeMessage)
 	return err
@@ -241,7 +237,7 @@ func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userI
 
 	// 방에 세션 추가
 	entity.RoomSessions[roomID] = append(entity.RoomSessions[roomID], sessionID)
-	fmt.Println("룸 세션 수 ",len(entity.RoomSessions[roomID]))
+	fmt.Println("룸 세션 수 ", len(entity.RoomSessions[roomID]))
 	// 핑/퐁 핸들링 시작
 	go HandlePingPong(wsClient)
 
@@ -292,5 +288,54 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 		default:
 			log.Printf("WSBroadcast channel is full. Dropping message: %+v", msg)
 		}
+	}
+}
+
+// SendErrorMessage processes errors and sends them to the corresponding client.
+func SendErrorMessage(msg *entity.WSMessage, errMsg *entity.ErrorInfo) {
+	roomInfoMsg := &entity.RoomInfo{}
+	roomInfoMsg.ErrorInfo = errMsg
+	utils.LogError(errMsg.Msg)
+
+	// Retrieve all sessionIDs for the room
+	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
+		for _, sessionID := range sessionIDs {
+			// Find the client associated with the sessionID
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
+				// Create an error message
+				message, err := CreateMessage(roomInfoMsg)
+				if err != nil {
+					fmt.Println("Error creating error message:", err)
+					continue
+				}
+
+				// encrypt the message
+				encryptedMessage, err := utils.EncryptAES(message)
+				if err != nil {
+					fmt.Println("Error encrypting message:", err)
+					continue
+				}
+
+				// Set the encrypted message
+				msg.Message = encryptedMessage
+
+				// Attempt to send the error message
+				err = client.Conn.WriteJSON(msg)
+				if err != nil {
+					// Mark the client as closed (instead of immediate removal)
+					client.Closed = true
+					// Optionally retry sending the message (if needed)
+					// Retry logic can be implemented here
+
+					// Remove the client only after retries or severe errors
+					closeAndRemoveClient(client, sessionID, msg.RoomID)
+				}
+			}
+		}
+	}
+
+	// If the room has no active sessions, delete it
+	if len(entity.RoomSessions[msg.RoomID]) == 0 {
+		delete(entity.RoomSessions, msg.RoomID)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
 	"main/features/ws/repository"
 	"main/utils"
@@ -40,36 +41,37 @@ import (
 func match(c echo.Context) error {
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	req := &request.ReqWSMatch{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
-		fmt.Println(err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
 
 	// 비즈니스 로직
 	ctx := context.Background()
-	var roomInfoMsg entity.RoomInfo
+	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
 	// 대기중인 방이 있는지 체크
-	rooms, err := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
-	if err != nil {
-		return err
+	rooms, newErr := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
+	if newErr != nil {
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+		return nil
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
@@ -77,45 +79,48 @@ func match(c echo.Context) error {
 			//대기 방이 없는 경우
 			// 방 생성
 			roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
-			newRoomID, err := repository.MatchInsertOneRoom(ctx, roomDTO)
-			if err != nil {
-				return err
+			newRoomID, newErr := repository.MatchInsertOneRoom(ctx, roomDTO)
+			if newErr != nil {
+				SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+				return fmt.Errorf("%s", newErr.Msg)
 			}
+
 			roomID = uint(newRoomID)
 		} else {
 			roomID = rooms.ID
 		}
 		// room 유저 수 증가
-		err = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
-		if err != nil {
-			fmt.Println(err)
-			return err
+		newErr = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		// 기존 카드 모두 제거한다.
-		err = repository.MatchDeleteFrogCards(ctx, tx, userID)
-		if err != nil {
-			fmt.Println(err)
-			return err
+		newErr = repository.MatchDeleteFrogCards(ctx, tx, userID)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 기존에 룸 유저 정보가 있으면 지운다.
-		err = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, userID)
+		newErr = repository.MatchFindOneAndDeleteRoomUser(ctx, tx, userID)
 		if err != nil {
-			fmt.Println(err)
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
 			return err
 		}
 
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
-		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
-		if err != nil {
-			fmt.Println(err)
-			return err
+		newErr = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		return nil
 	})
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 
@@ -123,9 +128,9 @@ func match(c echo.Context) error {
 	sessionID := generateSessionID()
 
 	// 세션 ID 저장
-	newErr := repository.RedisSessionSet(ctx, sessionID, roomID)
+	newErr = repository.RedisSessionSet(ctx, sessionID, roomID)
 	if newErr != nil {
-		roomInfoMsg.ErrorInfo = newErr
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
 		return fmt.Errorf("%s", newErr.Msg)
 	}
 

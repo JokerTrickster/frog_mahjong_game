@@ -2,42 +2,61 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func GameOverFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+// GameOverFindAllRoomUsers retrieves all room users with necessary preloads
+func GameOverFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+	if err := tx.Table("frog_room_users").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("room_id = ?", roomID).
 		Preload("User").
 		Preload("Room").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+		}).
+		Find(&roomUsers).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound, // 404
+			Msg:  "room_users 조회 실패",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
 
-// 카드 정보 모두 삭제
-func GameOverDeleteAllCards(ctx context.Context, tx *gorm.DB, GameOverEntity *entity.WSGameOverEntity) error {
-	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ?", GameOverEntity.RoomID).Delete(&mysql.FrogUserCards{}).Error
+// GameOverDeleteAllCards deletes all cards associated with a specific room
+func GameOverDeleteAllCards(ctx context.Context, tx *gorm.DB, gameOverEntity *entity.WSGameOverEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.FrogUserCards{}).
+		Where("room_id = ?", gameOverEntity.RoomID).
+		Delete(&mysql.FrogUserCards{}).Error
 	if err != nil {
-		return fmt.Errorf("카드 삭제 실패 %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "카드 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
+		}
 	}
 	return nil
 }
 
-// 유저 상태 변경 (play -> wait)
-func GameOverUpdateRoomUsers(c context.Context, tx *gorm.DB, GameOverEntity *entity.WSGameOverEntity) error {
-	err := tx.Model(&mysql.FrogRoomUsers{}).Where("room_id = ?", GameOverEntity.RoomID).Update("player_state", "wait").Error
+// GameOverUpdateRoomUsers updates the state of all users in a room to "wait"
+func GameOverUpdateRoomUsers(ctx context.Context, tx *gorm.DB, gameOverEntity *entity.WSGameOverEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.FrogRoomUsers{}).
+		Where("room_id = ?", gameOverEntity.RoomID).
+		Update("player_state", "wait").Error
 	if err != nil {
-		return fmt.Errorf("방 유저 상태 변경 실패 %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "방 유저 상태 변경 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }

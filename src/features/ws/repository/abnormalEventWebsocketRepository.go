@@ -2,15 +2,16 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+// AbnormalFindAllRoomUsers retrieves all room users with necessary preloads
+func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
 	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("room_id = ?", roomID).
@@ -18,35 +19,54 @@ func AbnormalFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]
 		Preload("Room").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+		}).Find(&roomUsers).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound,
+			Msg:  "room_users 조회 실패",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
 
-// 카드 정보 모두 삭제
-func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.FrogUserCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.FrogUserCards{}).Error
-	if err != nil {
-		return fmt.Errorf("카드 삭제 실패 %v", err.Error())
+// AbnormalDeleteAllCards deletes all cards for a given room
+func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.FrogUserCards{}).
+		Where("room_id = ?", abnormalEntity.RoomID).
+		Delete(&mysql.FrogUserCards{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "카드 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
+		}
 	}
 	return nil
 }
 
-// 방 삭제 처리
-func AbnormalDeleteRoom(c context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.Rooms{}).Where("id = ?", AbnormalEntity.RoomID).Delete(&mysql.Rooms{}).Error
-	if err != nil {
-		return fmt.Errorf("방 삭제 실패 %v", err.Error())
+// AbnormalDeleteRoom deletes a room by room ID
+func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.Rooms{}).
+		Where("id = ?", abnormalEntity.RoomID).
+		Delete(&mysql.Rooms{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
+		}
 	}
 	return nil
 }
 
-// 유저 상태 변경 (play -> wait)
-func AbnormalUpdateUsers(c context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) error {
-	err := tx.Model(&mysql.Users{}).Where("room_id = ?", AbnormalEntity.RoomID).Update("state", "wait").Error
-	if err != nil {
-		return fmt.Errorf("유저 상태 변경 실패 %v", err.Error())
+// AbnormalUpdateUsers updates the state of users in a room to "wait"
+func AbnormalUpdateUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.Users{}).
+		Where("room_id = ?", abnormalEntity.RoomID).
+		Update("state", "wait").Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "유저 상태 변경 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }

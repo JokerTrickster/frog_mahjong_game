@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -23,7 +22,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSFailedLoan{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Printf("JSON 언마샬링 에러: %s", err)
+		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
 	}
 	loanEntity := entity.WSLoanEntity{
 		RoomID:       roomID,
@@ -37,30 +36,29 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 소유하고 있는 카드인지 체크
-		err := repository.FailedLoanCheckCard(ctx, tx, &loanEntity)
-		if err != nil {
-			return err
+		newErr := repository.FailedLoanCheckCard(ctx, tx, &loanEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 카드 정보를 롤백한다.
-		err = repository.FailedLoanRollbackCard(ctx, tx, &loanEntity)
-		if err != nil {
-			return err
+		newErr = repository.FailedLoanRollbackCard(ctx, tx, &loanEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
-		preloadUsers, err = repository.FailedLoanFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
