@@ -10,10 +10,30 @@ import (
 	_redis "main/utils/db/redis"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type JoinEventWebsocketRepository struct {
 	GormDB *gorm.DB
+}
+
+func PreloadFindGameInfo(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
+	var roomUsers []entity.RoomUsers
+	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("room_id = ?", roomID).
+		Preload("User").
+		Preload("Room").
+		Preload("Cards", func(db *gorm.DB) *gorm.DB {
+			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
+		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
+		return nil,
+			&entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("room_users 조회 실패: %v", err.Error()),
+				Type: _errors.ErrInternalServer,
+			}
+	}
+	return roomUsers, nil
 }
 
 func RedisSessionSet(ctx context.Context, sessionID string, roomID uint) *entity.ErrorInfo {

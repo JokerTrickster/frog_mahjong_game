@@ -2,40 +2,55 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/ws/model/entity"
 	"main/utils/db/mysql"
+
+	_errors "main/features/ws/model/errors"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func LoanFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+// LoanFindAllRoomUsers retrieves all room users with necessary preloads
+func LoanFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+	if err := tx.Table("frog_room_users").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("room_id = ?", roomID).
 		Preload("User").
 		Preload("Room").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+		}).
+		Find(&roomUsers).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound, // 404
+			Msg:  "room_users 조회 실패",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
-func LoanCardFindOneDora(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.FrogUserCards, error) {
+
+// LoanCardFindOneDora retrieves the "dora" card for a specific room
+func LoanCardFindOneDora(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.FrogUserCards, *entity.ErrorInfo) {
 	var dora mysql.FrogUserCards
 	err := tx.Model(&mysql.FrogUserCards{}).
 		Where("room_id = ?", roomID).
 		Where("state = ?", "dora").
 		First(&dora).Error
 	if err != nil {
-		return nil, fmt.Errorf("도라 카드를 찾을 수 없습니다: %v", err.Error())
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound, // 404
+			Msg:  "도라 카드를 찾을 수 없습니다.",
+			Type: _errors.ErrNotFoundCard,
+		}
 	}
 	return &dora, nil
 }
 
-func LoanCheckLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) error {
+// LoanCheckLoan checks if a loan is possible for a specific card
+func LoanCheckLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) *entity.ErrorInfo {
 	var card mysql.FrogUserCards
 	err := tx.Model(&mysql.FrogUserCards{}).
 		Where("room_id = ?", loanEntity.RoomID).
@@ -45,12 +60,17 @@ func LoanCheckLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEn
 		Order("updated_at desc").
 		First(&card).Error
 	if err != nil {
-		return fmt.Errorf("대여할 수 없는 카드입니다: %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeForbidden, // 403
+			Msg:  "대여할 수 없는 카드입니다.",
+			Type: _errors.ErrItemNotAvailable,
+		}
 	}
 	return nil
 }
 
-func LoanCardLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) error {
+// LoanCardLoan processes a card loan
+func LoanCardLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) *entity.ErrorInfo {
 	err := tx.Model(&mysql.FrogUserCards{}).
 		Where("room_id = ?", loanEntity.RoomID).
 		Where("user_id = ?", loanEntity.TargetUserID).
@@ -61,12 +81,17 @@ func LoanCardLoan(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEnt
 			"state":   "owned",
 		}).Error
 	if err != nil {
-		return fmt.Errorf("카드 대여 실패: %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "카드 대여 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }
 
-func LoanUpdateRoomUserCardCount(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) error {
+// LoanUpdateRoomUserCardCount updates the room user's card count and state
+func LoanUpdateRoomUserCardCount(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) *entity.ErrorInfo {
 	err := tx.Model(&mysql.FrogRoomUsers{}).
 		Where("room_id = ?", loanEntity.RoomID).
 		Where("user_id = ?", loanEntity.UserID).
@@ -75,7 +100,11 @@ func LoanUpdateRoomUserCardCount(ctx context.Context, tx *gorm.DB, loanEntity *e
 			"player_state":     "loan",
 		}).Error
 	if err != nil {
-		return fmt.Errorf("방 유저 카드 카운트 업데이트 실패: %v", err.Error())
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "방 유저 카드 카운트 업데이트 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }

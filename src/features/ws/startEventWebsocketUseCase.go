@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"main/features/ws/model/entity"
 	"main/utils/db/mysql"
 
 	"golang.org/x/exp/rand"
@@ -18,7 +19,7 @@ func CheckRoomUsersReady(roomUsers []mysql.FrogRoomUsers, ownerID uint) bool {
 	return true
 }
 
-func StartUpdateRoomUsers(roomUsers []mysql.FrogRoomUsers) ([]mysql.FrogRoomUsers, error) {
+func StartUpdateRoomUsers(roomUsers []mysql.FrogRoomUsers) ([]mysql.FrogRoomUsers, *entity.ErrorInfo) {
 	visited := make(map[int]bool, len(roomUsers)+1)
 
 	for i := range roomUsers {

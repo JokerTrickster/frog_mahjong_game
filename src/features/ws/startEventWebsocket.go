@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
 
@@ -23,54 +22,64 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 방장이 게임 시작 요청했는지 체크
-		err := repository.StartCheckOwner(ctx, tx, uID, roomID)
-		if err != nil {
-			return err
+		newErr := repository.StartCheckOwner(ctx, tx, uID, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
-		roomUsers, err := repository.StartFindRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		roomUsers, newErr := repository.StartFindRoomUsers(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
-		updatedRoomUsers, err := StartUpdateRoomUsers(roomUsers)
-		if err != nil {
-			return err
+		updatedRoomUsers, newErr := StartUpdateRoomUsers(roomUsers)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
-		err = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
-		if err != nil {
-			return err
+		newErr = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// room 데이터 상태 변경 (대기 -> 플레이)
-		err = repository.StartUpdateRoom(ctx, tx, roomID, "play")
-		if err != nil {
-			return err
+		newErr = repository.StartUpdateRoom(ctx, tx, roomID, "play")
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		// 카드 정보 가져온다.
-		cards, err := repository.StartFindCards(ctx, tx)
-		if err != nil {
-			return err
+		cards, newErr := repository.StartFindCards(ctx, tx)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		// cards 데이터 생성
 		userCards := CreateInitCards(roomID, cards)
-		err = repository.StartCreateCards(ctx, tx, userCards)
-		if err != nil {
-			return err
+		newErr = repository.StartCreateCards(ctx, tx, userCards)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
-		preloadUsers, err = repository.StartFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
+
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성

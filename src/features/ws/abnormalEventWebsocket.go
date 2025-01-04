@@ -35,24 +35,24 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 		// 비정상적인 유저 삭제처리
 
 		// 카드 정보 모두 삭제
-		err := repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity)
-		if err != nil {
-			return err
+		newErr := repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity)
+		if newErr != nil {
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 방 삭제 처리
-		err = repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity)
-		if err != nil {
-			return err
+		newErr = repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity)
+		if newErr != nil {
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 유저 상태 변경
-		err = repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
-		if err != nil {
-			return err
+		newErr = repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
+		if newErr != nil {
+			return fmt.Errorf("%s", newErr.Msg)
 		}
-		preloadUsers, err = repository.AbnormalFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 에러 메시지에 상대방이 게임 도중 나가서 강제 종료됐다는 에러 메시지 표시한다.
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
@@ -64,11 +64,7 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성

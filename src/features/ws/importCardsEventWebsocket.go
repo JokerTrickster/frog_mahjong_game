@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -24,7 +23,8 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSImportCards{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Printf("JSON 언마샬링 에러: %s", err)
+		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
+		return
 	}
 	importCardsEntity := entity.WSImportCardsEntity{
 		RoomID: roomID,
@@ -43,29 +43,28 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
-		err := repository.ImportCardsUpdateCardState(ctx, tx, &importCardsEntity)
-		if err != nil {
-			return err
+		newErr := repository.ImportCardsUpdateCardState(ctx, tx, &importCardsEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 소유 카드 수 업데이트
 		// 유저id로 room_users에서 찾아서 card_count를 더한 후 업데이트 한다.
-		err = repository.ImportCardsUpdateRoomUserCardCount(ctx, tx, &importCardsEntity)
-		if err != nil {
-			return err
+		newErr = repository.ImportCardsUpdateRoomUserCardCount(ctx, tx, &importCardsEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
-		preloadUsers, err = repository.ImportCardsFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 	//메시지 생성
 	//게임턴 계산
@@ -76,5 +75,6 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) {
 		fmt.Println(err)
 	}
 	msg.Message = message
+	msg.SessionID = ""
 	sendMessageToClients(msg.RoomID, msg)
 }

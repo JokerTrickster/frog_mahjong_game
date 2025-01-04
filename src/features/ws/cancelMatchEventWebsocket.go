@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
 
@@ -32,55 +31,50 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 룸 유저 정보를 삭제한다.
-		err := repository.CancelMatchDeleteOneRoomUser(ctx, tx, roomID, uID)
-		if err != nil {
-			return err
+		newErr := repository.CancelMatchDeleteOneRoomUser(ctx, tx, roomID, uID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 유저 정보를 업데이트 한다.
-		err = repository.CancelMatchFindOneAndUpdateUser(ctx, tx, uID)
-		if err != nil {
-			return err
+		newErr = repository.CancelMatchFindOneAndUpdateUser(ctx, tx, uID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// 방 정보를 업데이트 한다. (방이 비어있으면 방을 삭제한다.)
-		roomDTO, err := repository.CancelMatchFindOneAndUpdateRoom(ctx, tx, roomID)
-		if err != nil {
-			return err
+		roomDTO, newErr := repository.CancelMatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		//
 		//방장이 나가면 다른 유저 중 한명을 방장으로 변경
 		if roomDTO.CurrentCount != 0 && roomDTO.OwnerID == int(uID) {
 			//룸 유저 정보를 가져온다.
-			roomUserID, err := repository.CancelMatchFindOneRoomUser(ctx, tx, roomID)
-			if err != nil {
-				return err
+			roomUserID, newErr := repository.CancelMatchFindOneRoomUser(ctx, tx, roomID)
+			if newErr != nil {
+				SendErrorMessage(msg, newErr)
+				return fmt.Errorf("%s", newErr.Msg)
 			}
 			//해당 유저ID를 방장으로 변경한다.
-			err = repository.CancelMatchUpdateRoomOwner(ctx, tx, roomID, roomUserID)
-			if err != nil {
-				return err
+			newErr = repository.CancelMatchUpdateRoomOwner(ctx, tx, roomID, roomUserID)
+			if newErr != nil {
+				SendErrorMessage(msg, newErr)
+				return fmt.Errorf("%s", newErr.Msg)
 			}
 		}
-		preloadUsers, err = repository.CancelMatchFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
-		if roomInfoMsg.ErrorInfo.Msg == "방이 꽉 찼습니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrRoomFull
-		} else if roomInfoMsg.ErrorInfo.Msg == "비밀번호가 일치하지 않습니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrWrongPassword
-		} else if roomInfoMsg.ErrorInfo.Msg == "게임 중인 방입니다." {
-			roomInfoMsg.ErrorInfo.Type = _errors.ErrGameInProgress
-		}
+		return
 	}
 
 	// 메시지 생성

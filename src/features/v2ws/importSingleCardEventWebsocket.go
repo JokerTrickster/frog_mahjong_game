@@ -46,7 +46,7 @@ func ImportSingleCardEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	// 카드수가 4장 미만인지 체크
 	cardCount, newErr := repository.ImportSingleCardOwnerCardCount(ctx, roomID, uID)
-	if err != nil {
+	if newErr != nil {
 		roomInfoMsg.ErrorInfo = newErr
 		SendErrorMessage(msg, &roomInfoMsg)
 		return

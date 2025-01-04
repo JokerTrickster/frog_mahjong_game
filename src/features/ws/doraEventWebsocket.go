@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -24,7 +23,8 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSDora{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		log.Printf("JSON 언마샬링 에러: %s", err)
+		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
+		return
 	}
 	doraEntity := entity.WSDoraEntity{
 		RoomID: roomID,
@@ -36,28 +36,27 @@ func DoraEventWebsocket(msg *entity.WSMessage) {
 	preloadUsers := []entity.RoomUsers{}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 선플레이어가 도라를 선택했는지 체크
-		err := repository.DoraCheckFirstPlayer(ctx, tx, uID, roomID)
-		if err != nil {
-			return err
+		newErr := repository.DoraCheckFirstPlayer(ctx, tx, uID, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 카드 업데이트
-		err = repository.DoraUpdateDoraCard(ctx, tx, &doraEntity)
-		if err != nil {
-			return err
+		newErr = repository.DoraUpdateDoraCard(ctx, tx, &doraEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
-		preloadUsers, err = repository.DoraFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)

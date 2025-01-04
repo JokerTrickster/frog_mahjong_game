@@ -2,28 +2,37 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"main/features/ws/model/entity"
+	_errors "main/features/ws/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func DoraFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, error) {
+// DoraFindAllRoomUsers retrieves all room users with necessary preloads
+func DoraFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.RoomUsers, *entity.ErrorInfo) {
 	var roomUsers []entity.RoomUsers
-	if err := tx.Table("frog_room_users").Clauses(clause.Locking{Strength: "UPDATE"}).
+	if err := tx.Table("frog_room_users").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("room_id = ?", roomID).
 		Preload("User").
 		Preload("Room").
 		Preload("Cards", func(db *gorm.DB) *gorm.DB {
 			return db.Where("room_id = ?", roomID).Order("updated_at ASC")
-		}).Where("room_id = ?", roomID).Find(&roomUsers).Error; err != nil {
-		return nil, fmt.Errorf("room_users 조회 실패: %v", err.Error())
+		}).
+		Find(&roomUsers).Error; err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeNotFound, // 404
+			Msg:  "room_users 조회 실패",
+			Type: _errors.ErrRoomUsersNotFound,
+		}
 	}
 	return roomUsers, nil
 }
-func DoraCheckFirstPlayer(ctx context.Context, tx *gorm.DB, userID, roomID uint) error {
+
+// DoraCheckFirstPlayer checks if the user is the first player in the room
+func DoraCheckFirstPlayer(ctx context.Context, tx *gorm.DB, userID, roomID uint) *entity.ErrorInfo {
 	var roomUser mysql.FrogRoomUsers
 	err := tx.Model(&mysql.FrogRoomUsers{}).
 		Where("user_id = ?", userID).
@@ -31,18 +40,27 @@ func DoraCheckFirstPlayer(ctx context.Context, tx *gorm.DB, userID, roomID uint)
 		Where("turn_number = ?", 1).
 		First(&roomUser).Error
 	if err != nil {
-		return fmt.Errorf("첫 번째 플레이어가 아닙니다: %v", err)
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeForbidden, // 403
+			Msg:  "첫 번째 플레이어가 아닙니다",
+			Type: _errors.ErrUnauthorizedAction,
+		}
 	}
 	return nil
 }
 
-func DoraUpdateDoraCard(ctx context.Context, tx *gorm.DB, entity *entity.WSDoraEntity) error {
+// DoraUpdateDoraCard updates the state of the specified card to "dora"
+func DoraUpdateDoraCard(ctx context.Context, tx *gorm.DB, doraEntity *entity.WSDoraEntity) *entity.ErrorInfo {
 	err := tx.Model(&mysql.FrogUserCards{}).
-		Where("room_id = ?", entity.RoomID).
-		Where("card_id = ?", entity.CardID).
+		Where("room_id = ?", doraEntity.RoomID).
+		Where("card_id = ?", doraEntity.CardID).
 		Update("state", "dora").Error
 	if err != nil {
-		return fmt.Errorf("도라 카드 업데이트 실패: %v", err)
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "도라 카드 업데이트 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
 	}
 	return nil
 }

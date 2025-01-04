@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
 	"main/features/ws/repository"
 	"main/utils/db/mysql"
 
@@ -28,23 +27,21 @@ func GameOverEventWebsocket(msg *entity.WSMessage) {
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 유저 상태 변경
-		err = repository.GameOverUpdateRoomUsers(ctx, tx, &GameOverEntity)
-		if err != nil {
-			return err
+		newErr := repository.GameOverUpdateRoomUsers(ctx, tx, &GameOverEntity)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
-		preloadUsers, err = repository.GameOverFindAllRoomUsers(ctx, tx, roomID)
-		if err != nil {
-			return err
+		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if newErr != nil {
+			SendErrorMessage(msg, newErr)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return
 	}
 
 	// 메시지 생성
