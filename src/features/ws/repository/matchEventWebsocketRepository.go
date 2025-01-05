@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/features/ws/model/request"
@@ -169,6 +170,20 @@ func MatchDeleteFrogCards(ctx context.Context, tx *gorm.DB, uID uint) *entity.Er
 			Code: _errors.ErrCodeInternal, // 500
 			Msg:  "frog cards 삭제 실패",
 			Type: _errors.ErrDeleteFailed,
+		}
+	}
+	return nil
+}
+func MatchPlayerStateUpdate(ctx context.Context, roomID, userID uint) *entity.ErrorInfo {
+	err := mysql.GormMysqlDB.WithContext(ctx).Model(&mysql.FrogRoomUsers{}).
+		Where("room_id = ?", roomID).
+		Where("user_id = ?", userID).
+		Update("player_state", "play").Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 상태 변경 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
 		}
 	}
 	return nil

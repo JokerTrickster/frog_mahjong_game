@@ -73,7 +73,14 @@ func match(c echo.Context) error {
 			}
 
 			restoreSession(ws, req.SessionID, roomID, userID)
-			// 연결한 유저에게 메시지 정보를 전달해야 된다.
+
+			// 기존 유저 상태 변경
+			err := repository.MatchPlayerStateUpdate(context.Background(), roomID, userID)
+			if err != nil {
+				SendWebSocketCloseMessage(ws, err.Code, err.Msg)
+				return nil
+			}
+
 			return nil
 		}
 	}

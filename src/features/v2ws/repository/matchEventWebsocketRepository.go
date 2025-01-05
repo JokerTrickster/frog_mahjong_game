@@ -282,3 +282,18 @@ func MatchDeleteRoomUsers(ctx context.Context, uID uint) *entity.ErrorInfo {
 	}
 	return nil
 }
+
+func MatchPlayerStateUpdate(ctx context.Context, roomID, userID uint) *entity.ErrorInfo {
+	err := mysql.GormMysqlDB.WithContext(ctx).Model(&mysql.RoomUsers{}).
+		Where("room_id = ?", roomID).
+		Where("user_id = ?", userID).
+		Update("player_state", "play").Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 상태 변경 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
+	}
+	return nil
+}

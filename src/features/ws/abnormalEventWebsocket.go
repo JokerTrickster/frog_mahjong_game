@@ -29,21 +29,8 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 			RoomID:         roomID,
 			AbnormalUserID: userID,
 		}
-		// 비정상적인 유저 삭제처리
-
-		// 카드 정보 모두 삭제
-		newErr := repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity)
-		if newErr != nil {
-			return fmt.Errorf("%s", newErr.Msg)
-		}
-		// 방 삭제 처리
-		newErr = repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity)
-		if newErr != nil {
-			return fmt.Errorf("%s", newErr.Msg)
-		}
-
 		// 유저 상태 변경
-		newErr = repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
+		newErr := repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
 		if newErr != nil {
 			return fmt.Errorf("%s", newErr.Msg)
 		}
