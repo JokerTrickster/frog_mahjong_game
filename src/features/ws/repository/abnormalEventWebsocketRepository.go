@@ -59,13 +59,27 @@ func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, abnormalEntity *entity
 
 // AbnormalUpdateUsers updates the state of users in a room to "wait"
 func AbnormalUpdateUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	if err := tx.Model(&mysql.Users{}).
+	if err := tx.Model(&mysql.FrogRoomUsers{}).
 		Where("room_id = ?", abnormalEntity.RoomID).
-		Update("state", "wait").Error; err != nil {
+		Where("user_id = ?", abnormalEntity.AbnormalUserID).
+		Update("player_state", "disconnect").Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "유저 상태 변경 실패",
 			Type: _errors.ErrUpdateFailed,
+		}
+	}
+	return nil
+}
+
+func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.FrogRoomUsers{}).
+		Where("room_id = ?", abnormalEntity.RoomID).
+		Delete(&mysql.FrogRoomUsers{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방 유저 정보 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
 		}
 	}
 	return nil

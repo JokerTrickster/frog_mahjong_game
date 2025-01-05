@@ -62,7 +62,28 @@ func match(c echo.Context) error {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
+	// 재접속 확인
+	// 유저 상태가 abnormal 이면 해당 roomID를 가지고 온다.
+	if req.SessionID != "" {
+		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
+		if roomID != 0 {
+			// 기존 연결 복구
+			if client, exists := entity.WSClients[req.SessionID]; exists {
+				closeAndRemoveClient(client, req.SessionID, roomID)
+			}
 
+			restoreSession(ws, req.SessionID, roomID, userID)
+
+			// 기존 유저 상태 변경
+			err := repository.MatchPlayerStateUpdate(context.Background(), roomID, userID)
+			if err != nil {
+				SendWebSocketCloseMessage(ws, err.Code, err.Msg)
+				return nil
+			}
+
+			return nil
+		}
+	}
 	// 비즈니스 로직
 	ctx := context.Background()
 	// var roomInfoMsg entity.RoomInfo

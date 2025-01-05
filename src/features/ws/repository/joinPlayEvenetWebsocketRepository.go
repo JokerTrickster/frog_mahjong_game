@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
 	"main/utils/db/mysql"
@@ -156,6 +157,20 @@ func JoinPlayFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint
 			Code: _errors.ErrCodeInternal, // 500
 			Msg:  "방 유저 삭제 실패",
 			Type: _errors.ErrDeleteRoomUserFailed,
+		}
+	}
+	return nil
+}
+func JoinPlayPlayerStateUpdate(ctx context.Context, roomID, userID uint) *entity.ErrorInfo {
+	err := mysql.GormMysqlDB.WithContext(ctx).Model(&mysql.FrogRoomUsers{}).
+		Where("room_id = ?", roomID).
+		Where("user_id = ?", userID).
+		Update("player_state", "play").Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 상태 변경 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
 		}
 	}
 	return nil
