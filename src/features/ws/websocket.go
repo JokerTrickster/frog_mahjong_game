@@ -17,13 +17,13 @@ import (
 
 const (
 	// 클라이언트에 메시지를 쓸 수 있는 시간입니다.
-	WriteWait = 10 * time.Second
+	WriteWait = 5 * time.Second
 
 	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
-	PongWait = 30 * time.Second
+	PongWait = 10 * time.Second
 
 	// 핑을 보낼 수 있는 기간입니다. (PongWait 보다 작아야 된다.)
-	PingPeriod = (PongWait * 9) / 10
+	PingPeriod = (PongWait * 5) / 10
 )
 
 func WSHandleMessages(gameName string) {
@@ -153,13 +153,13 @@ func HandlePingPong(wsClient *entity.WSClient) {
 	for {
 		select {
 		case <-ticker.C:
-			// 연결이 이미 닫혀있는지 확인
-			if wsClient.IsClosed() {
-				return
-			}
+
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
-				fmt.Println("Error sending ping:", err)
-				AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID)
+				// 연결이 이미 닫혀있는지 확인
+				if wsClient.Closed {
+					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID)
+					return
+				}
 				return
 			}
 		}

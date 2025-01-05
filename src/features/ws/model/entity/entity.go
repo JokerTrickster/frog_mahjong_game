@@ -90,6 +90,7 @@ type GameInfo struct {
 	IsFull           bool      `json:"isFull"`           // 방이 꽉 찼는지 여부
 	RoomID           uint      `json:"roomID"`           // 방 ID
 	Password         string    `json:"password"`         // 방 비밀번호
+	StartTime        int64     `json:"startTime"`        // 게임 시작 시간
 }
 
 type LoanInfo struct {

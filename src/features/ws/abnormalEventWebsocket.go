@@ -21,10 +21,7 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	msg := entity.WSMessage{
-		RoomID: roomID,
-		UserID: userID,
-	}
+
 	ctx := context.TODO()
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		//모든 유저 게임 종료 처리하고 대기 상태로 변경한다.
@@ -56,9 +53,9 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 		}
 		// 에러 메시지에 상대방이 게임 도중 나가서 강제 종료됐다는 에러 메시지 표시한다.
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  "상대방이 게임 도중 나가서 강제 종료됐습니다.",
-			Type: _errors.ErrAbnormalExit,
+			Code: _errors.ErrCodeInternal,
+			Msg:  "상대방이 게임 도중 나가서 강제 중단되었습니다.",
+			Type: _errors.ErrGameTerminated,
 		}
 		return nil
 
@@ -76,6 +73,11 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	msg.Message = message
+	msg := entity.WSMessage{
+		RoomID:  roomID,
+		UserID:  userID,
+		Message: message,
+	}
 	sendMessageToClients(roomID, &msg)
+
 }

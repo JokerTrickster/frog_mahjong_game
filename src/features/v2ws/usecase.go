@@ -219,7 +219,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		//시작 시간 추가
 		if !roomUser.Room.StartTime.IsZero() {
 			// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
-			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 3000
+			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
 		}
 
 		// 미션 정보 저장

@@ -61,7 +61,21 @@ func joinPlay(c echo.Context) error {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
+	// 재접속 확인
+	// 유저 상태가 abnormal 이면 해당 roomID를 가지고 온다.
+	if req.SessionID != "" {
+		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
+		if roomID != 0 {
+			// 기존 연결 복구
+			if client, exists := entity.WSClients[req.SessionID]; exists {
+				closeAndRemoveClient(client, req.SessionID, roomID)
+			}
 
+			restoreSession(ws, req.SessionID, roomID, userID)
+			// 연결한 유저에게 메시지 정보를 전달해야 된다.
+			return nil
+		}
+	}
 	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
 	ctx := context.Background()

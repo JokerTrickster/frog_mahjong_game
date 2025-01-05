@@ -52,6 +52,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	roomID := 0
 	password := ""
 	doraID := 0
+	var startTime int64
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		timer = roomUser.Room.Timer
@@ -82,6 +83,11 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 
 		}
 		roomID = roomUser.RoomID
+		//시작 시간 추가
+		if !roomUser.Room.StartTime.IsZero() {
+			// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
+			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
+		}
 
 		if roomUser.Room.OwnerID == roomUser.UserID {
 			user.IsOwner = true
@@ -100,6 +106,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		Dora: &entity.Card{
 			CardID: uint(doraID),
 		},
+		StartTime: startTime,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {

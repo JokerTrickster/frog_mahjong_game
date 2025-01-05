@@ -70,3 +70,16 @@ func AbnormalUpdateUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entit
 	}
 	return nil
 }
+
+func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.FrogRoomUsers{}).
+		Where("room_id = ?", abnormalEntity.RoomID).
+		Delete(&mysql.FrogRoomUsers{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "방 유저 정보 삭제 실패",
+			Type: _errors.ErrDeleteFailed,
+		}
+	}
+	return nil
+}
