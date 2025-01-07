@@ -88,6 +88,13 @@ func match(c echo.Context) error {
 	ctx := context.Background()
 	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
+	//기존 생성한 방을 모두 삭제 한다.
+	newErr := repository.DeleteAllRooms(ctx,userID)
+	if newErr != nil {
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+		return nil
+	}
+
 	// 대기중인 방이 있는지 체크
 	rooms, newErr := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
 	if newErr != nil {

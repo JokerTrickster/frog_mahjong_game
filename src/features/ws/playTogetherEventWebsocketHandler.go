@@ -66,7 +66,12 @@ func playTogether(c echo.Context) error {
 	ctx := context.Background()
 	var roomID uint
 	// var roomInfoMsg entity.RoomInfo
-	// 대기중인 방이 있는지 체크
+	//기존 생성한 방을 모두 삭제 한다.
+	newErr := repository.DeleteAllRooms(ctx, userID)
+	if newErr != nil {
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+		return nil
+	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		//숫자로 이루어진 4개 랜덤값을 생성한다.
 		password := CreateRandomPassword()
@@ -106,7 +111,7 @@ func playTogether(c echo.Context) error {
 	// sessionID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	newErr := repository.RedisSessionSet(ctx, sessionID, roomID)
+	newErr = repository.RedisSessionSet(ctx, sessionID, roomID)
 	if newErr != nil {
 		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
 		return nil

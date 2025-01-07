@@ -93,3 +93,14 @@ func RedisSessionDelete(ctx context.Context, sessionID string) *entity.ErrorInfo
 	}
 	return nil
 }
+
+func DeleteAllRooms(ctx context.Context, userID uint) *entity.ErrorInfo {
+	if err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).Where("owner_id = ?", userID).Delete(&mysql.Rooms{}).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("room 삭제 실패: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}

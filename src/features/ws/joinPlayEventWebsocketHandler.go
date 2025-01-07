@@ -88,7 +88,12 @@ func joinPlay(c echo.Context) error {
 	ctx := context.Background()
 	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
-
+	//기존 생성한 방을 모두 삭제 한다.
+	newErr := repository.DeleteAllRooms(ctx, userID)
+	if newErr != nil {
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+		return nil
+	}
 	rooms, newErr := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
 	if newErr != nil {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, "비밀번호를 잘못 입력했습니다.")
