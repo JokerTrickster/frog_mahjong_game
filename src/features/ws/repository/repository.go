@@ -7,6 +7,7 @@ import (
 	"time"
 
 	_errors "main/features/ws/model/errors"
+	"main/utils/db/mysql"
 	_redis "main/utils/db/redis"
 
 	"gorm.io/gorm"
@@ -34,6 +35,24 @@ func PreloadFindGameInfo(ctx context.Context, tx *gorm.DB, roomID uint) ([]entit
 			}
 	}
 	return roomUsers, nil
+}
+func FindOneDoraCard(ctx context.Context, roomID int) (*mysql.FrogUserCards, *entity.ErrorInfo) {
+	doraCard := mysql.FrogUserCards{}
+	if err := mysql.GormMysqlDB.Table("frog_user_cards").
+		Where("room_id = ?", roomID).
+		Where("state = ?", "dora").
+		First(&doraCard).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil,
+			&entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("도라카드 조회 실패: %v", err.Error()),
+				Type: _errors.ErrInternalServer,
+			}
+	}
+	return &doraCard, nil
 }
 
 func RedisSessionSet(ctx context.Context, sessionID string, roomID uint) *entity.ErrorInfo {

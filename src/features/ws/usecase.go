@@ -51,7 +51,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	timer := 30
 	roomID := 0
 	password := ""
-	doraID := 0
 	var startTime int64
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
@@ -77,10 +76,7 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 					CardID: uint(card.CardID),
 					UserID: uint(card.UserID),
 				})
-			} else if card.State == "dora" {
-				doraID = card.CardID
 			}
-
 		}
 		roomID = roomUser.RoomID
 		//시작 시간 추가
@@ -94,6 +90,9 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
+	// 도라 정보를 가져온다.
+	dora, _ := repository.FindOneDoraCard(ctx, roomID)
+
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
 		PlayTurn:      playTurn,
@@ -103,10 +102,10 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		IsFull:        false,
 		RoomID:        uint(roomID),
 		Password:      password,
+		StartTime:     startTime,
 		Dora: &entity.Card{
-			CardID: uint(doraID),
+			CardID: uint(dora.CardID),
 		},
-		StartTime: startTime,
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
