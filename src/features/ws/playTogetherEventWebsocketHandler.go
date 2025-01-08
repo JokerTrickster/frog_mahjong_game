@@ -67,9 +67,9 @@ func playTogether(c echo.Context) error {
 	var roomID uint
 	// var roomInfoMsg entity.RoomInfo
 	//기존 생성한 방을 모두 삭제 한다.
-	newErr := repository.DeleteAllRooms(ctx, userID)
-	if newErr != nil {
-		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+	errInfo := repository.DeleteAllRooms(ctx, userID)
+	if errInfo != nil {
+		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
@@ -77,30 +77,30 @@ func playTogether(c echo.Context) error {
 		password := CreateRandomPassword()
 		// 방 생성
 		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
-		newRoomID, newErr := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		newRoomID, errInfo := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		roomID = uint(newRoomID)
 		// room 유저 수 증가
-		newErr = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 기존에 룸 유저 정보가 있으면 지운다.
-		newErr = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// room_user 생성
 		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "ready")
-		newErr = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
@@ -111,9 +111,9 @@ func playTogether(c echo.Context) error {
 	// sessionID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	newErr = repository.RedisSessionSet(ctx, sessionID, roomID)
-	if newErr != nil {
-		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+	errInfo = repository.RedisSessionSet(ctx, sessionID, roomID)
+	if errInfo != nil {
+		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
 	}
 

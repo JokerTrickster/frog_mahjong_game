@@ -89,36 +89,36 @@ func joinPlay(c echo.Context) error {
 	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
 	//기존 생성한 방을 모두 삭제 한다.
-	newErr := repository.DeleteAllRooms(ctx, userID)
-	if newErr != nil {
-		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+	errInfo := repository.DeleteAllRooms(ctx, userID)
+	if errInfo != nil {
+		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
 	}
-	rooms, newErr := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
-	if newErr != nil {
+	rooms, errInfo := repository.JoinPlayFindOneWaitingRoom(ctx, req.Password)
+	if errInfo != nil {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, "비밀번호를 잘못 입력했습니다.")
 		return nil
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		roomID = rooms.ID
 		// room 유저 수 증가
-		newErr = repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 기존에 룸 유저 정보가 있으면 지운다.
-		newErr = repository.JoinPlayFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.JoinPlayFindOneAndDeleteRoomUser(ctx, tx, userID)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
-		newErr = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
-		if newErr != nil {
-			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.JoinPlayInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if errInfo != nil {
+			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
@@ -129,9 +129,9 @@ func joinPlay(c echo.Context) error {
 	// sessionID 생성
 	sessionID := generateSessionID()
 	// 세션 ID 저장
-	newErr = repository.RedisSessionSet(ctx, sessionID, roomID)
-	if newErr != nil {
-		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+	errInfo = repository.RedisSessionSet(ctx, sessionID, roomID)
+	if errInfo != nil {
+		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
 	}
 

@@ -220,9 +220,9 @@ func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID ui
 	newSessionID := generateSessionID()
 
 	// 세션 ID 저장
-	newErr := repository.RedisSessionSet(context.TODO(), newSessionID, roomID)
-	if newErr != nil {
-		fmt.Println(newErr)
+	errInfo := repository.RedisSessionSet(context.TODO(), newSessionID, roomID)
+	if errInfo != nil {
+		fmt.Println(errInfo)
 	}
 	// 새로운 세션으로 등록
 	registerNewSession(ws, newSessionID, roomID, userID)

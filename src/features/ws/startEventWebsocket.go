@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartEventWebsocket(msg *entity.WSMessage) {
+func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
@@ -19,67 +19,60 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 
 		// 방장이 게임 시작 요청했는지 체크
-		newErr := repository.StartCheckOwner(ctx, tx, uID, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo := repository.StartCheckOwner(ctx, tx, uID, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		roomUsers, newErr := repository.StartFindRoomUsers(ctx, tx, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
-		}
-
-		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
-		updatedRoomUsers, newErr := StartUpdateRoomUsers(roomUsers)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		roomUsers, errInfo := repository.StartFindRoomUsers(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
-		newErr = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		updatedRoomUsers, errInfo := StartUpdateRoomUsers(roomUsers)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// room user 데이터 변경 (플레이 순번 랜덤으로 생성)
+		errInfo = repository.StartUpdateRoomUser(ctx, tx, updatedRoomUsers)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// room 데이터 상태 변경 (대기 -> 플레이)
-		newErr = repository.StartUpdateRoom(ctx, tx, roomID, "play")
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.StartUpdateRoom(ctx, tx, roomID, "play")
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 카드 정보 가져온다.
-		cards, newErr := repository.StartFindCards(ctx, tx)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		cards, errInfo := repository.StartFindCards(ctx, tx)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// cards 데이터 생성
 		userCards := CreateInitCards(roomID, cards)
-		newErr = repository.StartCreateCards(ctx, tx, userCards)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.StartCreateCards(ctx, tx, userCards)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return
+		return errInfo
 	}
 
 	// 메시지 생성
@@ -92,5 +85,5 @@ func StartEventWebsocket(msg *entity.WSMessage) {
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
-
+	return nil
 }

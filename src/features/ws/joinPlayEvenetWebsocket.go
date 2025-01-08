@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func JoinPlayEventWebsocket(msg *entity.WSMessage) {
+func JoinPlayEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
 
@@ -21,39 +21,35 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSJoinPlayEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
 
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
-	roomID, newErr := repository.JoinPlayFindOneRoomUsers(ctx, uID)
-	if newErr != nil {
-		SendErrorMessage(msg, newErr)
-		return
+	roomID, errInfo := repository.JoinPlayFindOneRoomUsers(ctx, uID)
+	if errInfo != nil {
+		return errInfo
 	}
-	roomDTO, newErr := repository.JoinPlayFindOneRoom(ctx, roomID)
-	if newErr != nil {
-		SendErrorMessage(msg, newErr)
-		return
+	roomDTO, errInfo := repository.JoinPlayFindOneRoom(ctx, roomID)
+	if errInfo != nil {
+		return errInfo
 	}
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		//유저 정보를 업데이트 한다.
-		newErr = repository.JoinPlayFindOneAndUpdateUser(ctx, tx, uID, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.JoinPlayFindOneAndUpdateUser(ctx, tx, uID, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		return
+		return errInfo
 	}
 
 	// 메시지 생성
@@ -67,9 +63,10 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
+		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
 	}
 	msg.Message = message
 	msg.RoomID = roomID
 	sendMessageToClients(roomID, msg)
+	return nil
 }
