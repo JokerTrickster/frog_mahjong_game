@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CloseEventWebsocket(msg *entity.WSMessage) {
+func CloseEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
@@ -22,67 +22,59 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// RoomsID에 해당하는 userID를 삭제한다.
-		newErr := repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// Rooms 현재 인원수를 -1한다.
-		roomDTO, newErr := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		roomDTO, errInfo := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// user에 rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
-		newErr = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		if roomDTO.CurrentCount == 0 {
 			// 방 삭제
-			newErr = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
-			if newErr != nil {
-				SendErrorMessage(msg, newErr)
-				return fmt.Errorf("%s", newErr.Msg)
+			errInfo = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 
 		} else if roomDTO.CurrentCount == 1 {
 			// 인원이 1명이면 남아 있는 유저를 방장으로 변경
 			//방장이 나가면 다른 유저 중 한명을 방장으로 변경
 			//룸에 남아있는 유저 정보를 가져온다.
-			roomUserDTO, newErr := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
-			if newErr != nil {
-				SendErrorMessage(msg, newErr)
-				return fmt.Errorf("%s", newErr.Msg)
+			roomUserDTO, errInfo := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
-			userDTO, newErr := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
-			if newErr != nil {
-				SendErrorMessage(msg, newErr)
-				return fmt.Errorf("%s", newErr.Msg)
+			userDTO, errInfo := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 
 			// 해당 유저를 방장으로 업데이트 한다.
-
 			//방장으로 변경하기 위해 업데이트해야 될 부분들
 			// rooms -> owner 변경
-			newErr = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
-			if newErr != nil {
-				SendErrorMessage(msg, newErr)
-				return fmt.Errorf("%s", newErr.Msg)
+			errInfo = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 		}
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, req.RoomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		return
+		return errInfo
 	}
 
 	// 메시지 생성
@@ -94,4 +86,6 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	}
 	msg.Message = message
 	sendMessageToClients(req.RoomID, msg)
+
+	return nil
 }

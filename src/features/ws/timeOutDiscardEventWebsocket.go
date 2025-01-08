@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
+func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
@@ -23,8 +23,7 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSTimeOutDiscardCards{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
-		return
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
 	TimeOutDiscardCardsEntity := entity.WSTimeOutDiscardCardsEntity{
 		RoomID: roomID,
@@ -35,23 +34,22 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 상태 없데이트
-		newErr := repository.TimeOutDiscardUpdateCardState(ctx, tx, &TimeOutDiscardCardsEntity)
+		errInfo := repository.TimeOutDiscardUpdateCardState(ctx, tx, &TimeOutDiscardCardsEntity)
 		if err != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
 		if err != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		return
+		return errInfo
 	}
 	// 메시지 생성
 	//게임턴 계산
@@ -62,8 +60,9 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg.GameInfo.IsLoanAllowed = true
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
+		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
 	}
 	msg.Message = message
 	sendMessageToClients(msg.RoomID, msg)
+	return nil
 }

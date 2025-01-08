@@ -89,48 +89,52 @@ func processMessage(gameName string, d amqp.Delivery) {
 		d.Nack(false, false) // Reject message, don't requeue
 		return
 	}
-
+	var errInfo *entity.ErrorInfo
 	// Handle events
 	switch msg.Event {
 	case "QUIT_GAME":
-		CloseEventWebsocket(&msg)
+		errInfo = CloseEventWebsocket(&msg)
 	case "START":
-		StartEventWebsocket(&msg)
+		errInfo = StartEventWebsocket(&msg)
 	case "DISCARD":
-		DiscardCardsEventWebsocket(&msg)
+		errInfo = DiscardCardsEventWebsocket(&msg)
 	case "IMPORT_SINGLE_CARD":
-		ImportSingleCardEventWebsocket(&msg)
+		errInfo = ImportSingleCardEventWebsocket(&msg)
 	case "GAME_OVER":
-		GameOverEventWebsocket(&msg)
+		errInfo = GameOverEventWebsocket(&msg)
 	case "CHAT":
-		ChatEventWebsocket(&msg)
+		errInfo = ChatEventWebsocket(&msg)
 	case "REQUEST_WIN":
-		RequestWinEventWebsocket(&msg)
+		errInfo = RequestWinEventWebsocket(&msg)
 	case "TIME_OUT_DISCARD":
-		TimeOutDiscardCardsEventWebsocket(&msg)
+		errInfo = TimeOutDiscardCardsEventWebsocket(&msg)
 	case "MATCH":
-		MatchEventWebsocket(&msg)
+		errInfo = MatchEventWebsocket(&msg)
 	case "CANCEL_MATCH":
-		CancelMatchEventWebsocket(&msg)
+		errInfo = CancelMatchEventWebsocket(&msg)
 	case "PLAY_TOGETHER":
-		PlayTogetherEventWebsocket(&msg)
+		errInfo = PlayTogetherEventWebsocket(&msg)
 	case "JOIN_PLAY":
-		JoinPlayEventWebsocket(&msg)
+		errInfo = JoinPlayEventWebsocket(&msg)
 	// New events for additional games
 	case "DORA":
-		DoraEventWebsocket(&msg)
+		errInfo = DoraEventWebsocket(&msg)
 	case "IMPORT_CARDS":
-		ImportCardsEventWebsocket(&msg)
+		errInfo = ImportCardsEventWebsocket(&msg)
 	case "LOAN":
-		LoanEventWebsocket(&msg)
+		errInfo = LoanEventWebsocket(&msg)
 	case "FAILED_LOAN":
-		FailedLoanEventWebsocket(&msg)
+		errInfo = FailedLoanEventWebsocket(&msg)
 	case "SUCCESS_LOAN":
-		SuccessLoanEventWebsocket(&msg)
+		errInfo = SuccessLoanEventWebsocket(&msg)
 	default:
 		log.Printf("Unknown event for %s: %s", gameName, msg.Event)
 		d.Nack(false, false) // Reject message, don't requeue
 		return
+	}
+	if errInfo != nil {
+		SendErrorMessage(&msg, errInfo)
+		d.Nack(false, false) // Reject message, don't requeue
 	}
 
 	// Acknowledge message after successful processing
@@ -206,9 +210,9 @@ func disconnectClient(userID, roomID uint) {
 				client.Conn.Close()
 				client.Closed = true
 				// redis 세션 id 삭제
-				newErr := repository.RedisSessionDelete(context.TODO(), sessionID)
-				if newErr != nil {
-					fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
+				errInfo := repository.RedisSessionDelete(context.TODO(), sessionID)
+				if errInfo != nil {
+					fmt.Printf("Failed to delete session: %v\n", errInfo.Msg)
 				}
 
 				// 세션 및 클라이언트 데이터 정리

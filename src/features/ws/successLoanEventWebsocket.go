@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
+func SuccessLoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
@@ -22,8 +22,7 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	req := request.ReqWSSuccessEvent{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
-		SendErrorMessage(msg, CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러"))
-		return
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
 	successEntity := entity.WSSuccessEntity{
 		RoomID: roomID,
@@ -41,48 +40,44 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보 체크 (소유하고 있는지 체크)
-		cards, newErr := repository.SuccessFindAllCards(ctx, tx, &successEntity)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		cards, errInfo := repository.SuccessFindAllCards(ctx, tx, &successEntity)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 카드 정보로 점수 체크한다.
-		newErr = CalcScore(cards, successEntity.Score)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = CalcScore(cards, successEntity.Score)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 론인 경우 해당 유저에 코인 차감한다.
-		newErr = repository.SuccessLoanDiffCoin(ctx, tx, &successEntity)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.SuccessLoanDiffCoin(ctx, tx, &successEntity)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 론인 경우 해당 유저에 코인 추가한다.
-		newErr = repository.SuccessLoanAddCoin(ctx, tx, &successEntity)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.SuccessLoanAddCoin(ctx, tx, &successEntity)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 유저 상태 변경
-		newErr = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
+		if errInfo != nil {
+			SendErrorMessage(msg, errInfo)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
-		if newErr != nil {
-			SendErrorMessage(msg, newErr)
-			return fmt.Errorf("%s", newErr.Msg)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return
+		return errInfo
 	}
 	// 메시지 생성
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
@@ -106,8 +101,9 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) {
 	roomInfoMsg.GameInfo.IsLoanAllowed = true
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
+		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
+	return nil
 }

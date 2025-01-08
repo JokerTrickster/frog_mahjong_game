@@ -70,9 +70,9 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		fmt.Printf("Cleanup error: %v\n", err)
 	}
 	// 레디스 세션값 삭제
-	newErr := repository.RedisSessionDelete(ctx, sessionID)
-	if newErr != nil {
-		fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
+	errInfo := repository.RedisSessionDelete(ctx, sessionID)
+	if errInfo != nil {
+		fmt.Printf("Failed to delete session: %v\n", errInfo.Msg)
 	}
 
 	// 클라이언트 연결 종료 및 제거

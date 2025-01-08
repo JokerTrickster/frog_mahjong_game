@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ChatEventWebsocket(msg *entity.WSMessage) {
+func ChatEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
@@ -51,5 +51,5 @@ func ChatEventWebsocket(msg *entity.WSMessage) {
 	msg.Message = req.Message
 	msg.ChatID = ChatID
 	sendMessageToClients(roomID, msg)
-
+	return nil
 }

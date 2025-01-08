@@ -30,13 +30,13 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 			AbnormalUserID: userID,
 		}
 		// 유저 상태 변경
-		newErr := repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
-		if newErr != nil {
-			return fmt.Errorf("%s", newErr.Msg)
+		errInfo := repository.AbnormalUpdateUsers(ctx, tx, &abnormalEntity)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		preloadUsers, newErr = repository.PreloadFindGameInfo(ctx, tx, roomID)
-		if newErr != nil {
-			return fmt.Errorf("%s", newErr.Msg)
+		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// 에러 메시지에 상대방이 게임 도중 나가서 강제 종료됐다는 에러 메시지 표시한다.
 		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
