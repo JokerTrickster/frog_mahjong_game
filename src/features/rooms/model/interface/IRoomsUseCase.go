@@ -37,3 +37,7 @@ type IUserListRoomsUseCase interface {
 type IMetaRoomsUseCase interface {
 	Meta(c context.Context) (response.ResMetaRoom, error)
 }
+
+type ICheckSessionRoomsUseCase interface {
+	CheckSession(c context.Context, req *request.ReqCheckSession) (bool, error)
+}

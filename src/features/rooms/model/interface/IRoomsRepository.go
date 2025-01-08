@@ -50,3 +50,7 @@ type IUserListRoomsRepository interface {
 type IMetaRoomsRepository interface {
 	FindAllTimeMeta(ctx context.Context) ([]mysql.Times, error)
 }
+
+type ICheckSessionRoomsRepository interface {
+	RedisCheckSession(ctx context.Context, req *request.ReqCheckSession) (bool, error)
+}

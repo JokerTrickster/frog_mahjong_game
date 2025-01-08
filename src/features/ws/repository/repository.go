@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"main/features/ws/model/entity"
 	"time"
@@ -38,17 +39,19 @@ func PreloadFindGameInfo(ctx context.Context, tx *gorm.DB, roomID uint) ([]entit
 }
 func FindOneDoraCard(ctx context.Context, roomID int) (*mysql.FrogUserCards, *entity.ErrorInfo) {
 	doraCard := mysql.FrogUserCards{}
-	if err := mysql.GormMysqlDB.Table("frog_user_cards").
+	result := mysql.GormMysqlDB.Table("frog_user_cards").
 		Where("room_id = ?", roomID).
 		Where("state = ?", "dora").
-		First(&doraCard).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		First(&doraCard)
+
+	if result.Error != gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil,
 			&entity.ErrorInfo{
 				Code: _errors.ErrCodeInternal,
-				Msg:  fmt.Sprintf("도라카드 조회 실패: %v", err.Error()),
+				Msg:  fmt.Sprintf("도라카드 조회 실패: %v", result.Error),
 				Type: _errors.ErrInternalServer,
 			}
 	}

@@ -35,3 +35,7 @@ type IUserListRoomsHandler interface {
 type IMetaRoomsHandler interface {
 	Meta(c echo.Context) error
 }
+
+type ICheckSessionRoomsHandler interface {
+	CheckSession(c echo.Context) error
+}

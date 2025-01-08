@@ -89,6 +89,11 @@ definitions:
       alert:
         type: boolean
     type: object
+  request.ReqCheckSession:
+    properties:
+      sessionID:
+        type: string
+    type: object
   request.ReqCheckSignin:
     properties:
       email:
@@ -2109,6 +2114,50 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 게임 준비 상태 변경
+      tags:
+      - rooms
+  /v0.1/rooms/session/check:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        ROOM_NOT_FOUND : 방을 찾을 수 없음
+        ROOM_FULL : 방이 꽉 찼습니다.
+        ROOM_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+        WRONG_PASSWORD : 비밀번호가 일치하지 않습니다.
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqCheckSession'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 세션 ID 체크
       tags:
       - rooms
   /v0.1/rooms/user:

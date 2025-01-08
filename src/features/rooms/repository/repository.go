@@ -34,3 +34,7 @@ type UserListRoomsRepository struct {
 type MetaRoomsRepository struct {
 	GormDB *gorm.DB
 }
+
+type CheckSessionRoomsRepository struct {
+	GormDB *gorm.DB
+}
