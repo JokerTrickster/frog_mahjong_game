@@ -90,8 +90,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		}
 		roomInfoMsg.Users = append(roomInfoMsg.Users, &user)
 	}
-	// 도라 정보를 가져온다.
-	dora, _ := repository.FindOneDoraCard(ctx, roomID)
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
@@ -103,9 +101,13 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 		RoomID:        uint(roomID),
 		Password:      password,
 		StartTime:     startTime,
-		Dora: &entity.Card{
+	}
+	// 도라 정보를 가져온다.
+	dora, _ := repository.FindOneDoraCard(ctx, roomID)
+	if dora != nil {
+		gameInfo.Dora = &entity.Card{
 			CardID: uint(dora.CardID),
-		},
+		}
 	}
 	roomInfoMsg.GameInfo = &gameInfo
 	if roomInfoError != nil {
