@@ -14,24 +14,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func RequestWinEventWebsocket(msg *entity.WSMessage) {
+func RequestWinEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
 	decryptedMessage, err := utils.DecryptAES(msg.Message)
 	if err != nil {
-		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
-		msg.Message = errMsg
-		sendMessageToClient(roomID, msg)
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
 	}
 	//string to struct
 	req := request.ReqV2WSWinEvent{}
 	err = json.Unmarshal([]byte(decryptedMessage), &req)
 	if err != nil {
-		errMsg := CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
-		msg.Message = errMsg
-		sendMessageToClient(roomID, msg)
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
 
 	requestWinEntity := entity.V2WSRequestWinEntity{
@@ -45,27 +41,22 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 	// 비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보 체크 (소유하고 있는지 체크)
-		_, err := repository.RequestWinFindAllCards(ctx, tx, &requestWinEntity)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+		_, errInfo := repository.RequestWinFindAllCards(ctx, tx, &requestWinEntity)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 유저 상태 변경
-		err = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
+		errInfo = repository.RequestWinUpdateRoomUsers(ctx, tx, &requestWinEntity)
 		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		preloadUsers, err = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
+		preloadUsers, errInfo = repository.RequestWinFindAllRoomUsers(ctx, tx, roomID)
 		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		return nil
@@ -76,6 +67,7 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 			Msg:  err.Error(),
 			Type: _errors.ErrInternalServer,
 		}
+		return errInfo
 	}
 
 	// 메시지 생성
@@ -100,9 +92,9 @@ func RequestWinEventWebsocket(msg *entity.WSMessage) {
 
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
+	return nil
 }

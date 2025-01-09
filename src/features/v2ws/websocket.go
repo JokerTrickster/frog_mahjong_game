@@ -94,42 +94,48 @@ func processMessage(gameName string, d amqp.Delivery) {
 		d.Nack(false, false) // Reject message, don't requeue
 		return
 	}
+
+	var errInfo *entity.ErrorInfo
 	// 이벤트 처리
 	switch msg.Event {
 	case "QUIT_GAME":
-		CloseEventWebsocket(&msg)
+		errInfo = CloseEventWebsocket(&msg)
 	case "START":
-		StartEventWebsocket(&msg)
+		errInfo = StartEventWebsocket(&msg)
 	case "DISCARD":
-		DiscardCardsEventWebsocket(&msg)
+		errInfo = DiscardCardsEventWebsocket(&msg)
 	case "IMPORT_SINGLE_CARD":
-		ImportSingleCardEventWebsocket(&msg)
+		errInfo = ImportSingleCardEventWebsocket(&msg)
 	case "GAME_OVER":
-		GameOverEventWebsocket(&msg)
+		errInfo = GameOverEventWebsocket(&msg)
 	case "CHAT":
-		ChatEventWebsocket(&msg)
+		errInfo = ChatEventWebsocket(&msg)
 	case "REQUEST_WIN":
-		RequestWinEventWebsocket(&msg)
+		errInfo = RequestWinEventWebsocket(&msg)
 	case "TIME_OUT_DISCARD":
-		TimeOutDiscardCardsEventWebsocket(&msg)
+		errInfo = TimeOutDiscardCardsEventWebsocket(&msg)
 	case "MATCH":
-		MatchEventWebsocket(&msg)
+		errInfo = MatchEventWebsocket(&msg)
 	case "CANCEL_MATCH":
-		CancelMatchEventWebsocket(&msg)
+		errInfo = CancelMatchEventWebsocket(&msg)
 	case "PLAY_TOGETHER":
-		PlayTogetherEventWebsocket(&msg)
+		errInfo = PlayTogetherEventWebsocket(&msg)
 	case "JOIN_PLAY":
-		JoinPlayEventWebsocket(&msg)
+		errInfo = JoinPlayEventWebsocket(&msg)
 	case "MISSION":
-		MissionEventWebsocket(&msg)
+		errInfo = MissionEventWebsocket(&msg)
 	case "RANDOM":
-		RandomEventWebsocket(&msg)
+		errInfo = RandomEventWebsocket(&msg)
 	case "ITEM_CHANGE":
-		ItemChangeEventWebsocket(&msg)
+		errInfo = ItemChangeEventWebsocket(&msg)
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
 		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
 		return
+	}
+	if errInfo != nil{
+		SendErrorMessage(&msg, errInfo)
+		d.Ack(false)
 	}
 	// Acknowledge message after successful processing
 	d.Ack(false)

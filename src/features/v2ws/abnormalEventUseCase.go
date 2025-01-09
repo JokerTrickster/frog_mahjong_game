@@ -35,11 +35,12 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		Event:  "ERROR",
 	}
 	errMsg := CreateErrorMessage(_errors.ErrCodeInternal, _errors.ErrAbnormalExit, "상대방이 연결이 끊겼습니다. 강제로 게임을 종료합니다.")
-	msg.Message = errMsg
+	var roomInfo *entity.RoomInfo
+	roomInfo.ErrorInfo = errMsg
+	sendMsg, _ := CreateMessage(roomInfo)
+	msg.Message = sendMsg
 	sendMessageToClients(roomID, msg)
-
-	fmt.Printf("Cleaning up session %s for room %d...\n", sessionID, roomID)
-
+	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		abnormalEntity := entity.WSAbnormalEntity{
 			RoomID:         roomID,
@@ -47,17 +48,17 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		}
 
 		// 카드 삭제
-		if err := repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity); err != nil {
-			return fmt.Errorf("Failed to delete cards: %s", err.Msg)
+		if errInfo = repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete cards: %s", errInfo.Msg)
 		}
 
 		// 방 삭제
-		if err := repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity); err != nil {
-			return fmt.Errorf("Failed to delete room: %s", err.Msg)
+		if errInfo = repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete room: %s", errInfo.Msg)
 		}
 		// 방 유저 정보 삭제
-		if err := repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); err != nil {
-			return fmt.Errorf("Failed to delete room users: %s", err.Msg)
+		if errInfo = repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete room users: %s", errInfo.Msg)
 		}
 
 		return nil

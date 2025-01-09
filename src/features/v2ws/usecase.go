@@ -505,20 +505,24 @@ func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
 }
 
 func SendWebSocketCloseMessage(ws *websocket.Conn, closeCode int, message string) error {
+	utils.LogError(message)
 	closeMessage := websocket.FormatCloseMessage(closeCode, message)
 	err := ws.WriteMessage(websocket.CloseMessage, closeMessage)
 	return err
 }
 
 // SendErrorMessage processes errors and sends them to the corresponding client.
-func SendErrorMessage(msg *entity.WSMessage, roomError *entity.RoomInfo) {
+func SendErrorMessage(msg *entity.WSMessage, errMsg *entity.ErrorInfo) {
+	roomInfoMsg := &entity.RoomInfo{}
+	roomInfoMsg.ErrorInfo = errMsg
+	utils.LogError(errMsg.Msg)
 	// Retrieve all sessionIDs for the room
 	if sessionIDs, ok := entity.RoomSessions[msg.RoomID]; ok {
 		for _, sessionID := range sessionIDs {
 			// Find the client associated with the sessionID
 			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == msg.UserID {
 				// Create an error message
-				message, err := CreateMessage(roomError)
+				message, err := CreateMessage(roomInfoMsg)
 				if err != nil {
 					fmt.Println("Error creating error message:", err)
 					continue
@@ -565,16 +569,11 @@ func CreateMessage(roomInfoMsg *entity.RoomInfo) (string, error) {
 	return string(jsonData), nil
 }
 
-func CreateErrorMessage(errCode int, errType, errMsg string) string {
-	msg := entity.RoomInfo{}
-	msg.ErrorInfo = &entity.ErrorInfo{
+func CreateErrorMessage(errCode int, errType, errMsg string) *entity.ErrorInfo {
+	result := &entity.ErrorInfo{
 		Code: errCode,
 		Type: errType,
 		Msg:  errMsg,
 	}
-	message, err := CreateMessage(&msg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return message
+	return result
 }
