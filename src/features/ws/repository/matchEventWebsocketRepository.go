@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"main/features/ws/model/entity"
 	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -123,17 +122,18 @@ func MatchInsertOneRoomUser(ctx context.Context, tx *gorm.DB, roomUser *mysql.Fr
 }
 
 // MatchFindOneRoom retrieves a specific room by ID
-func MatchFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, *entity.ErrorInfo) {
+func MatchFindOneRoom(ctx context.Context, roomID uint) *entity.ErrorInfo {
 	room := mysql.Rooms{}
-	err := tx.WithContext(ctx).Where("id = ?", req.RoomID).First(&room).Error
+	err := mysql.GormMysqlDB.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
+	// 방 정보가 없을 경우
 	if err != nil {
-		return mysql.Rooms{}, &entity.ErrorInfo{
+		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound, // 404
-			Msg:  "방 정보를 찾을 수 없습니다.",
+			Msg:  err.Error(),
 			Type: _errors.ErrRoomNotFound,
 		}
 	}
-	return room, nil
+	return nil
 }
 
 // MatchFindOneAndUpdateRoom updates room's current player count

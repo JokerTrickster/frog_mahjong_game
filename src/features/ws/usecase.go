@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"gorm.io/gorm"
 )
 
 func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
@@ -347,4 +348,33 @@ func SendErrorMessage(msg *entity.WSMessage, errMsg *entity.ErrorInfo) {
 	if len(entity.RoomSessions[msg.RoomID]) == 0 {
 		delete(entity.RoomSessions, msg.RoomID)
 	}
+}
+
+func cleanGameInfo(ctx context.Context, userID uint) *entity.ErrorInfo {
+	var errInfo *entity.ErrorInfo
+	err := mysql.GormMysqlDB.Transaction(func(tx *gorm.DB) error {
+		// frog_user_cards 제거
+		errInfo := repository.DeleteAllFrogUserCards(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// frog_room_users 제거
+		errInfo = repository.DeleteAllFrogRoomUsers(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// rooms 제거
+		errInfo = repository.DeleteAllRooms(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return errInfo
+	}
+
+	return nil
 }

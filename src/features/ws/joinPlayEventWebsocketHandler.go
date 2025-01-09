@@ -38,6 +38,8 @@ import (
 // @Failure 500 {object} error
 // @Tags ws
 func joinPlay(c echo.Context) error {
+	ctx := context.Background()
+	var errInfo *entity.ErrorInfo
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
@@ -66,30 +68,33 @@ func joinPlay(c echo.Context) error {
 	if req.SessionID != "" {
 		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
 		if roomID != 0 {
-			// 기존 연결 복구
-			if client, exists := entity.WSClients[req.SessionID]; exists {
-				closeAndRemoveClient(client, req.SessionID, roomID)
-			}
+			_, errInfo = repository.JoinPlayFindOneRoom(ctx, roomID)
+			if errInfo.Msg == gorm.ErrRecordNotFound.Error() {
+				_ = repository.RedisSessionDelete(ctx, req.SessionID)
+			} else {
+				// 기존 연결 복구
+				if client, exists := entity.WSClients[req.SessionID]; exists {
+					closeAndRemoveClient(client, req.SessionID, roomID)
+				}
+				restoreSession(ws, req.SessionID, roomID, userID)
+				// 연결한 유저에게 메시지 정보를 전달해야 된다.
 
-			restoreSession(ws, req.SessionID, roomID, userID)
-			// 연결한 유저에게 메시지 정보를 전달해야 된다.
-
-			// 기존 유저 상태 변경
-			err := repository.JoinPlayPlayerStateUpdate(context.Background(), roomID, userID)
-			if err != nil {
-				SendWebSocketCloseMessage(ws, err.Code, err.Msg)
+				// 기존 유저 상태 변경
+				err := repository.JoinPlayPlayerStateUpdate(context.Background(), roomID, userID)
+				if err != nil {
+					SendWebSocketCloseMessage(ws, err.Code, err.Msg)
+					return nil
+				}
 				return nil
 			}
-			return nil
 		}
 	}
 	// 비즈니스 로직
 	// 대기중인 방이 있는지 체크
-	ctx := context.Background()
 	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
-	//기존 생성한 방을 모두 삭제 한다.
-	errInfo := repository.DeleteAllRooms(ctx, userID)
+	// 기존 유저에 게임 정보를 모두 제거한다.
+	errInfo = cleanGameInfo(ctx, userID)
 	if errInfo != nil {
 		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
@@ -103,12 +108,6 @@ func joinPlay(c echo.Context) error {
 		roomID = rooms.ID
 		// room 유저 수 증가
 		errInfo = repository.JoinPlayFindOneAndUpdateRoom(ctx, tx, roomID)
-		if errInfo != nil {
-			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-		// 기존에 룸 유저 정보가 있으면 지운다.
-		errInfo = repository.JoinPlayFindOneAndDeleteRoomUser(ctx, tx, userID)
 		if errInfo != nil {
 			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 			return fmt.Errorf("%s", errInfo.Msg)
