@@ -42,11 +42,11 @@ func FindOneDoraCard(ctx context.Context, roomID int) (*mysql.FrogUserCards, *en
 	result := mysql.GormMysqlDB.Table("frog_user_cards").
 		Where("room_id = ?", roomID).
 		Where("state = ?", "dora").
-		Find(&doraCard)
-	if result.Error != gorm.ErrRecordNotFound {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
+		First(&doraCard)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if result.Error != nil {
 		return nil,
 			&entity.ErrorInfo{
 				Code: _errors.ErrCodeInternal,

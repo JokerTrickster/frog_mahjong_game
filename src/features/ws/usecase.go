@@ -104,7 +104,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	}
 	// 도라 정보를 가져온다.
 	dora, _ := repository.FindOneDoraCard(ctx, roomID)
-	fmt.Println("도라 정보", dora)
 	if dora != nil {
 		gameInfo.Dora = &entity.Card{
 			CardID: uint(dora.CardID),

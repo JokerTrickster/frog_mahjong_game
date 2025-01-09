@@ -89,7 +89,6 @@ func processMessage(gameName string, d amqp.Delivery) {
 		d.Nack(false, false) // Reject message, don't requeue
 		return
 	}
-	fmt.Println("이벤트 들어온다. ", msg.Event)
 	var errInfo *entity.ErrorInfo
 	// Handle events
 	switch msg.Event {
