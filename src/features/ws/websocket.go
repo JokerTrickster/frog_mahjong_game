@@ -161,7 +161,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(WriteWait)); err != nil {
 				// 연결이 이미 닫혀있는지 확인
 				if wsClient.Closed {
-					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID)
+					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
 				return

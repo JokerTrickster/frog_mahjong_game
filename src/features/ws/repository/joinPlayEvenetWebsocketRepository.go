@@ -76,7 +76,7 @@ func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Ro
 func JoinPlayFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) *entity.ErrorInfo {
 	user := mysql.Users{
 		RoomID: int(RoomID),
-		State:  "ready",
+		State:  "play",
 	}
 	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("id = ?", uID).Updates(user).Error
 	if err != nil {

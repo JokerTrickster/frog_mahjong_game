@@ -25,7 +25,7 @@ import (
 func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
-	roomID := msg.RoomID
+	rID := msg.RoomID
 
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
@@ -33,7 +33,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 룸 유저 정보를 삭제한다.
-		errInfo = repository.CancelMatchDeleteOneRoomUser(ctx, tx, roomID, uID)
+		errInfo = repository.CancelMatchDeleteOneRoomUser(ctx, tx, rID, uID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
@@ -45,7 +45,7 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		}
 
 		// 방 정보를 업데이트 한다. (방이 비어있으면 방을 삭제한다.)
-		roomDTO, errInfo := repository.CancelMatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		roomDTO, errInfo := repository.CancelMatchFindOneAndUpdateRoom(ctx, tx, rID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
@@ -53,17 +53,17 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		//방장이 나가면 다른 유저 중 한명을 방장으로 변경
 		if roomDTO.CurrentCount != 0 && roomDTO.OwnerID == int(uID) {
 			//룸 유저 정보를 가져온다.
-			roomUserID, errInfo := repository.CancelMatchFindOneRoomUser(ctx, tx, roomID)
+			roomUserID, errInfo := repository.CancelMatchFindOneRoomUser(ctx, tx, rID)
 			if errInfo != nil {
 				return fmt.Errorf("%s", errInfo.Msg)
 			}
 			//해당 유저ID를 방장으로 변경한다.
-			errInfo = repository.CancelMatchUpdateRoomOwner(ctx, tx, roomID, roomUserID)
+			errInfo = repository.CancelMatchUpdateRoomOwner(ctx, tx, rID, roomUserID)
 			if errInfo != nil {
 				return fmt.Errorf("%s", errInfo.Msg)
 			}
 		}
-		preloadUsers, errInfo = repository.CancelMatchFindAllRoomUsers(ctx, tx, roomID)
+		preloadUsers, errInfo = repository.CancelMatchFindAllRoomUsers(ctx, tx, rID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
@@ -84,8 +84,15 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	}
 	msg.Message = message
-	sendMessageToClients(roomID, msg)
+	sendMessageToClients(rID, msg)
 
-	disconnectClient(uID, roomID)
+	// 정상적으로 연결을 끊는다.
+	if sessionIDs, ok := entity.RoomSessions[rID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == uID {
+				closeAndRemoveClient(client, sessionID, rID)
+			}
+		}
+	}
 	return nil
 }

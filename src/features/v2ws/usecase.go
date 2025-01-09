@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"gorm.io/gorm"
 )
 
 func CreateChatDTO(req request.ReqWSChat) *mysql.Chats {
@@ -576,4 +577,49 @@ func CreateErrorMessage(errCode int, errType, errMsg string) *entity.ErrorInfo {
 		Msg:  errMsg,
 	}
 	return result
+}
+
+func cleanGameInfo(ctx context.Context, userID uint) *entity.ErrorInfo {
+	var errInfo *entity.ErrorInfo
+	err := mysql.GormMysqlDB.Transaction(func(tx *gorm.DB) error {
+		// user_bird_cards 제거
+		errInfo := repository.DeleteAllUserBirdCards(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// frog_room_users 제거
+		errInfo = repository.DeleteAllRoomUsers(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// rooms 제거
+		errInfo = repository.DeleteAllRooms(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// user_missions 제거
+		errInfo = repository.DeleteAllUserMissions(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// user_items 제거
+		errInfo = repository.DeleteAllUserItems(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// user_mission_cards 제거
+		errInfo = repository.DeleteAllUserMissionCards(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return errInfo
+	}
+
+	return nil
 }

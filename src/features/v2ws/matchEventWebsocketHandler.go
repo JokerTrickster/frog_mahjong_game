@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
+	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils"
@@ -16,27 +17,29 @@ import (
 // 랜덤으로 방 매칭 (ws)
 // @Router /v2.1/rooms/match/ws [get]
 func match(c echo.Context) error {
+	ctx := context.Background()
+	var newErr *entity.ErrorInfo
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		fmt.Printf("WebSocket upgrade failed: %v\n", err)
-		return err
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
+		return nil
 	}
 	req := &request.ReqWSMatch{}
 	if err := utils.ValidateReq(c, req); err != nil {
-		fmt.Printf("Invalid request: %v\n", err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return err
 	}
 
 	//토큰 검증
 	err = utils.VerifyToken(req.Tkn)
 	if err != nil {
-		fmt.Printf("Token verification failed: %v\n", err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return err
 	}
 
 	userID, _, err := utils.ParseToken(req.Tkn)
 	if err != nil {
-		fmt.Printf("Failed to parse token: %v\n", err)
+		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return err
 	}
 
@@ -61,18 +64,10 @@ func match(c echo.Context) error {
 		}
 	}
 	// 2. 비즈니스 로직
-	ctx := context.Background()
 	var roomInfoMsg entity.RoomInfo
 	// 기존 데이터 삭제
-	newErr := repository.MatchDeleteRooms(ctx, userID)
+	newErr = cleanGameInfo(ctx, userID)
 	if newErr != nil {
-		roomInfoMsg.ErrorInfo = newErr
-		return fmt.Errorf("%s", newErr.Msg)
-	}
-
-	newErr = repository.MatchDeleteRoomUsers(ctx, userID)
-	if newErr != nil {
-		roomInfoMsg.ErrorInfo = newErr
 		return fmt.Errorf("%s", newErr.Msg)
 	}
 
@@ -88,43 +83,42 @@ func match(c echo.Context) error {
 		if rooms == nil {
 			// 방 생성
 			roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
-			newRoomID, err := repository.MatchInsertOneRoom(ctx, roomDTO)
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				return fmt.Errorf("%s", err.Msg)
+			newRoomID, newErr := repository.MatchInsertOneRoom(ctx, roomDTO)
+			if newErr != nil {
+				SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+				return fmt.Errorf("%s", newErr.Msg)
 			}
 			roomID = uint(newRoomID)
-			utils.LogInfo(fmt.Sprintf("Room %d created by User %d.", roomID, userID))
 		} else {
 			roomID = rooms.ID
 		}
 		// 방 유저 정보 업데이트
-		err := repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			return fmt.Errorf("%s", err.Msg)
+		newErr = repository.MatchFindOneAndUpdateRoom(ctx, tx, roomID)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 
 		// room_user 생성
 		roomUserDTO := CreateMatchRoomUserDTO(userID, int(roomID))
-		err = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			return fmt.Errorf("%s", err.Msg)
+		newErr = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// 아이템 정보들을 가져온다.
-		items, err := repository.MatchFindAllItems(ctx, tx)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			return fmt.Errorf("%s", err.Msg)
+		items, newErr := repository.MatchFindAllItems(ctx, tx)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
 		}
 		for _, item := range items {
 			// user_items 아이템 정보 생성
 			userItemDTO := CreateMatchUserItemDTO(userID, roomID, item)
-			err = repository.MatchInsertOneUserItem(ctx, tx, userItemDTO)
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				return fmt.Errorf("%s", err.Msg)
+			newErr = repository.MatchInsertOneUserItem(ctx, tx, userItemDTO)
+			if newErr != nil {
+				SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+				return fmt.Errorf("%s", newErr.Msg)
 			}
 		}
 
@@ -132,7 +126,7 @@ func match(c echo.Context) error {
 	})
 	if err != nil {
 		fmt.Printf("Transaction error: %v\n", err)
-		return nil
+		return err
 	}
 
 	// 세션 ID 생성
@@ -141,7 +135,7 @@ func match(c echo.Context) error {
 	// 세션 ID 저장
 	newErr = repository.MatchRedisSessionSet(ctx, sessionID, roomID)
 	if newErr != nil {
-		roomInfoMsg.ErrorInfo = newErr
+		SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
 		return fmt.Errorf("%s", newErr.Msg)
 	}
 

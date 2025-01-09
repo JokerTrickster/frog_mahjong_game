@@ -115,12 +115,12 @@ func CloseFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) (m
 }
 
 // CloseFindOneAndUpdateUser updates user information when they leave a room
-func CloseFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint) *entity.ErrorInfo {
-	user := mysql.Users{
+func CloseFindOneAndUpdateUser(ctx context.Context, uID uint) *entity.ErrorInfo {
+	user := &mysql.Users{
 		State:  "wait",
 		RoomID: 1, // Set default RoomID
 	}
-	if err := tx.WithContext(ctx).Model(&user).Where("id = ?", uID).Updates(user).Error; err != nil {
+	if err := mysql.GormMysqlDB.WithContext(ctx).Model(&user).Where("id = ?", uID).Updates(&user).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "유저 정보 업데이트 실패",

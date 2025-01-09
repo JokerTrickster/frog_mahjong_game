@@ -37,6 +37,8 @@ import (
 // @Failure 500 {object} error
 // @Tags ws
 func playTogether(c echo.Context) error {
+	ctx := context.Background()
+	var errInfo *entity.ErrorInfo
 	ws, err := entity.WSUpgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
@@ -63,11 +65,10 @@ func playTogether(c echo.Context) error {
 
 	// 2. 비즈니스 로직
 
-	ctx := context.Background()
 	var roomID uint
 	// var roomInfoMsg entity.RoomInfo
-	//기존 생성한 방을 모두 삭제 한다.
-	errInfo := repository.DeleteAllRooms(ctx, userID)
+	// 기존 유저에 게임 정보를 모두 제거한다.
+	errInfo = cleanGameInfo(ctx, userID)
 	if errInfo != nil {
 		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
@@ -89,14 +90,8 @@ func playTogether(c echo.Context) error {
 			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		// 기존에 룸 유저 정보가 있으면 지운다.
-		errInfo = repository.PlayTogetherFindOneAndDeleteRoomUser(ctx, tx, userID)
-		if errInfo != nil {
-			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 		// room_user 생성
-		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "ready")
+		roomUserDTO := CreatePlayTogetherRoomUserDTO(userID, int(roomID), "play")
 		errInfo = repository.PlayTogetherInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if errInfo != nil {
 			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)

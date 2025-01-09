@@ -53,3 +53,73 @@ func RedisSessionDelete(ctx context.Context, sessionID string) *entity.ErrorInfo
 
 	return nil
 }
+
+func DeleteAllUserBirdCards(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.UserBirdCards{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllUserCards: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+
+func DeleteAllRoomUsers(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.RoomUsers{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllRoomUsers: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+func DeleteAllRooms(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.Rooms{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllRooms: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+
+func DeleteAllUserMissions(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.UserMissions{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllUserMissions: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+
+func DeleteAllUserItems(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.UserItems{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllUserItems: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+func DeleteAllUserMissionCards(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.UserMissionCards{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("DeleteAllUserMissionCards: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
