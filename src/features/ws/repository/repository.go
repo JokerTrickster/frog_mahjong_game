@@ -38,12 +38,11 @@ func PreloadFindGameInfo(ctx context.Context, tx *gorm.DB, roomID uint) ([]entit
 	return roomUsers, nil
 }
 func FindOneDoraCard(ctx context.Context, roomID int) (*mysql.FrogUserCards, *entity.ErrorInfo) {
-	doraCard := mysql.FrogUserCards{}
+	doraCard := &mysql.FrogUserCards{}
 	result := mysql.GormMysqlDB.Table("frog_user_cards").
 		Where("room_id = ?", roomID).
 		Where("state = ?", "dora").
-		First(&doraCard)
-
+		Find(&doraCard)
 	if result.Error != gorm.ErrRecordNotFound {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -55,7 +54,7 @@ func FindOneDoraCard(ctx context.Context, roomID int) (*mysql.FrogUserCards, *en
 				Type: _errors.ErrInternalServer,
 			}
 	}
-	return &doraCard, nil
+	return doraCard, nil
 }
 
 func RedisSessionSet(ctx context.Context, sessionID string, roomID uint) *entity.ErrorInfo {
