@@ -14,7 +14,7 @@ import (
 
 var reconnectTimers sync.Map
 
-func AbnormalSendErrorMessage(roomID, userID uint) {
+func AbnormalSendErrorMessage(roomID, userID uint,sessionID string) {
 	// 비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
 
 	//business logic
@@ -66,5 +66,6 @@ func AbnormalSendErrorMessage(roomID, userID uint) {
 		Message: message,
 	}
 	sendMessageToClients(roomID, &msg)
-
+	// 재접속 대기 시작
+	waitForReconnection(roomID, sessionID, preloadUsers)
 }

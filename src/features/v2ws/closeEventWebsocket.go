@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"main/features/v2ws/model/entity"
-	_errors "main/features/v2ws/model/errors"
 	"main/features/v2ws/model/request"
 	"main/features/v2ws/repository"
 	"main/utils/db/mysql"
@@ -22,8 +21,6 @@ func CloseEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	}
 
 	//비즈니스 로직
-	roomInfoMsg := entity.RoomInfo{}
-	preloadUsers := []entity.RoomUsers{}
 	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// RoomsID에 해당하는 userID를 삭제한다.
@@ -71,24 +68,12 @@ func CloseEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 				return fmt.Errorf("%s", errInfo.Msg)
 			}
 		}
-		preloadUsers, errInfo = repository.CloseFindAllRoomUsers(ctx, tx, req.RoomID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 		return nil
 	})
 	if err != nil {
 		return errInfo
 	}
 
-	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo, 0)
-
-	message, err := CreateMessage(&roomInfoMsg)
-	if err != nil {
-		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
-	}
-	msg.Message = message
 	sendMessageToClients(roomID, msg)
 	return nil
 }
