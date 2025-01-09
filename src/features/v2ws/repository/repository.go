@@ -15,18 +15,26 @@ type JoinEventWebsocketRepository struct {
 	GormDB *gorm.DB
 }
 
-func FindAllOpenCards(c context.Context, roomID int) ([]int, error) {
+func FindAllOpenCards(c context.Context, roomID int) ([]int, *entity.ErrorInfo) {
 	var cards []int
 	if err := mysql.GormMysqlDB.WithContext(c).Model(&mysql.UserBirdCards{}).Where("room_id = ? and state = ?", roomID, "opened").Pluck("card_id", &cards).Error; err != nil {
-		return nil, err
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("FindAllOpenCards: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
 	}
 	return cards, nil
 }
 
-func ReconnectedUpdateRoomUser(c context.Context, roomID uint, userID uint) error {
+func ReconnectedUpdateRoomUser(c context.Context, roomID uint, userID uint) *entity.ErrorInfo {
 	err := mysql.GormMysqlDB.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", roomID, userID).Update("player_state", "play").Error
 	if err != nil {
-		return err
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("ReconnectedUpdateRoomUser: %v", err.Error()),
+			Type: _errors.ErrInternalServer,
+		}
 	}
 	return nil
 }

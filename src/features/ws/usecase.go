@@ -348,3 +348,4 @@ func SendErrorMessage(msg *entity.WSMessage, errMsg *entity.ErrorInfo) {
 		delete(entity.RoomSessions, msg.RoomID)
 	}
 }
+

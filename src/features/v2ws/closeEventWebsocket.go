@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CloseEventWebsocket(msg *entity.WSMessage) {
+func CloseEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
@@ -24,80 +24,61 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 	//비즈니스 로직
 	roomInfoMsg := entity.RoomInfo{}
 	preloadUsers := []entity.RoomUsers{}
+	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// RoomsID에 해당하는 userID를 삭제한다.
-		err := repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+		errInfo = repository.CloseFindOneAndDeleteRoomUser(ctx, tx, uID, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// Rooms 현재 인원수를 -1한다.
-		roomDTO, err := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+		roomDTO, errInfo := repository.CloseFindOneAndUpdateRoom(ctx, tx, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		// user에 rooms_id를 1로 바꾸고 state를 wait으로 변경한다.
-		err = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+		errInfo = repository.CloseFindOneAndUpdateUser(ctx, tx, uID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		if roomDTO.CurrentCount == 0 {
 			// 방 삭제
-			err = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				SendErrorMessage(msg, &roomInfoMsg)
-				return fmt.Errorf("%s", err.Msg)
+			errInfo = repository.CloseFindOneAndDeleteRoom(ctx, tx, req.RoomID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 
 		} else if roomDTO.CurrentCount == 1 {
 			// 인원이 1명이면 남아 있는 유저를 방장으로 변경
 			//방장이 나가면 다른 유저 중 한명을 방장으로 변경
 			//룸에 남아있는 유저 정보를 가져온다.
-			roomUserDTO, err := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				SendErrorMessage(msg, &roomInfoMsg)
-				return fmt.Errorf("%s", err.Msg)
+			roomUserDTO, errInfo := repository.CloseFindOneRoomUser(ctx, tx, req.RoomID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
-			userDTO, err := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				SendErrorMessage(msg, &roomInfoMsg)
-				return fmt.Errorf("%s", err.Msg)
+			userDTO, errInfo := repository.CloseFindOneUser(ctx, tx, uint(roomUserDTO.UserID))
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 
 			// 해당 유저를 방장으로 업데이트 한다.
 
 			//방장으로 변경하기 위해 업데이트해야 될 부분들
 			// rooms -> owner 변경
-			err = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
-			if err != nil {
-				roomInfoMsg.ErrorInfo = err
-				SendErrorMessage(msg, &roomInfoMsg)
-				return fmt.Errorf("%s", err.Msg)
+			errInfo = repository.CloseChangeRoomOnwer(ctx, tx, req.RoomID, userDTO.ID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
 			}
 		}
-		preloadUsers, err = repository.CloseFindAllRoomUsers(ctx, tx, req.RoomID)
-		if err != nil {
-			roomInfoMsg.ErrorInfo = err
-			SendErrorMessage(msg, &roomInfoMsg)
-			return fmt.Errorf("%s", err.Msg)
+		preloadUsers, errInfo = repository.CloseFindAllRoomUsers(ctx, tx, req.RoomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		return nil
 	})
 	if err != nil {
-		roomInfoMsg.ErrorInfo = &entity.ErrorInfo{
-			Code: 500,
-			Msg:  err.Error(),
-			Type: _errors.ErrInternalServer,
-		}
+		return errInfo
 	}
 
 	// 메시지 생성
@@ -105,9 +86,9 @@ func CloseEventWebsocket(msg *entity.WSMessage) {
 
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
+	return nil
 }
