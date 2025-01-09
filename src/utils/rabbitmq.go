@@ -61,7 +61,7 @@ func InitRabbitMQ() error {
 	}
 	v2queue, err := V2MQCH.QueueDeclare(
 		"wingspan", // name
-		false,      // durable
+		true,       // durable
 		false,      // delete when unused
 		false,      // exclusive
 		false,      // no-wait
