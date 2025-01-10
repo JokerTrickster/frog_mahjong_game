@@ -256,15 +256,6 @@ definitions:
           $ref: '#/definitions/request.CardInfo'
         type: array
     type: object
-  request.ReqScoreCalculate:
-    properties:
-      cards:
-        items:
-          $ref: '#/definitions/request.ScoreCard'
-        type: array
-      roomID:
-        type: integer
-    type: object
   request.ReqSignin:
     properties:
       email:
@@ -348,11 +339,6 @@ definitions:
         type: integer
     type: object
   request.ResultCard:
-    properties:
-      cardID:
-        type: integer
-    type: object
-  request.ScoreCard:
     properties:
       cardID:
         type: integer
@@ -571,15 +557,6 @@ definitions:
       score:
         type: integer
       winner:
-        type: integer
-    type: object
-  response.ResScoreCalculate:
-    properties:
-      bonuses:
-        items:
-          type: string
-        type: array
-      score:
         type: integer
     type: object
   response.ResSignin:
@@ -1512,56 +1489,6 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: 게임 결과 가져오기
-      tags:
-      - game
-  /v0.1/game/score/calculate:
-    post:
-      description: |-
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-
-        ■ bonus list
-        same : 같은 패 (2점)
-        continuous : 연속 패 (1점)
-        allGreen : 올 그린 (10점)
-        allGreen : 도라 (하나당 1점)
-        allGreen : 적패 (하나당 1점)
-        allGreen : 올 그린 (10점)
-        superRed : 슈퍼 레드 (20점)
-        tangYao :  탕야오 (1점)
-        chanTa : 찬타 (2점)
-        chinYao : 칭야오 (15점)
-      parameters:
-      - description: accessToken
-        in: header
-        name: tkn
-        required: true
-        type: string
-      - description: json body
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/request.ReqScoreCalculate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.ResScoreCalculate'
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: 점수 계산하기
       tags:
       - game
   /v0.1/game/start:

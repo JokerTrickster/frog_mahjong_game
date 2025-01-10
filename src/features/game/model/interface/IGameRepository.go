@@ -40,17 +40,13 @@ type ILoanGameRepository interface {
 	UpdateRoomUserCardCount(c context.Context, userID uint, roomID uint) error
 }
 
-type IScoreCalculateGameRepository interface {
-	FindOwnedCards(c context.Context, entitySQL *entity.ScoreCalculateEntitySQL) ([]mysql.Cards, error)
-	GetDoraCard(c context.Context, req *request.ReqScoreCalculate) (mysql.Cards, error)
-}
-
 type IWinRequestGameRepository interface {
 	GetRoomUser(c context.Context, userID uint, roomID uint) (mysql.RoomUsers, error)
 }
 type IResultGameRepository interface {
-	FindCards(c context.Context, entitySQL *entity.ResultEntitySQL) ([]mysql.Cards, error)
-	GetDoraCard(c context.Context, req *request.ReqResult) (mysql.Cards, error)
+	FindCards(c context.Context, entitySQL *entity.ResultEntitySQL) ([]*mysql.FrogUserCards, error)
+	GetDoraCard(c context.Context, req *request.ReqResult) (*mysql.FrogUserCards, error)
+	FindOneFrogCard(c context.Context, cardID uint) (*mysql.FrogCards, error)
 }
 
 type IReportGameRepository interface {

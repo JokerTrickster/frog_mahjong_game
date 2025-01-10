@@ -119,7 +119,7 @@ func CreateUpdateRoomUser(roomUser mysql.RoomUsers, req *request.ReqDiscard) mys
 	return roomUser
 }
 
-func ScoreCalculate(e *entity.ScoreCalculateEntity, doraCard mysql.Cards) (int, []string, error) {
+func ScoreCalculate(e *entity.ScoreCalculateEntity, doraCard *entity.ResultCardEntity) (int, []string, error) {
 	// 카드의 점수를 계산한다.
 	score := 0
 	// 카드는 1,2,3,4,5,6,7,8,9,중,발 이 있다.
@@ -307,7 +307,7 @@ func IsCheckedChanTa(cards []entity.ScoreCalculateCard) bool {
 }
 
 // 4. 도라 : dora 하나당 1점 추가
-func IsCheckedDora(card entity.ScoreCalculateCard, doraCard mysql.Cards) bool {
+func IsCheckedDora(card entity.ScoreCalculateCard, doraCard *entity.ResultCardEntity) bool {
 	if card.Name == doraCard.Name {
 		return true
 	}
@@ -390,7 +390,7 @@ func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCar
 	return result
 }
 
-func CreateResultEntity(cardsDTO []mysql.Cards, cards []request.ResultCard) *entity.ScoreCalculateEntity {
+func CreateResultEntity(cardsDTO []*entity.ResultCardEntity, cards []request.ResultCard) *entity.ScoreCalculateEntity {
 	result := &entity.ScoreCalculateEntity{
 		Cards: make([]entity.ScoreCalculateCard, 0),
 	}
@@ -574,4 +574,13 @@ func CreateResListCard(cards []*mysql.FrogCards, count int) response.ResListCard
 	}
 	return res
 
+}
+
+func CreateResultCardEntity(cardDTO *mysql.FrogUserCards, frogCard *mysql.FrogCards) *entity.ResultCardEntity {
+	return &entity.ResultCardEntity{
+		CardID: uint(cardDTO.CardID),
+		Name:   frogCard.Name,
+		Color:  frogCard.Color,
+		State:  cardDTO.State,
+	}
 }
