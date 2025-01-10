@@ -24,9 +24,14 @@ WriteWait : 서버가 클라이언트에 데이터를 쓸 수 있는 최대 시�
 reconnectTime : 클라이언트가 연결을 잃었을 때 다시 연결을 시도할 수 있는 시간 (PongWait보다 크거나 같아야 된다. )
 */
 const (
-	WriteWait  = 5 * time.Second
-	PongWait   = 10 * time.Second    // 10초마다 퐁 메시지를 수신
-	PingPeriod = (PongWait * 5) / 10 // 6초마다 핑 메시지 전송
+	// 클라이언트에 메시지를 쓸 수 있는 시간입니다.
+	WriteWait = 3 * time.Second // Ping 메시지 전송 타임아웃
+
+	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
+	PongWait = 15 * time.Second // 더 긴 연결 유지 허용
+
+	// 핑을 보낼 수 있는 주기입니다. (PongWait보다 짧아야 함)
+	PingPeriod = 5 * time.Second // Ping 간격 (PongWait보다 짧게 설정)
 )
 
 func WSHandleMessages(gameName string) {
@@ -133,7 +138,7 @@ func processMessage(gameName string, d amqp.Delivery) {
 		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
 		return
 	}
-	if errInfo != nil{
+	if errInfo != nil {
 		SendErrorMessage(&msg, errInfo)
 		d.Ack(false)
 	}
