@@ -51,11 +51,15 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 	errMsg := CreateErrorMessage(_errors.ErrCodeInternal, _errors.ErrAbnormalExit, "상대방이 연결이 끊겼습니다. 강제로 게임을 종료합니다.")
 	roomInfoMsg.ErrorInfo = errMsg
 	message, err := CreateMessage(roomInfoMsg)
+	if err != nil {
+		fmt.Printf("Failed to create message: %v\n", err)
+		return
+	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
 
 	fmt.Printf("Cleaning up session %s for room %d...\n", sessionID, roomID)
-
+	var errInfo *entity.ErrorInfo
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		abnormalEntity := entity.WSAbnormalEntity{
 			RoomID:         roomID,
@@ -83,7 +87,7 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		fmt.Printf("Cleanup error: %v\n", err)
 	}
 	// 레디스 세션값 삭제
-	errInfo := repository.RedisSessionDelete(ctx, sessionID)
+	errInfo = repository.RedisSessionDelete(ctx, sessionID)
 	if errInfo != nil {
 		fmt.Printf("Failed to delete session: %v\n", errInfo.Msg)
 	}

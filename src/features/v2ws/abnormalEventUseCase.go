@@ -46,7 +46,7 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 		Event:  "ERROR",
 	}
 	errMsg := CreateErrorMessage(_errors.ErrCodeInternal, _errors.ErrAbnormalExit, "상대방이 연결이 끊겼습니다. 강제로 게임을 종료합니다.")
-	var roomInfo *entity.RoomInfo
+	roomInfo := &entity.RoomInfo{} // Initialize roomInfo
 	roomInfo.ErrorInfo = errMsg
 	sendMsg, _ := CreateMessage(roomInfo)
 	msg.Message = sendMsg
