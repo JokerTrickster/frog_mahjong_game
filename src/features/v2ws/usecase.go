@@ -607,13 +607,6 @@ func cleanGameInfo(ctx context.Context, userID uint) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-
-		// user_mission_cards 제거
-		errInfo = repository.DeleteAllUserMissionCards(ctx, tx, userID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
 		return nil
 	})
 
