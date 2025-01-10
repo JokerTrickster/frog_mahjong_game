@@ -73,7 +73,7 @@ func WSHandleMessages(gameName string) {
 			fmt.Printf("Failed to register consumer for %s: %v", gameName, err)
 		}
 
-		fmt.Printf("Waiting for messages for game: %s", gameName)
+		log.Printf("Waiting for messages for game: %s", gameName)
 		for msg := range msgs {
 			processMessage(gameName, msg)
 		}
