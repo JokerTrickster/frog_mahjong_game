@@ -157,13 +157,13 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 
-	// // 메시지 암호화
-	// encryptedMessage, err := utils.EncryptAES(msg.Message)
-	// if err != nil {
-	// 	fmt.Printf("Failed to encrypt message: %v\n", err)
-	// 	return
-	// }
-	// msg.Message = encryptedMessage
+	// 메시지 암호화
+	encryptedMessage, err := utils.EncryptAES(msg.Message)
+	if err != nil {
+		fmt.Printf("Failed to encrypt message: %v\n", err)
+		return
+	}
+	msg.Message = encryptedMessage
 
 	// 방에 있는 모든 클라이언트에 메시지 전송
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
@@ -182,13 +182,13 @@ func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 
-	// // 메시지 암호화
-	// encryptedMessage, err := utils.EncryptAES(msg.Message)
-	// if err != nil {
-	// 	fmt.Printf("Failed to encrypt message: %v\n", err)
-	// 	return
-	// }
-	// msg.Message = encryptedMessage
+	// 메시지 암호화
+	encryptedMessage, err := utils.EncryptAES(msg.Message)
+	if err != nil {
+		fmt.Printf("Failed to encrypt message: %v\n", err)
+		return
+	}
+	msg.Message = encryptedMessage
 
 	// 방에 있는 모든 클라이언트에 메시지 전송
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
@@ -320,14 +320,14 @@ func SendErrorMessage(msg *entity.WSMessage, errMsg *entity.ErrorInfo) {
 				msg.Message = message
 
 				// encrypt the message
-				// encryptedMessage, err := utils.EncryptAES(message)
-				// if err != nil {
-				// 	fmt.Println("Error encrypting message:", err)
-				// 	continue
-				// }
+				encryptedMessage, err := utils.EncryptAES(message)
+				if err != nil {
+					fmt.Println("Error encrypting message:", err)
+					continue
+				}
 
-				// // Set the encrypted message
-				// msg.Message = encryptedMessage
+				// Set the encrypted message
+				msg.Message = encryptedMessage
 
 				// Attempt to send the error message
 				err = client.Conn.WriteJSON(msg)
