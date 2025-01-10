@@ -15,7 +15,6 @@ func NewGameHandler(c *echo.Echo) {
 	NewDiscardGameHandler(c, usecase.NewDiscardGameUseCase(repository.NewDiscardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewNextTurnGameHandler(c, usecase.NewNextTurnGameUseCase(repository.NewNextTurnGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewLoanGameHandler(c, usecase.NewLoanGameUseCase(repository.NewLoanGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
-	NewScoreCalculateGameHandler(c, usecase.NewScoreCalculateGameUseCase(repository.NewScoreCalculateGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewWinRequestGameHandler(c, usecase.NewWinRequestGameUseCase(repository.NewWinRequestGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewResultGameHandler(c, usecase.NewResultGameUseCase(repository.NewResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewReportGameHandler(c, usecase.NewReportGameUseCase(repository.NewReportGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))

@@ -30,10 +30,6 @@ type ILoanGameUseCase interface {
 	Loan(c context.Context, userID uint, req *request.ReqLoan) error
 }
 
-type IScoreCalculateGameUseCase interface {
-	ScoreCalculate(c context.Context, userID uint, req *request.ReqScoreCalculate) (int, []string, error)
-}
-
 type IWinRequestGameUseCase interface {
 	WinRequest(c context.Context, req *request.ReqWinRequest) (bool, error)
 }
