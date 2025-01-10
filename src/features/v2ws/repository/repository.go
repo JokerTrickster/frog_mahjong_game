@@ -78,7 +78,7 @@ func DeleteAllRoomUsers(c context.Context, tx *gorm.DB, userID uint) *entity.Err
 	return nil
 }
 func DeleteAllRooms(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
-	err := tx.Where("user_id = ?", userID).Delete(&mysql.Rooms{}).Error
+	err := tx.Where("owner_id = ?", userID).Delete(&mysql.Rooms{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
