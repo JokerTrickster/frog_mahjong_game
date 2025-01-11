@@ -25,13 +25,13 @@ reconnectTime : 클라이언트가 연결을 잃었을 때 다시 연결을 시�
 */
 const (
 	// 클라이언트에 메시지를 쓸 수 있는 시간입니다.
-	WriteWait = 3 * time.Second // Ping 메시지 전송 타임아웃
+	WriteWait = 5 * time.Second // 3~5초
 
 	// 클라이언트로부터 다음 퐁 메시지를 읽을 수 있는 시간입니다.
-	PongWait = 15 * time.Second // 더 긴 연결 유지 허용
+	PongWait = 20 * time.Second // 15~30초
 
 	// 핑을 보낼 수 있는 주기입니다. (PongWait보다 짧아야 함)
-	PingPeriod = 5 * time.Second // Ping 간격 (PongWait보다 짧게 설정)
+	PingPeriod = 7 * time.Second // PongWait의 1/3~1/2
 )
 
 func WSHandleMessages(gameName string) {
