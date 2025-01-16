@@ -35,56 +35,53 @@ const (
 )
 
 func WSHandleMessages(gameName string) {
-	// 웹소켓 메시지를 큐에 넣기
+	rabbitManager := utils.GetRabbitMQManager()
+
+	// 메시지 발행
 	go func() {
 		for {
 			msg := <-entity.WSBroadcast
-			// 로그 생성
-			logging := utils.Log{}
-			logging.V2MakeWSLog(msg)
-			utils.LogInfo(logging)
-
-			// RabbitMQ에 메시지 발행
 			msgBytes, err := json.Marshal(msg)
 			if err != nil {
 				log.Printf("Failed to marshal WSMessage: %v", err)
 				continue
 			}
 
-			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-
-			err = utils.V2MQCH.PublishWithContext(ctx,
-				"",              // exchange
-				utils.V2MQ.Name, // routing key
-				false,           // mandatory
-				false,           // immediate
-				amqp.Publishing{
-					ContentType: "application/json",
-					Body:        msgBytes,
-				})
-			if err != nil {
-				log.Printf("Failed to publish a message: %v", err)
+			if err := rabbitManager.PublishMessage(gameName, msgBytes); err != nil {
+				log.Printf("Failed to publish message to wingspan queue: %v", err)
 			}
 		}
 	}()
-	// Consume messages
-	go func() {
-		msgs, err := utils.V2MQCH.Consume(
-			utils.V2MQ.Name, // Queue name
-			"",              // Consumer tag
-			false,           // Auto-ack (manual ack)
-			false,           // Exclusive
-			false,           // No-local
-			false,           // No-wait
-			nil,             // Arguments
-		)
-		if err != nil {
-			log.Printf("Failed to register consumer for %s: %v", gameName, err)
-		}
 
-		log.Printf("Waiting for messages for game: %s", gameName)
-		for msg := range msgs {
-			processMessage(gameName, msg)
+	// 메시지 소비
+	go func() {
+		for {
+			channel, err := rabbitManager.GetChannel(gameName)
+			if err != nil {
+				log.Printf("Failed to get channel for wingspan queue: %v", err)
+				time.Sleep(5 * time.Second) // 재시도 대기
+				continue
+			}
+
+			msgs, err := channel.Consume(
+				gameName, // Queue name
+				"",       // Consumer tag
+				false,    // Auto-ack
+				false,    // Exclusive
+				false,    // No-local
+				false,    // No-wait
+				nil,      // Arguments
+			)
+			if err != nil {
+				log.Printf("Failed to register consumer for wingspan queue: %v", err)
+				time.Sleep(5 * time.Second) // 재시도 대기
+				continue
+			}
+
+			log.Printf("Waiting for messages for game: %s (wingspan)", gameName)
+			for msg := range msgs {
+				processMessage(gameName, msg)
+			}
 		}
 	}()
 }
@@ -100,6 +97,7 @@ func processMessage(gameName string, d amqp.Delivery) {
 		return
 	}
 
+	utils.LogInfo(fmt.Sprintf("[WINGSPAN] Received message: %v \n", msg))
 	var errInfo *entity.ErrorInfo
 	// 이벤트 처리
 	switch msg.Event {
