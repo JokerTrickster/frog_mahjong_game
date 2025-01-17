@@ -62,7 +62,7 @@ func AbnormalUpdateUsers(ctx context.Context, tx *gorm.DB, abnormalEntity *entit
 	if err := tx.Model(&mysql.FrogRoomUsers{}).
 		Where("room_id = ?", abnormalEntity.RoomID).
 		Where("user_id = ?", abnormalEntity.AbnormalUserID).
-		Update("player_state", "disconnect").Error; err != nil {
+		Update("player_state", "disconnected").Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "유저 상태 변경 실패",
