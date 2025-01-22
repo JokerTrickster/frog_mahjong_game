@@ -70,6 +70,10 @@ type IV2ResultGameHandler interface {
 	V2Result(c echo.Context) error
 }
 
+type IV2DrawResultGameHandler interface {
+	V2DrawResult(c echo.Context) error
+}
+
 type IV2ReportGameHandler interface {
 	V2Report(c echo.Context) error
 }

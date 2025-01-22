@@ -584,3 +584,25 @@ func CreateResultCardEntity(cardDTO *mysql.FrogUserCards, frogCard *mysql.FrogCa
 		State:  cardDTO.State,
 	}
 }
+
+func CreateResV2DrawResult(userMissions []mysql.UserMissions) response.ResV2DrawResult {
+
+	// Temporary map to group missions by UserID
+	userMissionMap := make(map[int][]int)
+
+	// Group missions by UserID
+	for _, userMission := range userMissions {
+		userMissionMap[userMission.UserID] = append(userMissionMap[userMission.UserID], userMission.MissionID)
+	}
+
+	// Create the response
+	var res response.ResV2DrawResult
+	for userID, missions := range userMissionMap {
+		res.Users = append(res.Users, response.DrawResult{
+			UserID:          userID,
+			SuccessMissions: missions,
+		})
+	}
+
+	return res
+}
