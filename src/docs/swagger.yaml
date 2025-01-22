@@ -2564,7 +2564,7 @@ paths:
           schema: {}
       summary: 무승부 게임 결과 가져오기
       tags:
-      - game
+      - v2/game
   /v2.1/game/cards:
     get:
       description: |-

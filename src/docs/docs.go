@@ -2330,7 +2330,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "game"
+                    "v2/game"
                 ],
                 "summary": "무승부 게임 결과 가져오기",
                 "parameters": [

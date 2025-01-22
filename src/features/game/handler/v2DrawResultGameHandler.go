@@ -40,7 +40,7 @@ func NewV2DrawResultGameHandler(c *echo.Echo, useCase _interface.IV2DrawResultGa
 // @Success 200 {object} response.ResV2DrawResult
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags game
+// @Tags v2/game
 func (d *V2DrawResultGameHandler) V2DrawResult(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	roomID := c.Param("roomID")
