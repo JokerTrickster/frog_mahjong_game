@@ -40,7 +40,7 @@ func RandomUpdateRandomCards(ctx context.Context, tx *gorm.DB, randomEntity *ent
 	var cardIDs []int
 	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Model(&mysql.UserBirdCards{}).
-		Where("room_id = ? AND state = ?", randomEntity.RoomID, "none").
+		Where("room_id = ? AND state IN ?", randomEntity.RoomID, []string{"opened", "none"}).
 		Order("RAND()").
 		Limit(int(randomEntity.Count)).
 		Pluck("card_id", &cardIDs).Error
