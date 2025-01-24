@@ -56,16 +56,6 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		// 론인 경우 해당 유저에 코인 차감한다.
-		errInfo = repository.SuccessLoanDiffCoin(ctx, tx, &successEntity)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-		// 론인 경우 해당 유저에 코인 추가한다.
-		errInfo = repository.SuccessLoanAddCoin(ctx, tx, &successEntity)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 
 		// 유저 상태 변경
 		errInfo = repository.SuccessUpdateRoomUsers(ctx, tx, &successEntity)
