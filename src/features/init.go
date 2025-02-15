@@ -3,7 +3,9 @@ package features
 import (
 	authHandler "main/features/auth/handler"
 	chatHandler "main/features/chat/handler"
+	"main/features/find_it"
 	gameHandler "main/features/game/handler"
+	gameAuthHandler "main/features/game_auth/handler"
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
 	userHandler "main/features/users/handler"
@@ -26,12 +28,16 @@ func InitHandler(e *echo.Echo) error {
 	userHandler.NewUsersHandler(e)
 	chatHandler.NewChatHandler(e)
 	profileHandler.NewProfilesHandler(e)
+	gameAuthHandler.NewGameAuthHandler(e)
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)
+	find_it.NewFindItWebsocketHandler(e)
 	go ws.WSHandleMessages("frog")
 
 	go v2ws.WSHandleMessages("wingspan")
+
+	go find_it.WSHandleMessages("find-it")
 
 	return nil
 }

@@ -55,6 +55,14 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		height:     45,
 		expireTime: 10 * time.Hour,
 	},
+	ImgTypeFindIt: {
+		bucket:     func() string { return "dev-frog" },
+		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		path:       "find-it/images",
+		width:      512,
+		height:     512,
+		expireTime: 10 * time.Hour,
+	},
 }
 
 func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename string, imgType ImgType) error {

@@ -151,6 +151,75 @@ definitions:
       fcmToken:
         type: string
     type: object
+  request.ReqGameCheckSignin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.ReqGameFCMToken:
+    properties:
+      fcmToken:
+        type: string
+    type: object
+  request.ReqGameReissue:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  request.ReqGameRequestPassword:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.ReqGameRequestSignup:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.ReqGameSignin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.ReqGameSignup:
+    properties:
+      authCode:
+        type: string
+      email:
+        type: string
+      name:
+        maxLength: 6
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+    type: object
+  request.ReqGameValidatePassword:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   request.ReqLoan:
     properties:
       loanCardID:
@@ -400,6 +469,13 @@ definitions:
       name:
         type: string
     type: object
+  response.GameGoogleOauthCallbackRes:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
   response.GoogleOauthCallbackRes:
     properties:
       accessToken:
@@ -463,6 +539,35 @@ definitions:
         items:
           type: integer
         type: array
+    type: object
+  response.ResGameReissue:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  response.ResGameSignin:
+    properties:
+      accessToken:
+        type: string
+      isDuplicateLogin:
+        type: boolean
+      refreshToken:
+        type: string
+      userID:
+        type: integer
+    type: object
+  response.ResGameV02GoogleOauthCallback:
+    properties:
+      accessToken:
+        type: string
+      isDuplicateLogin:
+        type: boolean
+      refreshToken:
+        type: string
+      userID:
+        type: integer
     type: object
   response.ResGetUser:
     properties:
@@ -641,6 +746,9 @@ definitions:
 info:
   contact: {}
 paths:
+  /find-it/v0.1/rooms/match/ws:
+    get:
+      responses: {}
   /v0.1/auth/fcm-token:
     post:
       description: |-
@@ -1098,6 +1206,379 @@ paths:
       summary: 카드 정보 가져오기
       tags:
       - game
+  /v0.1/game/auth/fcm-token:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameFCMToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Fcm 토큰 저장
+      tags:
+      - game/auth
+  /v0.1/game/auth/google:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인
+      tags:
+      - game/auth
+  /v0.1/game/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GameGoogleOauthCallbackRes'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
+      tags:
+      - game/auth
+  /v0.1/game/auth/logout:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 로그아웃 하기
+      tags:
+      - game/auth
+  /v0.1/game/auth/password/request:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameRequestPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 비밀번호 변경 요청
+      tags:
+      - game/auth
+  /v0.1/game/auth/password/validate:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email, password, code
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameValidatePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 비밀번호 변경 검증
+      tags:
+      - game/auth
+  /v0.1/game/auth/signin:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameSignin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGameSignin'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 로그인
+      tags:
+      - game/auth
+  /v0.1/game/auth/signin/check:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameCheckSignin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 로그인 체크
+      tags:
+      - game/auth
+  /v0.1/game/auth/signup:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+        USER_GOOGLE_ALREADY_EXISTED : 구글 계정이 이미 존재
+        PASSWORD_NOT_MATCH : 비밀번호가 일치하지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 이름, 이메일, 비밀번호
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameSignup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 이메일 회원 가입
+      tags:
+      - game/auth
+  /v0.1/game/auth/signup/request:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: email
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameRequestSignup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 이메일 인증 요청
+      tags:
+      - game/auth
+  /v0.1/game/auth/token/reissue:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: 액세스 토큰, 리프레시 토큰
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameReissue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGameReissue'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 액세스 토큰 재발급
+      tags:
+      - game/auth
   /v0.1/game/card/discard:
     put:
       description: |-
@@ -2423,6 +2904,39 @@ paths:
       summary: google oauth 로그인 콜백
       tags:
       - auth
+  /v0.2/game/auth/google/callback:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_EXIST : 유저가 존재하지 않음
+        USER_ALREADY_EXISTED : 유저가 이미 존재
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGameV02GoogleOauthCallback'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: google oauth 로그인 콜백
+      tags:
+      - game/auth
   /v0.2/rooms/create:
     get:
       description: |-
