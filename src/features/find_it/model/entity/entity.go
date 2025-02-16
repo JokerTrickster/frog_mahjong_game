@@ -65,22 +65,26 @@ type User struct {
 	CorrectPositions [][]float64 `json:"correctPositions"` // 맞은 위치 수 (x,y)
 }
 type GameInfo struct {
-	AllReady         bool   `json:"allReady"`         // 게임 시작 여부
-	Timer            int    `json:"timer"`            // 타이머
-	IsFull           bool   `json:"isFull"`           // 방이 꽉 찼는지 여부
-	RoomID           uint   `json:"roomID"`           // 방 ID
-	Password         string `json:"password"`         // 방 비밀번호
-	StartTime        int64  `json:"startTime"`        // 게임 시작 시간 (epoch time in milliseconds)
-	ItemTimerCount   int    `json:"itemTimerCount"`   // 아이템 타이머 카운트
-	ItemHintCount    int    `json:"itemHintCount"`    // 아이템 힌트 카운트
-	Round            int    `json:"round"`            // 라운드
+	AllReady       bool       `json:"allReady"`       // 게임 시작 여부
+	Timer          int        `json:"timer"`          // 타이머
+	IsFull         bool       `json:"isFull"`         // 방이 꽉 찼는지 여부
+	RoomID         uint       `json:"roomID"`         // 방 ID
+	Password       string     `json:"password"`       // 방 비밀번호
+	StartTime      int64      `json:"startTime"`      // 게임 시작 시간 (epoch time in milliseconds)
+	ItemTimerCount int        `json:"itemTimerCount"` // 아이템 타이머 카운트
+	ItemHintCount  int        `json:"itemHintCount"`  // 아이템 힌트 카운트
+	Round          int        `json:"round"`          // 라운드
+	ImageInfo      *ImageInfo `json:"imageInfo"`      // 이미지 정보
+	Life           int        `json:"life"`           // 생명
+	WrongPosition  []float64  `json:"wrongPosition"`  // 틀린 위치 (x,y)
+	CorrectCount   int        `json:"correctCount"`   // 맞은 개수
+	HintPosition   []float64  `json:"hintPosition"`   // 힌트 위치 (x,y)
+	TimerUsed      bool       `json:"timerUsed"`      // 타이머 사용 여부
+}
+type ImageInfo struct {
+	ID               int    `json:"id"`
 	NormalImageUrl   string `json:"normalImageUrl"`   // 일반 이미지 URL
 	AbnormalImageUrl string `json:"abnormalImageUrl"` // 비정상 이미지 URL
-	Life             int    `json:"life"`             // 생명
-	WrongPosition    []int  `json:"wrongPosition"`    // 틀린 위치 (x,y)
-	CorrectCount     int    `json:"correctCount"`     // 맞은 개수
-	HintPosition     []int  `json:"hintPosition"`     // 힌트 위치 (x,y)
-	TimerUsed        bool   `json:"timerUsed"`        // 타이머 사용 여부
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드

@@ -13,12 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func WrongEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
+func SubmitPositionEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	req := request.ReqWSWrong{}
+	req := request.ReqWSSubmitPosition{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
@@ -28,26 +28,28 @@ func WrongEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
-	if newErr != nil {
-		return newErr
-	}
-	if roomState != "wait" {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, "게임이 시작되었습니다.", _errors.ErrAlreadyGame)
-	}
-
+	correctID := 0
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 방장이 게임 시작 요청했는지 체크
-		errInfo := repository.StartCheckOwner(ctx, tx, uID, roomID)
+		// 해당 좌표가 정답인지 아닌지 체크
+		var errInfo *entity.ErrorInfo
+		correctID, errInfo = repository.SubmitPositionCheck(ctx, tx, req.ImageID, req.XPosition, req.YPosition)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		if correctID != 0 {
+			// 정답일 경우
+			UserCorrectPositionDTO := CreateUserCorrectPosition(roomID, uID, req.Round, req.ImageID, correctID)
+			errInfo = repository.SubmitPositionCorrectSave(ctx, tx, UserCorrectPositionDTO)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
+			}
+		} else {
+			// 목숨 1개를 줄인다.
+			errInfo = repository.SubmitPositionLifeDecrease(ctx, tx, roomID, uID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
+			}
 
-		// room 데이터 값 변경 (상태 변경, 시작 시간 추가)
-		roomUpdateData := StartUpdateRoom(roomID)
-		errInfo = repository.StartUpdateRoom(ctx, tx, roomID, roomUpdateData)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
@@ -57,14 +59,15 @@ func WrongEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return errInfo
 	}
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
-
+	if correctID == 0 {
+		messageMsg.GameInfo.WrongPosition = append(messageMsg.GameInfo.WrongPosition, req.XPosition, req.YPosition)
+	}
 	if len(preloadUsers) == 2 {
 		messageMsg.GameInfo.IsFull = true
 	}

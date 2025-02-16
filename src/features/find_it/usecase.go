@@ -105,6 +105,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		for _, userCorrect := range roomUser.UserCorrectPositions {
 			if userCorrect.RoomID == roomID && userCorrect.Round == round && userCorrect.UserID == int(roomUser.UserID) {
 				correctIDList = append(correctIDList, userCorrect.CorrectPositionID)
+				correctCount++
 			}
 			correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
 			for _, correctPosition := range correctPositions {
@@ -123,9 +124,8 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
-	nomarlImageURL := ""
-	abnomalImageURL := ""
 	// 이미지 정보를 가져온다.
+	ImageInfo := entity.ImageInfo{}
 	if imageID != 0 {
 		roundImage, err := repository.FindOneRoundImage(ctx, imageID)
 		if err != nil {
@@ -133,28 +133,29 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		}
 		//s3 이미지 URL
 		normalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.NormalImageUrl, _aws.ImgTypeFindIt)
-		nomarlImageURL = normalSignedUrl
 		abnormalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.AbnormalImageUrl, _aws.ImgTypeFindIt)
-		abnomalImageURL = abnormalSignedUrl
+		ImageInfo.ID = imageID
+		ImageInfo.NormalImageUrl = normalSignedUrl
+		ImageInfo.AbnormalImageUrl = abnormalSignedUrl
+
 	}
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		AllReady:         true,
-		Timer:            timer,
-		IsFull:           true,
-		RoomID:           uint(roomID),
-		Password:         password,
-		StartTime:        startTime,
-		ItemTimerCount:   timerStopCount,
-		ItemHintCount:    hintCount,
-		Round:            round,
-		Life:             life,
-		CorrectCount:     correctCount,
-		NormalImageUrl:   nomarlImageURL,
-		AbnormalImageUrl: abnomalImageURL,
-		TimerUsed:        false,
-		HintPosition:     []int{},
+		AllReady:       true,
+		Timer:          timer,
+		IsFull:         true,
+		RoomID:         uint(roomID),
+		Password:       password,
+		StartTime:      startTime,
+		ItemTimerCount: timerStopCount,
+		ItemHintCount:  hintCount,
+		Round:          round,
+		Life:           life,
+		CorrectCount:   correctCount,
+		ImageInfo:      &ImageInfo,
+		TimerUsed:      false,
+		HintPosition:   []float64{},
 	}
 
 	MessageInfoMsg.GameInfo = &gameInfo
