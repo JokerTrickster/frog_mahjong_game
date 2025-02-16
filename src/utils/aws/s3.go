@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"html"
 	"image/png"
 	"math/rand"
 	"mime/multipart"
@@ -126,7 +127,8 @@ func ImageGetSignedURL(ctx context.Context, fileName string, imgType ImgType) (s
 	if err != nil {
 		return "", err
 	}
-	return presignResult.URL, nil
+
+	return html.UnescapeString(presignResult.URL), nil
 }
 
 func ImageDelete(ctx context.Context, fileName string, imgType ImgType) error {

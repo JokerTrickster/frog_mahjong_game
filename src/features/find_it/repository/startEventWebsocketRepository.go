@@ -12,16 +12,30 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartDeleteCards(ctx context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
-	err := tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&mysql.UserBirdCards{}).Error
+func CreateRoundImages(ctx context.Context, tx *gorm.DB, roundImages []*mysql.FindItRoundImages) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Create(&roundImages).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
-			Msg:  fmt.Sprintf("카드 삭제 실패: %v", err.Error()),
-			Type: _errors.ErrDeleteFailed,
+			Msg:  fmt.Sprintf("라운드 이미지 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
 		}
 	}
 	return nil
+}
+
+// 2개만 가져와야 된다.
+func FindImages(ctx context.Context, tx *gorm.DB) ([]*mysql.FindItImages, *entity.ErrorInfo) {
+	var images []*mysql.FindItImages
+	err := tx.WithContext(ctx).Find(&images).Limit(2).Error
+	if err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("images 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
+	}
+	return images, nil
 }
 
 func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) *entity.ErrorInfo {

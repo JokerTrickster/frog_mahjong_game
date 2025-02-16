@@ -34,6 +34,50 @@ const (
 	PingPeriod = 7 * time.Second // PongWait의 1/3~1/2
 )
 
+func processMessage(gameName string, d amqp.Delivery) {
+	var msg entity.WSMessage
+
+	// Parse JSON message
+	err := json.Unmarshal(d.Body, &msg)
+	if err != nil {
+		log.Printf("Failed to unmarshal JSON for %s: %v", gameName, err)
+		d.Nack(false, false) // Reject message, don't requeue
+		return
+	}
+
+	utils.LogInfo(fmt.Sprintf("[FIND-IT] Received message: %v \n", msg))
+	var errInfo *entity.ErrorInfo
+	// 이벤트 처리
+	switch msg.Event {
+
+	case "MATCH":
+		errInfo = MatchEventWebsocket(&msg)
+	case "START":
+		errInfo = StartEventWebsocket(&msg)
+	case "NEXT_ROUND":
+		errInfo = NextRoundEventWebsocket(&msg)
+	case "TIMER_ITEM":
+		errInfo = TimerItemEventWebsocket(&msg)
+	case "HINT_ITEM":
+		errInfo = HintItemEventWebsocket(&msg)
+	case "WRONG":
+		errInfo = WrongEventWebsocket(&msg)
+	case "CORRECT":
+		errInfo = CorrectEventWebsocket(&msg)
+
+	default:
+		log.Printf("Unknown event: %s", msg.Event)
+		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
+		return
+	}
+	if errInfo != nil {
+		SendErrorMessage(&msg, errInfo)
+		d.Ack(false)
+	}
+	// Acknowledge message after successful processing
+	d.Ack(false)
+}
+
 func WSHandleMessages(gameName string) {
 	rabbitManager := utils.GetRabbitMQManager()
 
@@ -84,41 +128,6 @@ func WSHandleMessages(gameName string) {
 			}
 		}
 	}()
-}
-
-func processMessage(gameName string, d amqp.Delivery) {
-	var msg entity.WSMessage
-
-	// Parse JSON message
-	err := json.Unmarshal(d.Body, &msg)
-	if err != nil {
-		log.Printf("Failed to unmarshal JSON for %s: %v", gameName, err)
-		d.Nack(false, false) // Reject message, don't requeue
-		return
-	}
-
-	utils.LogInfo(fmt.Sprintf("[FIND-IT] Received message: %v \n", msg))
-	var errInfo *entity.ErrorInfo
-	// 이벤트 처리
-	switch msg.Event {
-
-	case "MATCH":
-		errInfo = MatchEventWebsocket(&msg)
-	case "START":
-		errInfo = StartEventWebsocket(&msg)
-	case "NEXT_ROUND":
-		errInfo = NextRoundEventWebsocket(&msg)
-	default:
-		log.Printf("Unknown event: %s", msg.Event)
-		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
-		return
-	}
-	if errInfo != nil {
-		SendErrorMessage(&msg, errInfo)
-		d.Ack(false)
-	}
-	// Acknowledge message after successful processing
-	d.Ack(false)
 }
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
