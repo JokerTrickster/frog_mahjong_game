@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
-	"gorm.io/gorm"
 )
 
 var (
@@ -58,44 +57,49 @@ type ErrorInfo struct {
 	Type string `json:"type"`
 }
 type User struct {
-	ID               uint   `json:"id"`
-	Email            string `json:"email"`
-	Name             string `json:"name"`
-	IsOwner          bool   `json:"isOwner"`          // 방장 여부
-	ProfileID        int    `json:"profileID"`        // 프로필 ID
-	CorrectPositions []int  `json:"correctPositions"` // 맞은 위치 수 (x,y)
+	ID               uint       `json:"id"`
+	Email            string     `json:"email"`
+	Name             string     `json:"name"`
+	IsOwner          bool       `json:"isOwner"`          // 방장 여부
+	ProfileID        int        `json:"profileID"`        // 프로필 ID
+	CorrectPositions []Position `json:"correctPositions"` // 맞은 위치 수 (x,y)
 }
 type GameInfo struct {
-	AllReady         bool   `json:"allReady"`         // 게임 시작 여부
-	Timer            int    `json:"timer"`            // 타이머
-	IsFull           bool   `json:"isFull"`           // 방이 꽉 찼는지 여부
-	RoomID           uint   `json:"roomID"`           // 방 ID
-	Password         string `json:"password"`         // 방 비밀번호
-	StartTime        int64  `json:"startTime"`        // 게임 시작 시간 (epoch time in milliseconds)
-	ItemTimerCount   int    `json:"itemTimerCount"`   // 아이템 타이머 카운트
-	ItemHintCount    int    `json:"itemHintCount"`    // 아이템 힌트 카운트
-	Round            int    `json:"round"`            // 라운드
+	AllReady       bool       `json:"allReady"`       // 게임 시작 여부
+	Timer          int        `json:"timer"`          // 타이머
+	IsFull         bool       `json:"isFull"`         // 방이 꽉 찼는지 여부
+	RoomID         uint       `json:"roomID"`         // 방 ID
+	Password       string     `json:"password"`       // 방 비밀번호
+	StartTime      int64      `json:"startTime"`      // 게임 시작 시간 (epoch time in milliseconds)
+	ItemTimerCount int        `json:"itemTimerCount"` // 아이템 타이머 카운트
+	ItemHintCount  int        `json:"itemHintCount"`  // 아이템 힌트 카운트
+	Round          int        `json:"round"`          // 라운드
+	ImageInfo      *ImageInfo `json:"imageInfo"`      // 이미지 정보
+	Life           int        `json:"life"`           // 생명
+	WrongPosition  Position   `json:"wrongPosition"`  // 틀린 위치 (x,y)
+	CorrectCount   int        `json:"correctCount"`   // 맞은 개수
+	HintPosition   Position   `json:"hintPosition"`   // 힌트 위치 (x,y)
+	TimerUsed      bool       `json:"timerUsed"`      // 타이머 사용 여부
+}
+type ImageInfo struct {
+	ID               int    `json:"id"`
 	NormalImageUrl   string `json:"normalImageUrl"`   // 일반 이미지 URL
 	AbnormalImageUrl string `json:"abnormalImageUrl"` // 비정상 이미지 URL
-	Life             int    `json:"life"`             // 생명
-	WrongPosition    []int  `json:"wrongPosition"`    // 틀린 위치 (x,y)
-	CorrectCount     int    `json:"correctCount"`     // 맞은 개수
-	HintPosition     []int  `json:"hintPosition"`     // 힌트 위치 (x,y)
-	TimerUsed        bool   `json:"timerUsed"`        // 타이머 사용 여부
+}
+type Position struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드
 type PreloadUsers struct {
-	UserID           uint                            `json:"userID" gorm:"column:user_id"`                                // 유저 ID
-	RoomID           uint                            `json:"roomID" gorm:"column:room_id"`                                // 방 ID
-	User             *mysql.GameUsers                `json:"user" gorm:"foreignKey:UserID"`                               // 유저 정보 (game_users)
-	Room             *mysql.GameRooms                `json:"room" gorm:"foreignKey:RoomID"`                               // 방 정보 (game_rooms)
-	RoomSetting      *mysql.FindItRoomSettings       `json:"roomSetting" gorm:"foreignKey:RoomID;references:RoomID"`      // 방 설정 정보 (find_it_room_settings)
-	CorrectPositions []*mysql.FindItCorrectPositions `json:"correctPositions" gorm:"foreignKey:UserID;references:UserID"` // 유저가 맞춘 좌표 정보 (find_it_correct_positions)
-	RoundImages      []*mysql.FindItRoundImages      `json:"roundImages" gorm:"foreignKey:RoomID;references:RoomID"`      // 해당 방의 라운드별 이미지 정보 (find_it_round_images)
-
-	// GORM이 테이블로 인식하지 않도록 설정
-	gorm.Model `json:"-" gorm:"-"`
+	UserID               uint                                `json:"userID" gorm:"column:user_id"`                                    // 유저 ID
+	RoomID               uint                                `json:"roomID" gorm:"column:room_id"`                                    // 방 ID
+	User                 *mysql.GameUsers                    `json:"user" gorm:"foreignKey:UserID"`                                   // 유저 정보 (game_users)
+	Room                 *mysql.GameRooms                    `json:"room" gorm:"foreignKey:RoomID"`                                   // 방 정보 (game_rooms)
+	RoomSetting          *mysql.FindItRoomSettings           `json:"roomSetting" gorm:"foreignKey:RoomID;references:RoomID"`          // 방 설정 정보 (find_it_room_settings)
+	UserCorrectPositions []*mysql.FindItUserCorrectPositions `json:"userCorrectPositions" gorm:"foreignKey:UserID;references:UserID"` // 유저가 맞춘 정답 정보 (find_it_user_correct_positions)
+	RoundImages          []*mysql.FindItRoundImages          `json:"roundImages" gorm:"foreignKey:RoomID;references:RoomID"`          // 해당 방의 라운드별 이미지 정보 (find_it_round_images)
 }
 
 func (c *WSClient) Close() {

@@ -16,6 +16,21 @@ import (
 	"gorm.io/gorm"
 )
 
+func CreateRoundImages(roomID uint, imagesDTO []*mysql.FindItImages) []*mysql.FindItRoundImages {
+	roundImagesDTO := []*mysql.FindItRoundImages{}
+	round := 1
+	for _, imageDTO := range imagesDTO {
+		roundImage := &mysql.FindItRoundImages{
+			RoomID:     int(roomID),
+			ImageSetId: int(imageDTO.ID),
+			Round:      round,
+		}
+		round++
+		roundImagesDTO = append(roundImagesDTO, roundImage)
+	}
+	return roundImagesDTO
+}
+
 func Deepcopy(src entity.MessageInfo) entity.MessageInfo {
 	var dst entity.MessageInfo
 	b, _ := json.Marshal(src)
@@ -84,14 +99,24 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
 			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
 		}
+		// ✅ 맞힌 정보 저장 (x_position, y_position 추가)
+		correctIDList := []int{}
 
-		// 맞힌 정보를 저장
-		for _, correctPosition := range roomUser.CorrectPositions {
-			if roomUser.RoomSetting.Round == correctPosition.Round {
-				user.CorrectPositions = append(user.CorrectPositions, correctPosition.CorrectPositionID)
+		for _, userCorrect := range roomUser.UserCorrectPositions {
+			if userCorrect.RoomID == roomID && userCorrect.Round == round && userCorrect.UserID == int(roomUser.UserID) {
+				correctIDList = append(correctIDList, userCorrect.CorrectPositionID)
 				correctCount++
 			}
+			correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
+			for _, correctPosition := range correctPositions {
+				position := entity.Position{
+					X: correctPosition.XPosition,
+					Y: correctPosition.YPosition,
+				}
+				user.CorrectPositions = append(user.CorrectPositions, position)
+			}
 		}
+
 		if imageID == 0 {
 			for _, roundImage := range roomUser.RoundImages {
 				if roomUser.RoomSetting.Round == roundImage.Round {
@@ -103,9 +128,8 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
-	nomarlImageURL := ""
-	abnomalImageURL := ""
 	// 이미지 정보를 가져온다.
+	ImageInfo := entity.ImageInfo{}
 	if imageID != 0 {
 		roundImage, err := repository.FindOneRoundImage(ctx, imageID)
 		if err != nil {
@@ -113,28 +137,29 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		}
 		//s3 이미지 URL
 		normalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.NormalImageUrl, _aws.ImgTypeFindIt)
-		nomarlImageURL = normalSignedUrl
 		abnormalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.AbnormalImageUrl, _aws.ImgTypeFindIt)
-		abnomalImageURL = abnormalSignedUrl
+		ImageInfo.ID = imageID
+		ImageInfo.NormalImageUrl = normalSignedUrl
+		ImageInfo.AbnormalImageUrl = abnormalSignedUrl
+
 	}
 
 	//게임 정보 저장
 	gameInfo := entity.GameInfo{
-		AllReady:         true,
-		Timer:            timer,
-		IsFull:           true,
-		RoomID:           uint(roomID),
-		Password:         password,
-		StartTime:        startTime,
-		ItemTimerCount:   timerStopCount,
-		ItemHintCount:    hintCount,
-		Round:            round,
-		Life:             life,
-		CorrectCount:     correctCount,
-		NormalImageUrl:   nomarlImageURL,
-		AbnormalImageUrl: abnomalImageURL,
-		TimerUsed:        false,
-		HintPosition:     []int{},
+		AllReady:       true,
+		Timer:          timer,
+		IsFull:         true,
+		RoomID:         uint(roomID),
+		Password:       password,
+		StartTime:      startTime,
+		ItemTimerCount: timerStopCount,
+		ItemHintCount:  hintCount,
+		Round:          round,
+		Life:           life,
+		CorrectCount:   correctCount,
+		ImageInfo:      &ImageInfo,
+		TimerUsed:      false,
+		HintPosition:   entity.Position{},
 	}
 
 	MessageInfoMsg.GameInfo = &gameInfo
@@ -262,7 +287,7 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 }
 
 // 특정 크라이언트에 메시지 전송
-func sendMessageToClient(roomID uint, msg *entity.WSMessage) {
+func SendMessageToClient(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 

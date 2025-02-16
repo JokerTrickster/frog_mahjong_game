@@ -274,3 +274,12 @@ type FindItImageCorrectPositions struct {
 	XPosition float64 `json:"xPosition" gorm:"column:x_position"`
 	YPosition float64 `json:"yPosition" gorm:"column:y_position"`
 }
+
+type FindItUserCorrectPositions struct {
+	gorm.Model
+	UserID            int `json:"userID" gorm:"column:user_id"`
+	RoomID            int `json:"roomID" gorm:"column:room_id"`
+	Round             int `json:"round" gorm:"column:round"`
+	ImageID           int `json:"imageID" gorm:"column:image_id"`                      // ✅ 정답을 맞춘 이미지 ID
+	CorrectPositionID int `json:"correctPositionID" gorm:"column:correct_position_id"` // ✅ 맞춘 정답의 ID
+}

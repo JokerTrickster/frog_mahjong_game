@@ -70,6 +70,13 @@ func match(c echo.Context) error {
 				return fmt.Errorf("%s", newErr.Msg)
 			}
 			roomID = uint(newRoomID)
+			//게임 정보 생성
+			roomSettingDTO := CreateRoomSetting(roomID)
+			newErr = repository.MatchInsertOneRoomSetting(ctx, tx, roomSettingDTO)
+			if newErr != nil {
+				SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+				return fmt.Errorf("%s", newErr.Msg)
+			}
 		} else {
 			roomID = rooms.ID
 		}
@@ -88,9 +95,6 @@ func match(c echo.Context) error {
 		}
 		//TODO 유저 코인 1개를 제거한다.
 
-		//게임 정보 생성
-		roomSettingDTO := CreateRoomSetting(roomID)
-		newErr = repository.MatchInsertOneRoomSetting(ctx, tx, roomSettingDTO)
 		return nil
 	})
 	if err != nil {
