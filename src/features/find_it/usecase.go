@@ -109,7 +109,11 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			}
 			correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
 			for _, correctPosition := range correctPositions {
-				user.CorrectPositions = append(user.CorrectPositions, []float64{correctPosition.XPosition, correctPosition.YPosition})
+				position := entity.Position{
+					X: correctPosition.XPosition,
+					Y: correctPosition.YPosition,
+				}
+				user.CorrectPositions = append(user.CorrectPositions, position)
 			}
 		}
 
@@ -155,7 +159,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		CorrectCount:   correctCount,
 		ImageInfo:      &ImageInfo,
 		TimerUsed:      false,
-		HintPosition:   []float64{},
+		HintPosition:   entity.Position{},
 	}
 
 	MessageInfoMsg.GameInfo = &gameInfo

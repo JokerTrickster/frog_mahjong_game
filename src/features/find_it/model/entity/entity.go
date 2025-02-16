@@ -57,12 +57,12 @@ type ErrorInfo struct {
 	Type string `json:"type"`
 }
 type User struct {
-	ID               uint        `json:"id"`
-	Email            string      `json:"email"`
-	Name             string      `json:"name"`
-	IsOwner          bool        `json:"isOwner"`          // 방장 여부
-	ProfileID        int         `json:"profileID"`        // 프로필 ID
-	CorrectPositions [][]float64 `json:"correctPositions"` // 맞은 위치 수 (x,y)
+	ID               uint       `json:"id"`
+	Email            string     `json:"email"`
+	Name             string     `json:"name"`
+	IsOwner          bool       `json:"isOwner"`          // 방장 여부
+	ProfileID        int        `json:"profileID"`        // 프로필 ID
+	CorrectPositions []Position `json:"correctPositions"` // 맞은 위치 수 (x,y)
 }
 type GameInfo struct {
 	AllReady       bool       `json:"allReady"`       // 게임 시작 여부
@@ -76,15 +76,19 @@ type GameInfo struct {
 	Round          int        `json:"round"`          // 라운드
 	ImageInfo      *ImageInfo `json:"imageInfo"`      // 이미지 정보
 	Life           int        `json:"life"`           // 생명
-	WrongPosition  []float64  `json:"wrongPosition"`  // 틀린 위치 (x,y)
+	WrongPosition  Position   `json:"wrongPosition"`  // 틀린 위치 (x,y)
 	CorrectCount   int        `json:"correctCount"`   // 맞은 개수
-	HintPosition   []float64  `json:"hintPosition"`   // 힌트 위치 (x,y)
+	HintPosition   Position   `json:"hintPosition"`   // 힌트 위치 (x,y)
 	TimerUsed      bool       `json:"timerUsed"`      // 타이머 사용 여부
 }
 type ImageInfo struct {
 	ID               int    `json:"id"`
 	NormalImageUrl   string `json:"normalImageUrl"`   // 일반 이미지 URL
 	AbnormalImageUrl string `json:"abnormalImageUrl"` // 비정상 이미지 URL
+}
+type Position struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드

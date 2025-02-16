@@ -16,7 +16,6 @@ import (
 func HintItemEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
-	uID := msg.UserID
 	roomID := msg.RoomID
 	req := request.ReqWSHintItem{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
@@ -28,27 +27,43 @@ func HintItemEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
-	if newErr != nil {
-		return newErr
+	position := entity.Position{}
+	// 힌트 아이템 사용 가능한지 체크
+	roomSettings, errInfo := repository.HintItemCheck(ctx, roomID)
+	if errInfo != nil {
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrHintItemFailed, "힌트 아이템 사용 불가")
 	}
-	if roomState != "wait" {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, "게임이 시작되었습니다.", _errors.ErrAlreadyGame)
+	if roomSettings.ItemHintCount == 0 {
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrHintItemFailed, "힌트 아이템 사용 불가")
 	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 방장이 게임 시작 요청했는지 체크
-		errInfo := repository.StartCheckOwner(ctx, tx, uID, roomID)
+		// 힌트 아이템 1 감소
+		errInfo := repository.HintItemDecrease(ctx, tx, roomSettings)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// 힌트로 좌표를 가져온다. (랜덤)
+		// 현재 정답을 맞춘 좌표를 가져온다.
+		userCorrectPositionDTOList, errInfo := repository.HintItemFindCorrectPosition(ctx, tx, roomID, req.Round, req.ImageID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// room 데이터 값 변경 (상태 변경, 시작 시간 추가)
-		roomUpdateData := StartUpdateRoom(roomID)
-		errInfo = repository.StartUpdateRoom(ctx, tx, roomID, roomUpdateData)
+		// 찾은 좌표 ID 리스트를 만든다.
+		var correctPositionIDList []uint
+		for _, userCorrectPositionDTO := range userCorrectPositionDTOList {
+			correctPositionIDList = append(correctPositionIDList, uint(userCorrectPositionDTO.CorrectPositionID))
+		}
+
+		// 못찾은 좌표 하나를 가져온다.
+		imageCorrectPositionDTO, errInfo := repository.HintItemFindOneCorrectPosition(ctx, tx, uint(req.ImageID), correctPositionIDList)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+
+		position.X = imageCorrectPositionDTO.XPosition
+		position.Y = imageCorrectPositionDTO.YPosition
 
 		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
@@ -64,7 +79,8 @@ func HintItemEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
-
+	//힌트 좌표 추가
+	messageMsg.GameInfo.HintPosition = position
 	if len(preloadUsers) == 2 {
 		messageMsg.GameInfo.IsFull = true
 	}

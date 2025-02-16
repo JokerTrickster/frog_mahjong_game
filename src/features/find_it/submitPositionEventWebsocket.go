@@ -66,7 +66,11 @@ func SubmitPositionEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 	if correctID == 0 {
-		messageMsg.GameInfo.WrongPosition = append(messageMsg.GameInfo.WrongPosition, req.XPosition, req.YPosition)
+		wrongPosition := entity.Position{
+			X: req.XPosition,
+			Y: req.YPosition,
+		}
+		messageMsg.GameInfo.WrongPosition = wrongPosition
 	}
 	if len(preloadUsers) == 2 {
 		messageMsg.GameInfo.IsFull = true

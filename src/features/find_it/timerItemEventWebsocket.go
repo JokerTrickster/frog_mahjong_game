@@ -29,7 +29,7 @@ func TimerItemEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 	// 타이머 아이템 사용 가능한지 체크
 	roomSettings, errInfo := repository.TimerItemCheck(ctx, roomID)
-	if err != nil {
+	if errInfo != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrTimerItemFailed, "타이머 아이템 사용 불가")
 	}
 	if roomSettings.ItemTimerStopCount == 0 {
