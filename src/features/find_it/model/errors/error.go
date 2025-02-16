@@ -12,6 +12,7 @@ var (
 	ErrAbnormalExit          = "ERR_ABNORMAL_EXIT"
 	ErrCryptoFailed          = "ERR_CRYPTO_FAILED"
 	ErrUnmarshalFailed       = "ERR_UNMARSHAL_FAILED"
+	ErrTimerItemFailed       = "ERR_TIMER_ITEM_FAILED"
 	ErrMarshalFailed         = "ERR_MARSHAL_FAILED"
 	ErrDisconnect            = "ERR_DISCONNECT"
 	ErrDBServer              = "ERR_DB_SERVER"
