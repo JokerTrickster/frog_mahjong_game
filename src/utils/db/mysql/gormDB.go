@@ -203,3 +203,74 @@ type FrogUserCards struct {
 	RoomID int    `json:"roomID" gorm:"column:room_id"`
 	State  string `json:"state" gorm:"column:state"`
 }
+
+// 틀린 그림 찾기 게임 테이블
+type GameUsers struct {
+	gorm.Model
+	Name         string `json:"name" gorm:"column:name"`
+	Email        string `json:"email" gorm:"column:email"`
+	Password     string `json:"password" gorm:"column:password"`
+	ProfileID    int    `json:"profileID" gorm:"column:profile_id"`
+	Coin         int    `json:"coin" gorm:"column:coin"`
+	State        string `json:"state" gorm:"column:state"`
+	RoomID       int    `json:"roomID" gorm:"column:room_id"`
+	Provider     string `json:"provider" gorm:"column:provider"`
+	AlertEnabled bool   `json:"alertEnabled" gorm:"column:alert_enabled"`
+}
+
+type GameRooms struct {
+	gorm.Model
+	CurrentCount int       `json:"currentCount" gorm:"column:current_count"`
+	MaxCount     int       `json:"maxCount" gorm:"column:max_count"`
+	MinCount     int       `json:"minCount" gorm:"column:min_count"`
+	Name         string    `json:"name" gorm:"column:name"`
+	Password     string    `json:"password" gorm:"column:password"`
+	State        string    `json:"state" gorm:"column:state"`
+	OwnerID      int       `json:"ownerID" gorm:"column:owner_id"`
+	GameID       int       `json:"gameID" gorm:"column:game_id"`
+	StartTime    time.Time `json:"startTime" gorm:"column:start_time"`
+}
+type GameRoomUsers struct {
+	gorm.Model
+	UserID      int    `json:"userID" gorm:"column:user_id"`
+	RoomID      int    `json:"roomID" gorm:"column:room_id"`
+	PlayerState string `json:"playerState" gorm:"column:player_state"`
+}
+type FindItImages struct {
+	gorm.Model
+	Level            int    `json:"level" gorm:"column:level"`
+	NormalImageUrl   string `json:"normalImageUrl" gorm:"column:normal_image_url"`     // ✅ 일반 이미지 URL
+	AbnormalImageUrl string `json:"abnormalImageUrl" gorm:"column:abnormal_image_url"` // ✅ 비정상 이미지 URL
+}
+type FindItRoomSettings struct {
+	gorm.Model
+	RoomID             int `json:"roomID" gorm:"column:room_id"`
+	Timer              int `json:"timer" gorm:"column:timer"`
+	Lifes              int `json:"lifes" gorm:"column:lifes"`
+	ItemHintCount      int `json:"itemHintCount" gorm:"column:item_hint_count"`
+	Round              int `json:"round" gorm:"column:round"`
+	ItemTimerStopCount int `json:"itemTimerStopCount" gorm:"column:item_timer_stop_count"`
+}
+
+type FindItCorrectPositions struct {
+	gorm.Model
+	RoomID            int `json:"roomID" gorm:"column:room_id"`
+	UserID            int `json:"userID" gorm:"column:user_id"`
+	Round             int `json:"round" gorm:"column:round"`
+	ImageID           int `json:"imageID" gorm:"column:image_id"`                      // ✅ 정답을 맞춘 이미지 ID
+	CorrectPositionID int `json:"correctPositionID" gorm:"column:correct_position_id"` // ✅ 맞춘 정답의 ID
+}
+
+type FindItRoundImages struct {
+	gorm.Model
+	RoomID     int `json:"roomID" gorm:"column:room_id"`
+	Round      int `json:"round" gorm:"column:round"`
+	ImageSetId int `json:"imageSetId" gorm:"column:image_set_id"`
+}
+
+type FindItImageCorrectPositions struct {
+	gorm.Model
+	ImageID   int     `json:"imageID" gorm:"column:image_id"`
+	XPosition float64 `json:"xPosition" gorm:"column:x_position"`
+	YPosition float64 `json:"yPosition" gorm:"column:y_position"`
+}

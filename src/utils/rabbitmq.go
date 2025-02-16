@@ -74,8 +74,11 @@ func (r *RabbitMQManager) connect() error {
 	if err := r.initChannelAndQueue("frog"); err != nil {
 		return err
 	}
-
-	log.Println("RabbitMQ connection established with channels: wingspan, frog.")
+	// `frog` 채널 및 큐 초기화
+	if err := r.initChannelAndQueue("find-it"); err != nil {
+		return err
+	}
+	log.Println("RabbitMQ connection established with channels: wingspan, frog. find-it")
 	return nil
 }
 

@@ -48,7 +48,7 @@ CREATE TABLE rooms (
     state VARCHAR(50),
     owner_id INT,
     timer INT,
-    game_id INT,    -- 개굴작 :1 , 윙스팬 : 2
+    game_id INT,    -- 개굴작 :1 , 윙스팬 : 2, 틀린그림 찾기 : 3
     start_time TIMESTAMP
 );
 
@@ -75,7 +75,7 @@ CREATE TABLE users (
     name VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    coin INT,
+    coin INT,   -- 게임 플레이에 필요한 코인 
     state VARCHAR(50),
     profile_id INT default 1,
 	room_id INT,
@@ -401,3 +401,113 @@ VALUES
     -- Final sequence
     ('chung', 'red'),
     ('bal', 'green');
+
+
+-- find it 
+
+CREATE TABLE game_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255),
+    coin INT,   -- 게임 플레이에 필요한 코인 
+    state VARCHAR(50),
+    profile_id INT default 1,
+	room_id INT,
+    alert_enabled TINYINT(1) DEFAULT 1, 
+    provider VARCHAR(50) -- email, google, kakao
+);
+
+CREATE TABLE game_rooms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    current_count INT default 0,
+    max_count INT default 2,
+    min_count INT default 2,
+    name VARCHAR(255),
+    password VARCHAR(255),
+    state VARCHAR(50),
+    owner_id INT,
+    game_id INT,    -- 틀린그림 찾기 : 1
+    start_time TIMESTAMP
+);
+CREATE TABLE game_room_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    room_id INT,
+    player_state VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES game_users(id),
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id)
+);
+
+CREATE TABLE find_it_room_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    timer INT,                  -- 게임 타이머
+    lifes INT DEFAULT 3,          -- 초기 목숨
+    item_hint_count INT DEFAULT 2, -- 힌트 아이템 개수
+    item_timer_stop_count INT DEFAULT 2, -- 타이머 정지 아이템 개수
+    round INT,                 -- 게임 라운드
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
+
+CREATE TABLE find_it_correct_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT NOT NULL,        -- 정답을 맞춘 유저 ID
+    room_id INT NOT NULL,        -- 해당 정답이 속한 게임 방 ID
+    round INT NOT NULL,          -- 라운드 정보
+    image_id INT NOT NULL,       -- 정답을 맞춘 이미지 ID (find_it_images 테이블 참조)
+    correct_position_id INT NOT NULL, -- 맞춘 정답의 ID (find_it_image_correct_positions 테이블 참조)
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (image_id) REFERENCES find_it_images(id) ON DELETE CASCADE,
+    FOREIGN KEY (correct_position_id) REFERENCES find_it_image_correct_positions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE find_it_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    level INT NOT NULL DEFAULT 1,  -- 난이도
+    normal_image_url VARCHAR(500) NOT NULL,  -- 정상 이미지 URL
+    abnormal_image_url VARCHAR(500) NOT NULL -- 비정상 이미지 URL
+);
+
+CREATE TABLE find_it_round_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    round INT NOT NULL,          -- 라운드 번호
+    image_set_id INT NOT NULL,   -- 사용된 이미지 세트 (find_it_images 테이블과 연결)
+    room_id INT NOT NULL,        -- 어떤 게임방에서 사용되는지
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id),
+    FOREIGN KEY (image_set_id) REFERENCES find_it_images(id)
+);
+
+
+
+CREATE TABLE find_it_image_correct_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    image_id INT NOT NULL,  -- 어떤 이미지의 정답인지 (find_it_images 테이블 참조)
+    x_position DOUBLE NOT NULL, -- 정답 X 좌표
+    y_position DOUBLE NOT NULL, -- 정답 Y 좌표
+    FOREIGN KEY (image_id) REFERENCES find_it_images(id)
+);
