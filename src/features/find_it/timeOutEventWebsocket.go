@@ -17,7 +17,7 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	roomID := msg.RoomID
-	req := request.ReqWSTimerItem{}
+	req := request.ReqWSTimeOut{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
@@ -27,18 +27,19 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	// 타이머 아이템 사용 가능한지 체크
-	roomSettings, errInfo := repository.TimerItemCheck(ctx, roomID)
-	if errInfo != nil {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrTimerItemFailed, "타이머 아이템 사용 불가")
-	}
-	if roomSettings.ItemTimerStopCount == 0 {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrTimerItemFailed, "타이머 아이템 사용 불가")
-	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 타이머 아이템 1 감소
-		errInfo := repository.TimerItemDecrease(ctx, tx, roomSettings)
+		// 못찾은 좌표를 모두 가져온다.
+		// 현재 정답을 맞춘 좌표를 가져온다.
+		userCorrectPositionDTOList, errInfo := repository.TimeOutFindCorrectPosition(ctx, tx, roomID, req.Round, req.ImageID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 개수만큼 목숨을 줄인다.
+		diffLife := 5 - len(userCorrectPositionDTOList)
+		// 목숨 차감한다.
+		errInfo = repository.TimeOutLifeDecrease(ctx, tx, roomID, diffLife)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
@@ -66,6 +67,9 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
+	}
+	if messageMsg.GameInfo.Life <= 0 {
+		msg.Event = "GAME_OVER"
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
