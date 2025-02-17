@@ -1,5 +1,5 @@
 # 빌드 단계
-FROM golang:1.22.1-alpine AS builder
+FROM golang:1.24-alpine AS builder
 WORKDIR /build/
 
 # 의존성 캐시 단계 추가
