@@ -62,6 +62,8 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = HintItemEventWebsocket(&msg)
 	case "TIME_OUT":
 		errInfo = TimeOutEventWebsocket(&msg)
+	case "CANCEL_MATCH":
+		errInfo = CancelMatchEventWebsocket(&msg)
 
 	case "SUBMIT_POSITION":
 		errInfo = SubmitPositionEventWebsocket(&msg)
