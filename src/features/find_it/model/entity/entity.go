@@ -76,9 +76,9 @@ type GameInfo struct {
 	Round          int        `json:"round"`          // 라운드
 	ImageInfo      *ImageInfo `json:"imageInfo"`      // 이미지 정보
 	Life           int        `json:"life"`           // 생명
-	WrongPosition  Position   `json:"wrongPosition"`  // 틀린 위치 (x,y)
+	WrongPosition  *Position   `json:"wrongPosition"`  // 틀린 위치 (x,y)
 	CorrectCount   int        `json:"correctCount"`   // 맞은 개수
-	HintPosition   Position   `json:"hintPosition"`   // 힌트 위치 (x,y)
+	HintPosition   *Position   `json:"hintPosition"`   // 힌트 위치 (x,y)
 	TimerUsed      bool       `json:"timerUsed"`      // 타이머 사용 여부
 }
 type ImageInfo struct {

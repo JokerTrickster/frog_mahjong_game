@@ -27,7 +27,7 @@ func HintItemEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	position := entity.Position{}
+	position := &entity.Position{}
 	// 힌트 아이템 사용 가능한지 체크
 	roomSettings, errInfo := repository.HintItemCheck(ctx, roomID)
 	if errInfo != nil {

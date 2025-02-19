@@ -159,7 +159,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		CorrectCount:   correctCount,
 		ImageInfo:      &ImageInfo,
 		TimerUsed:      false,
-		HintPosition:   entity.Position{},
+		HintPosition:   nil,
 	}
 
 	MessageInfoMsg.GameInfo = &gameInfo
