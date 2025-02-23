@@ -52,3 +52,6 @@ type IFCMTokenAuthUseCase interface {
 type ICheckSigninAuthUseCase interface {
 	CheckSignin(c context.Context, req *request.ReqGameCheckSignin) (bool, error)
 }
+type INameCheckAuthUseCase interface {
+	NameCheck(c context.Context, req *request.ReqGameNameCheck) error
+}

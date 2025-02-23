@@ -80,6 +80,7 @@ const (
 const (
 	ErrCodeNotFound     = ErrType("CODE_NOT_FOUND")
 	ErrPasswordNotMatch = ErrType("PASSWORD_NOT_MATCH")
+	ErrNameAlreadyExist = ErrType("NAME_ALREADY_EXISTED")
 )
 
 // basic , game, room, auth error mapping
@@ -102,6 +103,7 @@ var ErrHttpCode = map[string]int{
 	"CODE_NOT_FOUND":              http.StatusBadRequest,
 	"USER_GOOGLE_ALREADY_EXISTED": http.StatusBadRequest,
 	"PASSWORD_NOT_MATCH":          http.StatusBadRequest,
+	"NAME_ALREADY_EXISTED":        http.StatusBadRequest,
 
 	//401
 	"TOKEN_BAD":            http.StatusUnauthorized,

@@ -76,3 +76,7 @@ type ICheckSigninAuthRepository interface {
 	FindOneAndUpdateUser(ctx context.Context, email, password string) (mysql.GameUsers, error)
 	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
 }
+
+type INameCheckAuthRepository interface {
+	CheckName(ctx context.Context, name string) error
+}

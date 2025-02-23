@@ -45,3 +45,6 @@ type IFCMTokenAuthHandler interface {
 type ICheckSigninAuthHandler interface {
 	CheckSignin(c echo.Context) error
 }
+type INameCheckAuthHandler interface {
+	NameCheck(c echo.Context) error
+}
