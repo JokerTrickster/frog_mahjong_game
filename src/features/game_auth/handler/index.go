@@ -21,4 +21,5 @@ func NewGameAuthHandler(c *echo.Echo) {
 	NewRequestSignupAuthHandler(c, usecase.NewRequestSignupAuthUseCase(repository.NewRequestSignupAuthRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewFCMTokenAuthHandler(c, usecase.NewFCMTokenAuthUseCase(repository.NewFCMTokenAuthRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewCheckSigninAuthHandler(c, usecase.NewCheckSigninAuthUseCase(repository.NewCheckSigninAuthRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewNameCheckAuthHandler(c, usecase.NewNameCheckAuthUseCase(repository.NewNameCheckAuthRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

@@ -48,3 +48,7 @@ type FCMTokenAuthRepository struct {
 type CheckSigninAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type NameCheckAuthRepository struct {
+	GormDB *gorm.DB
+}
