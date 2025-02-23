@@ -32,4 +32,7 @@ func NewGameHandler(c *echo.Echo) {
 	NewReportImageUploadGameHandler(c, usecase.NewReportImageUploadGameUseCase(repository.NewReportImageUploadGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewListCardGameHandler(c, usecase.NewListCardGameUseCase(repository.NewListCardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewV2DrawResultGameHandler(c, usecase.NewV2DrawResultGameUseCase(repository.NewV2DrawResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+
+	//find-it
+	NewFindItResultGameHandler(c, usecase.NewFindItResultGameUseCase(repository.NewFindItResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

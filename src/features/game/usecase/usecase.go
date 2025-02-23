@@ -606,3 +606,29 @@ func CreateResV2DrawResult(userMissions []mysql.UserMissions) response.ResV2Draw
 
 	return res
 }
+
+// find-it
+func CreateResResult(roomSettingDTO *mysql.FindItRoomSettings, userCorrectPositionsDTO []*mysql.FindItUserCorrectPositions) response.ResFindItResult {
+	userCorrectCount := make(map[int]int)
+
+	// 유저별 맞춘 개수 카운트
+	for _, userCorrectPosition := range userCorrectPositionsDTO {
+		userCorrectCount[userCorrectPosition.UserID]++
+	}
+
+	// 응답 구조에 맞추어 데이터 저장
+	var users []response.UserResult
+	for userID, count := range userCorrectCount {
+		users = append(users, response.UserResult{
+			UserID:            userID,
+			TotalCorrectCount: count,
+		})
+	}
+
+	res := response.ResFindItResult{
+		Round: roomSettingDTO.Round,
+		Users: users,
+	}
+
+	return res
+}

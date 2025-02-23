@@ -26,7 +26,6 @@ type ILoanGameHandler interface {
 	Loan(c echo.Context) error
 }
 
-
 type IWinRequestGameHandler interface {
 	WinRequest(c echo.Context) error
 }
@@ -92,4 +91,9 @@ type IUpdateCardGameHandler interface {
 
 type IReportImageUploadGameHandler interface {
 	ReportImageUpload(c echo.Context) error
+}
+
+// find-it
+type IFindItResultGameHandler interface {
+	FindItResult(c echo.Context) error
 }
