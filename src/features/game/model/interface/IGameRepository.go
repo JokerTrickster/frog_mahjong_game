@@ -106,3 +106,10 @@ type IUpdateCardGameRepository interface {
 
 type IReportImageUploadGameRepository interface {
 }
+
+// find-it
+
+type IFindItResultGameRepository interface {
+	FindOneRoomSetting(ctx context.Context,roomID int) (*mysql.FindItRoomSettings, error)
+	FindFindItUserCorrectPositions(ctx context.Context,roomID int) ([]*mysql.FindItUserCorrectPositions, error)
+}
