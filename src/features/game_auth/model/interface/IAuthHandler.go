@@ -48,3 +48,6 @@ type ICheckSigninAuthHandler interface {
 type INameCheckAuthHandler interface {
 	NameCheck(c echo.Context) error
 }
+type IValidateSignupAuthHandler interface {
+	ValidateSignup(c echo.Context) error
+}

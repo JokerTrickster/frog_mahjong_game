@@ -37,6 +37,8 @@ func (d *RequestSignupAuthUseCase) RequestSignup(c context.Context, e entity.Req
 		Email:    e.Email,
 		AuthCode: authCode,
 		Type:     "signup",
+		Project:  "board_game",
+		IsActive: false,
 	}
 	// 4. 기존 이메일로 있는 인증 코드가 있다면 삭제한다.
 	err = d.Repository.DeleteAuthCodeByEmail(ctx, e.Email)

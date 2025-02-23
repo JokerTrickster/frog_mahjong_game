@@ -37,6 +37,8 @@ func (d *RequestPasswordAuthUseCase) RequestPassword(c context.Context, e entity
 		Email:    e.Email,
 		AuthCode: authCode,
 		Type:     "password",
+		Project:  "board_game",
+		IsActive: false,
 	}
 	err = d.Repository.InsertAuthCode(ctx, userAuthDTO)
 	if err != nil {

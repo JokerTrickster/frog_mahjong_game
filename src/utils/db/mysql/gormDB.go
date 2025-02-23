@@ -81,6 +81,8 @@ type UserAuths struct {
 	Email    string `json:"email" gorm:"column:email"`
 	AuthCode string `json:"authCode" gorm:"column:auth_code"`
 	Type     string `json:"type" gorm:"column:type"`
+	Project  string `json:"project" gorm:"column:project"`
+	IsActive bool   `json:"isActive" gorm:"column:is_active"`
 }
 
 type Reports struct {

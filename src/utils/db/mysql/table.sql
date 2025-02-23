@@ -140,7 +140,9 @@ CREATE TABLE user_auths (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     auth_code VARCHAR(255),
     email VARCHAR(255),
-    type VARCHAR(100)
+    type VARCHAR(100),
+    project varchar(200),
+    is_active BOOLEAN DEFAULT FALSE
 );
 
 -- 메타 데이터 테이블
