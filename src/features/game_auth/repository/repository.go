@@ -52,3 +52,7 @@ type CheckSigninAuthRepository struct {
 type NameCheckAuthRepository struct {
 	GormDB *gorm.DB
 }
+
+type ValidateSignupAuthRepository struct {
+	GormDB *gorm.DB
+}

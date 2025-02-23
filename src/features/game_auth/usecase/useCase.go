@@ -27,6 +27,16 @@ func GeneratePasswordAuthCode() string {
 	return string(b)
 }
 
+func CreateUserAuth(email string, authCode string) *mysql.UserAuths {
+	return &mysql.UserAuths{
+		Email:    email,
+		AuthCode: authCode,
+		Type:     "signup",
+		Project:  "board_game",
+		IsActive: false,
+	}
+}
+
 func CreateUserSQL(email string) *mysql.GameUsers {
 	return &mysql.GameUsers{
 		Name:      "임시개굴맨",

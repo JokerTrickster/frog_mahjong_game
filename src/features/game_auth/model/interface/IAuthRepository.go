@@ -80,3 +80,7 @@ type ICheckSigninAuthRepository interface {
 type INameCheckAuthRepository interface {
 	CheckName(ctx context.Context, name string) error
 }
+type IValidateSignupAuthRepository interface {
+	CheckAuthCode(ctx context.Context, userAuthDTO *mysql.UserAuths) error
+	UpdateAuthCode(ctx context.Context, userAuthDTO *mysql.UserAuths) error
+}

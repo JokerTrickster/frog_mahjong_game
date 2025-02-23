@@ -55,3 +55,7 @@ type ICheckSigninAuthUseCase interface {
 type INameCheckAuthUseCase interface {
 	NameCheck(c context.Context, req *request.ReqGameNameCheck) error
 }
+
+type IValidateSignupAuthUseCase interface {
+	ValidateSignup(c context.Context, entity entity.ValidateSignupAuthEntity) error
+}

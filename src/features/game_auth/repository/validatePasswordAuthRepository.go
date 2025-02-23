@@ -17,7 +17,7 @@ func NewValidatePasswordAuthRepository(gormDB *gorm.DB) _interface.IValidatePass
 
 func (g *ValidatePasswordAuthRepository) CheckAuthCode(ctx context.Context, email, code string) error {
 	var userAuth mysql.UserAuths
-	err := g.GormDB.WithContext(ctx).Model(&userAuth).Where("email = ? AND auth_code = ?", email, code).First(&userAuth).Error
+	err := g.GormDB.WithContext(ctx).Model(&userAuth).Where("email = ? AND auth_code = ? and type = ? and project = ?", email, code, "password", "board_game").First(&userAuth).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.ErrorMsg(ctx, utils.ErrCodeNotFound, utils.Trace(), utils.HandleError(_errors.ErrCodeNotFound.Error(), email, code), utils.ErrFromClient)
