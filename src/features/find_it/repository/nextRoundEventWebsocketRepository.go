@@ -12,7 +12,7 @@ import (
 func NextRoundRoundIncrease(ctx context.Context, tx *gorm.DB, roomID uint, round int) *entity.ErrorInfo {
 	// 라운드 증가
 	rooomSetting := mysql.FindItRoomSettings{}
-	if err := tx.Model(&rooomSetting).Where("id = ?", roomID).Update("round", round).Error; err != nil {
+	if err := tx.Model(&rooomSetting).Where("room_id = ?", roomID).Update("round", round).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "라운드 증가 실패",

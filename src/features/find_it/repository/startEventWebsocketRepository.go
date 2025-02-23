@@ -24,10 +24,12 @@ func CreateRoundImages(ctx context.Context, tx *gorm.DB, roundImages []*mysql.Fi
 	return nil
 }
 
-// 2개만 가져와야 된다.
 func FindImages(ctx context.Context, tx *gorm.DB) ([]*mysql.FindItImages, *entity.ErrorInfo) {
 	var images []*mysql.FindItImages
-	err := tx.WithContext(ctx).Find(&images).Limit(2).Error
+	err := tx.WithContext(ctx).
+		Limit(10). // ✅ 상위 10개만 가져오기
+		Find(&images).Error
+
 	if err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,

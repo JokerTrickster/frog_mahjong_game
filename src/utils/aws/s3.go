@@ -60,8 +60,8 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		bucket:     func() string { return "dev-frog" },
 		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
 		path:       "find-it/images",
-		width:      512,
-		height:     512,
+		width:      0,
+		height:     0,
 		expireTime: 10 * time.Hour,
 	},
 }

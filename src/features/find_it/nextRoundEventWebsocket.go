@@ -41,6 +41,7 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		//
 
 		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
@@ -64,6 +65,11 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
+	}
+	if messageMsg.GameInfo.Round > 30 {
+		msg.Event = "GAME_CLEAR"
+	} else {
+		msg.Event = "ROUND_START"
 	}
 	msg.Message = message
 	sendMessageToClients(roomID, msg)

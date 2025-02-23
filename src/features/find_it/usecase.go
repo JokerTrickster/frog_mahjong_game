@@ -107,14 +107,14 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 				correctIDList = append(correctIDList, userCorrect.CorrectPositionID)
 				correctCount++
 			}
-			correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
-			for _, correctPosition := range correctPositions {
-				position := entity.Position{
-					X: correctPosition.XPosition,
-					Y: correctPosition.YPosition,
-				}
-				user.CorrectPositions = append(user.CorrectPositions, position)
+		}
+		correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
+		for _, correctPosition := range correctPositions {
+			position := entity.Position{
+				X: correctPosition.XPosition,
+				Y: correctPosition.YPosition,
 			}
+			user.CorrectPositions = append(user.CorrectPositions, position)
 		}
 
 		if imageID == 0 {
