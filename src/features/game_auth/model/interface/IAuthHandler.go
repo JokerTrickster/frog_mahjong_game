@@ -18,12 +18,6 @@ type IReissueAuthHandler interface {
 	Reissue(c echo.Context) error
 }
 
-type IGoogleOauthAuthHandler interface {
-	GoogleOauth(c echo.Context) error
-}
-type IGoogleOauthCallbackAuthHandler interface {
-	GoogleOauthCallback(c echo.Context) error
-}
 type IRequestPasswordAuthHandler interface {
 	RequestPassword(c echo.Context) error
 }
@@ -34,8 +28,8 @@ type IValidatePasswordAuthHandler interface {
 	ValidatePassword(c echo.Context) error
 }
 
-type IV02GoogleOauthCallbackAuthHandler interface {
-	V02GoogleOauthCallback(c echo.Context) error
+type IGoogleOauthCallbackAuthHandler interface {
+	GoogleOauthCallback(c echo.Context) error
 }
 
 type IFCMTokenAuthHandler interface {

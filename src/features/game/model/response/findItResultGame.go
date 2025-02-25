@@ -6,6 +6,6 @@ type ResFindItResult struct {
 }
 
 type UserResult struct {
-	UserID            int `json:"userID"`
-	TotalCorrectCount int `json:"totalCorrectCount"`
+	Name              string `json:"name"`
+	TotalCorrectCount int    `json:"totalCorrectCount"`
 }

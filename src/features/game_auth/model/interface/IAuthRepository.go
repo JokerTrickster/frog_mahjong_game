@@ -32,16 +32,6 @@ type IReissueAuthRepository interface {
 	CheckToken(ctx context.Context, uID uint, refreshToken string) error
 }
 
-type IGoogleOauthAuthRepository interface {
-}
-
-type IGoogleOauthCallbackAuthRepository interface {
-	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.GoogleOauthCallbackSQLQuery) (*mysql.GameUsers, error)
-	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
-	DeleteToken(ctx context.Context, uID uint) error
-	CreateUser(ctx context.Context, user *mysql.GameUsers) (*mysql.GameUsers, error)
-}
-
 type IRequestPasswordAuthRepository interface {
 	FindOneUserByEmail(ctx context.Context, email string) error
 	InsertAuthCode(ctx context.Context, userAuthDTO mysql.UserAuths) error
@@ -58,8 +48,8 @@ type IValidatePasswordAuthRepository interface {
 	DeleteAuthCode(ctx context.Context, email string) error
 }
 
-type IV02GoogleOauthCallbackAuthRepository interface {
-	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.V02GoogleOauthCallbackSQLQuery) (*mysql.GameUsers, error)
+type IGoogleOauthCallbackAuthRepository interface {
+	FindOneAndUpdateUser(ctx context.Context, googleOauthCallbackSQLQuery *entity.GoogleOauthCallbackSQLQuery) (*mysql.GameUsers, error)
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
 	CreateUser(ctx context.Context, user *mysql.GameUsers) (*mysql.GameUsers, error)

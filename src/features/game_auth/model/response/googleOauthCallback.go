@@ -1,6 +1,8 @@
 package response
 
-type GameGoogleOauthCallbackRes struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+type ResGameGoogleOauthCallback struct {
+	AccessToken      string `json:"accessToken"`
+	RefreshToken     string `json:"refreshToken"`
+	UserID           uint   `json:"userID"`
+	IsDuplicateLogin bool   `json:"isDuplicateLogin"`
 }

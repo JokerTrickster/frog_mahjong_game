@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	_errors "main/features/game/model/errors"
 	"main/features/game_auth/model/request"
@@ -120,6 +121,25 @@ func getGoogleUserInfo(ctx context.Context, accessToken string) ([]byte, error) 
 	return content, nil
 }
 
+func getAppGoogleUserInfo(ctx context.Context, accessToken string) ([]byte, error) {
+	fmt.Println(accessToken)
+	token, err := utils.AppGoogleConfig.Exchange(ctx, accessToken)
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), _errors.ErrInvalidGoogleCode.Error()+err.Error(), utils.ErrFromInternal)
+	}
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token.AccessToken)
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), _errors.ErrInvalidGoogleCode.Error()+err.Error(), utils.ErrFromInternal)
+	}
+
+	defer resp.Body.Close()
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), _errors.ErrInvalidGoogleCode.Error()+err.Error(), utils.ErrFromInternal)
+	}
+
+	return content, nil
+}
 func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.Profiles) []*mysql.UserProfiles {
 	userProfileDTOList := make([]*mysql.UserProfiles, 0)
 	for _, profile := range profileIDList {

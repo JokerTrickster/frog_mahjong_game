@@ -26,6 +26,10 @@ func InitServer() error {
 		fmt.Sprintf("google oauth 초기화 에러 : %s", err.Error())
 		return err
 	}
+	if err := InitAppGoogleOauth(); err != nil {
+		fmt.Sprintf("app google oauth 초기화 에러 : %s", err.Error())
+		return err
+	}
 	if err := _redis.InitRedis(); err != nil {
 		fmt.Sprintf("redis 초기화 에러 : %s", err.Error())
 		return err

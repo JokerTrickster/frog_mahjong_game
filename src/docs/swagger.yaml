@@ -486,13 +486,6 @@ definitions:
       name:
         type: string
     type: object
-  response.GameGoogleOauthCallbackRes:
-    properties:
-      accessToken:
-        type: string
-      refreshToken:
-        type: string
-    type: object
   response.GoogleOauthCallbackRes:
     properties:
       accessToken:
@@ -566,14 +559,7 @@ definitions:
           $ref: '#/definitions/response.UserResult'
         type: array
     type: object
-  response.ResGameReissue:
-    properties:
-      accessToken:
-        type: string
-      refreshToken:
-        type: string
-    type: object
-  response.ResGameSignin:
+  response.ResGameGoogleOauthCallback:
     properties:
       accessToken:
         type: string
@@ -584,7 +570,14 @@ definitions:
       userID:
         type: integer
     type: object
-  response.ResGameV02GoogleOauthCallback:
+  response.ResGameReissue:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  response.ResGameSignin:
     properties:
       accessToken:
         type: string
@@ -771,9 +764,9 @@ definitions:
     type: object
   response.UserResult:
     properties:
+      name:
+        type: string
       totalCorrectCount:
-        type: integer
-      userID:
         type: integer
     type: object
 info:
@@ -1318,33 +1311,6 @@ paths:
       summary: Fcm 토큰 저장
       tags:
       - game/auth
-  /v0.1/game/auth/google:
-    get:
-      description: |-
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        USER_NOT_EXIST : 유저가 존재하지 않음
-        USER_ALREADY_EXISTED : 유저가 이미 존재
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: boolean
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: google oauth 로그인
-      tags:
-      - game/auth
   /v0.1/game/auth/google/callback:
     get:
       description: |-
@@ -1356,13 +1322,19 @@ paths:
         ■ errCode with 500
         INTERNAL_SERVER : 내부 로직 처리 실패
         INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.GameGoogleOauthCallbackRes'
+            $ref: '#/definitions/response.ResGameGoogleOauthCallback'
         "400":
           description: Bad Request
           schema: {}
@@ -3045,39 +3017,6 @@ paths:
       summary: google oauth 로그인 콜백
       tags:
       - auth
-  /v0.2/game/auth/google/callback:
-    get:
-      description: |-
-        ■ errCode with 400
-        PARAM_BAD : 파라미터 오류
-        USER_NOT_EXIST : 유저가 존재하지 않음
-        USER_ALREADY_EXISTED : 유저가 이미 존재
-
-        ■ errCode with 500
-        INTERNAL_SERVER : 내부 로직 처리 실패
-        INTERNAL_DB : DB 처리 실패
-      parameters:
-      - description: code
-        in: query
-        name: code
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.ResGameV02GoogleOauthCallback'
-        "400":
-          description: Bad Request
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: google oauth 로그인 콜백
-      tags:
-      - game/auth
   /v0.2/rooms/create:
     get:
       description: |-

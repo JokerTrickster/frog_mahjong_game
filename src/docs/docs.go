@@ -580,34 +580,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.1/game/auth/google": {
-            "get": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "game/auth"
-                ],
-                "summary": "google oauth 로그인",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/v0.1/game/auth/google/callback": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -618,11 +590,20 @@ const docTemplate = `{
                     "game/auth"
                 ],
                 "summary": "google oauth 로그인 콜백",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.GameGoogleOauthCallbackRes"
+                            "$ref": "#/definitions/response.ResGameGoogleOauthCallback"
                         }
                     },
                     "400": {
@@ -2534,43 +2515,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v0.2/game/auth/google/callback": {
-            "get": {
-                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_EXIST : 유저가 존재하지 않음\nUSER_ALREADY_EXISTED : 유저가 이미 존재\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "game/auth"
-                ],
-                "summary": "google oauth 로그인 콜백",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "code",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.ResGameV02GoogleOauthCallback"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/v0.2/rooms/create": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
@@ -3836,17 +3780,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.GameGoogleOauthCallbackRes": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                }
-            }
-        },
         "response.GoogleOauthCallbackRes": {
             "type": "object",
             "properties": {
@@ -3960,18 +3893,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ResGameReissue": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ResGameSignin": {
+        "response.ResGameGoogleOauthCallback": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -3988,7 +3910,18 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ResGameV02GoogleOauthCallback": {
+        "response.ResGameReissue": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ResGameSignin": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -4279,10 +4212,10 @@ const docTemplate = `{
         "response.UserResult": {
             "type": "object",
             "properties": {
-                "totalCorrectCount": {
-                    "type": "integer"
+                "name": {
+                    "type": "string"
                 },
-                "userID": {
+                "totalCorrectCount": {
                     "type": "integer"
                 }
             }

@@ -19,12 +19,6 @@ type ReissueAuthRepository struct {
 	GormDB *gorm.DB
 }
 
-type GoogleOauthAuthRepository struct {
-	GormDB *gorm.DB
-}
-type GoogleOauthCallbackAuthRepository struct {
-	GormDB *gorm.DB
-}
 
 type RequestPasswordAuthRepository struct {
 	GormDB *gorm.DB
@@ -34,7 +28,7 @@ type ValidatePasswordAuthRepository struct {
 	GormDB *gorm.DB
 }
 
-type V02GoogleOauthCallbackAuthRepository struct {
+type GoogleOauthCallbackAuthRepository struct {
 	GormDB *gorm.DB
 }
 type RequestSignupAuthRepository struct {

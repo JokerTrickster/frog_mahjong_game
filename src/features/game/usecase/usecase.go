@@ -608,27 +608,36 @@ func CreateResV2DrawResult(userMissions []mysql.UserMissions) response.ResV2Draw
 }
 
 // find-it
-func CreateResResult(roomSettingDTO *mysql.FindItRoomSettings, userCorrectPositionsDTO []*mysql.FindItUserCorrectPositions) response.ResFindItResult {
+func CreateResResult(roomSettingDTO *mysql.FindItRoomSettings, userCorrectPositionsDTO []*mysql.FindItUserCorrectPositions, userDTOs []*mysql.GameUsers) response.ResFindItResult {
 	userCorrectCount := make(map[int]int)
 
 	// 유저별 맞춘 개수 카운트
 	for _, userCorrectPosition := range userCorrectPositionsDTO {
 		userCorrectCount[userCorrectPosition.UserID]++
 	}
+	res := response.ResFindItResult{
+		Round: roomSettingDTO.Round,
+	}
+	// 유저 ID를 이름으로 변환하기 위한 map 생성
+	userNames := make(map[int]string)
+	for _, userDTO := range userDTOs {
+		userNames[int(userDTO.ID)] = userDTO.Name
+	}
 
-	// 응답 구조에 맞추어 데이터 저장
+	// 응답 구조에 맞추어 데이터 저장 (모든 유저 포함)
 	var users []response.UserResult
-	for userID, count := range userCorrectCount {
+	for userID, name := range userNames {
+		count, exists := userCorrectCount[userID]
+		if !exists {
+			count = 0 // 맞춘 데이터가 없는 유저는 0으로 처리
+		}
+
 		users = append(users, response.UserResult{
-			UserID:            userID,
+			Name:              name,
 			TotalCorrectCount: count,
 		})
 	}
-
-	res := response.ResFindItResult{
-		Round: roomSettingDTO.Round,
-		Users: users,
-	}
+	res.Users = users
 
 	return res
 }

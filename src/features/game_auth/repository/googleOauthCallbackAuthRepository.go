@@ -48,7 +48,7 @@ func (g *GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.Con
 	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
 	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?  ", entity.Email).Updates(&user)
 	if result.Error != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error()+result.Error.Error(), entity), utils.ErrFromClient)
+		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error(), entity), utils.ErrFromClient)
 	}
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -67,4 +67,36 @@ func (g *GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, user
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(result.Error.Error(), user), utils.ErrFromInternal)
 	}
 	return user, nil
+}
+
+func (g *GoogleOauthCallbackAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error) {
+	profiles := make([]*mysql.Profiles, 0)
+	err := g.GormDB.WithContext(ctx).Where("total_count = ?", 0).Find(&profiles).Error
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
+	}
+	return profiles, nil
+}
+
+func (g *GoogleOauthCallbackAuthRepository) InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error {
+	result := g.GormDB.WithContext(ctx).Create(&userProfileDTOList)
+	if result.RowsAffected == 0 {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user profile insert", userProfileDTOList), utils.ErrFromMysqlDB)
+	}
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), userProfileDTOList), utils.ErrFromMysqlDB)
+	}
+	return nil
+}
+
+func (d *GoogleOauthCallbackAuthRepository) CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error) {
+	token := &mysql.Tokens{}
+	err := d.GormDB.WithContext(ctx).Where("user_id = ?", uID).First(&token).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), uID), utils.ErrFromMysqlDB)
+	}
+	return token, nil
 }

@@ -112,4 +112,6 @@ type IReportImageUploadGameRepository interface {
 type IFindItResultGameRepository interface {
 	FindOneRoomSetting(ctx context.Context,roomID int) (*mysql.FindItRoomSettings, error)
 	FindFindItUserCorrectPositions(ctx context.Context,roomID int) ([]*mysql.FindItUserCorrectPositions, error)
+	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.GameRoomUsers, error)
+	FindGameUsers(ctx context.Context, userIDList []int) ([]*mysql.GameUsers,error)
 }

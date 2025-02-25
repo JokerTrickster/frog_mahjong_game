@@ -75,8 +75,11 @@ func SubmitPositionEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if len(preloadUsers) == 2 {
 		messageMsg.GameInfo.IsFull = true
 	}
-	// 목숨이 0개이면 게임 종료 처리
+	// 목숨이 0개이면 게임 종료 처리 or 마지막 라운드인 경우
 	if messageMsg.GameInfo.Life <= 0 {
+		msg.Event = "GAME_OVER"
+	}
+	if messageMsg.GameInfo.Round == 10 && messageMsg.GameInfo.CorrectCount == 5 {
 		msg.Event = "GAME_OVER"
 	}
 	if messageMsg.GameInfo.CorrectCount == 5 {

@@ -3,7 +3,10 @@ package handler
 import (
 	"context"
 	_interface "main/features/game_auth/model/interface"
+	"main/utils"
 	"net/http"
+
+	"main/features/game_auth/model/request"
 
 	"github.com/labstack/echo/v4"
 )
@@ -32,18 +35,20 @@ func NewGoogleOauthCallbackAuthHandler(c *echo.Echo, useCase _interface.IGoogleO
 // @Description ■ errCode with 500
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
+// @Param code query string true "code"
 // @Produce json
-// @Success 200 {object} response.GameGoogleOauthCallbackRes
+// @Success 200 {object} response.ResGameGoogleOauthCallback
 // @Failure 400 {object} error
 // @Failure 500 {object} error
 // @Tags game/auth
 func (d *GoogleOauthCallbackAuthHandler) GoogleOauthCallback(c echo.Context) error {
 	ctx := context.Background()
-	oauthState, _ := c.Request().Cookie("state")
-	if oauthState.Value != c.FormValue("state") {
-		return c.JSON(http.StatusBadRequest, "invalid oauth state")
+	req := &request.ReqGameGoogleOauthCallback{}
+	if err := utils.ValidateReq(c, req); err != nil {
+		return err
 	}
-	res, err := d.UseCase.GoogleOauthCallback(ctx, c.FormValue("code"))
+
+	res, err := d.UseCase.GoogleOauthCallback(ctx, req.IDToken)
 	if err != nil {
 		return err
 	}
