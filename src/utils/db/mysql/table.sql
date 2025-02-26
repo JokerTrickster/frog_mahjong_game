@@ -480,6 +480,7 @@ CREATE TABLE find_it_room_settings (
     round INT,                 -- 게임 라운드
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
 );
 
@@ -552,3 +553,33 @@ CREATE TABLE find_it_user_correct_positions (
 
     UNIQUE (user_id, room_id, round, correct_position_id) -- 중복 방지
 );
+
+
+
+
+INSERT INTO find_it_images (level, normal_image_url, abnormal_image_url)
+VALUES 
+(1, 'normal1-level1.png', 'abnormal1-level1.png'),
+(1, 'normal2-level1.png', 'abnormal2-level1.png'),
+(1, 'normal3-level1.png', 'abnormal3-level1.png'),
+(1, 'normal4-level1.png', 'abnormal4-level1.png'),
+(1, 'normal5-level1.png', 'abnormal5-level1.png'),
+(1, 'normal6-level1.png', 'abnormal6-level1.png'),
+(1, 'normal7-level1.png', 'abnormal7-level1.png'),
+(1, 'normal8-level1.png', 'abnormal8-level1.png'),
+(1, 'normal9-level1.png', 'abnormal9-level1.png'),
+(1, 'normal10-level1.png', 'abnormal10-level1.png');
+
+
+INSERT INTO find_it_image_correct_positions (image_id, x_position, y_position)
+VALUES 
+(1, 60.2, 40.3), (1, 130.6, 85.7), (1, 190.4, 120.8), (1, 220.2, 160.1), (1, 310.7, 230.9),
+(2, 45.3, 55.9), (2, 115.8, 95.6), (2, 175.2, 130.7), (2, 205.5, 145.8), (2, 290.3, 205.4),
+(3, 60.2, 40.3), (3, 130.6, 85.7), (3, 190.4, 120.8), (3, 220.2, 160.1), (3, 310.7, 230.9),
+(4, 45.3, 55.9), (4, 115.8, 95.6), (4, 175.2, 130.7), (4, 205.5, 145.8), (4, 290.3, 205.4),
+(5, 55.7, 60.2), (5, 125.3, 90.4), (5, 185.5, 125.9), (5, 215.8, 155.2), (5, 295.4, 215.6),
+(6, 48.2, 42.8), (6, 128.6, 92.3), (6, 176.9, 127.6), (6, 220.4, 165.7), (6, 305.3, 225.1),
+(7, 52.3, 57.1), (7, 132.9, 98.4), (7, 180.5, 135.6), (7, 225.2, 172.3), (7, 308.7, 235.8),
+(8, 42.7, 50.5), (8, 138.3, 99.7), (8, 188.2, 142.3), (8, 230.9, 178.6), (8, 312.5, 240.9),
+(9, 58.5, 45.3), (9, 140.2, 102.5), (9, 190.8, 145.9), (9, 235.3, 185.2), (9, 315.6, 248.1),
+(10, 60.5, 48.8), (10, 144.6, 105.3), (10, 195.7, 150.4), (10, 240.2, 190.7), (10, 320.9, 255.2),
