@@ -555,6 +555,26 @@ CREATE TABLE find_it_user_correct_positions (
 );
 
 
+create table games (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    title VARCHAR(255),
+    description VARCHAR(255),
+    category varchar(255),
+    hash_tag varchar(255),
+    youtube_url varchar(255),
+    image VARCHAR(500),
+    is_enabled BOOLEAN DEFAULT FALSE
+);
+INSERT INTO games (title, description, category, hash_tag, youtube_url, is_enabled, image)
+VALUES 
+    ('틀린그림찾기', '협력해서 틀린그림을 찾아보세요', '협력', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', TRUE, 'find-it.png'),
+    ('장미전쟁', '자신의 영역을 넓혀서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png'),
+    ('카후나', '자신의 영역을 넓혀서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png'),
+    ('스플랜더 듀얼', '미션을 빨리 달성해서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png');
+
 
 
 INSERT INTO find_it_images (level, normal_image_url, abnormal_image_url)

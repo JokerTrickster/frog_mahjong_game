@@ -97,3 +97,7 @@ type IReportImageUploadGameHandler interface {
 type IFindItResultGameHandler interface {
 	FindItResult(c echo.Context) error
 }
+
+type IListGameHandler interface{
+	ListGame(c echo.Context) error
+}

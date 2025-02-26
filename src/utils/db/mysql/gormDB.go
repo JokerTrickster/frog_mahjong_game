@@ -298,3 +298,14 @@ type FindItUserCorrectPositions struct {
 	ImageID           int `json:"imageID" gorm:"column:image_id"`                      // ✅ 정답을 맞춘 이미지 ID
 	CorrectPositionID int `json:"correctPositionID" gorm:"column:correct_position_id"` // ✅ 맞춘 정답의 ID
 }
+
+type Games struct {
+	gorm.Model
+	Title       string `json:"title" gorm:"column:title"`
+	Description string `json:"description" gorm:"column:description"`
+	Image       string `json:"image" gorm:"column:image"`
+	Category    string `json:"category" gorm:"column:category"`
+	HashTag     string `json:"hashTag" gorm:"column:hash_tag"`
+	YoutubeUrl  string `json:"youtubeUrl" gorm:"column:youtube_url"`
+	IsEnabled   bool   `json:"isEnabled" gorm:"column:is_enabled"`
+}

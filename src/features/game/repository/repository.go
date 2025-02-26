@@ -98,3 +98,7 @@ type ReportImageUploadGameRepository struct {
 type FindItResultGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type ListGameRepository struct {
+	GormDB *gorm.DB
+}

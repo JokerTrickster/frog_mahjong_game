@@ -42,7 +42,7 @@ func NewFindItResultGameHandler(c *echo.Echo, useCase _interface.IFindItResultGa
 // @Success 200 {object} response.ResFindItResult
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags find-it/game
+// @Tags app/find-it/game
 func (d *FindItResultGameHandler) FindItResult(c echo.Context) error {
 	ctx, _, _ := utils.CtxGenerate(c)
 	req := &request.ReqFindItResult{}

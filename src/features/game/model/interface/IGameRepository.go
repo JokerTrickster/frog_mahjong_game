@@ -110,8 +110,12 @@ type IReportImageUploadGameRepository interface {
 // find-it
 
 type IFindItResultGameRepository interface {
-	FindOneRoomSetting(ctx context.Context,roomID int) (*mysql.FindItRoomSettings, error)
-	FindFindItUserCorrectPositions(ctx context.Context,roomID int) ([]*mysql.FindItUserCorrectPositions, error)
+	FindOneRoomSetting(ctx context.Context, roomID int) (*mysql.FindItRoomSettings, error)
+	FindFindItUserCorrectPositions(ctx context.Context, roomID int) ([]*mysql.FindItUserCorrectPositions, error)
 	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.GameRoomUsers, error)
-	FindGameUsers(ctx context.Context, userIDList []int) ([]*mysql.GameUsers,error)
+	FindGameUsers(ctx context.Context, userIDList []int) ([]*mysql.GameUsers, error)
+}
+
+type IListGameRepository interface {
+	FindGame(ctx context.Context) ([]*mysql.Games, error)
 }
