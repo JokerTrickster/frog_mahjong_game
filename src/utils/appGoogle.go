@@ -30,7 +30,9 @@ func InitAppGoogleOauth() error {
 		AppGoogleConfig.RedirectURL = "http://localhost:8080/v0.1/game/auth/google/callback"
 	} else {
 		// GoogleConfig.RedirectURL = fmt.Sprintf("https://%s-frog-api.jokertrickster.com/v0.1/auth/google/callback", Env.Env)
-		AppGoogleConfig.RedirectURL = "https://www.frog-mahjong.xyz/callback/google"
+		AppGoogleConfig.RedirectURL = "https://dev-frog-api.jokertrickster.com/v0.1/game/auth/google/callback"
+		///v0.1/game/auth/google/callback
+
 	}
 	return nil
 }
