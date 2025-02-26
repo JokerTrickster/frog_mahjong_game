@@ -641,3 +641,23 @@ func CreateResResult(roomSettingDTO *mysql.FindItRoomSettings, userCorrectPositi
 
 	return res
 }
+
+func CreateResListGame(gameList []*mysql.Games) response.ResListGame {
+	res := response.ResListGame{
+		TotalCount: len(gameList),
+	}
+	for _, game := range gameList {
+		g := response.GameInfo{
+			Title:       game.Title,
+			Image:       game.Image,
+			Description: game.Description,
+			IsEnabled:   game.IsEnabled,
+			YoutubeUrl:  game.YoutubeUrl,
+			HashTag:     game.HashTag,
+			Category:    game.Category,
+		}
+		res.Games = append(res.Games, g)
+
+	}
+	return res
+}

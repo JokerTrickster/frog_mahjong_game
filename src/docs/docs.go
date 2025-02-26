@@ -22,7 +22,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "find-it/game"
+                    "app/find-it/game"
                 ],
                 "summary": "[틀린그림찾기] 게임 결과 가져오기",
                 "parameters": [
@@ -1268,6 +1268,34 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/v0.1/game/list": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/game"
+                ],
+                "summary": "게임 정보를 가져온다.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResListGame"
                         }
                     },
                     "400": {
@@ -4247,6 +4275,32 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GameInfo": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hashTag": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "youtubeUrl": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GoogleOauthCallbackRes": {
             "type": "object",
             "properties": {
@@ -4472,6 +4526,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.FrogCard"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ResListGame": {
+            "type": "object",
+            "properties": {
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.GameInfo"
                     }
                 },
                 "totalCount": {

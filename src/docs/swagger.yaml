@@ -543,6 +543,23 @@ definitions:
       name:
         type: string
     type: object
+  response.GameInfo:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      hashTag:
+        type: string
+      image:
+        type: string
+      isEnabled:
+        type: boolean
+      title:
+        type: string
+      youtubeUrl:
+        type: string
+    type: object
   response.GoogleOauthCallbackRes:
     properties:
       accessToken:
@@ -689,6 +706,15 @@ definitions:
       cards:
         items:
           $ref: '#/definitions/response.FrogCard'
+        type: array
+      totalCount:
+        type: integer
+    type: object
+  response.ResListGame:
+    properties:
+      games:
+        items:
+          $ref: '#/definitions/response.GameInfo'
         type: array
       totalCount:
         type: integer
@@ -904,7 +930,7 @@ paths:
           schema: {}
       summary: '[틀린그림찾기] 게임 결과 가져오기'
       tags:
-      - find-it/game
+      - app/find-it/game
   /find-it/v0.1/rooms/match/ws:
     get:
       responses: {}
@@ -2029,6 +2055,33 @@ paths:
       summary: 도라 선택하기
       tags:
       - game
+  /v0.1/game/list:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 정보를 가져온다.
+      tags:
+      - app/game
   /v0.1/game/loan:
     post:
       description: |-

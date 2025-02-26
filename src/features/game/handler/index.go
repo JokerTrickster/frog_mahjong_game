@@ -35,4 +35,5 @@ func NewGameHandler(c *echo.Echo) {
 
 	//find-it
 	NewFindItResultGameHandler(c, usecase.NewFindItResultGameUseCase(repository.NewFindItResultGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewListGameHandler(c, usecase.NewListGameUseCase(repository.NewListGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }

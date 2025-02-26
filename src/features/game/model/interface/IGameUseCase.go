@@ -94,3 +94,7 @@ type IReportImageUploadGameUseCase interface {
 type IFindItResultGameUseCase interface {
 	FindItResult(c context.Context, req *request.ReqFindItResult) (response.ResFindItResult, error)
 }
+
+type IListGameUseCase interface {
+	ListGame(c context.Context) (response.ResListGame, error)
+}
