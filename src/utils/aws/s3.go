@@ -64,6 +64,14 @@ var imgMeta = map[ImgType]imgMetaStruct{
 		height:     0,
 		expireTime: 10 * time.Hour,
 	},
+	ImgTypeBoardGame: {
+		bucket:     func() string { return "dev-frog" },
+		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		path:       "board_game/images",
+		width:      0,
+		height:     0,
+		expireTime: 10 * time.Hour,
+	},
 }
 
 func ImageUpload(ctx context.Context, file *multipart.FileHeader, filename string, imgType ImgType) error {

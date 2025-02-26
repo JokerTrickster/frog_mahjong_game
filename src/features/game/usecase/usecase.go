@@ -649,13 +649,19 @@ func CreateResListGame(gameList []*mysql.Games) response.ResListGame {
 	for _, game := range gameList {
 		g := response.GameInfo{
 			Title:       game.Title,
-			Image:       game.Image,
 			Description: game.Description,
 			IsEnabled:   game.IsEnabled,
 			YoutubeUrl:  game.YoutubeUrl,
 			HashTag:     game.HashTag,
 			Category:    game.Category,
 		}
+		// s3 에서 서명된 url로 응답
+		imageUrl, err := _aws.ImageGetSignedURL(context.TODO(), game.Image, _aws.ImgTypeBoardGame)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		g.Image = imageUrl
 		res.Games = append(res.Games, g)
 
 	}
