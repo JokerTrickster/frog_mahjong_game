@@ -62,7 +62,7 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = HintItemEventWebsocket(&msg)
 	case "TIME_OUT":
 		errInfo = TimeOutEventWebsocket(&msg)
-	case "CANCEL_MATCH":
+	case "MATCH_CANCEL":
 		errInfo = CancelMatchEventWebsocket(&msg)
 
 	case "SUBMIT_POSITION":
@@ -157,7 +157,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				// Notify all users in the same room about the disconnection
 				// false이면
 				if wsClient.Closed {
-					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
+					// AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
 				return
