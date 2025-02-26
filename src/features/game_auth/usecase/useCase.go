@@ -140,14 +140,13 @@ func getAppGoogleUserInfo(ctx context.Context, accessToken string) ([]byte, erro
 
 	return content, nil
 }
-func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.Profiles) []*mysql.UserProfiles {
-	userProfileDTOList := make([]*mysql.UserProfiles, 0)
+func CreateUserProfileDTOList(userID uint, profileIDList []*mysql.GameProfiles) []*mysql.GameUserProfiles {
+	userProfileDTOList := make([]*mysql.GameUserProfiles, 0)
 	for _, profile := range profileIDList {
-		userProfileDTOList = append(userProfileDTOList, &mysql.UserProfiles{
-			UserID:       int(userID),
-			ProfileID:    int(profile.ID),
-			IsAchieved:   true,
-			CurrentCount: 0,
+		userProfileDTOList = append(userProfileDTOList, &mysql.GameUserProfiles{
+			UserID:     int(userID),
+			ProfileID:  int(profile.ID),
+			IsAchieved: true,
 		})
 	}
 	return userProfileDTOList

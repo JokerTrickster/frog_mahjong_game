@@ -10,8 +10,8 @@ type ISignupAuthRepository interface {
 	UserCheckByEmail(ctx context.Context, email string) error
 	InsertOneUser(ctx context.Context, user *mysql.GameUsers) error
 	VerifyAuthCode(ctx context.Context, email, code string) error
-	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
-	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
+	FindAllBasicProfile(ctx context.Context) ([]*mysql.GameProfiles, error)
+	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.GameUserProfiles) error
 }
 
 type ISigninAuthRepository interface {
@@ -53,8 +53,8 @@ type IGoogleOauthCallbackAuthRepository interface {
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
 	CreateUser(ctx context.Context, user *mysql.GameUsers) (*mysql.GameUsers, error)
-	FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error)
-	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error
+	FindAllBasicProfile(ctx context.Context) ([]*mysql.GameProfiles, error)
+	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.GameUserProfiles) error
 	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
 }
 

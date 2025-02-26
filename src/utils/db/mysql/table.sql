@@ -422,6 +422,26 @@ CREATE TABLE game_users (
     alert_enabled TINYINT(1) DEFAULT 1, 
     provider VARCHAR(50) -- email, google, kakao
 );
+create table game_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, 
+    image VARCHAR(255),  -- 프로필 이미지 경로
+    description VARCHAR(255) -- 프로필 획득 설명
+);
+CREATE TABLE game_user_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, 
+    user_id INT,
+    profile_id INT,
+    is_achieved BOOLEAN DEFAULT FALSE, -- 달성 여부
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (profile_id) REFERENCES game_profiles(id) ON DELETE CASCADE
+);
 
 CREATE TABLE game_rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,

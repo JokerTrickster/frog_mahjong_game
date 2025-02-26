@@ -69,16 +69,16 @@ func (g *GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, user
 	return user, nil
 }
 
-func (g *GoogleOauthCallbackAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.Profiles, error) {
-	profiles := make([]*mysql.Profiles, 0)
-	err := g.GormDB.WithContext(ctx).Where("total_count = ?", 0).Find(&profiles).Error
+func (g *GoogleOauthCallbackAuthRepository) FindAllBasicProfile(ctx context.Context) ([]*mysql.GameProfiles, error) {
+	profiles := make([]*mysql.GameProfiles, 0)
+	err := g.GormDB.WithContext(ctx).Find(&profiles).Error
 	if err != nil {
 		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error()), utils.ErrFromMysqlDB)
 	}
 	return profiles, nil
 }
 
-func (g *GoogleOauthCallbackAuthRepository) InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.UserProfiles) error {
+func (g *GoogleOauthCallbackAuthRepository) InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.GameUserProfiles) error {
 	result := g.GormDB.WithContext(ctx).Create(&userProfileDTOList)
 	if result.RowsAffected == 0 {
 		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError("failed user profile insert", userProfileDTOList), utils.ErrFromMysqlDB)
