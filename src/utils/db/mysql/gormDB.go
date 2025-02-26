@@ -219,6 +219,19 @@ type GameUsers struct {
 	Provider     string `json:"provider" gorm:"column:provider"`
 	AlertEnabled bool   `json:"alertEnabled" gorm:"column:alert_enabled"`
 }
+type GameProfiles struct {
+	gorm.Model
+	Name        string `json:"name" gorm:"column:name"`
+	Image       string `json:"image" gorm:"column:image"`
+	Description string `json:"description" gorm:"column:description"`
+}
+
+type GameUserProfiles struct {
+	gorm.Model
+	UserID     int  `json:"userID" gorm:"column:user_id"`
+	ProfileID  int  `json:"profileID" gorm:"column:profile_id"`
+	IsAchieved bool `json:"isAchieved" gorm:"column:is_achieved"`
+}
 
 type GameRooms struct {
 	gorm.Model

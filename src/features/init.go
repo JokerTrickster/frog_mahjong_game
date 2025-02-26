@@ -6,6 +6,7 @@ import (
 	"main/features/find_it"
 	gameHandler "main/features/game/handler"
 	gameAuthHandler "main/features/game_auth/handler"
+	gameUserHandler "main/features/game_users/handler"
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
 	userHandler "main/features/users/handler"
@@ -29,6 +30,7 @@ func InitHandler(e *echo.Echo) error {
 	chatHandler.NewChatHandler(e)
 	profileHandler.NewProfilesHandler(e)
 	gameAuthHandler.NewGameAuthHandler(e)
+	gameUserHandler.NewGameUsersHandler(e)
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)

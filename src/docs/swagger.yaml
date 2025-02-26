@@ -1,4 +1,26 @@
 definitions:
+  main_features_game_users_model_response.Profile:
+    properties:
+      isAchieved:
+        description: 획득 여부
+        type: boolean
+      profileID:
+        description: 프로필 ID
+        type: integer
+    type: object
+  main_features_game_users_model_response.User:
+    properties:
+      coin:
+        type: integer
+      email:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+      userID:
+        type: integer
+    type: object
   main_features_profiles_model_response.Profile:
     properties:
       image:
@@ -83,6 +105,11 @@ definitions:
         type: string
       size:
         type: integer
+    type: object
+  request.ReqAlertGameUsers:
+    properties:
+      alert:
+        type: boolean
     type: object
   request.ReqAlertUsers:
     properties:
@@ -269,6 +296,15 @@ definitions:
           $ref: '#/definitions/request.Card'
         type: array
     type: object
+  request.ReqPushGameUsers:
+    properties:
+      message:
+        type: string
+      role:
+        type: string
+      title:
+        type: string
+    type: object
   request.ReqPushUsers:
     properties:
       message:
@@ -377,6 +413,18 @@ definitions:
     properties:
       card:
         $ref: '#/definitions/request.UpdateCard'
+    type: object
+  request.ReqUpdateGameUsers:
+    properties:
+      name:
+        maxLength: 6
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      profileID:
+        type: integer
     type: object
   request.ReqUpdateUsers:
     properties:
@@ -588,6 +636,21 @@ definitions:
       userID:
         type: integer
     type: object
+  response.ResGetGameUser:
+    properties:
+      coin:
+        type: integer
+      disconnected:
+        type: integer
+      email:
+        type: string
+      name:
+        type: string
+      profileID:
+        type: integer
+      userID:
+        type: integer
+    type: object
   response.ResGetUser:
     properties:
       coin:
@@ -621,6 +684,15 @@ definitions:
       totalCount:
         type: integer
     type: object
+  response.ResListGameUser:
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/main_features_game_users_model_response.User'
+        type: array
+    type: object
   response.ResListMissionGame:
     properties:
       missions:
@@ -633,6 +705,13 @@ definitions:
       profiles:
         items:
           $ref: '#/definitions/main_features_profiles_model_response.Profile'
+        type: array
+    type: object
+  response.ResListProfileGameUser:
+    properties:
+      profiles:
+        items:
+          $ref: '#/definitions/main_features_game_users_model_response.Profile'
         type: array
     type: object
   response.ResListProfileUser:
@@ -2139,6 +2218,239 @@ paths:
       summary: 게임 시작
       tags:
       - game
+  /v0.1/game/users:
+    delete:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 회원 탈퇴하기
+      tags:
+      - game/user
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListGameUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 가져오기
+      tags:
+      - game/user
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqUpdateGameUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 수정하기
+      tags:
+      - game/user
+  /v0.1/game/users/{userID}:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: userID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResGetGameUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 정보 가져오기
+      tags:
+      - game/user
+  /v0.1/game/users/alert:
+    put:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: 활성화 (true) / 비활성화 (false)
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqAlertGameUsers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 알람 활성화/비활성화 수정하기
+      tags:
+      - game/ser
+  /v0.1/game/users/batch/coins/full:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: '[배치용] 유저 코인 30까지 모두 회복'
+      tags:
+      - game/user
+  /v0.1/game/users/profiles:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListProfileGameUser'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 유저 프로필 리스트 가져오기
+      tags:
+      - game/user
   /v0.1/game/win-request:
     post:
       description: |-
@@ -3354,6 +3666,32 @@ paths:
       summary: 게임 결과 가져오기
       tags:
       - game
+  /v2.1/game/users/batch/coins/one:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: '[배치용] 유저 코인 1씩 회복'
+      tags:
+      - game/user
   /v2.1/rooms/join/play/ws:
     get:
       description: |-
