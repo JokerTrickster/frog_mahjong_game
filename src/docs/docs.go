@@ -1373,6 +1373,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/v0.1/game/profiles": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game/profile"
+                ],
+                "summary": "프로필 리스트 가져오기",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResListGameProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/v0.1/game/profiles/image": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game/profile"
+                ],
+                "summary": "프로필 이미지 업로드하기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "profile image name",
+                        "name": "name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "토탈 카운트",
+                        "name": "totalCount",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "프로필 이미지 파일",
+                        "name": "image",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "프로필 설명",
+                        "name": "description",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v0.1/game/report": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n",
@@ -1634,7 +1716,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "game/ser"
+                    "game/user"
                 ],
                 "summary": "유저 알람 활성화/비활성화 수정하기",
                 "parameters": [
@@ -3332,6 +3414,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main_features_game_profiles_model_response.Profile": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profileID": {
+                    "type": "integer"
+                }
+            }
+        },
         "main_features_game_users_model_response.Profile": {
             "type": "object",
             "properties": {
@@ -4380,6 +4476,17 @@ const docTemplate = `{
                 },
                 "totalCount": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.ResListGameProfile": {
+            "type": "object",
+            "properties": {
+                "profiles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main_features_game_profiles_model_response.Profile"
+                    }
                 }
             }
         },

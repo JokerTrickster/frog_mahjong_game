@@ -39,7 +39,7 @@ func NewAlertUsersHandler(c *echo.Echo, useCase _interface.IAlertUsersUseCase) _
 // @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags game/ser
+// @Tags game/user
 func (d *AlertUsersHandler) Alert(c echo.Context) error {
 	ctx, userID, _ := utils.CtxGenerate(c)
 	req := &request.ReqAlertGameUsers{}

@@ -1,4 +1,13 @@
 definitions:
+  main_features_game_profiles_model_response.Profile:
+    properties:
+      image:
+        type: string
+      name:
+        type: string
+      profileID:
+        type: integer
+    type: object
   main_features_game_users_model_response.Profile:
     properties:
       isAchieved:
@@ -683,6 +692,13 @@ definitions:
         type: array
       totalCount:
         type: integer
+    type: object
+  response.ResListGameProfile:
+    properties:
+      profiles:
+        items:
+          $ref: '#/definitions/main_features_game_profiles_model_response.Profile'
+        type: array
     type: object
   response.ResListGameUser:
     properties:
@@ -2092,6 +2108,75 @@ paths:
       summary: 다음 턴 넘기기
       tags:
       - game
+  /v0.1/game/profiles:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResListGameProfile'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 프로필 리스트 가져오기
+      tags:
+      - game/profile
+  /v0.1/game/profiles/image:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: profile image name
+        in: formData
+        name: name
+        type: string
+      - description: 토탈 카운트
+        in: formData
+        name: totalCount
+        type: integer
+      - description: 프로필 이미지 파일
+        in: formData
+        name: image
+        type: file
+      - description: 프로필 설명
+        in: formData
+        name: description
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 프로필 이미지 업로드하기
+      tags:
+      - game/profile
   /v0.1/game/report:
     post:
       description: |
@@ -2392,7 +2477,7 @@ paths:
           schema: {}
       summary: 유저 알람 활성화/비활성화 수정하기
       tags:
-      - game/ser
+      - game/user
   /v0.1/game/users/batch/coins/full:
     post:
       description: |-
