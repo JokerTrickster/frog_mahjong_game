@@ -79,7 +79,7 @@ func SubmitPositionEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if messageMsg.GameInfo.Life <= 0 {
 		msg.Event = "GAME_OVER"
 	}
-	if messageMsg.GameInfo.Round == 10 && messageMsg.GameInfo.CorrectCount == 5 {
+	if messageMsg.GameInfo.Round == messageMsg.GameInfo.RoundCount && messageMsg.GameInfo.CorrectCount == 5 {
 		msg.Event = "GAME_OVER"
 	}
 	if messageMsg.GameInfo.CorrectCount == 5 {

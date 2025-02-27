@@ -72,6 +72,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 	password := ""
 	correctCount := 0
 	imageID := 0
+	roundCount := 0
 	var startTime int64
 
 	//유저 정보 저장
@@ -124,6 +125,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 					break
 				}
 			}
+			roundCount = len(roomUser.RoundImages)
 		}
 
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
@@ -160,6 +162,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		ImageInfo:      &ImageInfo,
 		TimerUsed:      false,
 		HintPosition:   nil,
+		RoundCount:     roundCount,
 	}
 
 	MessageInfoMsg.GameInfo = &gameInfo

@@ -66,7 +66,7 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
 	}
-	if messageMsg.GameInfo.Round > 30 {
+	if messageMsg.GameInfo.Round == messageMsg.GameInfo.RoundCount {
 		msg.Event = "GAME_CLEAR"
 	} else {
 		msg.Event = "ROUND_START"
