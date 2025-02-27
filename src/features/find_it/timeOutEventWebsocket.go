@@ -63,14 +63,30 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if len(preloadUsers) == 2 {
 		messageMsg.GameInfo.IsFull = true
 	}
-
+	if messageMsg.GameInfo.Life <= 0 {
+		msg.Event = "GAME_OVER"
+	} else {
+		msg.Event = "ROUND_FAIL"
+		//TODO 못맞춘 좌표를 보낸다. 
+		correctPositions, err := repository.TimeOutFindImageCorrectPosition(ctx, int(roomID),req.Round,req.ImageID)
+		if err != nil {
+			return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrFetchFailed, "이미지 정답 위치 조회 에러")
+		}
+		positions := []*entity.Position{}
+		for _, correctPosition := range correctPositions {
+			p := &entity.Position{
+				X: correctPosition.XPosition,
+				Y: correctPosition.YPosition,
+			}
+			positions = append(positions, p)
+		}
+		messageMsg.GameInfo.FailedPositions = positions
+	}
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
 	}
-	if messageMsg.GameInfo.Life <= 0 {
-		msg.Event = "GAME_OVER"
-	}
+
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
 	return nil

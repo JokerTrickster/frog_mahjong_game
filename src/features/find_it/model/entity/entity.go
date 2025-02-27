@@ -65,22 +65,23 @@ type User struct {
 	CorrectPositions []Position `json:"correctPositions"` // 맞은 위치 수 (x,y)
 }
 type GameInfo struct {
-	AllReady       bool       `json:"allReady"`       // 게임 시작 여부
-	Timer          int        `json:"timer"`          // 타이머
-	IsFull         bool       `json:"isFull"`         // 방이 꽉 찼는지 여부
-	RoomID         uint       `json:"roomID"`         // 방 ID
-	Password       string     `json:"password"`       // 방 비밀번호
-	StartTime      int64      `json:"startTime"`      // 게임 시작 시간 (epoch time in milliseconds)
-	ItemTimerCount int        `json:"itemTimerCount"` // 아이템 타이머 카운트
-	ItemHintCount  int        `json:"itemHintCount"`  // 아이템 힌트 카운트
-	Round          int        `json:"round"`          // 라운드
-	ImageInfo      *ImageInfo `json:"imageInfo"`      // 이미지 정보
-	Life           int        `json:"life"`           // 생명
-	WrongPosition  *Position  `json:"wrongPosition"`  // 틀린 위치 (x,y)
-	CorrectCount   int        `json:"correctCount"`   // 맞은 개수
-	HintPosition   *Position  `json:"hintPosition"`   // 힌트 위치 (x,y)
-	TimerUsed      bool       `json:"timerUsed"`      // 타이머 사용 여부
-	RoundCount     int        `json:"roundCount"`     // 라운드 카운트
+	AllReady        bool        `json:"allReady"`        // 게임 시작 여부
+	Timer           int         `json:"timer"`           // 타이머
+	IsFull          bool        `json:"isFull"`          // 방이 꽉 찼는지 여부
+	RoomID          uint        `json:"roomID"`          // 방 ID
+	Password        string      `json:"password"`        // 방 비밀번호
+	StartTime       int64       `json:"startTime"`       // 게임 시작 시간 (epoch time in milliseconds)
+	ItemTimerCount  int         `json:"itemTimerCount"`  // 아이템 타이머 카운트
+	ItemHintCount   int         `json:"itemHintCount"`   // 아이템 힌트 카운트
+	Round           int         `json:"round"`           // 라운드
+	ImageInfo       *ImageInfo  `json:"imageInfo"`       // 이미지 정보
+	Life            int         `json:"life"`            // 생명
+	WrongPosition   *Position   `json:"wrongPosition"`   // 틀린 위치 (x,y)
+	CorrectCount    int         `json:"correctCount"`    // 맞은 개수
+	HintPosition    *Position   `json:"hintPosition"`    // 힌트 위치 (x,y)
+	TimerUsed       bool        `json:"timerUsed"`       // 타이머 사용 여부
+	RoundCount      int         `json:"roundCount"`      // 라운드 카운트
+	FailedPositions []*Position `json:"failedPositions"` // 못찾은 위치 (x,y)
 }
 type ImageInfo struct {
 	ID               int    `json:"id"`

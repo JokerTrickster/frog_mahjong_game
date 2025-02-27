@@ -48,3 +48,42 @@ func TimeOutLifeDecrease(ctx context.Context, tx *gorm.DB, roomID uint, diffLife
 	}
 	return nil
 }
+
+func TimeOutFindImageCorrectPosition(ctx context.Context, roomID, round, imageID int) ([]*mysql.FindItImageCorrectPositions, *entity.ErrorInfo) {
+    var remainingPositions []*mysql.FindItImageCorrectPositions
+    var correctPositionIDs []int
+
+    // ✅ 이미 맞춘 correct_position_id 조회
+    err := mysql.GormMysqlDB.WithContext(ctx).
+        Table("find_it_user_correct_positions").
+        Select("correct_position_id").
+        Where("room_id = ? AND round = ? AND image_id = ?", roomID, round, imageID).
+        Pluck("correct_position_id", &correctPositionIDs).Error
+
+    if err != nil {
+        return nil, &entity.ErrorInfo{
+            Code: _errors.ErrCodeInternal,
+            Msg:  fmt.Sprintf("유저 정답 위치 조회 실패: %v", err.Error()),
+            Type: _errors.ErrFetchFailed,
+        }
+    }
+
+    // ✅ 전체 이미지 정답 중에서 맞춘 정답을 제외하고 가져오기
+    query := mysql.GormMysqlDB.WithContext(ctx).
+        Where("image_id = ?", imageID)
+
+    if len(correctPositionIDs) > 0 {
+        query = query.Where("id NOT IN (?)", correctPositionIDs)
+    }
+
+    err = query.Find(&remainingPositions).Error
+    if err != nil {
+        return nil, &entity.ErrorInfo{
+            Code: _errors.ErrCodeInternal,
+            Msg:  fmt.Sprintf("남은 정답 위치 조회 실패: %v", err.Error()),
+            Type: _errors.ErrFetchFailed,
+        }
+    }
+
+    return remainingPositions, nil
+}
