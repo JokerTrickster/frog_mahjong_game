@@ -98,3 +98,11 @@ type IFindItResultGameUseCase interface {
 type IListGameUseCase interface {
 	ListGame(c context.Context) (response.ResListGame, error)
 }
+
+type IFindItImageGameUseCase interface {
+	FindItImage(c context.Context, req *entity.FindItImageGameEntity) error
+}
+
+type IFindItImageInfoGameUseCase interface {
+	FindItImageInfo(c context.Context, req *request.ReqFindItImageInfo) error
+}

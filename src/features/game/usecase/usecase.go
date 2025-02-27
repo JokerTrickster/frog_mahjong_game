@@ -667,3 +667,23 @@ func CreateResListGame(gameList []*mysql.Games) response.ResListGame {
 	}
 	return res
 }
+
+func CreateImageDTO(imageInfo request.ImageInfo) *mysql.FindItImages {
+	return &mysql.FindItImages{
+		Level:            imageInfo.Level,
+		NormalImageUrl:   imageInfo.NormalImage,
+		AbnormalImageUrl: imageInfo.AbnormalImage,
+	}
+}
+
+func CreateImageCorrectDTO(imageID int, imageInfo request.ImageInfo) []*mysql.FindItImageCorrectPositions {
+	imageCorrectDTOs := make([]*mysql.FindItImageCorrectPositions, 0)
+	for _, position := range imageInfo.Positions {
+		imageCorrectDTOs = append(imageCorrectDTOs, &mysql.FindItImageCorrectPositions{
+			ImageID:   imageID,
+			XPosition: position.X,
+			YPosition: position.Y,
+		})
+	}
+	return imageCorrectDTOs
+}

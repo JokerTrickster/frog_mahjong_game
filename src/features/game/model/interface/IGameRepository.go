@@ -119,3 +119,11 @@ type IFindItResultGameRepository interface {
 type IListGameRepository interface {
 	FindGame(ctx context.Context) ([]*mysql.Games, error)
 }
+
+type IFindItImageGameRepository interface {
+}
+
+type IFindItImageInfoGameRepository interface{
+	SaveImageInfo(ctx context.Context, imageDTO *mysql.FindItImages) (int, error)
+	SaveImageCorrectInfo(ctx context.Context, imageCorrectDTOs []*mysql.FindItImageCorrectPositions) error
+}

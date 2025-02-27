@@ -101,3 +101,11 @@ type IFindItResultGameHandler interface {
 type IListGameHandler interface{
 	ListGame(c echo.Context) error
 }
+
+type IFindItImageGameHandler interface {
+	FindItImage(c echo.Context) error
+}
+
+type IFindItImageInfoGameHandler interface {	
+	FindItImageInfo(c echo.Context) error
+}

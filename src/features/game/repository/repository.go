@@ -102,3 +102,10 @@ type FindItResultGameRepository struct {
 type ListGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type FindItImageGameRepository struct {
+	GormDB *gorm.DB
+}
+type FindItImageInfoGameRepository struct {
+	GormDB *gorm.DB
+}

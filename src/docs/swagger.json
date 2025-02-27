@@ -4,6 +4,81 @@
         "contact": {}
     },
     "paths": {
+        "/find-it/v0.1/game/image": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "틀린그림찾기 이미지를 저장한다.",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "틀린그림찾기 이미지 파일",
+                        "name": "image",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/find-it/v0.1/game/image-info": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "game"
+                ],
+                "summary": "이미지 정보를 저장한다.",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqFindItImageInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/find-it/v0.1/game/result": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n",
@@ -3607,6 +3682,37 @@
                 }
             }
         },
+        "request.ImageInfo": {
+            "type": "object",
+            "properties": {
+                "abnormalImage": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "normalImage": {
+                    "type": "string"
+                },
+                "positions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Position"
+                    }
+                }
+            }
+        },
+        "request.Position": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            }
+        },
         "request.ReqAlertGameUsers": {
             "type": "object",
             "properties": {
@@ -3714,6 +3820,17 @@
             "properties": {
                 "fcmToken": {
                     "type": "string"
+                }
+            }
+        },
+        "request.ReqFindItImageInfo": {
+            "type": "object",
+            "properties": {
+                "imageInfoList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.ImageInfo"
+                    }
                 }
             }
         },
