@@ -2,6 +2,7 @@ package features
 
 import (
 	authHandler "main/features/auth/handler"
+	boardGameHandler "main/features/board_game/handler"
 	chatHandler "main/features/chat/handler"
 	"main/features/find_it"
 	gameHandler "main/features/game/handler"
@@ -33,6 +34,7 @@ func InitHandler(e *echo.Echo) error {
 	gameAuthHandler.NewGameAuthHandler(e)
 	gameUserHandler.NewGameUsersHandler(e)
 	gameProfileHandler.NewGameProfilesHandler(e)
+	boardGameHandler.NewBoardGameHandler(e)
 	//websocket 초기화
 	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)

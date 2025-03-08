@@ -136,6 +136,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/find-it/v0.1/game/solo-play": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/find-it/game"
+                ],
+                "summary": "틀린그림찾기 솔로플레이 이미지 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "플레이 라운드 수",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqFindItSoloPlayBoardGame"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResFindItSoloPlayBoardGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/find-it/v0.1/rooms/match/ws": {
             "get": {
                 "responses": {}
@@ -3853,6 +3899,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ReqFindItSoloPlayBoardGame": {
+            "type": "object",
+            "properties": {
+                "round": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqGameCheckSignin": {
             "type": "object",
             "required": [
@@ -4498,6 +4552,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.Position": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            }
+        },
         "response.ResCreateRoom": {
             "type": "object",
             "properties": {
@@ -4527,6 +4592,17 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.UserResult"
+                    }
+                }
+            }
+        },
+        "response.ResFindItSoloPlayBoardGame": {
+            "type": "object",
+            "properties": {
+                "gameInfoList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.SoloPlayGameInfo"
                     }
                 }
             }
@@ -4916,6 +4992,29 @@ const docTemplate = `{
                     }
                 },
                 "missionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.SoloPlayGameInfo": {
+            "type": "object",
+            "properties": {
+                "abnormalUrl": {
+                    "type": "string"
+                },
+                "correctPositions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Position"
+                    }
+                },
+                "imageID": {
+                    "type": "integer"
+                },
+                "normalUrl": {
+                    "type": "string"
+                },
+                "round": {
                     "type": "integer"
                 }
             }
