@@ -9,3 +9,7 @@ import (
 type IFindItSoloPlayBoardGameUseCase interface {
 	FindItSoloPlay(c context.Context, userID int, req *request.ReqFindItSoloPlayBoardGame) (response.ResFindItSoloPlayBoardGame, error)
 }
+
+type IFindItRankBoardGameUseCase interface {
+	FindItRank(c context.Context) (response.ResFindItRankBoardGame, error)
+}

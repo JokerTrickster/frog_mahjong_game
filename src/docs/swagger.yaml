@@ -651,6 +651,19 @@ definitions:
       "y":
         type: number
     type: object
+  response.RankUser:
+    properties:
+      name:
+        type: string
+      profileID:
+        type: integer
+      rank:
+        type: integer
+      score:
+        type: integer
+      userID:
+        type: integer
+    type: object
   response.ResCreateRoom:
     properties:
       roomID:
@@ -661,6 +674,13 @@ definitions:
       cardIDList:
         items:
           type: integer
+        type: array
+    type: object
+  response.ResFindItRankBoardGame:
+    properties:
+      rankUserList:
+        items:
+          $ref: '#/definitions/response.RankUser'
         type: array
     type: object
   response.ResFindItResult:
@@ -1018,6 +1038,38 @@ paths:
       summary: 이미지 정보를 저장한다.
       tags:
       - game
+  /find-it/v0.1/game/rank:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResFindItRankBoardGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 틀린그림찾기 랭킹 가져오기
+      tags:
+      - app/find-it/game
   /find-it/v0.1/game/result:
     post:
       description: |

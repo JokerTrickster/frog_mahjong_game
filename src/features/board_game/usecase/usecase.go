@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"main/features/board_game/model/entity"
 	"main/features/board_game/model/response"
 	_aws "main/utils/aws"
 
@@ -33,4 +34,14 @@ func CreateSoloPlayGameInfo(imageDTO *mysql.FindItImages, correctPositions []*my
 	}
 
 	return res
+}
+
+func CreateRankUser(userDTO *mysql.GameUsers, correctDTO *entity.FindItRankEntity, rank int) response.RankUser {
+	return response.RankUser{
+		UserID:    int(userDTO.ID),
+		Name:      userDTO.Name,
+		Score:     correctDTO.CorrectCount,
+		Rank:      rank,
+		ProfileID: int(userDTO.ProfileID),
+	}
 }

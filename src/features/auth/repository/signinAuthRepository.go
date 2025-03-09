@@ -44,9 +44,12 @@ func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, 
 		State:  "wait",
 		RoomID: 1,
 	}
-	// 사용자 정보를 가져온다.
+	// 사용자 정보를 가져온다. (deleted_at이 NULL 인 사용자만 조회)
 	var findUser mysql.Users
-	err := g.GormDB.WithContext(ctx).Model(&findUser).Where("email = ? ", email).First(&findUser).Error
+	err := g.GormDB.WithContext(ctx).
+		Model(&findUser).
+		Where("email = ? AND deleted_at IS NULL", email).
+		First(&findUser).Error
 	if err != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error()+err.Error(), email, password), utils.ErrFromClient)
 	}
@@ -54,13 +57,19 @@ func (g *SigninAuthRepository) FindOneAndUpdateUser(ctx context.Context, email, 
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrPasswordNotMatch, utils.Trace(), utils.HandleError(_errors.ErrPasswordNotMatch.Error(), password), utils.ErrFromClient)
 	}
 
-	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?", email).Updates(user)
+	// 업데이트 시에도 deleted_at이 NULL 인 행만 업데이트
+	result := g.GormDB.WithContext(ctx).
+		Model(&user).
+		Where("email = ? AND deleted_at IS NULL", email).
+		Updates(user)
 	if result.Error != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error()+result.Error.Error(), email, password), utils.ErrFromClient)
 	}
 
-	// 변경된 사용자 정보를 가져옵니다.
-	err = g.GormDB.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	// 변경된 사용자 정보를 가져온다. (삭제되지 않은 사용자만 조회)
+	err = g.GormDB.WithContext(ctx).
+		Where("email = ? AND deleted_at IS NULL", email).
+		First(&user).Error
 	if err != nil {
 		return mysql.Users{}, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error(), email, password), utils.ErrFromInternal)
 	}
