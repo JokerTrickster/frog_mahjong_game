@@ -267,15 +267,6 @@ type FindItRoomSettings struct {
 	ItemTimerStopCount int `json:"itemTimerStopCount" gorm:"column:item_timer_stop_count"`
 }
 
-type FindItCorrectPositions struct {
-	gorm.Model
-	RoomID            int `json:"roomID" gorm:"column:room_id"`
-	UserID            int `json:"userID" gorm:"column:user_id"`
-	Round             int `json:"round" gorm:"column:round"`
-	ImageID           int `json:"imageID" gorm:"column:image_id"`                      // ✅ 정답을 맞춘 이미지 ID
-	CorrectPositionID int `json:"correctPositionID" gorm:"column:correct_position_id"` // ✅ 맞춘 정답의 ID
-}
-
 type FindItRoundImages struct {
 	gorm.Model
 	RoomID     int `json:"roomID" gorm:"column:room_id"`

@@ -484,22 +484,6 @@ CREATE TABLE find_it_room_settings (
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
 );
 
-CREATE TABLE find_it_correct_positions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    user_id INT NOT NULL,        -- 정답을 맞춘 유저 ID
-    room_id INT NOT NULL,        -- 해당 정답이 속한 게임 방 ID
-    round INT NOT NULL,          -- 라운드 정보
-    image_id INT NOT NULL,       -- 정답을 맞춘 이미지 ID (find_it_images 테이블 참조)
-    correct_position_id INT NOT NULL, -- 맞춘 정답의 ID (find_it_image_correct_positions 테이블 참조)
-    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
-    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
-    FOREIGN KEY (image_id) REFERENCES find_it_images(id) ON DELETE CASCADE,
-    FOREIGN KEY (correct_position_id) REFERENCES find_it_image_correct_positions(id) ON DELETE CASCADE
-);
-
 CREATE TABLE find_it_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -510,6 +494,16 @@ CREATE TABLE find_it_images (
     abnormal_image_url VARCHAR(500) NOT NULL -- 비정상 이미지 URL
 );
 
+CREATE TABLE find_it_image_correct_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    image_id INT NOT NULL,  -- 어떤 이미지의 정답인지 (find_it_images 테이블 참조)
+    x_position DOUBLE NOT NULL, -- 정답 X 좌표
+    y_position DOUBLE NOT NULL, -- 정답 Y 좌표
+    FOREIGN KEY (image_id) REFERENCES find_it_images(id)
+);
 CREATE TABLE find_it_round_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -520,19 +514,6 @@ CREATE TABLE find_it_round_images (
     room_id INT NOT NULL,        -- 어떤 게임방에서 사용되는지
     FOREIGN KEY (room_id) REFERENCES game_rooms(id),
     FOREIGN KEY (image_set_id) REFERENCES find_it_images(id)
-);
-
-
-
-CREATE TABLE find_it_image_correct_positions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    image_id INT NOT NULL,  -- 어떤 이미지의 정답인지 (find_it_images 테이블 참조)
-    x_position DOUBLE NOT NULL, -- 정답 X 좌표
-    y_position DOUBLE NOT NULL, -- 정답 Y 좌표
-    FOREIGN KEY (image_id) REFERENCES find_it_images(id)
 );
 
 CREATE TABLE find_it_user_correct_positions (
