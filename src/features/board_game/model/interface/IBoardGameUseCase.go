@@ -13,3 +13,7 @@ type IFindItSoloPlayBoardGameUseCase interface {
 type IFindItRankBoardGameUseCase interface {
 	FindItRank(c context.Context) (response.ResFindItRankBoardGame, error)
 }
+
+type IFindItCoinBoardGameUseCase interface {
+	FindItCoin(c context.Context, userID int, req *request.ReqFindItCoinBoardGame) error
+}

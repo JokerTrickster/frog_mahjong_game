@@ -9,3 +9,6 @@ type IFindItSoloPlayBoardGameHandler interface {
 type IFindItRankBoardGameHandler interface {
 	FindItRank(c echo.Context) error
 }
+type IFindItCoinBoardGameHandler interface {
+	FindItCoin(c echo.Context) error
+}
