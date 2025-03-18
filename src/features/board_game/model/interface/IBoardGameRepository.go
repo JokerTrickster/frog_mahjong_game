@@ -15,3 +15,7 @@ type IFindItRankBoardGameRepository interface {
 	FindTop3UserCorrect(ctx context.Context) ([]*entity.FindItRankEntity, error)
 	FindOneUser(ctx context.Context, userID int) (*mysql.GameUsers, error)
 }
+
+type IFindItCoinBoardGameRepository interface {
+	UpdateUserCoin(ctx context.Context, userID int, coin int) error
+}
