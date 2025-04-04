@@ -14,10 +14,13 @@ func NewFindItSoloPlayBoardGameRepository(gormDB *gorm.DB) _interface.IFindItSol
 
 func (d *FindItSoloPlayBoardGameRepository) FindRandomImage(ctx context.Context, round int) ([]*mysql.FindItImages, error) {
 	var images []*mysql.FindItImages
-	err := d.GormDB.WithContext(ctx).
-		Order("RAND()").
-		Limit(round).
-		Find(&images).Error
+	// err := d.GormDB.WithContext(ctx).
+	// 	Order("RAND()").
+	// 	Limit(round).
+	// 	Find(&images).Error
+	image := &mysql.FindItImages{}
+	err := d.GormDB.WithContext(ctx).Where("id = ? ", 15).First(&image).Error
+	images = append(images, image)
 	if err != nil {
 		return nil, err
 	}
