@@ -394,17 +394,17 @@ func CreateErrorMessage(errCode int, errType, errMsg string) *entity.ErrorInfo {
 func cleanGameInfo(ctx context.Context, userID uint) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 	err := mysql.GormMysqlDB.Transaction(func(tx *gorm.DB) error {
+		// GameRooms 제거
+		errInfo = repository.DeleteAllGameRooms(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// GameRoomUsers 제거
+		errInfo = repository.DeleteAllGameRoomUsers(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
-		// game_room_users 제거
-		errInfo = repository.DeleteAllRoomUsers(ctx, tx, userID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-		// rooms 제거
-		errInfo = repository.DeleteAllRooms(ctx, tx, userID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 		return nil
 	})
 

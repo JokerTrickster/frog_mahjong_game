@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"main/features/game_auth/model/entity"
-	_errors "main/features/game_auth/model/errors"
 	_interface "main/features/game_auth/model/interface"
 	"main/utils"
 	"main/utils/db/mysql"
@@ -40,25 +40,28 @@ func (g *GoogleOauthCallbackAuthRepository) SaveToken(ctx context.Context, uID u
 }
 
 func (g *GoogleOauthCallbackAuthRepository) FindOneAndUpdateUser(ctx context.Context, entity *entity.GoogleOauthCallbackSQLQuery) (*mysql.GameUsers, error) {
-	user := &mysql.GameUsers{
-		Email:  entity.Email,
-		State:  "wait",
-		RoomID: 1,
-	}
-	//state = "logout"인 유저 wait으로 변경하고 roomID = 1로 변경 user 객체에 반환
-	result := g.GormDB.WithContext(ctx).Model(&user).Where("email = ?  ", entity.Email).Updates(&user)
-	if result.Error != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrUserNotFound, utils.Trace(), utils.HandleError(_errors.ErrUserNotFound.Error(), entity), utils.ErrFromClient)
-	}
-	if result.RowsAffected == 0 {
-		return nil, nil
-	}
-	// 변경된 사용자 정보를 가져옵니다.
-	err := g.GormDB.WithContext(ctx).Where("email = ?", entity.Email).First(&user).Error
+	var gameUser mysql.GameUsers
+
+	// 이메일로 사용자를 조회한다.
+	err := g.GormDB.WithContext(ctx).Where("email = ?", entity.Email).First(&gameUser).Error
 	if err != nil {
-		return nil, utils.ErrorMsg(ctx, utils.ErrInternalServer, utils.Trace(), utils.HandleError(err.Error(), entity), utils.ErrFromInternal)
+		//레코드를 찾지 못한 경우 (nil, nil) 반환
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), entity), utils.ErrFromMysqlDB)
 	}
-	return user, nil
+
+	//업데이트된 사용자 정보를 저장한다.
+	err = g.GormDB.WithContext(ctx).Model(&gameUser).Updates(map[string]interface{}{
+		"state":   "wait",
+		"room_id": 1,
+	}).Error
+	if err != nil {
+		return nil, utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(err.Error(), entity), utils.ErrFromMysqlDB)
+	}
+
+	return &gameUser, nil
 }
 
 func (g *GoogleOauthCallbackAuthRepository) CreateUser(ctx context.Context, user *mysql.GameUsers) (*mysql.GameUsers, error) {
