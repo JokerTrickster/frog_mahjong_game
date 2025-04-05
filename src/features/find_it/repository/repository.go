@@ -175,7 +175,7 @@ func DeleteAllGameRooms(c context.Context, tx *gorm.DB, userID uint) *entity.Err
 }
 
 func DeleteAllGameRoomUsers(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
-	err := tx.Where("user_id = ?", userID).Delete(&mysql.GameRooms{}).Error
+	err := tx.Where("user_id = ?", userID).Delete(&mysql.GameRoomUsers{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,

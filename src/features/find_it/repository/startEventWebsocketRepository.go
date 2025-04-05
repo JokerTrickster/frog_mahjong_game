@@ -27,7 +27,8 @@ func CreateRoundImages(ctx context.Context, tx *gorm.DB, roundImages []*mysql.Fi
 func FindImages(ctx context.Context, tx *gorm.DB) ([]*mysql.FindItImages, *entity.ErrorInfo) {
 	var images []*mysql.FindItImages
 	err := tx.WithContext(ctx).
-		Order("created_at DESC"). // ✅ created_at 내림차순 정렬 추가
+		Order("RAND()").
+		Limit(20).
 		Find(&images).Error
 
 	if err != nil {
