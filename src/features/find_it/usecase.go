@@ -63,7 +63,7 @@ func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
 
 func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUsers, playTurn int, MessageInfoError *entity.ErrorInfo, selectCardID int) *entity.MessageInfo {
 	MessageInfoMsg := entity.MessageInfo{}
-	timer := 60
+	timer := 180
 	hintCount := 0
 	timerStopCount := 0
 	life := 0

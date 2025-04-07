@@ -32,7 +32,13 @@ func SubmitPositionEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 해당 좌표가 정답인지 아닌지 체크
 		var errInfo *entity.ErrorInfo
-		correctID, errInfo = repository.SubmitPositionCheck(ctx, tx, req.ImageID, req.XPosition, req.YPosition)
+		var threshold float64
+		if req.XPosition >= 250 {
+			threshold = 30.0
+		} else {
+			threshold = 20.0
+		}
+		correctID, errInfo = repository.SubmitPositionCheck(ctx, tx, req.ImageID, req.XPosition, req.YPosition, threshold)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
