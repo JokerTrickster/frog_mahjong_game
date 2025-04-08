@@ -44,10 +44,10 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 func CreateRoomSetting(roomID uint) *mysql.FindItRoomSettings {
 	roomSetting := &mysql.FindItRoomSettings{
 		RoomID:             int(roomID),
-		Timer:              60,
-		Lifes:              3,
-		ItemHintCount:      2,
-		ItemTimerStopCount: 2,
+		Timer:              120,
+		Lifes:              5,
+		ItemHintCount:      3,
+		ItemTimerStopCount: 3,
 		Round:              1,
 	}
 	return roomSetting
@@ -63,7 +63,7 @@ func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
 
 func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUsers, playTurn int, MessageInfoError *entity.ErrorInfo, selectCardID int) *entity.MessageInfo {
 	MessageInfoMsg := entity.MessageInfo{}
-	timer := 60
+	timer := 120
 	hintCount := 0
 	timerStopCount := 0
 	life := 0
