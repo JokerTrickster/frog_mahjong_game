@@ -25,7 +25,7 @@ func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *en
 
 // 방 삭제 처리
 func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.Rooms{}).Where("id = ?", AbnormalEntity.RoomID).Delete(&mysql.Rooms{}).Error
+	err := tx.Model(&mysql.GameRooms{}).Where("id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRooms{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,

@@ -11,8 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func SubmitPositionCheck(ctx context.Context, tx *gorm.DB, imageID int, xPosition, yPosition float64) (int, *entity.ErrorInfo) {
-	const threshold = 10.0 // ✅ 허용 오차 (10px)
+func SubmitPositionCheck(ctx context.Context, tx *gorm.DB, imageID int, xPosition, yPosition float64, threshold float64) (int, *entity.ErrorInfo) {
 
 	// find_it_image_correct_positions
 	var correctPosition mysql.FindItImageCorrectPositions

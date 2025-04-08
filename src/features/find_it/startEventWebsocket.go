@@ -44,7 +44,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
+		//TODO 20라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
 		imagesDTO, errInfo := repository.FindImages(ctx, tx)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
