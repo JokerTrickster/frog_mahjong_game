@@ -70,9 +70,10 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 		RoomID:  roomID,
 		UserID:  userID,
 		Message: message,
+		Event:   "DISCONNECT",
 	}
 	sendMessageToClients(roomID, &msg)
 
 	// 재접속 대기 시작
-	waitForReconnection(roomID, sessionID, preloadUsers)
+	// waitForReconnection(roomID, sessionID, preloadUsers)
 }

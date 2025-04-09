@@ -38,7 +38,7 @@ func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity
 
 // 방 유저 정보 삭제
 func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.RoomUsers{}).Error
+	err := tx.Model(&mysql.GameRoomUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRoomUsers{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -51,7 +51,7 @@ func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *e
 
 // 룸 유저 상태 변경 (play -> disconnected)
 func AbnormalUpdateRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.RoomUsers{}).Where("room_id = ? and user_id = ?", AbnormalEntity.RoomID, AbnormalEntity.UserID).Update("player_state", "disconnected").Error
+	err := tx.Model(&mysql.GameRoomUsers{}).Where("room_id = ? and user_id = ?", AbnormalEntity.RoomID, AbnormalEntity.UserID).Update("player_state", "disconnected").Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,

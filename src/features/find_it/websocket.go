@@ -157,7 +157,7 @@ func HandlePingPong(wsClient *entity.WSClient) {
 				// Notify all users in the same room about the disconnection
 				// false이면
 				if wsClient.Closed {
-					// AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
+					AbnormalSendErrorMessage(wsClient.RoomID, wsClient.UserID, wsClient.SessionID)
 					return
 				}
 				return
