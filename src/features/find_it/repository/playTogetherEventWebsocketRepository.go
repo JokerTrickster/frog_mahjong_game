@@ -13,7 +13,7 @@ import (
 )
 
 func PlayTogetherFindOneRoomUsers(ctx context.Context, userID uint) (uint, *entity.ErrorInfo) {
-	roomUser := mysql.RoomUsers{}
+	roomUser := mysql.GameRoomUsers{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", userID).First(&roomUser).Error
 	if err != nil {
 		return 0, &entity.ErrorInfo{
@@ -25,9 +25,9 @@ func PlayTogetherFindOneRoomUsers(ctx context.Context, userID uint) (uint, *enti
 	return uint(roomUser.RoomID), nil
 }
 
-func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, *entity.ErrorInfo) {
-	var roomsDTO mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.GameRooms, *entity.ErrorInfo) {
+	var roomsDTO mysql.GameRooms
+	err := mysql.GormMysqlDB.Model(&mysql.GameRooms{}).
 		Where("deleted_at IS NULL AND min_count = ? AND max_count = ? AND timer = ? AND state = ? AND current_count < max_count", count, count, timer, "wait").
 		First(&roomsDTO).Error
 	if err != nil {
@@ -48,7 +48,7 @@ func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*my
 }
 
 func PlayTogetherFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) *entity.ErrorInfo {
-	user := mysql.Users{
+	user := mysql.GameUsers{
 		RoomID: int(RoomID),
 		State:  "ready",
 	}
@@ -95,11 +95,11 @@ func PlayTogetherInsertOneRoomUser(ctx context.Context, tx *gorm.DB, RoomUserDTO
 }
 
 func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
-	room := mysql.Rooms{
+	room := mysql.GameRooms{
 		MaxCount: 2,
 		MinCount: 2,
 	}
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Updates(room).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Updates(room).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -123,7 +123,7 @@ func PlayTogetherAddPlayerToRoom(ctx context.Context, tx *gorm.DB, RoomID uint) 
 }
 
 func PlayTogetherDeleteRoomUsers(ctx context.Context, uID uint) *entity.ErrorInfo {
-	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", uID).Delete(&mysql.RoomUsers{}).Error
+	err := mysql.GormMysqlDB.WithContext(ctx).Where("user_id = ?", uID).Delete(&mysql.GameRoomUsers{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -182,7 +182,7 @@ func PlayTogetherInsertOneUserItem(ctx context.Context, tx *gorm.DB, userItemDTO
 }
 
 func PlayTogetherDeleteRooms(ctx context.Context, uID uint) *entity.ErrorInfo {
-	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.Rooms{})
+	result := mysql.GormMysqlDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.GameRooms{})
 	if result.Error != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
