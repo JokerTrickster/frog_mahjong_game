@@ -109,7 +109,17 @@ func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID u
 	}
 	return nil
 }
-
+func PlayTogetherInsertOneRoomSetting(ctx context.Context, tx *gorm.DB, roomSettingDTO *mysql.FindItRoomSettings) *entity.ErrorInfo {
+	result := tx.WithContext(ctx).Create(&roomSettingDTO)
+	if result.Error != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 설정 생성 실패: %v", result.Error.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
 func PlayTogetherAddPlayerToRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
 	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1")).Error
 	if err != nil {

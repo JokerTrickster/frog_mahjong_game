@@ -84,7 +84,12 @@ func playTogether(c echo.Context) error {
 			return fmt.Errorf("%s", err.Msg)
 		}
 		roomID = uint(newRoomID)
-
+		roomSettingDTO := CreateRoomSetting(roomID)
+		newErr = repository.PlayTogetherInsertOneRoomSetting(ctx, tx, roomSettingDTO)
+		if newErr != nil {
+			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
+			return fmt.Errorf("%s", newErr.Msg)
+		}
 		// 방에 유저 추가
 		err = repository.PlayTogetherAddPlayerToRoom(ctx, tx, roomID)
 		if err != nil {
