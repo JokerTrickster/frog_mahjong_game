@@ -1189,7 +1189,10 @@ paths:
       summary: 틀린그림찾기 솔로플레이 이미지 가져오기
       tags:
       - app/find-it/game
-  /find-it/v0.1/rooms/join/play/ws:
+  /find-it/v0.1/rooms/match/ws:
+    get:
+      responses: {}
+  /find-it/v0.1/rooms/play/join/ws:
     get:
       description: |-
         ■ errCode with 400
@@ -1231,9 +1234,6 @@ paths:
       summary: 함께하기 참여 (패스워드 필수) (ws)
       tags:
       - ws
-  /find-it/v0.1/rooms/match/ws:
-    get:
-      responses: {}
   /find-it/v0.1/rooms/play/together/ws:
     get:
       description: |-

@@ -265,7 +265,12 @@ const docTemplate = `{
                 }
             }
         },
-        "/find-it/v0.1/rooms/join/play/ws": {
+        "/find-it/v0.1/rooms/match/ws": {
+            "get": {
+                "responses": {}
+            }
+        },
+        "/find-it/v0.1/rooms/play/join/ws": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
@@ -307,11 +312,6 @@ const docTemplate = `{
                         "schema": {}
                     }
                 }
-            }
-        },
-        "/find-it/v0.1/rooms/match/ws": {
-            "get": {
-                "responses": {}
             }
         },
         "/find-it/v0.1/rooms/play/together/ws": {

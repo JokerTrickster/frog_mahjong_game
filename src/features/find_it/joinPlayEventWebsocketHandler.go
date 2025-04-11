@@ -15,7 +15,7 @@ import (
 )
 
 // 함께하기 참여 (패스워드 필수) (ws)
-// @Router /find-it/v0.1/rooms/join/play/ws [get]
+// @Router /find-it/v0.1/rooms/play/join/ws [get]
 // @Summary 함께하기 참여 (패스워드 필수) (ws)
 // @Description
 // @Description ■ errCode with 400

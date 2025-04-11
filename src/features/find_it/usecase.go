@@ -52,7 +52,7 @@ func CreateRoomSetting(roomID uint) *mysql.FindItRoomSettings {
 	}
 	return roomSetting
 }
-func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
+func CreateMatchRoomUserDTO(userID uint, roomID uint) *mysql.GameRoomUsers {
 	roomUser := &mysql.GameRoomUsers{
 		RoomID:      int(roomID),
 		UserID:      int(userID),
