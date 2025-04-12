@@ -90,8 +90,8 @@ func (r *RabbitMQManager) initChannelAndQueue(queueName string) error {
 
 	queue, err := channel.QueueDeclare(
 		queueName, // name
-		true,      // durable
-		false,     // delete when unused
+		false,     // durable
+		true,      // delete when unused
 		false,     // exclusive
 		false,     // no-wait
 		nil,       // arguments
@@ -120,7 +120,14 @@ func (r *RabbitMQManager) monitorConnection() {
 				continue
 			}
 			// 연결 복구 후 채널 및 큐 재초기화
-			for queueName := range r.Queues {
+			for queueName, queue := range r.Queues {
+				count, err := r.Channels[queueName].QueuePurge(queue.Name, false)
+				if err != nil {
+					log.Printf("Failed to purge queue %s: %v", queueName, err)
+				} else {
+					log.Printf("Successfully purged queue: %s, count: %d", queueName, count)
+				}
+				// 채널 및 큐 재초기화
 				if err := r.initChannelAndQueue(queueName); err != nil {
 					log.Printf("Failed to reinitialize channel and queue for %s: %v", queueName, err)
 				} else {
