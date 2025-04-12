@@ -77,17 +77,21 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
-		password = roomUser.Room.Password
-		timer = roomUser.RoomSetting.Timer
-		hintCount = roomUser.RoomSetting.ItemHintCount
-		timerStopCount = roomUser.RoomSetting.ItemTimerStopCount
-		life = roomUser.RoomSetting.Lifes
-		round = roomUser.RoomSetting.Round
 		user := entity.User{
 			ID:        uint(roomUser.UserID),
 			Name:      roomUser.User.Name,
 			Email:     roomUser.User.Email,
 			ProfileID: roomUser.User.ProfileID,
+		}
+		if roomUser.RoomSetting != nil {
+			timer = roomUser.RoomSetting.Timer
+			hintCount = roomUser.RoomSetting.ItemHintCount
+			timerStopCount = roomUser.RoomSetting.ItemTimerStopCount
+			life = roomUser.RoomSetting.Lifes
+			round = roomUser.RoomSetting.Round
+		}
+		if roomUser.Room.Password != "" {
+			password = roomUser.Room.Password
 		}
 
 		roomID = int(roomUser.RoomID)
