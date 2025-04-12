@@ -90,19 +90,21 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			life = roomUser.RoomSetting.Lifes
 			round = roomUser.RoomSetting.Round
 		}
-		if roomUser.Room.Password != "" {
-			password = roomUser.Room.Password
-		}
+		if roomUser.Room != nil {
+			if roomUser.Room.Password != "" {
+				password = roomUser.Room.Password
+			}
 
-		roomID = int(roomUser.RoomID)
-		// 방장 여부 추가
-		if roomUser.Room.OwnerID == int(roomUser.UserID) {
-			user.IsOwner = true
-		}
-		//시작 시간 추가
-		if !roomUser.Room.StartTime.IsZero() {
-			// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
-			startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
+			roomID = int(roomUser.RoomID)
+			// 방장 여부 추가
+			if roomUser.Room.OwnerID == int(roomUser.UserID) {
+				user.IsOwner = true
+			}
+			//시작 시간 추가
+			if !roomUser.Room.StartTime.IsZero() {
+				// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
+				startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
+			}
 		}
 		// ✅ 맞힌 정보 저장 (x_position, y_position 추가)
 		correctIDList := []int{}
