@@ -560,16 +560,16 @@ VALUES
 
 INSERT INTO find_it_images (level, normal_image_url, abnormal_image_url)
 VALUES 
-(1, 'normal1-level1.png', 'abnormal1-level1.png'),
-(1, 'normal2-level1.png', 'abnormal2-level1.png'),
-(1, 'normal3-level1.png', 'abnormal3-level1.png'),
-(1, 'normal4-level1.png', 'abnormal4-level1.png'),
-(1, 'normal5-level1.png', 'abnormal5-level1.png'),
-(1, 'normal6-level1.png', 'abnormal6-level1.png'),
-(1, 'normal7-level1.png', 'abnormal7-level1.png'),
-(1, 'normal8-level1.png', 'abnormal8-level1.png'),
-(1, 'normal9-level1.png', 'abnormal9-level1.png'),
-(1, 'normal10-level1.png', 'abnormal10-level1.png');
+(1, 'normal1-level1.jpg', 'abnormal1-level1.jpg'),
+(1, 'normal2-level1.jpg', 'abnormal2-level1.jpg'),
+(1, 'normal3-level1.jpg', 'abnormal3-level1.jpg'),
+(1, 'normal4-level1.jpg', 'abnormal4-level1.jpg'),
+(1, 'normal5-level1.jpg', 'abnormal5-level1.jpg'),
+(1, 'normal6-level1.jpg', 'abnormal6-level1.jpg'),
+(1, 'normal7-level1.jpg', 'abnormal7-level1.jpg'),
+(1, 'normal8-level1.jpg', 'abnormal8-level1.jpg'),
+(1, 'normal9-level1.jpg', 'abnormal9-level1.jpg'),
+(1, 'normal10-level1.jpg', 'abnormal10-level1.jpg');
 
 
 INSERT INTO find_it_image_correct_positions (image_id, x_position, y_position)
@@ -583,4 +583,4 @@ VALUES
 (7, 52.3, 57.1), (7, 132.9, 98.4), (7, 180.5, 135.6), (7, 225.2, 172.3), (7, 308.7, 235.8),
 (8, 42.7, 50.5), (8, 138.3, 99.7), (8, 188.2, 142.3), (8, 230.9, 178.6), (8, 312.5, 240.9),
 (9, 58.5, 45.3), (9, 140.2, 102.5), (9, 190.8, 145.9), (9, 235.3, 185.2), (9, 315.6, 248.1),
-(10, 60.5, 48.8), (10, 144.6, 105.3), (10, 195.7, 150.4), (10, 240.2, 190.7), (10, 320.9, 255.2),
+(10, 60.5, 48.8), (10, 144.6, 105.3), (10, 195.7, 150.4), (10, 240.2, 190.7), (10, 320.9, 255.2);

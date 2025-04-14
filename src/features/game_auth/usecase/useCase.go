@@ -40,10 +40,10 @@ func CreateUserAuth(email string, authCode string) *mysql.UserAuths {
 
 func CreateUserSQL(email string) *mysql.GameUsers {
 	return &mysql.GameUsers{
-		Name:      "임시개굴맨",
+		Name:      "보린이",
 		Email:     email,
 		State:     "wait",
-		Coin:      30,
+		Coin:      1000,
 		RoomID:    1,
 		Provider:  "google",
 		ProfileID: 1,
@@ -64,7 +64,7 @@ func CreateSignupUser(req *request.ReqGameSignup) *mysql.GameUsers {
 		Name:      req.Name,
 		Email:     req.Email,
 		Password:  req.Password,
-		Coin:      30,
+		Coin:      1000,
 		RoomID:    1,
 		State:     "logout",
 		Provider:  "email",
