@@ -19,3 +19,7 @@ type IFindItRankBoardGameRepository interface {
 type IFindItCoinBoardGameRepository interface {
 	UpdateUserCoin(ctx context.Context, userID int, coin int) error
 }
+
+type IFindItPasswordCheckBoardGameRepository interface {
+	FindPasswordCheck(ctx context.Context, password string) (bool, error)
+}

@@ -9,7 +9,10 @@ type FindItRankBoardGameRepository struct {
 	GormDB *gorm.DB
 }
 
+type FindItCoinBoardGameRepository struct {
+	GormDB *gorm.DB
+}
 
-type FindItCoinBoardGameRepository struct {	
+type FindItPasswordCheckBoardGameRepository struct {
 	GormDB *gorm.DB
 }

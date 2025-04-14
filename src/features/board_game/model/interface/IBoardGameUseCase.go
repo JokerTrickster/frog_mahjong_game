@@ -17,3 +17,6 @@ type IFindItRankBoardGameUseCase interface {
 type IFindItCoinBoardGameUseCase interface {
 	FindItCoin(c context.Context, userID int, req *request.ReqFindItCoinBoardGame) error
 }
+type IFindItPasswordCheckBoardGameUseCase interface {
+	FindItPasswordCheck(c context.Context, req *request.ReqFindItPasswordCheckBoardGame) (bool, error)
+}

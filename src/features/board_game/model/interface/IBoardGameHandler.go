@@ -12,3 +12,7 @@ type IFindItRankBoardGameHandler interface {
 type IFindItCoinBoardGameHandler interface {
 	FindItCoin(c echo.Context) error
 }
+
+type IFindItPasswordCheckBoardGameHandler interface {
+	FindItPasswordCheck(c echo.Context) error
+}
