@@ -72,7 +72,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 
 	if len(preloadUsers) == 2 {
-		messageMsg.GameInfo.IsFull = true
+		messageMsg.SlimeWarGameInfo.IsFull = true
 	}
 
 	message, err := CreateMessage(&messageMsg)

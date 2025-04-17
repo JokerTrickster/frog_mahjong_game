@@ -56,10 +56,6 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = StartEventWebsocket(&msg)
 	case "NEXT_ROUND":
 		errInfo = NextRoundEventWebsocket(&msg)
-	case "TIMER_ITEM":
-		errInfo = TimerItemEventWebsocket(&msg)
-	case "HINT_ITEM":
-		errInfo = HintItemEventWebsocket(&msg)
 	case "TIME_OUT":
 		errInfo = TimeOutEventWebsocket(&msg)
 	case "MATCH_CANCEL":
@@ -68,8 +64,6 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = PlayTogetherEventWebsocket(&msg)
 	case "JOIN":
 		errInfo = JoinPlayEventWebsocket(&msg)
-	case "SUBMIT_POSITION":
-		errInfo = SubmitPositionEventWebsocket(&msg)
 
 	default:
 		log.Printf("Unknown event: %s", msg.Event)

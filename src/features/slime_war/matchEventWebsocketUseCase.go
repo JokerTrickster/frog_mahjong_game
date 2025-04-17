@@ -14,7 +14,7 @@ func CreateMatchRoomDTO(uID uint) *mysql.GameRooms {
 		OwnerID:      int(uID),
 		Name:         "speed match",
 		StartTime:    time.Now(),
-		GameID:       1,
+		GameID:       2,
 	}
 	return result
 }

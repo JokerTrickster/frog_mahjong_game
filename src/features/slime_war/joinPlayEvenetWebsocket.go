@@ -52,8 +52,8 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageInfoMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageInfoMsg.ErrorInfo, 0)
 	if len(preloadUsers) == 1 {
-		messageInfoMsg.GameInfo.IsFull = false
-		messageInfoMsg.GameInfo.AllReady = false
+		messageInfoMsg.SlimeWarGameInfo.IsFull = false
+		messageInfoMsg.SlimeWarGameInfo.AllReady = false
 	}
 
 	message, err := CreateMessage(&messageInfoMsg)

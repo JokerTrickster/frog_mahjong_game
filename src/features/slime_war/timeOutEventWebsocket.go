@@ -59,9 +59,9 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 	//타이머 아이템 사용
-	messageMsg.GameInfo.TimerUsed = true
+	messageMsg.SlimeWarGameInfo.TimerUsed = true
 	if len(preloadUsers) == 2 {
-		messageMsg.GameInfo.IsFull = true
+		messageMsg.SlimeWarGameInfo.IsFull = true
 	}
 	if messageMsg.GameInfo.Life <= 0 {
 		msg.Event = "GAME_OVER"

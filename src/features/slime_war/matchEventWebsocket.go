@@ -48,8 +48,8 @@ func MatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	MessageInfoMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, MessageInfoMsg.ErrorInfo, 0)
 	if len(preloadUsers) == 1 {
-		MessageInfoMsg.GameInfo.IsFull = false
-		MessageInfoMsg.GameInfo.AllReady = false
+		MessageInfoMsg.SlimeWarGameInfo.IsFull = false
+		MessageInfoMsg.SlimeWarGameInfo.AllReady = false
 	}
 
 	message, err := CreateMessage(&MessageInfoMsg)

@@ -59,7 +59,7 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 
 	// 클라이언트에 메시지 전송
 	MessageInfoMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, MessageInfoMsg.ErrorInfo, 0)
-	MessageInfoMsg.GameInfo.AllReady = false
+	MessageInfoMsg.SlimeWarGameInfo.AllReady = false
 
 	message, err := CreateMessage(&MessageInfoMsg)
 	if err != nil {
