@@ -470,6 +470,7 @@ CREATE TABLE game_room_users (
     FOREIGN KEY (room_id) REFERENCES game_rooms(id)
 );
 
+------------- find it 게임 테이블 -------------
 CREATE TABLE find_it_room_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     room_id INT NOT NULL,

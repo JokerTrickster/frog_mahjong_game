@@ -99,9 +99,9 @@ type PreloadUsers struct {
 	RoomID               uint                                `json:"roomID" gorm:"column:room_id"`                                    // 방 ID
 	User                 *mysql.GameUsers                    `json:"user" gorm:"foreignKey:UserID"`                                   // 유저 정보 (game_users)
 	Room                 *mysql.GameRooms                    `json:"room" gorm:"foreignKey:RoomID"`                                   // 방 정보 (game_rooms)
-	RoomSetting          *mysql.FindItRoomSettings           `json:"roomSetting" gorm:"foreignKey:RoomID;references:RoomID"`          // 방 설정 정보 (find_it_room_settings)
-	UserCorrectPositions []*mysql.FindItUserCorrectPositions `json:"userCorrectPositions" gorm:"foreignKey:UserID;references:UserID"` // 유저가 맞춘 정답 정보 (find_it_user_correct_positions)
-	RoundImages          []*mysql.FindItRoundImages          `json:"roundImages" gorm:"foreignKey:RoomID;references:RoomID"`          // 해당 방의 라운드별 이미지 정보 (find_it_round_images)
+	RoomSetting          *mysql.FindItRoomSettings           `json:"roomSetting" gorm:"foreignKey:RoomID;references:RoomID"`          // 방 설정 정보 (slime_war_room_settings)
+	UserCorrectPositions []*mysql.FindItUserCorrectPositions `json:"userCorrectPositions" gorm:"foreignKey:UserID;references:UserID"` // 유저가 맞춘 정답 정보 (slime_war_user_correct_positions)
+	RoundImages          []*mysql.FindItRoundImages          `json:"roundImages" gorm:"foreignKey:RoomID;references:RoomID"`          // 해당 방의 라운드별 이미지 정보 (slime_war_round_images)
 }
 
 func (c *WSClient) Close() {

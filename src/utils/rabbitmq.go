@@ -78,7 +78,9 @@ func (r *RabbitMQManager) connect() error {
 	if err := r.initChannelAndQueue("find-it"); err != nil {
 		return err
 	}
-	log.Println("RabbitMQ connection established with channels: wingspan, frog. find-it")
+	if err := r.initChannelAndQueue("slime-war"); err != nil {
+		return err
+	}
 	return nil
 }
 
