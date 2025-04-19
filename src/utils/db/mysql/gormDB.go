@@ -300,3 +300,49 @@ type Games struct {
 	YoutubeUrl  string `json:"youtubeUrl" gorm:"column:youtube_url"`
 	IsEnabled   bool   `json:"isEnabled" gorm:"column:is_enabled"`
 }
+
+type SlimeWarCards struct {
+	gorm.Model
+	Direction int    `json:"direction" gorm:"column:direction"`
+	Image     string `json:"image" gorm:"column:image"`
+	Move      int    `json:"move" gorm:"column:move"`
+}
+
+type SlimeWarMaps struct {
+	gorm.Model
+	Idx int `json:"idx" gorm:"column:idx"`
+}
+
+type SlimeWarUsers struct {
+	gorm.Model
+	UserID    int `json:"userID" gorm:"column:user_id"`
+	RoomID    int `json:"roomID" gorm:"column:room_id"`
+	HeroCount int `json:"heroCount" gorm:"column:hero_count"`
+	Turn      int `json:"turn" gorm:"column:turn"`
+	ColorType int `json:"colorType" gorm:"column:color_type"`
+}
+
+type SlimeWarGameRoomSettings struct {
+	gorm.Model
+	RoomID              int `json:"roomID" gorm:"column:room_id"`
+	Timer               int `json:"timer" gorm:"column:timer"`
+	RemainingCardCount  int `json:"remainingCardCount" gorm:"column:remaining_card_count"`
+	KingIndex           int `json:"kingIndex" gorm:"column:king_index"`
+	CurrentRound        int `json:"currentRound" gorm:"column:current_round"`
+	RemainingSlimeCount int `json:"remainingSlimeCount" gorm:"column:remaining_slime_count"`
+}
+
+type SlimeWarRoomCards struct {
+	gorm.Model
+	RoomID int    `json:"roomID" gorm:"column:room_id"`
+	CardID int    `json:"cardID" gorm:"column:card_id"`
+	State  string `json:"state" gorm:"column:state"`
+	UserID int    `json:"userID" gorm:"column:user_id"`
+}
+
+type SlimeWarRoomMaps struct {
+	gorm.Model
+	RoomID int `json:"roomID" gorm:"column:room_id"`
+	UserID int `json:"userID" gorm:"column:user_id"`
+	MapID  int `json:"mapID" gorm:"column:map_id"`
+}

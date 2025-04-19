@@ -585,3 +585,126 @@ VALUES
 (8, 42.7, 50.5), (8, 138.3, 99.7), (8, 188.2, 142.3), (8, 230.9, 178.6), (8, 312.5, 240.9),
 (9, 58.5, 45.3), (9, 140.2, 102.5), (9, 190.8, 145.9), (9, 235.3, 185.2), (9, 315.6, 248.1),
 (10, 60.5, 48.8), (10, 144.6, 105.3), (10, 195.7, 150.4), (10, 240.2, 190.7), (10, 320.9, 255.2);
+
+-- 게임 카드 정보
+create table slime_war_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    direction INT,   -- 방향 0 : 왼쪽 위, 1: 위, 2: 오른쪽 위, 3: 왼쪽, 4: 오른쪽, 5: 왼쪽 아래, 6: 아래, 7: 오른쪽 아래
+    image VARCHAR(255),
+    move INT -- 1 ~ 3
+
+);
+INSERT INTO slime_war_cards (direction, image, move)
+VALUES
+(0, 'card_0_1.png', 1), (0, 'card_0_1.png', 1),
+(0, 'card_0_2.png', 2), (0, 'card_0_2.png', 2),
+(0, 'card_0_3.png', 3), (0, 'card_0_3.png', 3),
+
+(1, 'card_1_1.png', 1), (1, 'card_1_1.png', 1),
+(1, 'card_1_2.png', 2), (1, 'card_1_2.png', 2),
+(1, 'card_1_3.png', 3), (1, 'card_1_3.png', 3),
+
+(2, 'card_2_1.png', 1), (2, 'card_2_1.png', 1),
+(2, 'card_2_2.png', 2), (2, 'card_2_2.png', 2),
+(2, 'card_2_3.png', 3), (2, 'card_2_3.png', 3),
+
+(3, 'card_3_1.png', 1), (3, 'card_3_1.png', 1),
+(3, 'card_3_2.png', 2), (3, 'card_3_2.png', 2),
+(3, 'card_3_3.png', 3), (3, 'card_3_3.png', 3),
+
+(4, 'card_4_1.png', 1), (4, 'card_4_1.png', 1),
+(4, 'card_4_2.png', 2), (4, 'card_4_2.png', 2),
+(4, 'card_4_3.png', 3), (4, 'card_4_3.png', 3),
+
+(5, 'card_5_1.png', 1), (5, 'card_5_1.png', 1),
+(5, 'card_5_2.png', 2), (5, 'card_5_2.png', 2),
+(5, 'card_5_3.png', 3), (5, 'card_5_3.png', 3),
+
+(6, 'card_6_1.png', 1), (6, 'card_6_1.png', 1),
+(6, 'card_6_2.png', 2), (6, 'card_6_2.png', 2),
+(6, 'card_6_3.png', 3), (6, 'card_6_3.png', 3),
+
+(7, 'card_7_1.png', 1), (7, 'card_7_1.png', 1),
+(7, 'card_7_2.png', 2), (7, 'card_7_2.png', 2),
+(7, 'card_7_3.png', 3), (7, 'card_7_3.png', 3);
+
+-- 게임 맵 정보 
+create table slime_war_maps(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    idx INT
+);
+
+INSERT INTO slime_war_maps (idx)
+VALUES
+(0), (1), (2), (3), (4), (5), (6), (7), (8), (9),
+(10), (11), (12), (13), (14), (15), (16), (17), (18), (19),
+(20), (21), (22), (23), (24), (25), (26), (27), (28), (29),
+(30), (31), (32), (33), (34), (35), (36), (37), (38), (39),
+(40), (41), (42), (43), (44), (45), (46), (47), (48), (49),
+(50), (51), (52), (53), (54), (55), (56), (57), (58), (59),
+(60), (61), (62), (63), (64), (65), (66), (67), (68), (69),
+(70), (71), (72), (73), (74), (75), (76), (77), (78), (79),
+(80);
+
+-- 게임 유저 정보
+create table slime_war_users(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    room_id INT,
+    hero_count INT, -- 남은 히어로 수
+    turn INT, -- 플레이 순서 
+    color_type INT, -- 0: 빨강, 1: 파랑
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
+
+create table slime_war_game_room_settings(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT, 
+    timer INT, -- 게임 타이머
+    remaining_card_count INT, -- 남은 카드 수 
+    king_index INT, -- 왕 인덱스
+    current_round INT,  -- 현재 라운드
+    remaining_slime_count INT, -- 남은 슬라임 수
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
+
+create table slime_war_room_cards(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    card_id INT,
+    state varchar(100), -- 남은 카드, 소윺 카드, 버려진 카드
+    user_id INT,
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (card_id) REFERENCES slime_war_cards(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE
+);
+
+-- 게임 맵 정보
+create table slime_war_room_maps(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    user_id INT,
+    map_id INT, -- (0 ~ 80)
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (map_id) REFERENCES slime_war_maps(id) ON DELETE CASCADE
+);
