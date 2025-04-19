@@ -19,6 +19,12 @@ var GormMysqlDB *gorm.DB
 
 const DBTimeOut = 8 * time.Second
 
+// 게임 타입 지정
+const (
+	FIND_IT   = 1
+	SLIME_WAR = 2
+)
+
 func InitMySQL() error {
 	var connectionString string
 	var err error
@@ -121,5 +127,3 @@ func Transaction(db *gorm.DB, fc func(tx *gorm.DB) error) (err error) {
 	err = fc(tx)
 	return
 }
-
-

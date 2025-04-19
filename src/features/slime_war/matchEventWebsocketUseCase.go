@@ -14,17 +14,7 @@ func CreateMatchRoomDTO(uID uint) *mysql.GameRooms {
 		OwnerID:      int(uID),
 		Name:         "speed match",
 		StartTime:    time.Now(),
-		GameID:       2,
-	}
-	return result
-}
-
-func CreateMatchUserItemDTO(uID uint, roomID uint, item mysql.Items) mysql.UserItems {
-	result := mysql.UserItems{
-		UserID:        int(uID),
-		RoomID:        int(roomID),
-		ItemID:        int(item.ID),
-		RemainingUses: item.MaxUses,
+		GameID:       mysql.SLIME_WAR,
 	}
 	return result
 }

@@ -32,7 +32,7 @@ func MatchFindOneWaitingRoom(ctx context.Context) (*mysql.GameRooms, *entity.Err
 		Where("deleted_at IS NULL").
 		Where("state = ?", "wait").
 		Where("current_count < max_count").
-		Where("game_id = ?", 2)
+		Where("game_id = ?", mysql.SLIME_WAR)
 
 	err := query.First(&roomsDTO).Error
 	if err != nil {
@@ -52,7 +52,7 @@ func MatchFindOneWaitingRoom(ctx context.Context) (*mysql.GameRooms, *entity.Err
 
 	return &roomsDTO, nil
 }
-func MatchInsertOneRoomSetting(ctx context.Context, tx *gorm.DB, roomSettingDTO *mysql.FindItRoomSettings) *entity.ErrorInfo {
+func MatchInsertOneRoomSetting(ctx context.Context, tx *gorm.DB, roomSettingDTO *mysql.SlimeWarGameRoomSettings) *entity.ErrorInfo {
 	result := tx.WithContext(ctx).Create(&roomSettingDTO)
 	if result.Error != nil {
 		return &entity.ErrorInfo{

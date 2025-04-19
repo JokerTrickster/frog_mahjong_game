@@ -41,14 +41,14 @@ func Deepcopy(src entity.MessageInfo) entity.MessageInfo {
 func CalcPlayTurn(playTurn, playerCount int) int {
 	return (playTurn % playerCount) + 1
 }
-func CreateRoomSetting(roomID uint) *mysql.FindItRoomSettings {
-	roomSetting := &mysql.FindItRoomSettings{
-		RoomID:             int(roomID),
-		Timer:              120,
-		Lifes:              5,
-		ItemHintCount:      3,
-		ItemTimerStopCount: 3,
-		Round:              1,
+func CreateRoomSetting(roomID uint) *mysql.SlimeWarGameRoomSettings {
+	roomSetting := &mysql.SlimeWarGameRoomSettings{
+		RoomID:              int(roomID),
+		Timer:               60,
+		RemainingCardCount:  38,
+		KingIndex:           37,
+		CurrentRound:        1,
+		RemainingSlimeCount: 52,
 	}
 	return roomSetting
 }
