@@ -25,7 +25,7 @@ func CreatePlayTogetherRoomDTO(uID uint, count int, timer int, password string) 
 		Name:         "play together",
 		Password:     password,
 		StartTime:    time.Now(),
-		GameID:       1,
+		GameID:       mysql.SLIME_WAR,
 	}
 	return result
 }

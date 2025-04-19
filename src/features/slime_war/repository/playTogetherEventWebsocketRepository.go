@@ -109,7 +109,7 @@ func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID u
 	}
 	return nil
 }
-func PlayTogetherInsertOneRoomSetting(ctx context.Context, tx *gorm.DB, roomSettingDTO *mysql.FindItRoomSettings) *entity.ErrorInfo {
+func PlayTogetherInsertOneRoomSetting(ctx context.Context, tx *gorm.DB, roomSettingDTO *mysql.SlimeWarGameRoomSettings) *entity.ErrorInfo {
 	result := tx.WithContext(ctx).Create(&roomSettingDTO)
 	if result.Error != nil {
 		return &entity.ErrorInfo{
