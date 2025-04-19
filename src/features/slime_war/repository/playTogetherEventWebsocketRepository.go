@@ -238,3 +238,27 @@ func PlayTogetherCreateMissions(ctx context.Context, tx *gorm.DB, roomID uint) *
 
 	return nil
 }
+
+func PlayTogetherInsertUserDTO(ctx context.Context, tx *gorm.DB, userDTO *mysql.SlimeWarUsers) *entity.ErrorInfo {
+	result := tx.WithContext(ctx).Create(&userDTO)
+	if result.Error != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("유저 생성 실패: %v", result.Error.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}
+
+func PlayTogetherInsertGameRoomSettingDTO(ctx context.Context, tx *gorm.DB, gameRoomSettingDTO *mysql.SlimeWarGameRoomSettings) *entity.ErrorInfo {
+	result := tx.WithContext(ctx).Create(&gameRoomSettingDTO)
+	if result.Error != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("게임 룸 설정 생성 실패: %v", result.Error.Error()),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return nil
+}

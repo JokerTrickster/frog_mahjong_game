@@ -43,7 +43,21 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		// 방 카드 정보 생성
+		slimeWarCards := CreateSlimeWarCards(roomID)
+		errInfo = repository.StartCreateSlimeWarCards(ctx, tx, slimeWarCards)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
+
+		// 방 맵 정보 생성
+		slimeWarMaps := CreateSlimeWarMaps(roomID)
+		errInfo = repository.StartCreateSlimeWarMaps(ctx, tx, slimeWarMaps)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		
 
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {

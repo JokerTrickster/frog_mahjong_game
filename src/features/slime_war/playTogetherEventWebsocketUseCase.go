@@ -48,3 +48,26 @@ func CreatePlayTogetherUserItemDTO(uID uint, roomID uint, item mysql.Items) mysq
 	}
 	return result
 }
+
+func CreatePlayTogetherUserDTO(uID uint, roomID uint) *mysql.SlimeWarUsers {
+	result := &mysql.SlimeWarUsers{
+		UserID:    int(uID),
+		RoomID:    int(roomID),
+		HeroCount: 4,
+		Turn:      0,
+		ColorType: 0,
+	}
+	return result
+}
+
+func CreatePlayTogetherGameRoomSettingDTO(roomID uint) *mysql.SlimeWarGameRoomSettings {
+	result := &mysql.SlimeWarGameRoomSettings{
+		RoomID:              int(roomID),
+		Timer:               60,
+		RemainingCardCount:  48,
+		KingIndex:           37,
+		CurrentRound:        1,
+		RemainingSlimeCount: 52,
+	}
+	return result
+}

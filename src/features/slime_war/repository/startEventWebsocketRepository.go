@@ -211,3 +211,27 @@ func StartCheckRoomState(ctx context.Context, roomID uint) (string, *entity.Erro
 	}
 	return room.State, nil
 }
+
+func StartCreateSlimeWarCards(ctx context.Context, tx *gorm.DB, cards []mysql.SlimeWarRoomCards) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Create(&cards).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("카드 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
+	}
+	return nil
+}
+
+func StartCreateSlimeWarMaps(ctx context.Context, tx *gorm.DB, maps []mysql.SlimeWarRoomMaps) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Create(&maps).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("맵 생성 실패: %v", err.Error()),
+			Type: _errors.ErrCreateFailed,
+		}
+	}
+	return nil
+}

@@ -39,6 +39,19 @@ func JoinPlayEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		// 게임 유저 정보 생성
+		slimeWarUserDTO := CreateJoinPlayUserDTO(uID, roomID)
+		errInfo = repository.JoinPlayInsertUserDTO(ctx, tx, slimeWarUserDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 게임 룸 셋팅 생성
+		slimeWarGameRoomSettingDTO := CreateJoinPlayGameRoomSettingDTO(roomID)
+		errInfo = repository.JoinPlayInsertGameRoomSettingDTO(ctx, tx, slimeWarGameRoomSettingDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if err != nil {

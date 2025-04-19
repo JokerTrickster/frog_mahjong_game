@@ -47,3 +47,26 @@ func StartUpdateRoom(roomID uint) mysql.GameRooms {
 		StartTime: time.Now(),
 	}
 }
+
+func CreateSlimeWarCards(roomID uint) []mysql.SlimeWarRoomCards {
+	cards := make([]mysql.SlimeWarRoomCards, 0)
+	for i := 0; i < 48; i++ {
+		cards = append(cards, mysql.SlimeWarRoomCards{
+			RoomID: int(roomID),
+			CardID: i,
+			State:  "none",
+		})
+	}
+	return cards
+}
+
+func CreateSlimeWarMaps(roomID uint) []mysql.SlimeWarRoomMaps {
+	maps := make([]mysql.SlimeWarRoomMaps, 0)
+	for i := 0; i < 48; i++ {
+		maps = append(maps, mysql.SlimeWarRoomMaps{
+			RoomID: int(roomID),
+			MapID:  i,
+		})
+	}
+	return maps
+}

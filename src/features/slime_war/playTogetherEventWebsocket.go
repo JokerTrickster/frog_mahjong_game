@@ -36,6 +36,20 @@ func PlayTogetherEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
+		// 게임 유저 정보 생성
+		slimeWarUserDTO := CreatePlayTogetherUserDTO(uID, roomID)
+		errInfo = repository.PlayTogetherInsertUserDTO(ctx, tx, slimeWarUserDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 게임 룸 셋팅 생성
+		slimeWarGameRoomSettingDTO := CreatePlayTogetherGameRoomSettingDTO(roomID)
+		errInfo = repository.PlayTogetherInsertGameRoomSettingDTO(ctx, tx, slimeWarGameRoomSettingDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)

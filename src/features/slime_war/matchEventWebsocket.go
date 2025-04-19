@@ -34,6 +34,19 @@ func MatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		// 게임 유저 정보 생성
+		slimeWarUserDTO := CreateMatchUserDTO(uID, roomID)
+		errInfo = repository.MatchInsertUserDTO(ctx, tx, slimeWarUserDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 게임 룸 셋팅 생성
+		slimeWarGameRoomSettingDTO := CreateMatchGameRoomSettingDTO(roomID)
+		errInfo = repository.MatchInsertGameRoomSettingDTO(ctx, tx, slimeWarGameRoomSettingDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
