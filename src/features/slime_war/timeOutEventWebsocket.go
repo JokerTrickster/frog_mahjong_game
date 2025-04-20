@@ -29,22 +29,10 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 못찾은 좌표를 모두 가져온다.
-		// 현재 정답을 맞춘 좌표를 가져온다.
-		userCorrectPositionDTOList, errInfo := repository.TimeOutFindCorrectPosition(ctx, tx, roomID, req.Round, req.ImageID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
+		//현재 턴을 상대방 턴으로 넘긴다.
+		
 
-		// 개수만큼 목숨을 줄인다.
-		diffLife := 5 - len(userCorrectPositionDTOList)
-		// 목숨 차감한다.
-		errInfo = repository.TimeOutLifeDecrease(ctx, tx, roomID, diffLife)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 
-		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -59,7 +47,6 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 	//타이머 아이템 사용
-	messageMsg.SlimeWarGameInfo.TimerUsed = true
 	if len(preloadUsers) == 2 {
 		messageMsg.SlimeWarGameInfo.IsFull = true
 	}
