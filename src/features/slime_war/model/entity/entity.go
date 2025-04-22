@@ -57,32 +57,29 @@ type ErrorInfo struct {
 	Type string `json:"type"`
 }
 type User struct {
-	ID             uint        `json:"id"`
-	Email          string      `json:"email"`
-	Name           string      `json:"name"`
-	IsOwner        bool        `json:"isOwner"`        // 방장 여부
-	ProfileID      int         `json:"profileID"`      // 프로필 ID
-	Turn           int         `json:"turn"`           // 턴
-	SlimePositions []*Position `json:"slimePositions"` // 슬라임 위치
-	HeroCardCount  int         `json:"heroCardCount"`  // 영웅 카드 개수
+	ID             uint   `json:"id"`
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	IsOwner        bool   `json:"isOwner"`        // 방장 여부
+	ProfileID      int    `json:"profileID"`      // 프로필 ID
+	Turn           int    `json:"turn"`           // 턴
+	SlimePositions []int  `json:"slimePositions"` // 슬라임 위치
+	HeroCardCount  int    `json:"heroCardCount"`  // 영웅 카드 개수
+	OwnedCardIDs   []int  `json:"ownedCardIDs"`   // 소유한 카드 ID 배열
+	ColorType      int    `json:"colorType"`      // 색상 타입
 }
 type SlimeWarGameInfo struct {
-	AllReady              bool      `json:"allReady"`              // 게임 시작 여부
-	Timer                 int       `json:"timer"`                 // 타이머
-	IsFull                bool      `json:"isFull"`                // 방이 꽉 찼는지 여부
-	RoomID                uint      `json:"roomID"`                // 방 ID
-	Password              string    `json:"password"`              // 방 비밀번호
-	StartTime             int64     `json:"startTime"`             // 게임 시작 시간 (epoch time in milliseconds)
-	Round                 int       `json:"round"`                 // 라운드
-	RoundCount            int       `json:"roundCount"`            // 라운드 카운트
-	KingPosition          *Position `json:"kingPosition"`          // 왕의 위치
-	SlimeCount            int       `json:"slimeCount"`            // 슬라임 개수
-	DroppedDummyIndices   []int     `json:"droppedDummyIndices"`   // 버려진 더미 인덱스 배열
-	RemainingDummyIndices []int     `json:"remainingDummyIndices"` // 남은 더미 인덱스 배열
-}
-type Position struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
+	AllReady              bool   `json:"allReady"`              // 게임 시작 여부
+	Timer                 int    `json:"timer"`                 // 타이머
+	IsFull                bool   `json:"isFull"`                // 방이 꽉 찼는지 여부
+	RoomID                uint   `json:"roomID"`                // 방 ID
+	Password              string `json:"password"`              // 방 비밀번호
+	StartTime             int64  `json:"startTime"`             // 게임 시작 시간 (epoch time in milliseconds)
+	Round                 int    `json:"round"`                 // 라운드
+	KingPosition          int    `json:"kingPosition"`          // 왕의 위치
+	SlimeCount            int    `json:"slimeCount"`            // 슬라임 개수
+	DroppedDummyIndices   []int  `json:"droppedDummyIndices"`   // 버려진 더미 인덱스 배열
+	RemainingDummyIndices []int  `json:"remainingDummyIndices"` // 남은 더미 인덱스 배열
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드
@@ -91,10 +88,10 @@ type PreloadUsers struct {
 	RoomID                   uint                            `json:"roomID" gorm:"column:room_id"`                      // 방 ID
 	User                     *mysql.GameUsers                `json:"user" gorm:"foreignKey:UserID"`                     // 유저 정보 (game_users)
 	Room                     *mysql.GameRooms                `json:"room" gorm:"foreignKey:RoomID"`                     // 방 정보 (game_rooms)
-	SlimeWarRoomCards        []*mysql.SlimeWarRoomCards        `json:"slimeWarRoomCards" gorm:"foreignKey:RoomID"`        // 방 카드 정보 (slime_war_room_cards)
-	SlimeWarRoomMaps         []*mysql.SlimeWarRoomMaps         `json:"slimeWarRoomMaps" gorm:"foreignKey:RoomID"`         // 방 맵 정보 (slime_war_room_maps)
+	SlimeWarRoomCards        []*mysql.SlimeWarRoomCards      `json:"slimeWarRoomCards" gorm:"foreignKey:RoomID"`        // 방 카드 정보 (slime_war_room_cards)
+	SlimeWarRoomMaps         []*mysql.SlimeWarRoomMaps       `json:"slimeWarRoomMaps" gorm:"foreignKey:RoomID"`         // 방 맵 정보 (slime_war_room_maps)
 	SlimeWarGameRoomSettings *mysql.SlimeWarGameRoomSettings `json:"slimeWarGameRoomSettings" gorm:"foreignKey:RoomID"` // 방 설정 정보 (slime_war_game_room_settings)
-	SlimeWarUsers            []*mysql.SlimeWarUsers             `json:"slimeWarRoomUsers" gorm:"foreignKey:RoomID"`        // 방 유저 정보 (slime_war_room_users)
+	SlimeWarUser             *mysql.SlimeWarUsers            `json:"slimeWarRoomUsers" gorm:"foreignKey:RoomID"`        // 방 유저 정보 (slime_war_room_users)
 }
 
 func (c *WSClient) Close() {

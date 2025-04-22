@@ -8,7 +8,6 @@ import (
 	"main/features/slime_war/model/entity"
 	"main/features/slime_war/repository"
 	"main/utils"
-	_aws "main/utils/aws"
 	"main/utils/db/mysql"
 	"time"
 
@@ -63,18 +62,9 @@ func CreateMatchRoomUserDTO(userID uint, roomID uint) *mysql.GameRoomUsers {
 
 func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUsers, playTurn int, MessageInfoError *entity.ErrorInfo, selectCardID int) *entity.MessageInfo {
 	MessageInfoMsg := entity.MessageInfo{}
-	timer := 120
-	hintCount := 0
-	timerStopCount := 0
-	life := 0
-	round := 0
-	roomID := 0
-	password := ""
-	correctCount := 0
-	imageID := 0
-	roundCount := 0
-	var startTime int64
-
+	gameRoomSetting := &entity.SlimeWarGameInfo{}
+	dropedDummyIndices := make([]int, 0)
+	remainingDummyIndices := make([]int, 0)
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
@@ -83,95 +73,52 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			Email:     roomUser.User.Email,
 			ProfileID: roomUser.User.ProfileID,
 		}
-		if roomUser.RoomSetting != nil {
-			timer = roomUser.RoomSetting.Timer
-			hintCount = roomUser.RoomSetting.ItemHintCount
-			timerStopCount = roomUser.RoomSetting.ItemTimerStopCount
-			life = roomUser.RoomSetting.Lifes
-			round = roomUser.RoomSetting.Round
+		if roomUser.SlimeWarUser != nil {
+			user.HeroCardCount = roomUser.SlimeWarUser.HeroCount
+			user.Turn = roomUser.SlimeWarUser.Turn
+			user.ColorType = roomUser.SlimeWarUser.ColorType
 		}
-		if roomUser.Room != nil {
-			if roomUser.Room.Password != "" {
-				password = roomUser.Room.Password
+		ownCardList := make([]int, 0)
+		for _, slimeWarRoomCard := range roomUser.SlimeWarRoomCards {
+			if slimeWarRoomCard.UserID == int(user.ID) {
+				ownCardList = append(ownCardList, slimeWarRoomCard.CardID)
 			}
-
-			roomID = int(roomUser.RoomID)
-			// 방장 여부 추가
-			if roomUser.Room.OwnerID == int(roomUser.UserID) {
-				user.IsOwner = true
-			}
-			//시작 시간 추가
-			if !roomUser.Room.StartTime.IsZero() {
-				// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
-				startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
+			if slimeWarRoomCard.State == "none" {
+				remainingDummyIndices = append(remainingDummyIndices, slimeWarRoomCard.CardID)
+			} else if slimeWarRoomCard.State == "discard" {
+				dropedDummyIndices = append(dropedDummyIndices, slimeWarRoomCard.CardID)
 			}
 		}
-		// ✅ 맞힌 정보 저장 (x_position, y_position 추가)
-		correctIDList := []int{}
-
-		for _, userCorrect := range roomUser.UserCorrectPositions {
-			if userCorrect.RoomID == roomID && userCorrect.Round == round && userCorrect.UserID == int(roomUser.UserID) {
-				correctIDList = append(correctIDList, userCorrect.CorrectPositionID)
-				correctCount++
+		if len(gameRoomSetting.DroppedDummyIndices) == 0 {
+			gameRoomSetting.DroppedDummyIndices = dropedDummyIndices
+		}
+		if len(gameRoomSetting.RemainingDummyIndices) == 0 {
+			gameRoomSetting.RemainingDummyIndices = remainingDummyIndices
+		}
+		user.OwnedCardIDs = ownCardList
+		slimePositions := make([]int, 0)
+		for _, slimeWarRoomMap := range roomUser.SlimeWarRoomMaps {
+			if slimeWarRoomMap.UserID == int(user.ID) {
+				slimePositions = append(slimePositions, slimeWarRoomMap.MapID)
 			}
 		}
-		correctPositions, _ := repository.FindAllCorrectPositions(ctx, correctIDList)
-		for _, correctPosition := range correctPositions {
-			position := entity.Position{
-				X: correctPosition.XPosition,
-				Y: correctPosition.YPosition,
-			}
-			user.CorrectPositions = append(user.CorrectPositions, position)
+		user.SlimePositions = slimePositions
+		if roomUser.SlimeWarGameRoomSettings != nil && gameRoomSetting == nil {
+			gameRoomSetting.KingPosition = roomUser.SlimeWarGameRoomSettings.KingIndex
+			gameRoomSetting.Timer = roomUser.SlimeWarGameRoomSettings.Timer
+			gameRoomSetting.SlimeCount = roomUser.SlimeWarGameRoomSettings.RemainingSlimeCount
+			gameRoomSetting.Round = roomUser.SlimeWarGameRoomSettings.CurrentRound
+			MessageInfoMsg.SlimeWarGameInfo = gameRoomSetting
 		}
-
-		if imageID == 0 {
-			for _, roundImage := range roomUser.RoundImages {
-				if roomUser.RoomSetting.Round == roundImage.Round {
-					imageID = roundImage.ImageSetId
-					break
-				}
-			}
-			roundCount = len(roomUser.RoundImages)
-		}
-
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
-	// 이미지 정보를 가져온다.
-	ImageInfo := entity.ImageInfo{}
-	if imageID != 0 {
-		roundImage, err := repository.FindOneRoundImage(ctx, imageID)
-		if err != nil {
-			MessageInfoError = err
-		}
-		//s3 이미지 URL
-		normalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.NormalImageUrl, _aws.ImgTypeFindIt)
-		abnormalSignedUrl, _ := _aws.ImageGetSignedURL(context.TODO(), roundImage.AbnormalImageUrl, _aws.ImgTypeFindIt)
-		ImageInfo.ID = imageID
-		ImageInfo.NormalImageUrl = normalSignedUrl
-		ImageInfo.AbnormalImageUrl = abnormalSignedUrl
 
+	if len(MessageInfoMsg.Users) == 2 {
+		MessageInfoMsg.SlimeWarGameInfo.IsFull = true
+		MessageInfoMsg.SlimeWarGameInfo.AllReady = true
 	}
 
-	//게임 정보 저장
-	gameInfo := entity.GameInfo{
-		AllReady:       true,
-		Timer:          timer,
-		IsFull:         true,
-		RoomID:         uint(roomID),
-		Password:       password,
-		StartTime:      startTime,
-		ItemTimerCount: timerStopCount,
-		ItemHintCount:  hintCount,
-		Round:          round,
-		Life:           life,
-		CorrectCount:   correctCount,
-		ImageInfo:      &ImageInfo,
-		TimerUsed:      false,
-		HintPosition:   nil,
-		RoundCount:     roundCount,
-	}
 
-	MessageInfoMsg.GameInfo = &gameInfo
 	if MessageInfoError != nil {
 		MessageInfoMsg.ErrorInfo = MessageInfoError
 	}

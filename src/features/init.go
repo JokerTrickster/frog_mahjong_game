@@ -11,6 +11,7 @@ import (
 	gameUserHandler "main/features/game_users/handler"
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
+	slimeWar "main/features/slime_war"
 	userHandler "main/features/users/handler"
 	"main/features/v2ws"
 	"main/features/ws"
@@ -39,6 +40,7 @@ func InitHandler(e *echo.Echo) error {
 	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)
 	find_it.NewFindItWebsocketHandler(e)
+	slimeWar.NewSlimeWarWebsocketHandler(e)
 	go ws.WSHandleMessages("frog")
 
 	go v2ws.WSHandleMessages("wingspan")
