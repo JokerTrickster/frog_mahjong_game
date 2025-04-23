@@ -358,6 +358,11 @@ func cleanGameInfo(ctx context.Context, userID uint) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		// SlimeWarUsers 제거
+		errInfo = repository.DeleteAllSlimeWarUsers(ctx, tx, userID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
 		return nil
 	})

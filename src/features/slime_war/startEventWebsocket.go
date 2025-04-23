@@ -56,6 +56,17 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
+		// 방 유저 정보를 가져온다. 		
+		roomUsers, errInfo := repository.StartFindRoomUsers(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 유저에게 랜덤으로 5개 카드를 부여한다.
+		errInfo = repository.StartCreateSlimeWarUserCards(ctx, tx, roomUsers)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
 		// 방 맵 정보 생성
 		slimeWarMaps := CreateSlimeWarMaps(roomID)
@@ -63,7 +74,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		
+
 
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {

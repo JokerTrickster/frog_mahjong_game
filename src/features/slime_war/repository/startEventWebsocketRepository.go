@@ -258,8 +258,8 @@ func StartUpdateSlimeWarUser(ctx context.Context, tx *gorm.DB, roomID uint) *ent
 
 	// 랜덤으로 0 또는 1 배정
 	rand.Seed(time.Now().UnixNano())
-	r0 := rand.Intn(2)         // 0 또는 1
-	r1 := 1 - r0               // 반대값
+	r0 := rand.Intn(2) // 0 또는 1
+	r1 := 1 - r0       // 반대값
 
 	// 무작위 순서로 섞기
 	if rand.Intn(2) == 0 {
@@ -286,6 +286,56 @@ func StartUpdateSlimeWarUser(ctx context.Context, tx *gorm.DB, roomID uint) *ent
 				Code: _errors.ErrCodeInternal,
 				Msg:  fmt.Sprintf("슬라임워 유저 업데이트 실패: %v", err.Error()),
 				Type: _errors.ErrSlimeWarUserUpdateFailed,
+			}
+		}
+	}
+
+	return nil
+}
+
+func StartFindRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]mysql.GameRoomUsers, *entity.ErrorInfo) {
+	var roomUsers []mysql.GameRoomUsers
+	err := tx.WithContext(ctx).Where("room_id = ?", roomID).Find(&roomUsers).Error
+	if err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 유저 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
+	}
+	return roomUsers, nil
+}
+
+func StartCreateSlimeWarUserCards(ctx context.Context, tx *gorm.DB, roomUsers []mysql.GameRoomUsers) *entity.ErrorInfo {
+	// Create a map to track used numbers
+	used := make(map[int]bool)
+	numbers := make([]int, 0, 10)
+
+	// Generate 10 unique random numbers between 1 and 48
+	for len(numbers) < 10 {
+		num := rand.Intn(48) + 1
+		if !used[num] {
+			used[num] = true
+			numbers = append(numbers, num)
+		}
+	}
+
+	// 각 유저에게 5개의 카드 할당
+	for i, user := range roomUsers {
+		startIdx := i * 5
+		userCards := numbers[startIdx : startIdx+5]
+
+		//userCards에 해당되는 card_id에 user_id와 state를 업데이트한다.
+		if err := tx.Model(&mysql.SlimeWarRoomCards{}).
+			Where("card_id IN (?)", userCards).
+			Updates(map[string]interface{}{
+				"user_id": user.UserID,
+				"state":   "owned",
+			}).Error; err != nil {
+			return &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("유저 카드 업데이트 실패: %v", err.Error()),
+				Type: _errors.ErrUpdateFailed,
 			}
 		}
 	}
