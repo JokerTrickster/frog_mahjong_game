@@ -13,29 +13,61 @@ import (
 	"gorm.io/gorm"
 )
 
-func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
+func MoveEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
+	uID := msg.UserID
 	roomID := msg.RoomID
-	req := request.ReqWSNextRound{}
+	req := request.ReqWSMove{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
+
 	// 비즈니스 로직
 	//해당 방이 대기상태인지 체크한다.
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
+	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
+	if newErr != nil {
+		return newErr
+	}
+	if roomState != "wait" {
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, "게임이 시작되었습니다.", _errors.ErrAlreadyGame)
+	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 다음 턴으로 업데이트
-		errInfo = repository.NextRoundUpdateTurn(ctx, tx, roomID)
+		// 카드 정보를 가져온다.
+		cardInfo, errInfo := repository.MoveFindOneCardInfo(ctx, tx, roomID, req.CardID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		//TODO 30라운드 이미지를 선택해서 각 라운드마다 이미지를 만든다.
+		kingIndex, errInfo := repository.MoveFindOneKingInfo(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 왕을 이동시킨다.
+		nextKingIndex := CreateNextKingIndex(kingIndex, cardInfo)
+		errInfo = repository.MoveUpdateKing(ctx, tx, roomID, nextKingIndex)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 왕 이동 자리에 유저 슬라임을 놓는다.
+		errInfo = repository.MoveUpdateUserSlime(ctx, tx, roomID, uID, nextKingIndex)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 유저가 사용한 카드 상태값을 discard 로 변경한다.
+		errInfo = repository.MoveUpdateCardState(ctx, tx, roomID, uID, req.CardID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -50,11 +82,14 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 
+	if len(preloadUsers) == 2 {
+		messageMsg.SlimeWarGameInfo.IsFull = true
+	}
+
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
 	}
-
 	msg.Message = message
 	sendMessageToClients(roomID, msg)
 	return nil

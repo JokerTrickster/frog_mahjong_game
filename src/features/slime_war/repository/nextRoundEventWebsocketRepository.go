@@ -21,3 +21,16 @@ func NextRoundRoundIncrease(ctx context.Context, tx *gorm.DB, roomID uint, round
 	}
 	return nil
 }
+func NextRoundUpdateTurn(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SlimeWarGameRoomSettings{}).
+		Where("room_id = ?", roomID).
+		Update("current_round", gorm.Expr("current_round + 1")).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  "턴 업데이트 실패",
+			Type: _errors.ErrUpdateFailed,
+		}
+	}
+	return nil
+}

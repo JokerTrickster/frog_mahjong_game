@@ -64,6 +64,8 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = PlayTogetherEventWebsocket(&msg)
 	case "JOIN":
 		errInfo = JoinPlayEventWebsocket(&msg)
+	case "MOVE":
+		errInfo = MoveEventWebsocket(&msg)
 
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
