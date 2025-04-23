@@ -692,7 +692,6 @@ create table slime_war_room_cards(
     user_id INT,
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
     FOREIGN KEY (card_id) REFERENCES slime_war_cards(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE
 );
 
 -- 게임 맵 정보
@@ -705,6 +704,7 @@ create table slime_war_room_maps(
     user_id INT,
     map_id INT, -- (0 ~ 80)
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
     FOREIGN KEY (map_id) REFERENCES slime_war_maps(id) ON DELETE CASCADE
 );
+
+

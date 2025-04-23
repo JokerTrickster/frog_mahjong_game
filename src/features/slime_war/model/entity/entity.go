@@ -84,14 +84,14 @@ type SlimeWarGameInfo struct {
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드
 type PreloadUsers struct {
-	UserID                   uint                            `json:"userID" gorm:"column:user_id"`                      // 유저 ID
-	RoomID                   uint                            `json:"roomID" gorm:"column:room_id"`                      // 방 ID
-	User                     *mysql.GameUsers                `json:"user" gorm:"foreignKey:UserID"`                     // 유저 정보 (game_users)
-	Room                     *mysql.GameRooms                `json:"room" gorm:"foreignKey:RoomID"`                     // 방 정보 (game_rooms)
-	SlimeWarRoomCards        []*mysql.SlimeWarRoomCards      `json:"slimeWarRoomCards" gorm:"foreignKey:RoomID"`        // 방 카드 정보 (slime_war_room_cards)
-	SlimeWarRoomMaps         []*mysql.SlimeWarRoomMaps       `json:"slimeWarRoomMaps" gorm:"foreignKey:RoomID"`         // 방 맵 정보 (slime_war_room_maps)
-	SlimeWarGameRoomSettings *mysql.SlimeWarGameRoomSettings `json:"slimeWarGameRoomSettings" gorm:"foreignKey:RoomID"` // 방 설정 정보 (slime_war_game_room_settings)
-	SlimeWarUser             *mysql.SlimeWarUsers            `json:"slimeWarRoomUsers" gorm:"foreignKey:RoomID"`        // 방 유저 정보 (slime_war_room_users)
+	UserID                   uint                            `json:"userID" gorm:"column:user_id"`                                               // 유저 ID
+	RoomID                   uint                            `json:"roomID" gorm:"column:room_id"`                                               // 방 ID
+	User                     *mysql.GameUsers                `json:"user" gorm:"foreignKey:UserID;references:ID"`                                // 유저 정보 (game_users)
+	Room                     *mysql.GameRooms                `json:"room" gorm:"foreignKey:RoomID;references:ID"`                                // 방 정보 (game_rooms)
+	SlimeWarRoomCards        []*mysql.SlimeWarRoomCards      `json:"slimeWarRoomCards" gorm:"foreignKey:RoomID;references:RoomID"`               // 방 카드 정보 (slime_war_room_cards)
+	SlimeWarRoomMaps         []*mysql.SlimeWarRoomMaps       `json:"slimeWarRoomMaps" gorm:"foreignKey:RoomID;references:RoomID"`                // 방 맵 정보 (slime_war_room_maps)
+	SlimeWarGameRoomSettings *mysql.SlimeWarGameRoomSettings `json:"slimeWarGameRoomSettings" gorm:"foreignKey:RoomID;references:RoomID"`        // 방 설정 정보 (slime_war_game_room_settings)
+	SlimeWarUser             *mysql.SlimeWarUsers            `json:"slimeWarRoomUsers" gorm:"foreignKey:UserID,RoomID;references:UserID,RoomID"` // 방 유저 정보 (slime_war_users)
 }
 
 func (c *WSClient) Close() {

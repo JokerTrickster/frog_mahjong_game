@@ -235,3 +235,60 @@ func StartCreateSlimeWarMaps(ctx context.Context, tx *gorm.DB, maps []mysql.Slim
 	}
 	return nil
 }
+
+func StartUpdateSlimeWarUser(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
+	var users []mysql.SlimeWarUsers
+
+	// roomID로 해당 유저 두 명 조회
+	if err := tx.Where("room_id = ?", roomID).Find(&users).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("슬라임워 유저 조회 실패: %v", err.Error()),
+			Type: _errors.ErrSlimeWarUsersNotFound,
+		}
+	}
+
+	if len(users) != 2 {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInvalidUserCount,
+			Msg:  "슬라임워 유저 수는 반드시 2명이어야 합니다.",
+			Type: _errors.ErrSlimeWarUsersNotFound,
+		}
+	}
+
+	// 랜덤으로 0 또는 1 배정
+	rand.Seed(time.Now().UnixNano())
+	r0 := rand.Intn(2)         // 0 또는 1
+	r1 := 1 - r0               // 반대값
+
+	// 무작위 순서로 섞기
+	if rand.Intn(2) == 0 {
+		users[0].Turn = r0
+		users[0].ColorType = r0
+		users[1].Turn = r1
+		users[1].ColorType = r1
+	} else {
+		users[0].Turn = r1
+		users[0].ColorType = r1
+		users[1].Turn = r0
+		users[1].ColorType = r0
+	}
+
+	// DB 업데이트
+	for _, u := range users {
+		if err := tx.Model(&mysql.SlimeWarUsers{}).
+			Where("id = ?", u.ID).
+			Updates(map[string]interface{}{
+				"turn":       u.Turn,
+				"color_type": u.ColorType,
+			}).Error; err != nil {
+			return &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("슬라임워 유저 업데이트 실패: %v", err.Error()),
+				Type: _errors.ErrSlimeWarUserUpdateFailed,
+			}
+		}
+	}
+
+	return nil
+}

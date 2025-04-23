@@ -11,6 +11,7 @@ import (
 	gameUserHandler "main/features/game_users/handler"
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
+	"main/features/slime_war"
 	slimeWar "main/features/slime_war"
 	userHandler "main/features/users/handler"
 	"main/features/v2ws"
@@ -46,6 +47,8 @@ func InitHandler(e *echo.Echo) error {
 	go v2ws.WSHandleMessages("wingspan")
 
 	go find_it.WSHandleMessages("find-it")
+
+	go slime_war.WSHandleMessages("slime-war")
 
 	return nil
 }

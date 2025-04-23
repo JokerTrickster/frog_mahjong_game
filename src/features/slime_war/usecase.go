@@ -51,7 +51,7 @@ func CreateRoomSetting(roomID uint) *mysql.SlimeWarGameRoomSettings {
 	}
 	return roomSetting
 }
-func CreateMatchRoomUserDTO(userID uint, roomID uint) *mysql.GameRoomUsers {
+func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
 	roomUser := &mysql.GameRoomUsers{
 		RoomID:      int(roomID),
 		UserID:      int(userID),
@@ -103,7 +103,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			}
 		}
 		user.SlimePositions = slimePositions
-		if roomUser.SlimeWarGameRoomSettings != nil && gameRoomSetting == nil {
+		if roomUser.SlimeWarGameRoomSettings != nil && gameRoomSetting.KingPosition == 0 {
 			gameRoomSetting.KingPosition = roomUser.SlimeWarGameRoomSettings.KingIndex
 			gameRoomSetting.Timer = roomUser.SlimeWarGameRoomSettings.Timer
 			gameRoomSetting.SlimeCount = roomUser.SlimeWarGameRoomSettings.RemainingSlimeCount
@@ -112,12 +112,13 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		}
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
-
 	if len(MessageInfoMsg.Users) == 2 {
 		MessageInfoMsg.SlimeWarGameInfo.IsFull = true
 		MessageInfoMsg.SlimeWarGameInfo.AllReady = true
+	} else {
+		MessageInfoMsg.SlimeWarGameInfo.IsFull = false
+		MessageInfoMsg.SlimeWarGameInfo.AllReady = false
 	}
-
 
 	if MessageInfoError != nil {
 		MessageInfoMsg.ErrorInfo = MessageInfoError
@@ -220,7 +221,7 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
-	utils.LogError(msg.Message)
+	utils.LogInfo(msg.Message)
 
 	// // 메시지 암호화
 	// encryptedMessage, err := utils.EncryptAES(msg.Message)

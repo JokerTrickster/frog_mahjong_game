@@ -50,6 +50,12 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
+		// 슬라임 유저 정보 변경 (colorType, turn 변경)
+		errInfo = repository.StartUpdateSlimeWarUser(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
 
 		// 방 맵 정보 생성
 		slimeWarMaps := CreateSlimeWarMaps(roomID)

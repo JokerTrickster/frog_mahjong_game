@@ -21,18 +21,10 @@ func PreloadUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]entity.Prelo
 	if err := tx.Table("game_room_users").
 		Preload("User").
 		Preload("Room").
-		Preload("SlimeWarRoomCards", func(db *gorm.DB) *gorm.DB {
-			return db.Where("room_id = ?", roomID)
-		}).
-		Preload("SlimeWarRoomMaps", func(db *gorm.DB) *gorm.DB {
-			return db.Where("room_id = ?", roomID)
-		}).
-		Preload("SlimeWarGameRoomSettings", func(db *gorm.DB) *gorm.DB {
-			return db.Where("room_id = ?", roomID)
-		}).
-		Preload("SlimeWarUsers", func(db *gorm.DB) *gorm.DB {
-			return db.Where("room_id = ?", roomID)
-		}).
+		Preload("SlimeWarRoomCards").
+		Preload("SlimeWarRoomMaps").
+		Preload("SlimeWarGameRoomSettings").
+		Preload("SlimeWarUser").
 		Where("room_id = ?", roomID).
 		Find(&preloadUsers).Error; err != nil {
 		return nil, &entity.ErrorInfo{
@@ -72,7 +64,6 @@ func RedisSessionDelete(ctx context.Context, sessionID string) *entity.ErrorInfo
 	return nil
 }
 
-
 func DeleteAllRoomUsers(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
 	err := tx.Where("user_id = ?", userID).Delete(&mysql.GameRoomUsers{}).Error
 	if err != nil {
@@ -96,7 +87,6 @@ func DeleteAllRooms(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorIn
 	}
 	return nil
 }
-
 
 func DeleteAllGameRooms(c context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
 	err := tx.Where("owner_id = ?", userID).Delete(&mysql.GameRooms{}).Error
