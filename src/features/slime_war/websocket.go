@@ -68,6 +68,8 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = MoveEventWebsocket(&msg)
 	case "HERO":
 		errInfo = HeroEventWebsocket(&msg)
+	case "GET_CARD":
+		errInfo = GetCardEventWebsocket(&msg)
 
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
