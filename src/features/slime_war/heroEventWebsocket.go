@@ -13,12 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func MoveEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
+func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	req := request.ReqWSMove{}
+	req := request.ReqWSHero{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
@@ -29,41 +29,40 @@ func MoveEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
-	if newErr != nil {
-		return newErr
-	}
-	if roomState != "wait" {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, "게임이 시작되었습니다.", _errors.ErrAlreadyGame)
-	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보를 가져온다.
-		cardInfo, errInfo := repository.MoveFindOneCardInfo(ctx, tx, roomID, req.CardID)
+		cardInfo, errInfo := repository.HeroFindOneCardInfo(ctx, tx, roomID, req.CardID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		kingIndex, errInfo := repository.MoveFindOneKingInfo(ctx, tx, roomID)
+		kingIndex, errInfo := repository.HeroFindOneKingInfo(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// 왕을 이동시킨다. 라운드 수를 증가시킨다.
-		nextKingIndex := CreateNextKingIndex(kingIndex, cardInfo)
-		errInfo = repository.MoveUpdateKing(ctx, tx, roomID, nextKingIndex)
+		// 왕을 이동시킨다.
+		nextKingIndex := CreateHeroKingIndex(kingIndex, cardInfo)
+		errInfo = repository.HeroUpdateKing(ctx, tx, roomID, nextKingIndex)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 왕 이동 자리에 유저 슬라임을 놓는다.
-		errInfo = repository.MoveUpdateUserSlime(ctx, tx, roomID, uID, nextKingIndex)
+		errInfo = repository.HeroUpdateUserSlime(ctx, tx, roomID, uID, nextKingIndex)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 유저가 사용한 카드 상태값을 discard 로 변경한다.
-		errInfo = repository.MoveUpdateCardState(ctx, tx, roomID, uID, req.CardID)
+		errInfo = repository.HeroUpdateCardState(ctx, tx, roomID, uID, req.CardID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+
+		// 유저 히어로 카드 카운트 감소한다.
+		errInfo = repository.HeroUpdateUserHeroCardCount(ctx, tx, roomID, uID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
