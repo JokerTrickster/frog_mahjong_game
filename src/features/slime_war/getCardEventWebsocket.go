@@ -13,12 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
+func GetCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	req := request.ReqWSHero{}
+	req := request.ReqWSMove{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
@@ -31,38 +31,31 @@ func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 카드 정보를 가져온다.
-		cardInfo, errInfo := repository.HeroFindOneCardInfo(ctx, tx, roomID, req.CardID)
+		// 남은 카드수가 0이면 버린 카드 상태값을 모두 초기화 한다.
+		dummyCardCount, errInfo := repository.GetCardCountDummyCard(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		if dummyCardCount == 0 {
+			errInfo = repository.GetCardUpdateDummyCard(ctx, tx, roomID)
+			if errInfo != nil {
+				return fmt.Errorf("%s", errInfo.Msg)
+			}
+		}
+
+		// 남은 카드 하나를 가져온다.
+		cardInfo, errInfo := repository.GetCardFindOneCardInfo(ctx, tx, roomID, uID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// 유저에게 카드 정보를 업데이트 한다.
+		errInfo = repository.GetCardUpdateCardState(ctx, tx, roomID, uID, int(cardInfo.CardID))
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		kingIndex, errInfo := repository.HeroFindOneKingInfo(ctx, tx, roomID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		// 왕을 이동시킨다. 라운드 수를 증가시킨다.
-		nextKingIndex := CreateHeroKingIndex(kingIndex, cardInfo)
-		errInfo = repository.HeroUpdateKing(ctx, tx, roomID, nextKingIndex)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		// 왕 이동 자리에 유저 슬라임을 놓는다.
-		errInfo = repository.HeroUpdateUserSlime(ctx, tx, roomID, uID, nextKingIndex)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		// 유저가 사용한 카드 상태값을 discard 로 변경한다.
-		errInfo = repository.HeroUpdateCardState(ctx, tx, roomID, uID, req.CardID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		// 유저 히어로 카드 카운트 감소한다.
-		errInfo = repository.HeroUpdateUserHeroCardDecrease(ctx, tx, roomID, uID)
+		// 라운드 수를 증가시킨다. 남은 카드 수를 감소시킨다.
+		errInfo = repository.GetCardUpdateRoomSetting(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
@@ -80,10 +73,6 @@ func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
-
-	if len(preloadUsers) == 2 {
-		messageMsg.SlimeWarGameInfo.IsFull = true
-	}
 
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {

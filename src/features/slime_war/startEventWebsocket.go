@@ -56,7 +56,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// 방 유저 정보를 가져온다. 		
+		// 방 유저 정보를 가져온다.
 		roomUsers, errInfo := repository.StartFindRoomUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -75,7 +75,6 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -89,10 +88,6 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
-
-	if len(preloadUsers) == 2 {
-		messageMsg.SlimeWarGameInfo.IsFull = true
-	}
 
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
