@@ -16,3 +16,11 @@ type IFindItCoinBoardGameHandler interface {
 type IFindItPasswordCheckBoardGameHandler interface {
 	FindItPasswordCheck(c echo.Context) error
 }
+
+type ISlimeWarGetsCardBoardGameHandler interface {
+	SlimeWarGetsCard(c echo.Context) error
+}
+
+type ISlimeWarResultBoardGameHandler interface {
+	SlimeWarResult(c echo.Context) error
+}

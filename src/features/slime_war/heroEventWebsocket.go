@@ -81,10 +81,6 @@ func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 
-	if len(preloadUsers) == 2 {
-		messageMsg.SlimeWarGameInfo.IsFull = true
-	}
-
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")

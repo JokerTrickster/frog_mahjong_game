@@ -23,3 +23,12 @@ type IFindItCoinBoardGameRepository interface {
 type IFindItPasswordCheckBoardGameRepository interface {
 	FindPasswordCheck(ctx context.Context, password string) (bool, error)
 }
+
+type ISlimeWarGetsCardBoardGameRepository interface {
+	FindCardList(ctx context.Context) ([]*mysql.SlimeWarCards, error)
+}
+
+type ISlimeWarResultBoardGameRepository interface {
+	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.SlimeWarUsers, error)
+	FindRoomMaps(ctx context.Context, roomID int) ([]*mysql.SlimeWarRoomMaps, error)
+}

@@ -20,3 +20,11 @@ type IFindItCoinBoardGameUseCase interface {
 type IFindItPasswordCheckBoardGameUseCase interface {
 	FindItPasswordCheck(c context.Context, req *request.ReqFindItPasswordCheckBoardGame) (bool, error)
 }
+
+type ISlimeWarGetsCardBoardGameUseCase interface {
+	SlimeWarGetsCard(c context.Context) (response.ResSlimeWarGetsCardBoardGame, error)
+}
+
+type ISlimeWarResultBoardGameUseCase interface {
+	SlimeWarResult(c context.Context, req *request.ReqSlimeWarResult) (response.ResSlimeWarResult, error)
+}

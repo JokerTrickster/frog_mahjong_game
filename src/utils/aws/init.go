@@ -29,6 +29,7 @@ const (
 	ImgTypeFrogCard  = ImgType(4)
 	ImgTypeFindIt    = ImgType(5)
 	ImgTypeBoardGame = ImgType(6)
+	ImgTypeSlimeWar  = ImgType(7)
 )
 
 type imgMetaStruct struct {

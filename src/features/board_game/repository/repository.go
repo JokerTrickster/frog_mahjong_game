@@ -16,3 +16,11 @@ type FindItCoinBoardGameRepository struct {
 type FindItPasswordCheckBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type SlimeWarGetsCardBoardGameRepository struct {
+	GormDB *gorm.DB
+}
+
+type SlimeWarResultBoardGameRepository struct {
+	GormDB *gorm.DB
+}
