@@ -397,6 +397,126 @@ const docTemplate = `{
                 }
             }
         },
+        "/slime-war/v0.1/game/cards": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/slime-war/game"
+                ],
+                "summary": "슬라임 전쟁 카드 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResSlimeWarGetsCardBoardGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/slime-war/v0.1/game/rank": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/slime-war/game"
+                ],
+                "summary": "슬라임 전쟁 랭크 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResSlimeWarRankBoardGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/slime-war/v0.1/game/result": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/slime-war/game"
+                ],
+                "summary": "[슬라임 전쟁] 게임 결과 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqSlimeWarResult"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResSlimeWarResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/slime-war/v0.1/rooms/match/ws": {
             "get": {
                 "responses": {}
@@ -4559,6 +4679,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ReqSlimeWarResult": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqStart": {
             "type": "object",
             "properties": {
@@ -4718,6 +4846,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Card": {
+            "type": "object",
+            "properties": {
+                "direction": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "move": {
                     "type": "integer"
                 }
             }
@@ -5250,6 +5395,39 @@ const docTemplate = `{
                 }
             }
         },
+        "response.ResSlimeWarGetsCardBoardGame": {
+            "type": "object",
+            "properties": {
+                "cardList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Card"
+                    }
+                }
+            }
+        },
+        "response.ResSlimeWarRankBoardGame": {
+            "type": "object",
+            "properties": {
+                "rankUserList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RankUser"
+                    }
+                }
+            }
+        },
+        "response.ResSlimeWarResult": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.SlimeWarResult"
+                    }
+                }
+            }
+        },
         "response.ResUserListRoom": {
             "type": "object",
             "properties": {
@@ -5338,6 +5516,17 @@ const docTemplate = `{
                     }
                 },
                 "missionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.SlimeWarResult": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "type": "integer"
+                },
+                "userID": {
                     "type": "integer"
                 }
             }

@@ -455,6 +455,11 @@ definitions:
         minLength: 6
         type: string
     type: object
+  request.ReqSlimeWarResult:
+    properties:
+      roomID:
+        type: integer
+    type: object
   request.ReqStart:
     properties:
       roomID:
@@ -560,6 +565,17 @@ definitions:
       nest:
         type: string
       size:
+        type: integer
+    type: object
+  response.Card:
+    properties:
+      direction:
+        type: integer
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      move:
         type: integer
     type: object
   response.Category:
@@ -902,6 +918,27 @@ definitions:
       userID:
         type: integer
     type: object
+  response.ResSlimeWarGetsCardBoardGame:
+    properties:
+      cardList:
+        items:
+          $ref: '#/definitions/response.Card'
+        type: array
+    type: object
+  response.ResSlimeWarRankBoardGame:
+    properties:
+      rankUserList:
+        items:
+          $ref: '#/definitions/response.RankUser'
+        type: array
+    type: object
+  response.ResSlimeWarResult:
+    properties:
+      result:
+        items:
+          $ref: '#/definitions/response.SlimeWarResult'
+        type: array
+    type: object
   response.ResUserListRoom:
     properties:
       users:
@@ -959,6 +996,13 @@ definitions:
           type: integer
         type: array
       missionID:
+        type: integer
+    type: object
+  response.SlimeWarResult:
+    properties:
+      score:
+        type: integer
+      userID:
         type: integer
     type: object
   response.SoloPlayGameInfo:
@@ -1316,6 +1360,108 @@ paths:
       summary: 함께하기 방 생성 (패스워드 발급) (ws)
       tags:
       - ws
+  /slime-war/v0.1/game/cards:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSlimeWarGetsCardBoardGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 슬라임 전쟁 카드 가져오기
+      tags:
+      - app/slime-war/game
+  /slime-war/v0.1/game/rank:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSlimeWarRankBoardGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 슬라임 전쟁 랭크 가져오기
+      tags:
+      - app/slime-war/game
+  /slime-war/v0.1/game/result:
+    post:
+      description: |
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqSlimeWarResult'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSlimeWarResult'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: '[슬라임 전쟁] 게임 결과 가져오기'
+      tags:
+      - app/slime-war/game
   /slime-war/v0.1/rooms/match/ws:
     get:
       responses: {}

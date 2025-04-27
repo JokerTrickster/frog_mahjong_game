@@ -346,3 +346,10 @@ type SlimeWarRoomMaps struct {
 	UserID int `json:"userID" gorm:"column:user_id"`
 	MapID  int `json:"mapID" gorm:"column:map_id"`
 }
+
+type GameResults struct {
+	gorm.Model
+	RoomID int `json:"roomID" gorm:"column:room_id"`
+	UserID int `json:"userID" gorm:"column:user_id"`
+	Result int `json:"result" gorm:"column:result"` // 0: 패배, 1: 승리
+}

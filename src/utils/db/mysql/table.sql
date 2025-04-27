@@ -691,7 +691,7 @@ create table slime_war_room_cards(
     state varchar(100), -- 남은 카드, 소윺 카드, 버려진 카드
     user_id INT,
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
-    FOREIGN KEY (card_id) REFERENCES slime_war_cards(id) ON DELETE CASCADE,
+    FOREIGN KEY (card_id) REFERENCES slime_war_cards(id) ON DELETE CASCADE
 );
 
 -- 게임 맵 정보
@@ -708,3 +708,15 @@ create table slime_war_room_maps(
 );
 
 
+-- 게임 결과 테이블 
+create table game_results(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    user_id INT,
+    result INT, -- 0: 패배, 1: 승리
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE
+);

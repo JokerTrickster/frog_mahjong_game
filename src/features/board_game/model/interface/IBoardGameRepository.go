@@ -32,3 +32,8 @@ type ISlimeWarResultBoardGameRepository interface {
 	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.SlimeWarUsers, error)
 	FindRoomMaps(ctx context.Context, roomID int) ([]*mysql.SlimeWarRoomMaps, error)
 }
+
+type ISlimeWarRankBoardGameRepository interface {
+	FindTop3User(ctx context.Context) ([]*entity.SlimeWarRankEntity, error)
+	FindOneUser(ctx context.Context, userID int) (*mysql.GameUsers, error)
+}

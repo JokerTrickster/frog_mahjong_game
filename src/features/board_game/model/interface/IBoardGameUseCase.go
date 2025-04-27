@@ -28,3 +28,7 @@ type ISlimeWarGetsCardBoardGameUseCase interface {
 type ISlimeWarResultBoardGameUseCase interface {
 	SlimeWarResult(c context.Context, req *request.ReqSlimeWarResult) (response.ResSlimeWarResult, error)
 }
+
+type ISlimeWarRankBoardGameUseCase interface {
+	SlimeWarRank(c context.Context) (response.ResSlimeWarRankBoardGame, error)
+}

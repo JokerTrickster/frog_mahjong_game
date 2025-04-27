@@ -24,3 +24,6 @@ type ISlimeWarGetsCardBoardGameHandler interface {
 type ISlimeWarResultBoardGameHandler interface {
 	SlimeWarResult(c echo.Context) error
 }
+type ISlimeWarRankBoardGameHandler interface {
+	SlimeWarRank(c echo.Context) error
+}

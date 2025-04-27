@@ -24,3 +24,7 @@ type SlimeWarGetsCardBoardGameRepository struct {
 type SlimeWarResultBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type SlimeWarRankBoardGameRepository struct {
+	GormDB *gorm.DB
+}

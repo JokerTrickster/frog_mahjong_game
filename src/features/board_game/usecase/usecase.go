@@ -45,3 +45,13 @@ func CreateRankUser(userDTO *mysql.GameUsers, correctDTO *entity.FindItRankEntit
 		ProfileID: int(userDTO.ProfileID),
 	}
 }
+
+func CreateSlimeWarRankUser(userDTO *mysql.GameUsers, correctDTO *entity.SlimeWarRankEntity, rank int) response.RankUser {
+	return response.RankUser{
+		UserID:    int(userDTO.ID),
+		Name:      userDTO.Name,
+		Score:     correctDTO.Score,
+		Rank:      rank,
+		ProfileID: int(userDTO.ProfileID),
+	}
+}
