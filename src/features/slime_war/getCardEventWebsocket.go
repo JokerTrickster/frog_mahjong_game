@@ -2,11 +2,9 @@ package slime_war
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"main/features/slime_war/model/entity"
 	_errors "main/features/slime_war/model/errors"
-	"main/features/slime_war/model/request"
 	"main/features/slime_war/repository"
 	"main/utils/db/mysql"
 
@@ -18,11 +16,6 @@ func GetCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	req := request.ReqWSMove{}
-	err := json.Unmarshal([]byte(msg.Message), &req)
-	if err != nil {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
-	}
 
 	// 비즈니스 로직
 	//해당 방이 대기상태인지 체크한다.
@@ -30,7 +23,7 @@ func GetCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
 
-	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 남은 카드수가 0이면 버린 카드 상태값을 모두 초기화 한다.
 		dummyCardCount, errInfo := repository.GetCardCountDummyCard(ctx, tx, roomID)
 		if errInfo != nil {
