@@ -65,6 +65,10 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 	gameRoomSetting := &entity.SlimeWarGameInfo{}
 	dropedDummyIndices := make([]int, 0)
 	remainingDummyIndices := make([]int, 0)
+	password := ""
+	roomID := 0
+	var startTime int64
+
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
 		user := entity.User{
@@ -72,6 +76,22 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			Name:      roomUser.User.Name,
 			Email:     roomUser.User.Email,
 			ProfileID: roomUser.User.ProfileID,
+		}
+		if roomUser.Room != nil {
+			if roomUser.Room.Password != "" {
+				password = roomUser.Room.Password
+			}
+
+			roomID = int(roomUser.RoomID)
+			// 방장 여부 추가
+			if roomUser.Room.OwnerID == int(roomUser.UserID) {
+				user.IsOwner = true
+			}
+			//시작 시간 추가
+			if !roomUser.Room.StartTime.IsZero() {
+				// 시작 시간을 epoch time milliseconds로 변환 +3초 추가
+				startTime = roomUser.Room.StartTime.UnixNano()/int64(time.Millisecond) + 5000
+			}
 		}
 		if roomUser.SlimeWarUser != nil {
 			user.HeroCardCount = roomUser.SlimeWarUser.HeroCount
@@ -108,10 +128,15 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			gameRoomSetting.Timer = roomUser.SlimeWarGameRoomSettings.Timer
 			gameRoomSetting.SlimeCount = roomUser.SlimeWarGameRoomSettings.RemainingSlimeCount
 			gameRoomSetting.Round = roomUser.SlimeWarGameRoomSettings.CurrentRound
+			gameRoomSetting.Password = password
+			gameRoomSetting.RoomID = uint(roomID)
+			gameRoomSetting.StartTime = startTime
 			MessageInfoMsg.SlimeWarGameInfo = gameRoomSetting
+
 		}
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
+
 	if len(MessageInfoMsg.Users) == 2 {
 		MessageInfoMsg.SlimeWarGameInfo.IsFull = true
 		MessageInfoMsg.SlimeWarGameInfo.AllReady = true
