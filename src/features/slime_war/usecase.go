@@ -100,7 +100,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		}
 		ownCardList := make([]int, 0)
 		for _, slimeWarRoomCard := range roomUser.SlimeWarRoomCards {
-			if slimeWarRoomCard.UserID == int(user.ID) {
+			if slimeWarRoomCard.UserID == int(user.ID) && slimeWarRoomCard.State == "owned" {
 				ownCardList = append(ownCardList, slimeWarRoomCard.CardID)
 			}
 			if slimeWarRoomCard.State == "none" {
