@@ -67,6 +67,7 @@ type User struct {
 	HeroCardCount  int    `json:"heroCardCount"`  // 영웅 카드 개수
 	OwnedCardIDs   []int  `json:"ownedCardIDs"`   // 소유한 카드 ID 배열
 	ColorType      int    `json:"colorType"`      // 색상 타입
+	CanMove        bool   `json:"canMove"`        // 움직일 수 있는지 여부
 }
 type SlimeWarGameInfo struct {
 	AllReady              bool   `json:"allReady"`              // 게임 시작 여부
@@ -80,6 +81,7 @@ type SlimeWarGameInfo struct {
 	SlimeCount            int    `json:"slimeCount"`            // 슬라임 개수
 	DroppedDummyIndices   []int  `json:"droppedDummyIndices"`   // 버려진 더미 인덱스 배열
 	RemainingDummyIndices []int  `json:"remainingDummyIndices"` // 남은 더미 인덱스 배열
+	GameOver              bool   `json:"gameOver"`              // 게임 종료 여부
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드

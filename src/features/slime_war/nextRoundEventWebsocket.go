@@ -22,6 +22,7 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
+
 	// 비즈니스 로직
 	//해당 방이 대기상태인지 체크한다.
 	preloadUsers := []entity.PreloadUsers{}
@@ -29,6 +30,7 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
+
 		// 다음 턴으로 업데이트
 		errInfo = repository.NextRoundUpdateTurn(ctx, tx, roomID)
 		if errInfo != nil {
@@ -49,6 +51,12 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
+	//
+	for _, user := range messageMsg.Users {
+		if user.ID == req.UserID {
+			user.CanMove = false
+		}
+	}
 
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {

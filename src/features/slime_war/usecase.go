@@ -76,6 +76,7 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			Name:      roomUser.User.Name,
 			Email:     roomUser.User.Email,
 			ProfileID: roomUser.User.ProfileID,
+			CanMove:   true,
 		}
 		if roomUser.Room != nil {
 			if roomUser.Room.Password != "" {
@@ -132,7 +133,9 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			gameRoomSetting.RoomID = uint(roomID)
 			gameRoomSetting.StartTime = startTime
 			MessageInfoMsg.SlimeWarGameInfo = gameRoomSetting
-
+			if roomUser.SlimeWarGameRoomSettings.RemainingSlimeCount == 0 {
+				gameRoomSetting.GameOver = true
+			}
 		}
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}
