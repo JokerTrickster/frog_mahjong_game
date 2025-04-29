@@ -29,13 +29,6 @@ func MoveEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
 	var errInfo *entity.ErrorInfo
-	roomState, newErr := repository.StartCheckRoomState(ctx, roomID)
-	if newErr != nil {
-		return newErr
-	}
-	if roomState != "wait" {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, "게임이 시작되었습니다.", _errors.ErrAlreadyGame)
-	}
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 카드 정보를 가져온다.
