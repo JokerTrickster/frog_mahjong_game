@@ -91,7 +91,7 @@ func TimeOutFindImageCorrectPosition(ctx context.Context, roomID, round, imageID
 func TimeOutUpdateTurn(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
 	if err := tx.Model(&mysql.SlimeWarGameRoomSettings{}).
 		Where("room_id = ?", roomID).
-		Update("current_count", gorm.Expr("current_count + ?", 1)).Error; err != nil {
+		Update("current_round", gorm.Expr("current_round + ?", 1)).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("current_count 업데이트 실패: %v", err.Error()),
