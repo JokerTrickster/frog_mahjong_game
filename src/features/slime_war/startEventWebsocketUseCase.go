@@ -62,7 +62,7 @@ func CreateSlimeWarCards(roomID uint) []mysql.SlimeWarRoomCards {
 
 func CreateSlimeWarMaps(roomID uint) []mysql.SlimeWarRoomMaps {
 	maps := make([]mysql.SlimeWarRoomMaps, 0)
-	for i := 1; i <= 48; i++ {
+	for i := 10; i <= 90; i++ {
 		maps = append(maps, mysql.SlimeWarRoomMaps{
 			RoomID: int(roomID),
 			MapID:  i,
