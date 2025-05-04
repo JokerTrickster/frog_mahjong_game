@@ -64,6 +64,12 @@ func (d *GoogleOauthCallbackAuthUseCase) GoogleOauthCallback(c context.Context, 
 		}
 	}
 
+	// 게임 방 정보가 있으면 모두 제거한다.
+	err = d.Repository.DeleteGameRooms(ctx, user.ID)
+	if err != nil {
+		return response.ResGameGoogleOauthCallback{}, err
+	}
+
 	// 기존 토큰이 있는지 체크
 	prevTokens, err := d.Repository.CheckToken(ctx, user.ID)
 	if err != nil {

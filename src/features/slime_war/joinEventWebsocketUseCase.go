@@ -28,7 +28,7 @@ func CreateJoinPlayGameRoomSettingDTO(roomID uint) *mysql.SlimeWarGameRoomSettin
 		RoomID:              int(roomID),
 		Timer:               60,
 		RemainingCardCount:  48,
-		KingIndex:           37,
+		KingIndex:           50,
 		CurrentRound:        1,
 		RemainingSlimeCount: 52,
 	}

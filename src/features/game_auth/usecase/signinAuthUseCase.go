@@ -26,6 +26,11 @@ func (d *SigninAuthUseCase) Signin(c context.Context, req *request.ReqGameSignin
 	if err != nil {
 		return response.ResGameSignin{}, err
 	}
+	// 게임 방 정보 모두 삭제한다.
+	err = d.Repository.DeleteGameRooms(ctx, user.ID)
+	if err != nil {
+		return response.ResGameSignin{}, err
+	}
 
 	// 기존 토큰이 있는지 체크
 	prevTokens, err := d.Repository.CheckToken(ctx, user.ID)

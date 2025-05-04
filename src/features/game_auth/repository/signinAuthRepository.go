@@ -80,3 +80,11 @@ func (d *SigninAuthRepository) CheckToken(ctx context.Context, uID uint) (*mysql
 	}
 	return &token, nil
 }
+
+func (g *SigninAuthRepository) DeleteGameRooms(ctx context.Context, uID uint) error {
+	result := g.GormDB.WithContext(ctx).Where("owner_id = ?", uID).Delete(&mysql.GameRooms{})
+	if result.Error != nil {
+		return utils.ErrorMsg(ctx, utils.ErrInternalDB, utils.Trace(), utils.HandleError(result.Error.Error(), uID), utils.ErrFromMysqlDB)
+	}
+	return nil
+}

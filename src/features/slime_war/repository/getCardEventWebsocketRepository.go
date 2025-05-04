@@ -40,7 +40,7 @@ func GetCardUpdateDummyCard(ctx context.Context, tx *gorm.DB, roomID uint) *enti
 // 랜덤으로 카드 정보를 하나 가져온다. (state == "none" 인 것 중에)
 func GetCardFindOneCardInfo(ctx context.Context, tx *gorm.DB, roomID uint, uID uint) (*mysql.SlimeWarRoomCards, *entity.ErrorInfo) {
 	cardInfo := &mysql.SlimeWarRoomCards{}
-	err := tx.Where("room_id = ? AND user_id = ? AND state = ?", roomID, uID, "none").Order("RAND()").First(cardInfo).Error
+	err := tx.Where("room_id = ? AND state = ?", roomID, "none").Order("RAND()").First(cardInfo).Error
 	if err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -54,7 +54,8 @@ func GetCardFindOneCardInfo(ctx context.Context, tx *gorm.DB, roomID uint, uID u
 // 카드 상태를 업데이트 한다.
 func GetCardUpdateCardState(ctx context.Context, tx *gorm.DB, roomID uint, uID uint, cardID int) *entity.ErrorInfo {
 	err := tx.Model(&mysql.SlimeWarRoomCards{}).
-		Where("room_id = ? AND user_id = ? AND card_id = ?", roomID, uID, cardID).
+		Where("room_id = ? AND  card_id = ?", roomID, cardID).
+		Update("user_id", uID).
 		Update("state", "owned").Error
 	if err != nil {
 		return &entity.ErrorInfo{

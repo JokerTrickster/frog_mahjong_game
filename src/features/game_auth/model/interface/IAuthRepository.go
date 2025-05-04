@@ -19,6 +19,7 @@ type ISigninAuthRepository interface {
 	SaveToken(ctx context.Context, uID uint, accessToken, refreshToken string, refreshTknExpiredAt int64) error
 	DeleteToken(ctx context.Context, uID uint) error
 	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
+	DeleteGameRooms(ctx context.Context, uID uint) error
 }
 
 type ILogoutAuthRepository interface {
@@ -56,6 +57,7 @@ type IGoogleOauthCallbackAuthRepository interface {
 	FindAllBasicProfile(ctx context.Context) ([]*mysql.GameProfiles, error)
 	InsertOneUserProfile(ctx context.Context, userProfileDTOList []*mysql.GameUserProfiles) error
 	CheckToken(ctx context.Context, uID uint) (*mysql.Tokens, error)
+	DeleteGameRooms(ctx context.Context, uID uint) error
 }
 
 type IFCMTokenAuthRepository interface {

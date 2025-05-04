@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func MoveFindOneCardInfo(ctx context.Context, tx *gorm.DB, roomID uint, cardID int) (*mysql.SlimeWarCards, *entity.ErrorInfo) {
+func MoveFindOneCardInfo(ctx context.Context, tx *gorm.DB, cardID int) (*mysql.SlimeWarCards, *entity.ErrorInfo) {
 	cardInfo := &mysql.SlimeWarCards{}
-	err := tx.Where("id = ?", roomID, cardID).First(cardInfo).Error
+	err := tx.Where("id = ?", cardID).First(cardInfo).Error
 	if err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -59,10 +59,9 @@ func MoveUpdateKing(ctx context.Context, tx *gorm.DB, roomID uint, kingIndex int
 
 func MoveUpdateUserSlime(ctx context.Context, tx *gorm.DB, roomID, userID uint, nextKingIndex int) *entity.ErrorInfo {
 	// Update the slime position for the user
-	err := tx.Model(&mysql.SlimeWarRoomCards{}).
+	err := tx.Model(&mysql.SlimeWarRoomMaps{}).
 		Where("room_id = ? AND map_id = ?", roomID, nextKingIndex).
 		Updates(map[string]interface{}{
-			"state":   "owned",
 			"user_id": userID,
 		}).Error
 

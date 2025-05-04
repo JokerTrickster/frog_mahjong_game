@@ -45,7 +45,7 @@ func CreateRoomSetting(roomID uint) *mysql.SlimeWarGameRoomSettings {
 		RoomID:              int(roomID),
 		Timer:               60,
 		RemainingCardCount:  38,
-		KingIndex:           37,
+		KingIndex:           50,
 		CurrentRound:        1,
 		RemainingSlimeCount: 52,
 	}

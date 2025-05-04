@@ -31,26 +31,15 @@ func MoveEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-		// 카드 정보를 가져온다.
-		cardInfo, errInfo := repository.MoveFindOneCardInfo(ctx, tx, roomID, req.CardID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		kingIndex, errInfo := repository.MoveFindOneKingInfo(ctx, tx, roomID)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
 
 		// 왕을 이동시킨다. 라운드 수를 증가시킨다.
-		nextKingIndex := CreateNextKingIndex(kingIndex, cardInfo)
-		errInfo = repository.MoveUpdateKing(ctx, tx, roomID, nextKingIndex)
+		errInfo = repository.MoveUpdateKing(ctx, tx, roomID, req.KingIndex)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
 		// 왕 이동 자리에 유저 슬라임을 놓는다.
-		errInfo = repository.MoveUpdateUserSlime(ctx, tx, roomID, uID, nextKingIndex)
+		errInfo = repository.MoveUpdateUserSlime(ctx, tx, roomID, uID, req.KingIndex)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
