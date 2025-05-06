@@ -52,9 +52,15 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 	//
-	for _, user := range messageMsg.Users {
-		if user.ID == req.UserID {
-			user.CanMove = false
+
+	if !req.OpponentCanMove {
+		msg.Event = "GAME_OVER"
+		messageMsg.SlimeWarGameInfo.GameOver = true
+	} else {
+		for _, user := range messageMsg.Users {
+			if user.ID == req.UserID {
+				user.CanMove = false
+			}
 		}
 	}
 

@@ -4,4 +4,5 @@ package request
 type ReqWSNextRound struct {
 	Round  int  `json:"round"`
 	UserID uint `json:"userID"`
+	OpponentCanMove bool `json:"opponentCanMove"`
 }

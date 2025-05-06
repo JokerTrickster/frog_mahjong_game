@@ -16,6 +16,11 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	uID := msg.UserID
 	rID := msg.RoomID
 
+	// Check if room exists before proceeding
+	if _, exists := entity.RoomSessions[rID]; !exists {
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrRoomNotFound, "방이 이미 삭제되었습니다.")
+	}
+
 	//비즈니스 로직
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
@@ -56,6 +61,22 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")
 	}
 	msg.Message = message
-	sendMessageToClients(rID, msg)
+
+	// Clean up websocket connections before sending message
+	if sessionIDs, ok := entity.RoomSessions[rID]; ok {
+		for _, sessionID := range sessionIDs {
+			if client, exists := entity.WSClients[sessionID]; exists {
+				client.Closed = true
+				delete(entity.WSClients, sessionID)
+			}
+		}
+		delete(entity.RoomSessions, rID)
+	}
+
+	// Send message only if there are still active connections
+	if sessionIDs, ok := entity.RoomSessions[rID]; ok && len(sessionIDs) > 0 {
+		sendMessageToClients(rID, msg)
+	}
+
 	return nil
 }
