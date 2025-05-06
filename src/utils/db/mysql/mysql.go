@@ -23,6 +23,7 @@ const DBTimeOut = 8 * time.Second
 const (
 	FIND_IT   = 1
 	SLIME_WAR = 2
+	SEQUENCE  = 3
 )
 
 func InitMySQL() error {
