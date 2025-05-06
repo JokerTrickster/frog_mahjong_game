@@ -553,7 +553,7 @@ create table games (
 INSERT INTO games (title, description, category, hash_tag, youtube_url, is_enabled, image)
 VALUES 
     ('틀린그림찾기', '협력해서 틀린그림을 찾아보세요', '협력', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', TRUE, 'find-it.png'),
-    ('장미전쟁', '자신의 영역을 넓혀서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png'),
+    ('슬라임전쟁', '자신의 영역을 넓혀서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', TRUE, 'slime-war.png'),
     ('카후나', '자신의 영역을 넓혀서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png'),
     ('스플랜더 듀얼', '미션을 빨리 달성해서 상대방을 이겨보세요.', '전략', '보드게임', 'https://www.youtube.com/shorts/h6wIckelzpk', FALSE, 'default.png');
 
