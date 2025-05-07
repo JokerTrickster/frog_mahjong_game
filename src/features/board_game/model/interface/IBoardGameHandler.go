@@ -27,3 +27,14 @@ type ISlimeWarResultBoardGameHandler interface {
 type ISlimeWarRankBoardGameHandler interface {
 	SlimeWarRank(c echo.Context) error
 }
+
+type ISequenceResultBoardGameHandler interface {
+	SequenceResult(c echo.Context) error
+}
+
+type ISequenceRankBoardGameHandler interface {
+	SequenceRank(c echo.Context) error
+}
+type IGameOverBoardGameHandler interface {
+	GameOver(c echo.Context) error
+}

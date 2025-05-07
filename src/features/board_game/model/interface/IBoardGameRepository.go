@@ -46,3 +46,7 @@ type ISequenceRankBoardGameRepository interface {
 	FindTop3User(ctx context.Context) ([]*entity.SequenceRankEntity, error)
 	FindOneUser(ctx context.Context, userID int) (*mysql.GameUsers, error)
 }
+
+type IGameOverBoardGameRepository interface {
+	GameOverInsertGameResult(ctx context.Context, gameResultDTO *mysql.GameResults) error
+}

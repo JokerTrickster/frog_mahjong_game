@@ -32,3 +32,15 @@ type ISlimeWarResultBoardGameUseCase interface {
 type ISlimeWarRankBoardGameUseCase interface {
 	SlimeWarRank(c context.Context) (response.ResSlimeWarRankBoardGame, error)
 }
+
+type ISequenceResultBoardGameUseCase interface {
+	SequenceResult(c context.Context, req *request.ReqSequenceResult) (response.ResSequenceResult, error)
+}
+
+type ISequenceRankBoardGameUseCase interface {
+	SequenceRank(c context.Context) (response.ResSequenceRank, error)
+}
+
+type IGameOverBoardGameUseCase interface {
+	GameOver(c context.Context, userID int, req *request.ReqGameOverBoardGame) error
+}

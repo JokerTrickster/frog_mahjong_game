@@ -36,3 +36,7 @@ type SequenceRankBoardGameRepository struct {
 type SequenceResultBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type GameOverBoardGameRepository struct {
+	GormDB *gorm.DB
+}
