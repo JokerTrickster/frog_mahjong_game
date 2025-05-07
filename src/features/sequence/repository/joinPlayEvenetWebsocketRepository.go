@@ -32,7 +32,7 @@ func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Ga
 		Where("password = ?", password).
 		Where("state = ?", "wait").
 		Where("current_count < max_count").
-		Where("game_id = ?", mysql.sequence).
+		Where("game_id = ?", mysql.SEQUENCE).
 		First(&roomsDTO).Error
 	if err != nil {
 		if err.Error() == "record not found" {

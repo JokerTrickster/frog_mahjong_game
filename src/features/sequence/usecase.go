@@ -42,12 +42,9 @@ func CalcPlayTurn(playTurn, playerCount int) int {
 }
 func CreateRoomSetting(roomID uint) *mysql.SequenceGameRoomSettings {
 	roomSetting := &mysql.SequenceGameRoomSettings{
-		RoomID:              int(roomID),
-		Timer:               60,
-		RemainingCardCount:  38,
-		KingIndex:           50,
-		CurrentRound:        1,
-		RemainingSlimeCount: 52,
+		RoomID:       int(roomID),
+		Timer:        60,
+		CurrentRound: 1,
 	}
 	return roomSetting
 }
@@ -63,8 +60,6 @@ func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
 func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUsers, playTurn int, MessageInfoError *entity.ErrorInfo, selectCardID int) *entity.MessageInfo {
 	MessageInfoMsg := entity.MessageInfo{}
 	gameRoomSetting := &entity.SequenceGameInfo{}
-	dropedDummyIndices := make([]int, 0)
-	remainingDummyIndices := make([]int, 0)
 	password := ""
 	roomID := 0
 	var startTime int64
@@ -76,7 +71,6 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			Name:      roomUser.User.Name,
 			Email:     roomUser.User.Email,
 			ProfileID: roomUser.User.ProfileID,
-			CanMove:   true,
 		}
 		if roomUser.Room != nil {
 			if roomUser.Room.Password != "" {
@@ -95,7 +89,6 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			}
 		}
 		if roomUser.SequenceUser != nil {
-			user.HeroCardCount = roomUser.SequenceUser.HeroCount
 			user.Turn = roomUser.SequenceUser.Turn
 			user.ColorType = roomUser.SequenceUser.ColorType
 		}
@@ -104,38 +97,22 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 			if SequenceRoomCard.UserID == int(user.ID) && SequenceRoomCard.State == "owned" {
 				ownCardList = append(ownCardList, SequenceRoomCard.CardID)
 			}
-			if SequenceRoomCard.State == "none" {
-				remainingDummyIndices = append(remainingDummyIndices, SequenceRoomCard.CardID)
-			} else if SequenceRoomCard.State == "discard" {
-				dropedDummyIndices = append(dropedDummyIndices, SequenceRoomCard.CardID)
-			}
-		}
-		if len(gameRoomSetting.DroppedDummyIndices) == 0 {
-			gameRoomSetting.DroppedDummyIndices = dropedDummyIndices
-		}
-		if len(gameRoomSetting.RemainingDummyIndices) == 0 {
-			gameRoomSetting.RemainingDummyIndices = remainingDummyIndices
 		}
 		user.OwnedCardIDs = ownCardList
-		slimePositions := make([]int, 0)
+		ownedMapIDs := make([]int, 0)
 		for _, SequenceRoomMap := range roomUser.SequenceRoomMaps {
 			if SequenceRoomMap.UserID == int(user.ID) {
-				slimePositions = append(slimePositions, SequenceRoomMap.MapID)
+				ownedMapIDs = append(ownedMapIDs, SequenceRoomMap.MapID)
 			}
 		}
-		user.SlimePositions = slimePositions
-		if roomUser.SequenceGameRoomSettings != nil && gameRoomSetting.KingPosition == 0 {
-			gameRoomSetting.KingPosition = roomUser.SequenceGameRoomSettings.KingIndex
+		user.OwnedMapIDs = ownedMapIDs
+		if roomUser.SequenceGameRoomSettings != nil {
 			gameRoomSetting.Timer = roomUser.SequenceGameRoomSettings.Timer
-			gameRoomSetting.SlimeCount = roomUser.SequenceGameRoomSettings.RemainingSlimeCount
 			gameRoomSetting.Round = roomUser.SequenceGameRoomSettings.CurrentRound
 			gameRoomSetting.Password = password
 			gameRoomSetting.RoomID = uint(roomID)
 			gameRoomSetting.StartTime = startTime
 			MessageInfoMsg.SequenceGameInfo = gameRoomSetting
-			if roomUser.SequenceGameRoomSettings.RemainingSlimeCount == 0 {
-				gameRoomSetting.GameOver = true
-			}
 		}
 		MessageInfoMsg.Users = append(MessageInfoMsg.Users, &user)
 	}

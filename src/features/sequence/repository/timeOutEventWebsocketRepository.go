@@ -101,3 +101,28 @@ func TimeOutUpdateTurn(ctx context.Context, tx *gorm.DB, roomID uint) *entity.Er
 
 	return nil
 }
+func TimeOutFindUserCards(ctx context.Context, tx *gorm.DB, userID uint) ([]*mysql.SequenceRoomCards, *entity.ErrorInfo) {
+	var userCards []*mysql.SequenceRoomCards
+	err := tx.WithContext(ctx).Where("user_id = ? and state = ?", userID, "owned").Find(&userCards).Error
+	if err != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("userCards 조회 실패: %v", err.Error()),
+			Type: _errors.ErrFetchFailed,
+		}
+	}
+	return userCards, nil
+}
+
+func TimeOutUpdateCardState(ctx context.Context, tx *gorm.DB, roomID, cardID int) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.SequenceRoomCards{}).
+		Where("room_id = ? and card_id = ? and state = ?", roomID, cardID, "owned").
+		Update("state", "used").Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("cardState 업데이트 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
+	}
+	return nil
+}

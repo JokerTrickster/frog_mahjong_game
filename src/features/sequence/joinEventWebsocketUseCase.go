@@ -16,7 +16,6 @@ func CreateJoinPlayUserDTO(uID uint, roomID uint) *mysql.SequenceUsers {
 	result := &mysql.SequenceUsers{
 		UserID:    int(uID),
 		RoomID:    int(roomID),
-		HeroCount: 4,
 		Turn:      0,
 		ColorType: 0,
 	}
@@ -25,12 +24,9 @@ func CreateJoinPlayUserDTO(uID uint, roomID uint) *mysql.SequenceUsers {
 
 func CreateJoinPlayGameRoomSettingDTO(roomID uint) *mysql.SequenceGameRoomSettings {
 	result := &mysql.SequenceGameRoomSettings{
-		RoomID:              int(roomID),
-		Timer:               60,
-		RemainingCardCount:  48,
-		KingIndex:           50,
-		CurrentRound:        1,
-		RemainingSlimeCount: 52,
+		RoomID:       int(roomID),
+		Timer:        60,
+		CurrentRound: 1,
 	}
 	return result
 }

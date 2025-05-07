@@ -57,17 +57,15 @@ type ErrorInfo struct {
 	Type string `json:"type"`
 }
 type User struct {
-	ID             uint   `json:"id"`
-	Email          string `json:"email"`
-	Name           string `json:"name"`
-	IsOwner        bool   `json:"isOwner"`        // 방장 여부
-	ProfileID      int    `json:"profileID"`      // 프로필 ID
-	Turn           int    `json:"turn"`           // 턴
-	SlimePositions []int  `json:"slimePositions"` // 슬라임 위치
-	HeroCardCount  int    `json:"heroCardCount"`  // 영웅 카드 개수
-	OwnedCardIDs   []int  `json:"ownedCardIDs"`   // 소유한 카드 ID 배열
-	ColorType      int    `json:"colorType"`      // 색상 타입
-	CanMove        bool   `json:"canMove"`        // 움직일 수 있는지 여부
+	ID           uint   `json:"id"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	IsOwner      bool   `json:"isOwner"`      // 방장 여부
+	ProfileID    int    `json:"profileID"`    // 프로필 ID
+	Turn         int    `json:"turn"`         // 턴
+	OwnedMapIDs  []int  `json:"ownedMapIDs"`  // 소유한 맵 ID 배열
+	OwnedCardIDs []int  `json:"ownedCardIDs"` // 소유한 카드 ID 배열
+	ColorType    int    `json:"colorType"`    // 색상 타입
 }
 type SequenceGameInfo struct {
 	AllReady              bool   `json:"allReady"`              // 게임 시작 여부

@@ -14,7 +14,7 @@ func CreateMatchRoomDTO(uID uint) *mysql.GameRooms {
 		OwnerID:      int(uID),
 		Name:         "speed match",
 		StartTime:    time.Now(),
-		GameID:       mysql.sequence,
+		GameID:       mysql.SEQUENCE,
 	}
 	return result
 }
@@ -23,7 +23,6 @@ func CreateMatchUserDTO(uID uint, roomID uint) *mysql.SequenceUsers {
 	result := &mysql.SequenceUsers{
 		UserID:    int(uID),
 		RoomID:    int(roomID),
-		HeroCount: 4,
 		Turn:      0,
 		ColorType: 0,
 	}
@@ -32,12 +31,9 @@ func CreateMatchUserDTO(uID uint, roomID uint) *mysql.SequenceUsers {
 
 func CreateMatchGameRoomSettingDTO(roomID uint) *mysql.SequenceGameRoomSettings {
 	result := &mysql.SequenceGameRoomSettings{
-		RoomID:              int(roomID),
-		Timer:               60,
-		RemainingCardCount:  48,
-		KingIndex:           50,
-		CurrentRound:        1,
-		RemainingSlimeCount: 52,
+		RoomID:       int(roomID),
+		Timer:        60,
+		CurrentRound: 1,
 	}
 	return result
 }

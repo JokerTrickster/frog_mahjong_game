@@ -50,7 +50,7 @@ func StartUpdateRoom(roomID uint) mysql.GameRooms {
 
 func CreateSequenceCards(roomID uint) []mysql.SequenceRoomCards {
 	cards := make([]mysql.SequenceRoomCards, 0)
-	for i := 1; i <= 48; i++ {
+	for i := 1; i <= 96; i++ {
 		cards = append(cards, mysql.SequenceRoomCards{
 			RoomID: int(roomID),
 			CardID: i,
@@ -62,7 +62,7 @@ func CreateSequenceCards(roomID uint) []mysql.SequenceRoomCards {
 
 func CreateSequenceMaps(roomID uint) []mysql.SequenceRoomMaps {
 	maps := make([]mysql.SequenceRoomMaps, 0)
-	for i := 10; i <= 90; i++ {
+	for i := 1; i <= 100; i++ {
 		maps = append(maps, mysql.SequenceRoomMaps{
 			RoomID: int(roomID),
 			MapID:  i,

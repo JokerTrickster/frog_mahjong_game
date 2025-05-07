@@ -16,7 +16,7 @@ import (
 func UseCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//유저 상태를 변경한다. (대기실로 이동)
 	ctx := context.Background()
-	uID := msg.UserID
+	userID := msg.UserID
 	roomID := msg.RoomID
 	req := request.ReqWSUseCard{}
 	err := json.Unmarshal([]byte(msg.Message), &req)
@@ -31,21 +31,19 @@ func UseCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
-
-		// 왕을 이동시킨다. 라운드 수를 증가시킨다.
-		errInfo = repository.UseCardUpdateKing(ctx, tx, roomID, req.KingIndex)
+		// 맵에 표시를 한다.
+		errInfo = repository.UseCardUpdateMapState(ctx, tx, int(roomID), int(userID), req.MapID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// 유저 카드를 사용처리 한다.
+		errInfo = repository.UseCardUpdateCardState(ctx, tx, roomID, userID, req.CardID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// 왕 이동 자리에 유저 슬라임을 놓는다.
-		errInfo = repository.UseCardUpdateUserSlime(ctx, tx, roomID, uID, req.KingIndex)
-		if errInfo != nil {
-			return fmt.Errorf("%s", errInfo.Msg)
-		}
-
-		// 유저가 사용한 카드 상태값을 discard 로 변경한다.
-		errInfo = repository.UseCardUpdateCardState(ctx, tx, roomID, uID, req.CardID)
+		// 더미에서 카드를 한장 가져온다.
+		errInfo = repository.UseCardGetDummyCard(ctx, tx, roomID, userID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}

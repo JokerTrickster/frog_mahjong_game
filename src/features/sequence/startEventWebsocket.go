@@ -50,7 +50,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// 슬라임 유저 정보 변경 (colorType, turn 변경)
+		// 시퀀스 유저 정보 변경 (colorType, turn 변경)
 		errInfo = repository.StartUpdateSequenceUser(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -62,7 +62,7 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
-		// 유저에게 랜덤으로 5개 카드를 부여한다.
+		// 유저에게 랜덤으로 7개 카드를 부여한다.
 		errInfo = repository.StartCreateSequenceUserCards(ctx, tx, roomUsers)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
