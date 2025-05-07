@@ -718,6 +718,7 @@ create table game_results(
     room_id INT,
     user_id INT,
     result INT, -- 0: 패배, 1: 승리
+    game_type INT, -- 0: 틀린그림찾기, 1: 슬라임전쟁, 2: 시퀀스
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE
 );

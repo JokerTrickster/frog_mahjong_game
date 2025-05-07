@@ -20,7 +20,7 @@ func (d *SlimeWarRankBoardGameRepository) FindTop3User(ctx context.Context) ([]*
 	err := d.GormDB.WithContext(ctx).
 		Table("game_results").
 		Select("user_id, COUNT(*) as score").
-		Where("result = 1").
+		Where("result = 1 and game_type = ?", mysql.SLIME_WAR).
 		Group("user_id").
 		Order("score DESC").
 		Limit(3).

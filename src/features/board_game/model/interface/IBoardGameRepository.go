@@ -37,3 +37,12 @@ type ISlimeWarRankBoardGameRepository interface {
 	FindTop3User(ctx context.Context) ([]*entity.SlimeWarRankEntity, error)
 	FindOneUser(ctx context.Context, userID int) (*mysql.GameUsers, error)
 }
+
+type ISequenceResultBoardGameRepository interface {
+	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.SequenceUsers, error)
+	FindRoomMaps(ctx context.Context, roomID int) ([]*mysql.SequenceRoomMaps, error)
+}
+type ISequenceRankBoardGameRepository interface {
+	FindTop3User(ctx context.Context) ([]*entity.SequenceRankEntity, error)
+	FindOneUser(ctx context.Context, userID int) (*mysql.GameUsers, error)
+}

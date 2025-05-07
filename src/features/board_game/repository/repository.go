@@ -28,3 +28,11 @@ type SlimeWarResultBoardGameRepository struct {
 type SlimeWarRankBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type SequenceRankBoardGameRepository struct {
+	GormDB *gorm.DB
+}
+
+type SequenceResultBoardGameRepository struct {
+	GormDB *gorm.DB
+}
