@@ -55,3 +55,12 @@ func CreateSlimeWarRankUser(userDTO *mysql.GameUsers, correctDTO *entity.SlimeWa
 		ProfileID: int(userDTO.ProfileID),
 	}
 }
+func CreateSequenceRankUser(userDTO *mysql.GameUsers, correctDTO *entity.SequenceRankEntity, rank int) response.RankUser {
+	return response.RankUser{
+		UserID:    int(userDTO.ID),
+		Name:      userDTO.Name,
+		Score:     correctDTO.Score,
+		Rank:      rank,
+		ProfileID: int(userDTO.ProfileID),
+	}
+}

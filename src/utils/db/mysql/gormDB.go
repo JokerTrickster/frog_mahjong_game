@@ -349,7 +349,51 @@ type SlimeWarRoomMaps struct {
 
 type GameResults struct {
 	gorm.Model
+	RoomID   int `json:"roomID" gorm:"column:room_id"`
+	UserID   int `json:"userID" gorm:"column:user_id"`
+	Result   int `json:"result" gorm:"column:result"` // 0: 패배, 1: 승리
+	GameType int `json:"gameType" gorm:"column:game_type"`
+}
+
+type SequenceCards struct {
+	gorm.Model
+	Image string `json:"image" gorm:"column:image"`
+	Type  string `json:"type" gorm:"column:type"`
+	Count int    `json:"count" gorm:"column:count"`
+}
+
+type SequenceMaps struct {
+	gorm.Model
+	Idx    int `json:"idx" gorm:"column:idx"`
+	CardID int `json:"cardID" gorm:"column:card_id"`
+}
+
+type SequenceUsers struct {
+	gorm.Model
+	UserID    int `json:"userID" gorm:"column:user_id"`
+	RoomID    int `json:"roomID" gorm:"column:room_id"`
+	Turn      int `json:"turn" gorm:"column:turn"`
+	ColorType int `json:"colorType" gorm:"column:color_type"`
+}
+
+type SequenceGameRoomSettings struct {
+	gorm.Model
+	RoomID       int `json:"roomID" gorm:"column:room_id"`
+	Timer        int `json:"timer" gorm:"column:timer"`
+	CurrentRound int `json:"currentRound" gorm:"column:current_round"`
+}
+
+type SequenceRoomCards struct {
+	gorm.Model
+	RoomID int    `json:"roomID" gorm:"column:room_id"`
+	CardID int    `json:"cardID" gorm:"column:card_id"`
+	State  string `json:"state" gorm:"column:state"`
+	UserID int    `json:"userID" gorm:"column:user_id"`
+}
+
+type SequenceRoomMaps struct {
+	gorm.Model
 	RoomID int `json:"roomID" gorm:"column:room_id"`
 	UserID int `json:"userID" gorm:"column:user_id"`
-	Result int `json:"result" gorm:"column:result"` // 0: 패배, 1: 승리
+	MapID  int `json:"mapID" gorm:"column:map_id"`
 }

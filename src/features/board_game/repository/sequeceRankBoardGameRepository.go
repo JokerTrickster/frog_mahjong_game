@@ -10,17 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewSlimeWarRankBoardGameRepository(gormDB *gorm.DB) _interface.ISlimeWarRankBoardGameRepository {
-	return &SlimeWarRankBoardGameRepository{GormDB: gormDB}
+func NewSequenceRankBoardGameRepository(gormDB *gorm.DB) _interface.ISequenceRankBoardGameRepository {
+	return &SequenceRankBoardGameRepository{GormDB: gormDB}
 }
 
-func (d *SlimeWarRankBoardGameRepository) FindTop3User(ctx context.Context) ([]*entity.SlimeWarRankEntity, error) {
-	var results []*entity.SlimeWarRankEntity
+func (d *SequenceRankBoardGameRepository) FindTop3User(ctx context.Context) ([]*entity.SequenceRankEntity, error) {
+	var results []*entity.SequenceRankEntity
 
 	err := d.GormDB.WithContext(ctx).
 		Table("game_results").
 		Select("user_id, COUNT(*) as score").
-		Where("result = 1 and game_type = ?", mysql.SLIME_WAR).
+		Where("result = 1 and game_type = ?", mysql.SEQUENCE).
 		Group("user_id").
 		Order("score DESC").
 		Limit(3).
@@ -30,7 +30,7 @@ func (d *SlimeWarRankBoardGameRepository) FindTop3User(ctx context.Context) ([]*
 	}
 	return results, nil
 }
-func (d *SlimeWarRankBoardGameRepository) FindOneUser(ctx context.Context, userId int) (*mysql.GameUsers, error) {
+func (d *SequenceRankBoardGameRepository) FindOneUser(ctx context.Context, userId int) (*mysql.GameUsers, error) {
 	var result *mysql.GameUsers
 	err := d.GormDB.WithContext(ctx).
 		Table("game_users").

@@ -81,6 +81,9 @@ func (r *RabbitMQManager) connect() error {
 	if err := r.initChannelAndQueue("slime-war"); err != nil {
 		return err
 	}
+	if err := r.initChannelAndQueue("sequence"); err != nil {
+		return err
+	}
 	return nil
 }
 

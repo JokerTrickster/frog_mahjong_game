@@ -718,6 +718,107 @@ create table game_results(
     room_id INT,
     user_id INT,
     result INT, -- 0: 패배, 1: 승리
+    game_type INT, -- 0: 틀린그림찾기, 1: 슬라임전쟁, 2: 시퀀스
     FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE
+);
+
+
+
+-- 게임 카드 정보
+create table sequence_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    image VARCHAR(255),
+    type varchar(255),
+    count int,
+);
+INSERT INTO sequence_cards (image, type, count)
+VALUES
+('sequence_apple_1.png', 'sequence', 1), ('sequence_apple_1.png', 'sequence', 1),
+('sequence_apple_2.png', 'sequence', 2), ('sequence_apple_2.png', 'sequence', 2),
+('sequence_apple_3.png', 'sequence', 3), ('sequence_apple_3.png', 'sequence', 3),
+('sequence_banana_1.png', 'sequence', 1), ('sequence_banana_1.png', 'sequence', 1),
+('sequence_banana_2.png', 'sequence', 2), ('sequence_banana_2.png', 'sequence', 2),
+('sequence_banana_3.png', 'sequence', 3), ('sequence_banana_3.png', 'sequence', 3),
+('sequence_cherry_1.png', 'sequence', 1), ('sequence_cherry_1.png', 'sequence', 1),
+('sequence_cherry_2.png', 'sequence', 2), ('sequence_cherry_2.png', 'sequence', 2),
+('sequence_cherry_3.png', 'sequence', 3), ('sequence_cherry_3.png', 'sequence', 3);
+
+-- 게임 맵 정보 
+create table sequence_maps(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    idx INT,
+    card_id INT,
+    FOREIGN KEY (card_id) REFERENCES sequence_cards(id) ON DELETE CASCADE
+);
+
+INSERT INTO sequence_maps (idx, card_id)
+VALUES
+ (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9),(10, 10), 
+(11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20), 
+(21, 21), (22, 22), (23, 23), (24, 24), (25, 25), (26, 26), (27, 27), (28, 28), (29, 29), (30, 30), 
+(31, 31), (32, 32), (33, 33), (34, 34), (35, 35), (36, 36), (37, 37), (38, 38), (39, 39), (40, 40), 
+(41, 41), (42, 42), (43, 43), (44, 44), (45, 45), (46, 46), (47, 47), (48, 48), (49, 49), (50, 50), 
+(51, 51), (52, 52), (53, 53), (54, 54), (55, 55), (56, 56), (57, 57), (58, 58), (59, 59), (60, 60), 
+(61, 61), (62, 62), (63, 63), (64, 64), (65, 65), (66, 66), (67, 67), (68, 68), (69, 69), (70, 70),
+(71, 71), (72, 72), (73, 73), (74, 74), (75, 75), (76, 76), (77, 77), (78, 78), (79, 79), (80, 80),
+(81, 81), (82, 82), (83, 83), (84, 84), (85, 85), (86, 86), (87, 87), (88, 88), (89, 89), (90, 90),
+(91, 91), (92, 92), (93, 93), (94, 94), (95, 95), (96, 96), (97, 97), (98, 98), (99, 99), (100, 100);
+
+
+-- 게임 유저 정보
+create table sequence_users(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    user_id INT,
+    room_id INT,
+    turn INT, -- 플레이 순서 
+    color_type INT, -- 0: 빨강, 1: 파랑
+    FOREIGN KEY (user_id) REFERENCES game_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
+
+create table sequence_game_room_settings(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT, 
+    timer INT, -- 게임 타이머
+    current_round INT,  -- 현재 라운드
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
+
+create table sequence_room_cards(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    card_id INT,
+    user_id INT,
+    state varchar(100), -- 남은 카드, 소윺 카드, 버려진 카드
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (card_id) REFERENCES sequence_cards(id) ON DELETE CASCADE
+);
+
+-- 게임 맵 정보
+create table sequence_room_maps(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT,
+    user_id INT,
+    map_id INT, -- (1 ~ 100)
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (map_id) REFERENCES sequence_maps(id) ON DELETE CASCADE
 );
