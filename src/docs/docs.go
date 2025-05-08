@@ -15,6 +15,43 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/board-game/v0.1/game-over": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/board-game/game"
+                ],
+                "summary": "게임 종료 처리",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/find-it/v0.1/game/coin": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
@@ -361,6 +398,175 @@ const docTemplate = `{
             }
         },
         "/find-it/v0.1/rooms/play/together/ws": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ws"
+                ],
+                "summary": "함께하기 방 생성 (패스워드 발급) (ws)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "access token",
+                        "name": "tkn",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/sequence/v0.1/game/rank": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/sequence/game"
+                ],
+                "summary": "시퀀스 랭크 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResSequenceRank"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/sequence/v0.1/game/result": {
+            "post": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_ALL_USERS_READY : 모든 유저가 준비되지 않음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\n",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/sequence/game"
+                ],
+                "summary": "[시퀀스] 게임 결과 가져오기",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "accessToken",
+                        "name": "tkn",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqSequenceResult"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResSequenceResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/sequence/v0.1/rooms/match/ws": {
+            "get": {
+                "responses": {}
+            }
+        },
+        "/sequence/v0.1/rooms/play/join/ws": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ws"
+                ],
+                "summary": "함께하기 참여 (패스워드 필수) (ws)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "access token",
+                        "name": "tkn",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/sequence/v0.1/rooms/play/together/ws": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
                 "produces": [
@@ -4644,6 +4850,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ReqSequenceResult": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.ReqSignin": {
             "type": "object",
             "required": [
@@ -5378,6 +5592,28 @@ const docTemplate = `{
                 }
             }
         },
+        "response.ResSequenceRank": {
+            "type": "object",
+            "properties": {
+                "rankUserList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RankUser"
+                    }
+                }
+            }
+        },
+        "response.ResSequenceResult": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.SequenceResult"
+                    }
+                }
+            }
+        },
         "response.ResSignin": {
             "type": "object",
             "properties": {
@@ -5516,6 +5752,17 @@ const docTemplate = `{
                     }
                 },
                 "missionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.SequenceResult": {
+            "type": "object",
+            "properties": {
+                "score": {
+                    "type": "integer"
+                },
+                "userID": {
                     "type": "integer"
                 }
             }

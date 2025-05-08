@@ -431,6 +431,11 @@ definitions:
           $ref: '#/definitions/request.CardInfo'
         type: array
     type: object
+  request.ReqSequenceResult:
+    properties:
+      roomID:
+        type: integer
+    type: object
   request.ReqSignin:
     properties:
       email:
@@ -907,6 +912,20 @@ definitions:
       winner:
         type: integer
     type: object
+  response.ResSequenceRank:
+    properties:
+      rankUserList:
+        items:
+          $ref: '#/definitions/response.RankUser'
+        type: array
+    type: object
+  response.ResSequenceResult:
+    properties:
+      result:
+        items:
+          $ref: '#/definitions/response.SequenceResult'
+        type: array
+    type: object
   response.ResSignin:
     properties:
       accessToken:
@@ -998,6 +1017,13 @@ definitions:
       missionID:
         type: integer
     type: object
+  response.SequenceResult:
+    properties:
+      score:
+        type: integer
+      userID:
+        type: integer
+    type: object
   response.SlimeWarResult:
     properties:
       score:
@@ -1030,6 +1056,38 @@ definitions:
 info:
   contact: {}
 paths:
+  /board-game/v0.1/game-over:
+    post:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 게임 종료 처리
+      tags:
+      - app/board-game/game
   /find-it/v0.1/game/coin:
     post:
       description: |-
@@ -1324,6 +1382,158 @@ paths:
       tags:
       - ws
   /find-it/v0.1/rooms/play/together/ws:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: access token
+        in: query
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 함께하기 방 생성 (패스워드 발급) (ws)
+      tags:
+      - ws
+  /sequence/v0.1/game/rank:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSequenceRank'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 시퀀스 랭크 가져오기
+      tags:
+      - app/sequence/game
+  /sequence/v0.1/game/result:
+    post:
+      description: |
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_ALL_USERS_READY : 모든 유저가 준비되지 않음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      parameters:
+      - description: accessToken
+        in: header
+        name: tkn
+        required: true
+        type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqSequenceResult'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResSequenceResult'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: '[시퀀스] 게임 결과 가져오기'
+      tags:
+      - app/sequence/game
+  /sequence/v0.1/rooms/match/ws:
+    get:
+      responses: {}
+  /sequence/v0.1/rooms/play/join/ws:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        USER_NOT_FOUND : 유저를 찾을 수 없음
+        USER_ALREADY_EXISTED : 이미 존재하는 유저
+        Room_NOT_FOUND : 방을 찾을 수 없음
+        Room_FULL : 방이 꽉 참
+        Room_USER_NOT_FOUND : 방 유저를 찾을 수 없음
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+        PLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패
+      parameters:
+      - description: access token
+        in: query
+        name: tkn
+        required: true
+        type: string
+      - description: password
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 함께하기 참여 (패스워드 필수) (ws)
+      tags:
+      - ws
+  /sequence/v0.1/rooms/play/together/ws:
     get:
       description: |-
         ■ errCode with 400
