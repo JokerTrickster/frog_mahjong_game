@@ -46,7 +46,7 @@ type ChatInfo struct {
 
 type MessageInfo struct {
 	Users            []*User           `json:"users"`            // 유저 정보
-	SequenceGameInfo *SequenceGameInfo `json:"SequenceGameInfo"` // 게임 정보
+	SequenceGameInfo *SequenceGameInfo `json:"sequenceGameInfo"` // 게임 정보
 	ErrorInfo        *ErrorInfo        `json:"errorInfo"`        // 에러 정보
 
 }
@@ -68,18 +68,14 @@ type User struct {
 	ColorType    int    `json:"colorType"`    // 색상 타입
 }
 type SequenceGameInfo struct {
-	AllReady              bool   `json:"allReady"`              // 게임 시작 여부
-	Timer                 int    `json:"timer"`                 // 타이머
-	IsFull                bool   `json:"isFull"`                // 방이 꽉 찼는지 여부
-	RoomID                uint   `json:"roomID"`                // 방 ID
-	Password              string `json:"password"`              // 방 비밀번호
-	StartTime             int64  `json:"startTime"`             // 게임 시작 시간 (epoch time in milliseconds)
-	Round                 int    `json:"round"`                 // 라운드
-	KingPosition          int    `json:"kingPosition"`          // 왕의 위치
-	SlimeCount            int    `json:"slimeCount"`            // 슬라임 개수
-	DroppedDummyIndices   []int  `json:"droppedDummyIndices"`   // 버려진 더미 인덱스 배열
-	RemainingDummyIndices []int  `json:"remainingDummyIndices"` // 남은 더미 인덱스 배열
-	GameOver              bool   `json:"gameOver"`              // 게임 종료 여부
+	AllReady  bool   `json:"allReady"`  // 게임 시작 여부
+	Timer     int    `json:"timer"`     // 타이머
+	IsFull    bool   `json:"isFull"`    // 방이 꽉 찼는지 여부
+	RoomID    uint   `json:"roomID"`    // 방 ID
+	Password  string `json:"password"`  // 방 비밀번호
+	StartTime int64  `json:"startTime"` // 게임 시작 시간 (epoch time in milliseconds)
+	Round     int    `json:"round"`     // 라운드
+	GameOver  bool   `json:"gameOver"`  // 게임 종료 여부
 }
 
 // PreloadUsers - 게임 방에 있는 유저 정보 + 관련 데이터 로드

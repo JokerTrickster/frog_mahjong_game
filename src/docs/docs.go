@@ -52,14 +52,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/find-it/v0.1/game/coin": {
+        "/board-game/v0.1/game/coin": {
             "post": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "app/find-it/game"
+                    "app/board-game/game"
                 ],
                 "summary": "코인 값 변경 api",
                 "parameters": [

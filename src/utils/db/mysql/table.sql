@@ -733,7 +733,7 @@ create table sequence_cards (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     image VARCHAR(255),
     type varchar(255),
-    count int,
+    count int
 );
 INSERT INTO sequence_cards (image, type, count)
 VALUES
@@ -754,8 +754,7 @@ create table sequence_maps(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     idx INT,
-    card_id INT,
-    FOREIGN KEY (card_id) REFERENCES sequence_cards(id) ON DELETE CASCADE
+    card_id INT
 );
 
 INSERT INTO sequence_maps (idx, card_id)
@@ -806,8 +805,7 @@ create table sequence_room_cards(
     card_id INT,
     user_id INT,
     state varchar(100), -- 남은 카드, 소윺 카드, 버려진 카드
-    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
-    FOREIGN KEY (card_id) REFERENCES sequence_cards(id) ON DELETE CASCADE
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
 );
 
 -- 게임 맵 정보
@@ -819,6 +817,5 @@ create table sequence_room_maps(
     room_id INT,
     user_id INT,
     map_id INT, -- (1 ~ 100)
-    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE,
-    FOREIGN KEY (map_id) REFERENCES sequence_maps(id) ON DELETE CASCADE
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
 );

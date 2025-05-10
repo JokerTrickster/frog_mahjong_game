@@ -11,6 +11,7 @@ import (
 	gameUserHandler "main/features/game_users/handler"
 	profileHandler "main/features/profiles/handler"
 	roomsHandler "main/features/rooms/handler"
+	"main/features/sequence"
 	"main/features/slime_war"
 	slimeWar "main/features/slime_war"
 	userHandler "main/features/users/handler"
@@ -42,6 +43,7 @@ func InitHandler(e *echo.Echo) error {
 	v2ws.NewV2WebsocketHandler(e)
 	find_it.NewFindItWebsocketHandler(e)
 	slimeWar.NewSlimeWarWebsocketHandler(e)
+	sequence.NewSequenceWebsocketHandler(e)
 	go ws.WSHandleMessages("frog")
 
 	go v2ws.WSHandleMessages("wingspan")
@@ -49,6 +51,8 @@ func InitHandler(e *echo.Echo) error {
 	go find_it.WSHandleMessages("find-it")
 
 	go slime_war.WSHandleMessages("slime-war")
+
+	go sequence.WSHandleMessages("sequence")
 
 	return nil
 }

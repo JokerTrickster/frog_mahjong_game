@@ -1088,7 +1088,7 @@ paths:
       summary: 게임 종료 처리
       tags:
       - app/board-game/game
-  /find-it/v0.1/game/coin:
+  /board-game/v0.1/game/coin:
     post:
       description: |-
         ■ errCode with 400
@@ -1125,7 +1125,7 @@ paths:
           schema: {}
       summary: 코인 값 변경 api
       tags:
-      - app/find-it/game
+      - app/board-game/game
   /find-it/v0.1/game/image:
     post:
       description: |-

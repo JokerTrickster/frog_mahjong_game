@@ -18,12 +18,12 @@ func NewFindItCoinBoardGameHandler(c *echo.Echo, useCase _interface.IFindItCoinB
 	handler := &FindItCoinBoardGameHandler{
 		UseCase: useCase,
 	}
-	c.POST("/find-it/v0.1/game/coin", handler.FindItCoin, mw.TokenChecker)
+	c.POST("/board-game/v0.1/game/coin", handler.FindItCoin, mw.TokenChecker)
 	return handler
 }
 
 // 코인 값 변경 api
-// @Router /find-it/v0.1/game/coin [post]
+// @Router /board-game/v0.1/game/coin [post]
 // @Summary 코인 값 변경 api
 // @Description
 // @Description ■ errCode with 400
@@ -39,7 +39,7 @@ func NewFindItCoinBoardGameHandler(c *echo.Echo, useCase _interface.IFindItCoinB
 // @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags app/find-it/game
+// @Tags app/board-game/game
 func (d *FindItCoinBoardGameHandler) FindItCoin(c echo.Context) error {
 	ctx, userID, _ := utils.CtxGenerate(c)
 	req := &request.ReqFindItCoinBoardGame{}
