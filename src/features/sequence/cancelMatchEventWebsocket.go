@@ -12,6 +12,10 @@ import (
 )
 
 func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
+	if msg == nil {
+		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrInvalidRequest, "잘못된 메시지 형식입니다.")
+	}
+
 	ctx := context.Background()
 	uID := msg.UserID
 	rID := msg.RoomID
@@ -23,7 +27,12 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	//비즈니스 로직
 	preloadUsers := []entity.PreloadUsers{}
-	messageMsg := entity.MessageInfo{}
+	messageMsg := entity.MessageInfo{
+		SequenceGameInfo: &entity.SequenceGameInfo{
+			RoomID: rID,
+		},
+		Users: make([]*entity.User, 0),
+	}
 	var errInfo *entity.ErrorInfo
 	err := mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 방 유저 정보를 삭제한다.
@@ -53,7 +62,9 @@ func CancelMatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 
 	if len(preloadUsers) == 2 {
-		messageMsg.SequenceGameInfo.IsFull = true
+		if messageMsg.SequenceGameInfo != nil {
+			messageMsg.SequenceGameInfo.IsFull = true
+		}
 	}
 
 	message, err := CreateMessage(&messageMsg)

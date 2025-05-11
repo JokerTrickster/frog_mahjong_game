@@ -47,7 +47,11 @@ func UseCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-
+		//현재 턴을 상대방 턴으로 넘긴다.
+		errInfo = repository.UseCardUpdateTurn(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 		preloadUsers, errInfo = repository.PreloadUsers(ctx, tx, roomID)
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)

@@ -61,3 +61,17 @@ func UseCardGetDummyCard(ctx context.Context, tx *gorm.DB, roomID, userID uint) 
 	}
 	return nil
 }
+
+func UseCardUpdateTurn(ctx context.Context, tx *gorm.DB, roomID uint) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.SequenceGameRoomSettings{}).
+		Where("room_id = ?", roomID).
+		Update("current_round", gorm.Expr("current_round + ?", 1)).Error; err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("current_count 업데이트 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
+	}
+
+	return nil
+}
