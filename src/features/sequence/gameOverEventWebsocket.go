@@ -38,7 +38,8 @@ func GameOverEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 		// 게임 결과를 저장한다.
 		for _, roomUser := range roomUsers {
-			errInfo = repository.GameOverSaveGameResult(ctx, tx, roomID, roomUsers, req.Result)
+			gameResultDTO := CreateGameResultDTO(roomUser, roomID, req)
+			errInfo = repository.GameOverSaveGameResult(ctx, tx, gameResultDTO)
 			if errInfo != nil {
 				return fmt.Errorf("%s", errInfo.Msg)
 			}
