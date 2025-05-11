@@ -43,8 +43,11 @@ func UseCardUpdateMapState(ctx context.Context, tx *gorm.DB, roomID, userID, map
 }
 
 func UseCardGetDummyCard(ctx context.Context, tx *gorm.DB, roomID, userID uint) *entity.ErrorInfo {
+	// 랜덤으로 한 장의 카드만 가져오기
 	err := tx.Model(&mysql.SequenceRoomCards{}).
 		Where("room_id = ? AND state = ?", roomID, "none").
+		Order("RAND()"). // 랜덤 정렬
+		Limit(1).        // 한 장만 선택
 		Updates(map[string]interface{}{
 			"state":   "owned",
 			"user_id": userID,
