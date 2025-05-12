@@ -312,8 +312,11 @@ func StartCreateSequenceUserCards(ctx context.Context, tx *gorm.DB, roomUsers []
 	numbers := make([]int, 0, 10)
 
 	// Generate 10 unique random numbers between 1 and 48
-	for len(numbers) < 14 {
-		num := rand.Intn(96) + 1
+	for len(numbers) < 10 {
+		num := rand.Intn(100) + 1
+		if num == 1 || num == 10 || num == 91 || num == 100 {
+			continue
+		}
 		if !used[num] {
 			used[num] = true
 			numbers = append(numbers, num)
@@ -322,7 +325,7 @@ func StartCreateSequenceUserCards(ctx context.Context, tx *gorm.DB, roomUsers []
 
 	// 각 유저에게 5개의 카드 할당
 	for i, user := range roomUsers {
-		startIdx := i * 7
+		startIdx := i * 5
 		userCards := numbers[startIdx : startIdx+5]
 
 		//userCards에 해당되는 card_id에 user_id와 state를 업데이트한다.
