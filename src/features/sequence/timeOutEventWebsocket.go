@@ -31,17 +31,25 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
 		// 현재 소유하고 있는 카드 중 하나를 랜덤으로 사용한다.
-		userCards, errInfo := repository.TimeOutFindUserCards(ctx, tx, uint(req.UserID))
+		userCards, errInfo := repository.TimeOutFindUserCards(ctx, tx, roomID, uint(req.UserID))
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		randomCard := userCards[rand.Intn(len(userCards))]
-		errInfo = repository.TimeOutUpdateCardState(ctx, tx, int(roomID), int(randomCard.ID))
+		errInfo = repository.TimeOutUpdateCardState(ctx, tx, int(roomID), int(randomCard.CardID))
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
-		// TODO 해당 카드의 맵에 사용 여부를 표시한다?
-
+		//  해당 카드의 맵에 사용 여부를 표시한다
+		errInfo = repository.TimeOutUpdateMapState(ctx, tx, int(roomID), req.UserID, int(randomCard.CardID))
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
+		// 더미에서 카드 한장을 가져온다.
+		errInfo = repository.TimeOutUpdateDummyCardState(ctx, tx, int(roomID), req.UserID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 		//현재 턴을 상대방 턴으로 넘긴다.
 		errInfo = repository.TimeOutUpdateTurn(ctx, tx, roomID)
 		if errInfo != nil {

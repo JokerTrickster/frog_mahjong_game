@@ -101,9 +101,9 @@ func TimeOutUpdateTurn(ctx context.Context, tx *gorm.DB, roomID uint) *entity.Er
 
 	return nil
 }
-func TimeOutFindUserCards(ctx context.Context, tx *gorm.DB, userID uint) ([]*mysql.SequenceRoomCards, *entity.ErrorInfo) {
+func TimeOutFindUserCards(ctx context.Context, tx *gorm.DB, roomID, userID uint) ([]*mysql.SequenceRoomCards, *entity.ErrorInfo) {
 	var userCards []*mysql.SequenceRoomCards
-	err := tx.WithContext(ctx).Where("user_id = ? and state = ?", userID, "owned").Find(&userCards).Error
+	err := tx.WithContext(ctx).Where("room_id = ? and user_id = ? and state = ?", roomID, userID, "owned").Find(&userCards).Error
 	if err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -121,6 +121,42 @@ func TimeOutUpdateCardState(ctx context.Context, tx *gorm.DB, roomID, cardID int
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("cardState 업데이트 실패: %v", err.Error()),
+			Type: _errors.ErrUpdateFailed,
+		}
+	}
+	return nil
+}
+
+func TimeOutUpdateMapState(ctx context.Context, tx *gorm.DB, roomID, userID, cardID int) *entity.ErrorInfo {
+	if err := tx.Model(&mysql.SequenceRoomMaps{}).
+		Where("room_id = ? and map_id = ? and user_id = ?", roomID, cardID, 0).
+		Update("user_id", userID).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return &entity.ErrorInfo{
+				Code: _errors.ErrCodeInternal,
+				Msg:  fmt.Sprintf("mapState 업데이트 실패: %v", err.Error()),
+				Type: _errors.ErrUpdateFailed,
+			}
+		}
+	}
+	return nil
+}
+
+func TimeOutUpdateDummyCardState(ctx context.Context, tx *gorm.DB, roomID, userID int) *entity.ErrorInfo {
+	// 랜덤으로 한 장의 카드만 가져오기
+	err := tx.Model(&mysql.SequenceRoomCards{}).
+		Where("room_id = ? AND state = ?", roomID, "none").
+		Order("RAND()"). // 랜덤 정렬
+		Limit(1).        // 한 장만 선택
+		Updates(map[string]interface{}{
+			"user_id": userID,
+			"state":   "owned",
+		}).Error
+
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("더미 카드 상태 업데이트 실패: %v", err.Error()),
 			Type: _errors.ErrUpdateFailed,
 		}
 	}
