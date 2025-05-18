@@ -59,8 +59,11 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	}
 	// 메시지 생성
 	//게임턴 계산
-	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.RoomSessions[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
+	gameRoomSettings, errInfo := repository.FindOneFrogCurrentRound(ctx, roomID)
+	if errInfo != nil {
+		return errInfo
+	}
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
 
 	// 론 가능 여부를 true로 변경
 	roomInfoMsg.GameInfo.IsLoanAllowed = true

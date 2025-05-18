@@ -1,8 +1,7 @@
 package request
 
 type ReqWSImportCards struct {
-	Cards    []ImportCards `json:"cards"`
-	PlayTurn int           `json:"playTurn"`
+	Cards []ImportCards `json:"cards"`
 }
 
 type ImportCards struct {

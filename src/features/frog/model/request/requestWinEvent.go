@@ -2,7 +2,6 @@ package request
 
 type ReqWSWinEvent struct {
 	Cards    []ReqWinCard    `json:"cards"`
-	PlayTurn int             `json:"playTurn"`
 	Score    int             `json:"score"`
 	LoanInfo *ReqWinLoanInfo `json:"loanInfo omitempty"`
 }

@@ -5112,11 +5112,11 @@ const docTemplate = `{
                 "color": {
                     "type": "string"
                 },
-                "id": {
+                "count": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
+                "id": {
+                    "type": "integer"
                 }
             }
         },

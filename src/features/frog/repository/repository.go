@@ -128,3 +128,21 @@ func DeleteAllFrogRoomUsers(ctx context.Context, tx *gorm.DB, userID uint) *enti
 	}
 	return nil
 }
+
+func FindOneFrogCurrentRound(ctx context.Context, roomID uint) (*mysql.FrogGameRoomSettings, *entity.ErrorInfo) {
+	gameRoomSettings := &mysql.FrogGameRoomSettings{}
+	result := mysql.GormMysqlDB.Table("frog_game_room_settings").
+		Where("room_id = ?", roomID).
+		First(&gameRoomSettings)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if result.Error != nil {
+		return nil, &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("현재 라운드 조회 실패: %v", result.Error),
+			Type: _errors.ErrInternalServer,
+		}
+	}
+	return gameRoomSettings, nil
+}

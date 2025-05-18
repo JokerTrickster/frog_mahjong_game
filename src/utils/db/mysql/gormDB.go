@@ -63,7 +63,7 @@ type Cards struct {
 	RoomID int    `json:"roomID" gorm:"column:room_id"`
 	UserID int    `json:"userID" gorm:"column:user_id"`
 	CardID int    `json:"cardID" gorm:"column:card_id"` // 1 ~  44
-	Name   string `json:"name" gorm:"column:name"`      // one, two, three, four, five .... nine, chung, bal
+	Count  int    `json:"count" gorm:"column:count"`    // 1 ~ 11
 	Color  string `json:"color" gorm:"column:color"`    // red, green, normal
 	State  string `json:"state" gorm:"column:state"`    // owned, discard, none, opened
 }

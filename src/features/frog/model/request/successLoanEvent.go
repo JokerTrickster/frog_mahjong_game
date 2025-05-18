@@ -2,7 +2,6 @@ package request
 
 type ReqWSSuccessEvent struct {
 	Cards    []ReqSuccessCard    `json:"cards"`
-	PlayTurn int                 `json:"playTurn"`
 	Score    int                 `json:"score"`
 	LoanInfo *ReqSuccessLoanInfo `json:"loanInfo"`
 }

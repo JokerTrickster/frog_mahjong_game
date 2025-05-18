@@ -74,7 +74,11 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		return errInfo
 	}
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, req.PlayTurn, roomInfoMsg.ErrorInfo)
+	gameRoomSettings, errInfo := repository.FindOneFrogCurrentRound(ctx, roomID)
+	if errInfo != nil {
+		return errInfo
+	}
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
 
 	//승리 유저 카드 정보 순서 저장
 	cards := []*entity.Card{}

@@ -8,7 +8,6 @@ import (
 	_errors "main/features/frog/model/errors"
 	"main/features/frog/model/request"
 	"main/features/frog/repository"
-	"main/utils"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -19,13 +18,10 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo 
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	decryptedMessage, err := utils.DecryptAES(msg.Message)
-	if err != nil {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
-	}
+
 	//string to struct
 	req := request.ReqWSTimeOutDiscardCards{}
-	err = json.Unmarshal([]byte(decryptedMessage), &req)
+	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
@@ -56,9 +52,11 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo 
 		return errInfo
 	}
 	// 메시지 생성
-	//게임턴 계산
-	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.RoomSessions[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
+	gameRoomSettings, errInfo := repository.FindOneFrogCurrentRound(ctx, roomID)
+	if errInfo != nil {
+		return errInfo
+	}
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
 
 	// 론 가능 여부를 true로 변경
 	roomInfoMsg.GameInfo.IsLoanAllowed = true

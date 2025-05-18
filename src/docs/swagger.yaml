@@ -603,10 +603,10 @@ definitions:
     properties:
       color:
         type: string
+      count:
+        type: integer
       id:
         type: integer
-      name:
-        type: string
     type: object
   response.GameInfo:
     properties:

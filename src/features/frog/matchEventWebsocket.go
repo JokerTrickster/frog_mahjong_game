@@ -44,7 +44,7 @@ func MatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	}
 
 	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 0, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
 
 	if len(preloadUsers) == 2 {

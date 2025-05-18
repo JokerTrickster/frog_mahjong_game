@@ -65,8 +65,11 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	}
 	//메시지 생성
 	//게임턴 계산
-	playTurn := CalcPlayTurn(req.PlayTurn, len(entity.RoomSessions[msg.RoomID]))
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, playTurn, roomInfoMsg.ErrorInfo)
+	gameRoomSettings, errInfo := repository.FindOneFrogCurrentRound(ctx, roomID)
+	if errInfo != nil {
+		return errInfo
+	}
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)

@@ -4,5 +4,4 @@ package request
 type ReqWSLoan struct {
 	CardID       uint `json:"cardID"`       // 론 카드 ID
 	TargetUserID uint `json:"targetUserID"` // 상대방 유저 ID
-	PlayTurn     int  `json:"playTurn"`     // 플레이턴
 }
