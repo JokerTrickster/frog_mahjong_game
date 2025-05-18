@@ -15,18 +15,16 @@ func CreateRandomPassword() string {
 
 }
 
-func CreatePlayTogetherRoomDTO(uID uint, count int, timer int, password string) mysql.Rooms {
-	result := mysql.Rooms{
+func CreatePlayTogetherRoomDTO(uID uint, count int, timer int, password string) mysql.GameRooms {
+	result := mysql.GameRooms{
 		CurrentCount: 0,
 		MaxCount:     count,
 		MinCount:     count,
 		State:        "wait",
 		OwnerID:      int(uID),
-		Timer:        timer,
-		PlayTurn:     0,
 		Name:         "play together",
 		Password:     password,
-		GameID:       1,
+		GameID:       mysql.FROG,
 		StartTime:    time.Now(),
 	}
 	return result

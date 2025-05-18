@@ -3,9 +3,9 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 	"time"
 

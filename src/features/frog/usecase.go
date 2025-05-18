@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"main/features/ws/model/entity"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils"
 	"main/utils/db/mysql"
 	"time"
@@ -55,7 +55,6 @@ func CreateRoomInfoMSG(ctx context.Context, preloadUsers []entity.RoomUsers, pla
 	var startTime int64
 	//유저 정보 저장
 	for _, roomUser := range preloadUsers {
-		timer = roomUser.Room.Timer
 		password = roomUser.Room.Password
 		user := entity.User{
 			ID:          uint(roomUser.UserID),
@@ -157,13 +156,13 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 
-	// 메시지 암호화
-	encryptedMessage, err := utils.EncryptAES(msg.Message)
-	if err != nil {
-		fmt.Printf("Failed to encrypt message: %v\n", err)
-		return
-	}
-	msg.Message = encryptedMessage
+	// // 메시지 암호화
+	// encryptedMessage, err := utils.EncryptAES(msg.Message)
+	// if err != nil {
+	// 	fmt.Printf("Failed to encrypt message: %v\n", err)
+	// 	return
+	// }
+	// msg.Message = encryptedMessage
 
 	// 방에 있는 모든 클라이언트에 메시지 전송
 	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {

@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	"main/features/ws/model/request"
+	"main/features/frog/model/entity"
+	"main/features/frog/model/request"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -25,18 +25,18 @@ func JoinFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]enti
 	return roomUsers, nil
 }
 
-func JoinFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, error) {
+func JoinFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.GameRooms, error) {
 	// 방 참여 가능한지 체크
-	RoomDTO := mysql.Rooms{}
+	RoomDTO := mysql.GameRooms{}
 	result := tx.WithContext(ctx).Where("id = ?", req.RoomID).First(&RoomDTO)
 	if result.Error != nil {
-		return mysql.Rooms{}, fmt.Errorf("방 정보를 찾을 수 없습니다. %v", result.Error)
+		return mysql.GameRooms{}, fmt.Errorf("방 정보를 찾을 수 없습니다. %v", result.Error)
 	}
 	return RoomDTO, nil
 }
 
 func JoinFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) error {
-	result := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1"))
+	result := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1"))
 	if result.Error != nil {
 		return fmt.Errorf("방 인원수 업데이트 실패: %v", result.Error)
 	}
@@ -44,7 +44,7 @@ func JoinFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) err
 }
 
 func JoinFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) error {
-	user := mysql.Users{
+	user := mysql.GameUsers{
 		RoomID: int(RoomID),
 		State:  "play",
 	}
@@ -73,7 +73,7 @@ func JoinFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID, roomID 
 	if result.RowsAffected == 0 {
 		return nil
 	} else {
-		result2 := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
+		result2 := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
 		if result2.Error != nil {
 			return fmt.Errorf("방 인원수 업데이트 실패: %v", result.Error)
 		}

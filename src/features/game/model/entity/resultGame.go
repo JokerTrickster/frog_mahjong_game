@@ -18,7 +18,7 @@ type ResultCard struct {
 
 type ResultCardEntity struct {
 	CardID uint   `json:"cardID"`
-	Name   string `json:"name"`
+	Count  int    `json:"count"`
 	Color  string `json:"color"`
 	State  string `json:"state"`
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"main/features/ws/model/entity"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	"main/features/frog/repository"
 	"main/utils"
 	"time"
 
@@ -40,8 +40,6 @@ func processMessage(gameName string, msg entity.WSMessage) {
 	var errInfo *entity.ErrorInfo
 	// Handle events
 	switch msg.Event {
-	case "QUIT_GAME":
-		errInfo = CloseEventWebsocket(&msg)
 	case "START":
 		errInfo = StartEventWebsocket(&msg)
 	case "DISCARD":

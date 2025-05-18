@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -47,9 +47,9 @@ func JoinPlayFindOneRoomUsers(ctx context.Context, userID uint) (uint, *entity.E
 }
 
 // JoinPlayFindOneWaitingRoom retrieves a waiting room by password
-func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Rooms, *entity.ErrorInfo) {
-	var room mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.GameRooms, *entity.ErrorInfo) {
+	var room mysql.GameRooms
+	err := mysql.GormMysqlDB.Model(&mysql.GameRooms{}).
 		Where("password = ?", password).
 		Where("state = ?", "wait").
 		Where("current_count < max_count").
@@ -74,11 +74,11 @@ func JoinPlayFindOneWaitingRoom(ctx context.Context, password string) (*mysql.Ro
 
 // JoinPlayFindOneAndUpdateUser updates the user's room and state
 func JoinPlayFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) *entity.ErrorInfo {
-	user := mysql.Users{
+	user := mysql.GameUsers{
 		RoomID: int(RoomID),
 		State:  "play",
 	}
-	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("id = ?", uID).Updates(user).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameUsers{}).Where("id = ?", uID).Updates(user).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500
@@ -90,7 +90,7 @@ func JoinPlayFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, Ro
 }
 
 // JoinPlayInsertOneRoom inserts a new room
-func JoinPlayInsertOneRoom(ctx context.Context, room mysql.Rooms) (int, *entity.ErrorInfo) {
+func JoinPlayInsertOneRoom(ctx context.Context, room mysql.GameRooms) (int, *entity.ErrorInfo) {
 	if ((room.MaxCount >= room.MinCount) && (room.MaxCount >= 2 || room.MinCount >= 2)) == false {
 		return 0, &entity.ErrorInfo{
 			Code: _errors.ErrCodeBadRequest, // 400
@@ -123,11 +123,11 @@ func JoinPlayInsertOneRoomUser(ctx context.Context, tx *gorm.DB, roomUser *mysql
 }
 
 // JoinPlayFindOneRoom retrieves a specific room by ID
-func JoinPlayFindOneRoom(ctx context.Context, roomID uint) (mysql.Rooms, *entity.ErrorInfo) {
-	room := mysql.Rooms{}
+func JoinPlayFindOneRoom(ctx context.Context, roomID uint) (mysql.GameRooms, *entity.ErrorInfo) {
+	room := mysql.GameRooms{}
 	err := mysql.GormMysqlDB.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
-		return mysql.Rooms{}, &entity.ErrorInfo{
+		return mysql.GameRooms{}, &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound, // 404
 			Msg:  "방 정보를 찾을 수 없습니다.",
 			Type: _errors.ErrRoomNotFound,
@@ -138,7 +138,7 @@ func JoinPlayFindOneRoom(ctx context.Context, roomID uint) (mysql.Rooms, *entity
 
 // JoinPlayFindOneAndUpdateRoom updates the room's player count
 func JoinPlayFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1")).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1")).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500

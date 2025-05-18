@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"main/utils/db/mysql"
 
-	_errors "main/features/ws/model/errors"
+	_errors "main/features/frog/model/errors"
 
 	"gorm.io/gorm"
 )
@@ -25,10 +25,10 @@ func CloseFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]ent
 }
 
 // CloseFindOneUser retrieves user information by ID
-func CloseFindOneUser(ctx context.Context, tx *gorm.DB, uID uint) (mysql.Users, *entity.ErrorInfo) {
-	var user mysql.Users
+func CloseFindOneUser(ctx context.Context, tx *gorm.DB, uID uint) (mysql.GameUsers, *entity.ErrorInfo) {
+	var user mysql.GameUsers
 	if err := tx.WithContext(ctx).Where("id = ?", uID).First(&user).Error; err != nil {
-		return mysql.Users{}, &entity.ErrorInfo{
+		return mysql.GameUsers{}, &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound,
 			Msg:  "유저 정보를 찾을 수 없습니다",
 			Type: _errors.ErrUserNotFound,
@@ -40,7 +40,7 @@ func CloseFindOneUser(ctx context.Context, tx *gorm.DB, uID uint) (mysql.Users, 
 // CloseChangeRoomOwner updates the owner of a room
 func CloseChangeRoomOnwer(ctx context.Context, tx *gorm.DB, RoomID uint, ownerID uint) *entity.ErrorInfo {
 	if err := tx.WithContext(ctx).
-		Model(&mysql.Rooms{}).
+		Model(&mysql.GameRooms{}).
 		Where("id = ?", RoomID).
 		Update("owner_id", ownerID).Error; err != nil {
 		return &entity.ErrorInfo{
@@ -69,7 +69,7 @@ func CloseFindOneRoomUser(ctx context.Context, tx *gorm.DB, RoomID uint) (mysql.
 func CloseFindOneAndDeleteRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
 	if err := tx.WithContext(ctx).
 		Where("id = ?", RoomID).
-		Delete(&mysql.Rooms{}).Error; err != nil {
+		Delete(&mysql.GameRooms{}).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "방 정보를 삭제할 수 없습니다",
@@ -94,10 +94,10 @@ func CloseFindOneAndDeleteRoomUser(ctx context.Context, tx *gorm.DB, uID uint, R
 }
 
 // CloseFindOneAndUpdateRoom decreases room user count by 1
-func CloseFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) (mysql.Rooms, *entity.ErrorInfo) {
-	var room mysql.Rooms
+func CloseFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) (mysql.GameRooms, *entity.ErrorInfo) {
+	var room mysql.GameRooms
 	if err := tx.WithContext(ctx).Where("id = ?", RoomID).First(&room).Error; err != nil {
-		return mysql.Rooms{}, &entity.ErrorInfo{
+		return mysql.GameRooms{}, &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound,
 			Msg:  "방 정보를 찾을 수 없습니다",
 			Type: _errors.ErrRoomNotFound,
@@ -105,7 +105,7 @@ func CloseFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) (m
 	}
 	room.CurrentCount--
 	if err := tx.WithContext(ctx).Model(&room).Where("id = ?", RoomID).Updates(room).Error; err != nil {
-		return mysql.Rooms{}, &entity.ErrorInfo{
+		return mysql.GameRooms{}, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "방 인원을 업데이트할 수 없습니다",
 			Type: _errors.ErrUpdateFailed,
@@ -116,7 +116,7 @@ func CloseFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) (m
 
 // CloseFindOneAndUpdateUser updates user information when they leave a room
 func CloseFindOneAndUpdateUser(ctx context.Context, uID uint) *entity.ErrorInfo {
-	user := &mysql.Users{
+	user := &mysql.GameUsers{
 		State:  "wait",
 		RoomID: 1, // Set default RoomID
 	}

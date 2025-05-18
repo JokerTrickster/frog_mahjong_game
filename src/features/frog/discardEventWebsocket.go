@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
-	"main/utils"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -19,13 +18,10 @@ func DiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
 	roomID := msg.RoomID
-	decryptedMessage, err := utils.DecryptAES(msg.Message)
-	if err != nil {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
-	}
+
 	//string to struct
 	req := request.ReqWSDiscardCards{}
-	err = json.Unmarshal([]byte(decryptedMessage), &req)
+	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}

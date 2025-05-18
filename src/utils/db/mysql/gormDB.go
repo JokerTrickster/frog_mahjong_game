@@ -190,10 +190,17 @@ type FrogRoomUsers struct {
 	PlayerState    string `json:"playerState" gorm:"column:player_state"`
 	TurnNumber     int    `json:"turnNumber" gorm:"column:turn_number"`
 }
+type FrogGameRoomSettings struct {
+	gorm.Model
+	RoomID             int `json:"roomID" gorm:"column:room_id"`
+	Timer              int `json:"timer" gorm:"column:timer"`
+	RemainingCardCount int `json:"remainingCardCount" gorm:"column:remaining_card_count"`
+	CurrentRound       int `json:"currentRound" gorm:"column:current_round"`
+}
 
 type FrogCards struct {
 	gorm.Model
-	Name  string `json:"name" gorm:"column:name"`
+	Count int    `json:"count" gorm:"column:count"`
 	Color string `json:"color" gorm:"column:color"`
 	Image string `json:"image" gorm:"column:image"`
 }

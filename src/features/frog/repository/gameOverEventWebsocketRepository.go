@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"

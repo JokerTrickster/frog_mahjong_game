@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
-	"main/utils"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -17,13 +16,10 @@ import (
 func MatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	ctx := context.Background()
 	uID := msg.UserID
-	decryptedMessage, err := utils.DecryptAES(msg.Message)
-	if err != nil {
-		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrCryptoFailed, "AES 복호화 에러")
-	}
+
 	//string to struct
 	req := request.ReqWSMatchEvent{}
-	err = json.Unmarshal([]byte(decryptedMessage), &req)
+	err := json.Unmarshal([]byte(msg.Message), &req)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrUnmarshalFailed, "JSON 언마샬링 에러")
 	}
@@ -51,7 +47,7 @@ func MatchEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
 	roomInfoMsg.GameInfo.AllReady = false
 
-	if len(preloadUsers) == req.Count {
+	if len(preloadUsers) == 2 {
 		roomInfoMsg.GameInfo.IsFull = true
 		roomInfoMsg.GameInfo.AllReady = true
 	}

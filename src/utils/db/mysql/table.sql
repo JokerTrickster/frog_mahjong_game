@@ -1,4 +1,3 @@
-
 CREATE TABLE tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -318,8 +317,8 @@ create table frog_room_users (
     owned_card_count INT,
     player_state VARCHAR(50),       -- 유저 게임 상태
     turn_number INT default 0,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
+    FOREIGN KEY (user_id) REFERENCES game_users(id),
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id)
 );
 
 create table frog_cards(
@@ -327,10 +326,58 @@ create table frog_cards(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
-    name VARCHAR(255),
+    count VARCHAR(255),
     color VARCHAR(50),
     image varchar(255)
 );
+
+INSERT INTO frog_cards (count, color, image)
+VALUES
+    (1,  'red',    'red1.png'),
+    (2,  'red',    'red2.png'),
+    (3,  'red',    'red3.png'),
+    (4,  'red',    'red4.png'),
+    (5,  'red',    'red5.png'),
+    (6,  'red',    'red6.png'),
+    (7,  'red',    'red7.png'),
+    (8,  'red',    'red8.png'),
+    (9,  'red',    'red9.png'),
+    (10, 'red',    'red10.png'),
+    (11, 'green',  'green11.png'),
+    (1,  'normal', 'normal1.png'),
+    (2,  'green',  'green2.png'),
+    (3,  'green',  'green3.png'),
+    (4,  'green',  'green4.png'),
+    (5,  'normal', 'normal5.png'),
+    (6,  'green',  'green6.png'),
+    (7,  'normal', 'normal7.png'),
+    (8,  'green',  'green8.png'),
+    (9,  'normal', 'normal9.png'),
+    (10, 'red',    'red10.png'),
+    (11, 'green',  'green11.png'),
+    (1,  'normal', 'normal1.png'),
+    (2,  'green',  'green2.png'),
+    (3,  'green',  'green3.png'),
+    (4,  'green',  'green4.png'),
+    (5,  'normal', 'normal5.png'),
+    (6,  'green',  'green6.png'),
+    (7,  'normal', 'normal7.png'),
+    (8,  'green',  'green8.png'),
+    (9,  'normal', 'normal9.png'),
+    (10, 'red',    'red10.png'),
+    (11, 'green',  'green11.png'),
+    (1,  'normal', 'normal1.png'),
+    (2,  'green',  'green2.png'),
+    (3,  'green',  'green3.png'),
+    (4,  'green',  'green4.png'),
+    (5,  'normal', 'normal5.png'),
+    (6,  'green',  'green6.png'),
+    (7,  'normal', 'normal7.png'),
+    (8,  'green',  'green8.png'),
+    (9,  'normal', 'normal9.png'),
+    (10, 'red',    'red10.png'),
+    (11, 'green',  'green11.png');
+
 
 create table frog_user_cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -342,67 +389,21 @@ create table frog_user_cards (
     card_id INT,
     state VARCHAR(50),
     FOREIGN KEY (card_id) REFERENCES frog_cards(id) ON DELETE CASCADE,
-    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
 );
 
 
-
-
-INSERT INTO frog_cards (name, color)
-VALUES
-    -- Red cards
-    ('one', 'red'),
-    ('two', 'red'),
-    ('three', 'red'),
-    ('four', 'red'),
-    ('five', 'red'),
-    ('six', 'red'),
-    ('seven', 'red'),
-    ('eight', 'red'),
-    ('nine', 'red'),
-    ('chung', 'red'),
-
-    -- Green and Normal cards
-    ('bal', 'green'),
-    ('one', 'normal'),
-    ('two', 'green'),
-    ('three', 'green'),
-    ('four', 'green'),
-    ('five', 'normal'),
-    ('six', 'green'),
-    ('seven', 'normal'),
-    ('eight', 'green'),
-    ('nine', 'normal'),
-
-    -- Repeat for the sequence
-    ('chung', 'red'),
-    ('bal', 'green'),
-    ('one', 'normal'),
-    ('two', 'green'),
-    ('three', 'green'),
-    ('four', 'green'),
-    ('five', 'normal'),
-    ('six', 'green'),
-    ('seven', 'normal'),
-    ('eight', 'green'),
-    ('nine', 'normal'),
-
-    -- Third sequence
-    ('chung', 'red'),
-    ('bal', 'green'),
-    ('one', 'normal'),
-    ('two', 'green'),
-    ('three', 'green'),
-    ('four', 'green'),
-    ('five', 'normal'),
-    ('six', 'green'),
-    ('seven', 'normal'),
-    ('eight', 'green'),
-    ('nine', 'normal'),
-
-    -- Final sequence
-    ('chung', 'red'),
-    ('bal', 'green');
+create table frog_game_room_settings(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    room_id INT, 
+    timer INT, -- 게임 타이머
+    remaining_card_count INT, -- 남은 카드 수 
+    current_round INT,  -- 현재 라운드
+    FOREIGN KEY (room_id) REFERENCES game_rooms(id) ON DELETE CASCADE
+);
 
 
 -- find it 

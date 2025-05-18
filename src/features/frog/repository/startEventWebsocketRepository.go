@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"main/utils/db/mysql"
 
-	_errors "main/features/ws/model/errors"
+	_errors "main/features/frog/model/errors"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -50,7 +50,7 @@ func StartDeleteCards(ctx context.Context, tx *gorm.DB, roomID uint) *entity.Err
 
 // StartCheckOwner checks if the user is the room owner
 func StartCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) *entity.ErrorInfo {
-	room := mysql.Rooms{}
+	room := mysql.GameRooms{}
 	err := tx.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
 		return &entity.ErrorInfo{
@@ -102,7 +102,7 @@ func StartUpdateRoomUser(ctx context.Context, tx *gorm.DB, updateRoomUsers []mys
 
 // StartUpdateRoom updates the room's state
 func StartUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint, state string) *entity.ErrorInfo {
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", state)
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ? and state = ?", roomID, "wait").Update("state", state)
 	if err.Error != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500

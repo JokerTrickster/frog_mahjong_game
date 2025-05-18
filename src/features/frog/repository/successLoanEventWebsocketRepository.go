@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -100,7 +100,7 @@ func SuccessUpdateRoomUsers(ctx context.Context, tx *gorm.DB, successEntity *ent
 // SuccessLoanDiffCoin subtracts coins from a specific user
 func SuccessLoanDiffCoin(ctx context.Context, tx *gorm.DB, successEntity *entity.WSSuccessEntity) *entity.ErrorInfo {
 	coinExpr := fmt.Sprintf("coin - %d", successEntity.Score)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", successEntity.LoanInfo.TargetUserID).
 		Update("coin", gorm.Expr(coinExpr)).Error
 	if err != nil {
@@ -116,7 +116,7 @@ func SuccessLoanDiffCoin(ctx context.Context, tx *gorm.DB, successEntity *entity
 // SuccessLoanAddCoin adds coins to a specific user
 func SuccessLoanAddCoin(ctx context.Context, tx *gorm.DB, successEntity *entity.WSSuccessEntity) *entity.ErrorInfo {
 	coinExpr := fmt.Sprintf("coin + %d", successEntity.Score)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", successEntity.UserID).
 		Update("coin", gorm.Expr(coinExpr)).Error
 	if err != nil {

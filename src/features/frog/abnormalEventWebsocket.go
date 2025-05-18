@@ -3,9 +3,9 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	"main/features/frog/repository"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 	"sync"
 
@@ -14,7 +14,7 @@ import (
 
 var reconnectTimers sync.Map
 
-func AbnormalSendErrorMessage(roomID, userID uint,sessionID string) {
+func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 	// 비정상적인 에러 발생했으므로 비정상적 에러 처리하는 로직 실행
 
 	//business logic

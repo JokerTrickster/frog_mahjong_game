@@ -12,6 +12,6 @@ type ScoreCalculateEntity struct {
 
 type ScoreCalculateCard struct {
 	CardID uint   `json:"cardID"`
-	Name   string `json:"name"`
+	Count  int    `json:"count"`
 	Color  string `json:"color"`
 }

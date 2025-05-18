@@ -5,17 +5,15 @@ import (
 	"time"
 )
 
-func CreateMatchRoomDTO(uID uint, count int, timer int) *mysql.Rooms {
-	result := &mysql.Rooms{
+func CreateMatchRoomDTO(uID uint) *mysql.GameRooms {
+	result := &mysql.GameRooms{
 		CurrentCount: 0,
-		MaxCount:     count,
-		MinCount:     count,
+		MaxCount:     2,
+		MinCount:     2,
 		State:        "wait",
 		OwnerID:      int(uID),
-		Timer:        timer,
-		PlayTurn:     0,
 		Name:         "speed match",
-		GameID:       1,
+		GameID:       mysql.FROG,
 		StartTime:    time.Now(),
 	}
 	return result

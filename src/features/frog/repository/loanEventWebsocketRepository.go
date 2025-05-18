@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"main/utils/db/mysql"
 
-	_errors "main/features/ws/model/errors"
+	_errors "main/features/frog/model/errors"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

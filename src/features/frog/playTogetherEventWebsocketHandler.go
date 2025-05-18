@@ -3,10 +3,10 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils"
 	"main/utils/db/mysql"
 
@@ -77,7 +77,7 @@ func playTogether(c echo.Context) error {
 		//숫자로 이루어진 4개 랜덤값을 생성한다.
 		password := CreateRandomPassword()
 		// 방 생성
-		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 15, password)
+		roomDTO := CreatePlayTogetherRoomDTO(userID, 2, 30, password)
 		newRoomID, errInfo := repository.PlayTogetherInsertOneRoom(ctx, roomDTO)
 		if errInfo != nil {
 			SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)

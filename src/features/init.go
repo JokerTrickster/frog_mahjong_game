@@ -5,6 +5,7 @@ import (
 	boardGameHandler "main/features/board_game/handler"
 	chatHandler "main/features/chat/handler"
 	"main/features/find_it"
+	frog "main/features/frog"
 	gameHandler "main/features/game/handler"
 	gameAuthHandler "main/features/game_auth/handler"
 	gameProfileHandler "main/features/game_profiles/handler"
@@ -16,7 +17,6 @@ import (
 	slimeWar "main/features/slime_war"
 	userHandler "main/features/users/handler"
 	"main/features/v2ws"
-	"main/features/ws"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -39,12 +39,11 @@ func InitHandler(e *echo.Echo) error {
 	gameProfileHandler.NewGameProfilesHandler(e)
 	boardGameHandler.NewBoardGameHandler(e)
 	//websocket 초기화
-	ws.NewWebsocketHandler(e)
 	v2ws.NewV2WebsocketHandler(e)
 	find_it.NewFindItWebsocketHandler(e)
 	slimeWar.NewSlimeWarWebsocketHandler(e)
 	sequence.NewSequenceWebsocketHandler(e)
-	go ws.WSHandleMessages("frog")
+	frog.NewWebsocketHandler(e)
 
 	go v2ws.WSHandleMessages("wingspan")
 
@@ -53,6 +52,8 @@ func InitHandler(e *echo.Echo) error {
 	go slime_war.WSHandleMessages("slime-war")
 
 	go sequence.WSHandleMessages("sequence")
+
+	go frog.WSHandleMessages("frog")
 
 	return nil
 }

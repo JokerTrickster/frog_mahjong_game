@@ -3,10 +3,10 @@ package ws
 import (
 	"context"
 	"log"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"

@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -47,9 +47,9 @@ func PlayTogetherFindOneRoomUsers(ctx context.Context, userID uint) (uint, *enti
 }
 
 // PlayTogetherFindOneWaitingRoom retrieves a waiting room that matches the criteria
-func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.Rooms, *entity.ErrorInfo) {
-	var room mysql.Rooms
-	err := mysql.GormMysqlDB.Model(&mysql.Rooms{}).
+func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*mysql.GameRooms, *entity.ErrorInfo) {
+	var room mysql.GameRooms
+	err := mysql.GormMysqlDB.Model(&mysql.GameRooms{}).
 		Where("min_count = ?", count).
 		Where("max_count = ?", count).
 		Where("timer = ?", timer).
@@ -60,7 +60,7 @@ func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*my
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return &mysql.Rooms{}, nil
+			return &mysql.GameRooms{}, nil
 		}
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500
@@ -73,11 +73,11 @@ func PlayTogetherFindOneWaitingRoom(ctx context.Context, count, timer uint) (*my
 
 // PlayTogetherFindOneAndUpdateUser updates a user's room and state
 func PlayTogetherFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint, RoomID uint) *entity.ErrorInfo {
-	user := mysql.Users{
+	user := mysql.GameUsers{
 		RoomID: int(RoomID),
 		State:  "play",
 	}
-	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("id = ?", uID).Updates(user).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameUsers{}).Where("id = ?", uID).Updates(user).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500
@@ -89,7 +89,7 @@ func PlayTogetherFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint
 }
 
 // PlayTogetherInsertOneRoom inserts a new room
-func PlayTogetherInsertOneRoom(ctx context.Context, room mysql.Rooms) (int, *entity.ErrorInfo) {
+func PlayTogetherInsertOneRoom(ctx context.Context, room mysql.GameRooms) (int, *entity.ErrorInfo) {
 	if ((room.MaxCount >= room.MinCount) && (room.MaxCount >= 2 || room.MinCount >= 2)) == false {
 		return 0, &entity.ErrorInfo{
 			Code: _errors.ErrCodeBadRequest, // 400
@@ -122,11 +122,11 @@ func PlayTogetherInsertOneRoomUser(ctx context.Context, tx *gorm.DB, roomUser my
 }
 
 // PlayTogetherFindOneRoom retrieves a specific room by ID
-func PlayTogetherFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.Rooms, *entity.ErrorInfo) {
-	room := mysql.Rooms{}
+func PlayTogetherFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqWSJoin) (mysql.GameRooms, *entity.ErrorInfo) {
+	room := mysql.GameRooms{}
 	err := tx.WithContext(ctx).Where("id = ?", req.RoomID).First(&room).Error
 	if err != nil {
-		return mysql.Rooms{}, &entity.ErrorInfo{
+		return mysql.GameRooms{}, &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound, // 404
 			Msg:  "방 정보를 찾을 수 없습니다.",
 			Type: _errors.ErrRoomNotFound,
@@ -136,13 +136,12 @@ func PlayTogetherFindOneRoom(ctx context.Context, tx *gorm.DB, req *request.ReqW
 }
 
 // PlayTogetherFindOneAndUpdateRoom updates room details
-func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID, count, timer uint) *entity.ErrorInfo {
-	room := mysql.Rooms{
-		MaxCount: int(count),
-		MinCount: int(count),
-		Timer:    int(timer),
+func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
+	room := mysql.GameRooms{
+		MaxCount: 2,
+		MinCount: 2,
 	}
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Updates(room).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Updates(room).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500
@@ -155,7 +154,7 @@ func PlayTogetherFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, RoomID, 
 
 // PlayTogetherAddPlayerToRoom increments the current player count in the room
 func PlayTogetherAddPlayerToRoom(ctx context.Context, tx *gorm.DB, RoomID uint) *entity.ErrorInfo {
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1")).Error
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", RoomID).Update("current_count", gorm.Expr("current_count + 1")).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal, // 500

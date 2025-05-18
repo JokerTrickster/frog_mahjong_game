@@ -379,7 +379,7 @@ func CreateScoreCalculateEntity(cardsDTO []mysql.Cards, cards []request.ScoreCar
 			if card.CardID == uint(cardDTO.CardID) {
 				result.Cards = append(result.Cards, entity.ScoreCalculateCard{
 					CardID: uint(cardDTO.CardID),
-					Name:   cardDTO.Name,
+					Count:  cardDTO.Count,
 					Color:  cardDTO.Color,
 				})
 				break
@@ -399,7 +399,7 @@ func CreateResultEntity(cardsDTO []*entity.ResultCardEntity, cards []request.Res
 			if card.CardID == uint(cardDTO.CardID) {
 				result.Cards = append(result.Cards, entity.ScoreCalculateCard{
 					CardID: uint(cardDTO.CardID),
-					Name:   cardDTO.Name,
+					Count:  cardDTO.Count,
 					Color:  cardDTO.Color,
 				})
 				break
@@ -567,7 +567,7 @@ func CreateResListCard(cards []*mysql.FrogCards, count int) response.ResListCard
 	for _, card := range cards {
 		c := response.FrogCard{
 			ID:    int(card.ID),
-			Name:  card.Name,
+			Count: card.Count,
 			Color: card.Color,
 		}
 		res.Cards = append(res.Cards, c)
@@ -579,7 +579,7 @@ func CreateResListCard(cards []*mysql.FrogCards, count int) response.ResListCard
 func CreateResultCardEntity(cardDTO *mysql.FrogUserCards, frogCard *mysql.FrogCards) *entity.ResultCardEntity {
 	return &entity.ResultCardEntity{
 		CardID: uint(cardDTO.CardID),
-		Name:   frogCard.Name,
+		Count:  frogCard.Count,
 		Color:  frogCard.Color,
 		State:  cardDTO.State,
 	}

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"main/features/ws/model/entity"
-	v2entity"main/features/v2ws/model/entity"
+	"main/features/frog/model/entity"
+	v2entity "main/features/v2ws/model/entity"
 	"os"
 	"reflect"
 	"time"
@@ -125,7 +125,6 @@ func (l *Log) V2MakeWSLog(msg v2entity.WSMessage) error {
 	l.Message = msg.Message
 	return nil
 }
-
 
 func (l *Log) MakeErrorLog(res Err) error {
 	l.Type = "error"

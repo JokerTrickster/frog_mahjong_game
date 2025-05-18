@@ -7,6 +7,6 @@ type ResListCardGame struct {
 
 type FrogCard struct {
 	ID    int    `json:"id"`
-	Name  string `json:"name"`
+	Count int    `json:"count"`
 	Color string `json:"color"`
 }

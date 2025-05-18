@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"main/utils/db/mysql"
 )
 

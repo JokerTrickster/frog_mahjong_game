@@ -3,8 +3,8 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"

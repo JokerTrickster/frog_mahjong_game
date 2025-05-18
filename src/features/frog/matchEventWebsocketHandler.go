@@ -3,10 +3,10 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
-	"main/features/ws/model/request"
-	"main/features/ws/repository"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
+	"main/features/frog/model/request"
+	"main/features/frog/repository"
 	"main/utils"
 	"main/utils/db/mysql"
 
@@ -64,35 +64,6 @@ func match(c echo.Context) error {
 		SendWebSocketCloseMessage(ws, _errors.ErrCodeBadRequest, err.Error())
 		return nil
 	}
-	// 재접속 확인
-	// 유저 상태가 abnormal 이면 해당 roomID를 가지고 온다.
-	if req.SessionID != "" {
-		roomID, _ := repository.MatchRedisSessionGet(context.Background(), req.SessionID)
-		if roomID != 0 {
-			//방이 존재하는지 체크
-			errInfo = repository.MatchFindOneRoom(ctx, roomID)
-			// 방이 존재하지 않는 경우 세션 삭제
-			if errInfo.Msg == gorm.ErrRecordNotFound.Error() {
-				_ = repository.RedisSessionDelete(ctx, req.SessionID)
-			} else {
-				// 방이 존재하는 경우
-				// 기존 연결 복구
-				if client, exists := entity.WSClients[req.SessionID]; exists {
-					closeAndRemoveClient(client, req.SessionID, roomID)
-				}
-
-				restoreSession(ws, req.SessionID, roomID, userID)
-
-				// 기존 유저 상태 변경
-				err := repository.MatchPlayerStateUpdate(context.Background(), roomID, userID)
-				if err != nil {
-					SendWebSocketCloseMessage(ws, err.Code, err.Msg)
-					return nil
-				}
-				return nil
-			}
-		}
-	}
 	// 비즈니스 로직
 	// var roomInfoMsg entity.RoomInfo
 	var roomID uint
@@ -103,7 +74,7 @@ func match(c echo.Context) error {
 		return nil
 	}
 	// 대기중인 방이 있는지 체크
-	rooms, errInfo := repository.MatchFindOneWaitingRoom(ctx, uint(req.Count), uint(req.Timer))
+	rooms, errInfo := repository.MatchFindOneWaitingRoom(ctx)
 	if errInfo != nil {
 		SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)
 		return nil
@@ -113,7 +84,7 @@ func match(c echo.Context) error {
 		if rooms.ID == 0 && err == nil {
 			//대기 방이 없는 경우
 			// 방 생성
-			roomDTO := CreateMatchRoomDTO(userID, req.Count, req.Timer)
+			roomDTO := CreateMatchRoomDTO(userID)
 			newRoomID, errInfo := repository.MatchInsertOneRoom(ctx, roomDTO)
 			if errInfo != nil {
 				SendWebSocketCloseMessage(ws, errInfo.Code, errInfo.Msg)

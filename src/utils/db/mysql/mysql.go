@@ -24,6 +24,7 @@ const (
 	FIND_IT   = 1
 	SLIME_WAR = 2
 	SEQUENCE  = 3
+	FROG      = 4
 )
 
 func InitMySQL() error {

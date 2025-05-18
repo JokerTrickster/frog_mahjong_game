@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -76,7 +76,7 @@ func FailedLoanRollbackCard(ctx context.Context, tx *gorm.DB, loanEntity *entity
 // FailedLoanPenalty deducts a penalty coin from the user
 func FailedLoanPenalty(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity, penaltyCoin int) *entity.ErrorInfo {
 	penaltyStr := fmt.Sprintf("coin - %d", penaltyCoin)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", loanEntity.UserID).
 		Updates(map[string]interface{}{
 			"coin": gorm.Expr(penaltyStr),
@@ -93,7 +93,7 @@ func FailedLoanPenalty(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLo
 
 // FailedLoanAddCoin adds coins to all players except the loan user
 func FailedLoanAddCoin(ctx context.Context, tx *gorm.DB, loanEntity *entity.WSLoanEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id != ?", loanEntity.UserID).
 		Where("room_id = ?", loanEntity.RoomID).
 		Updates(map[string]interface{}{

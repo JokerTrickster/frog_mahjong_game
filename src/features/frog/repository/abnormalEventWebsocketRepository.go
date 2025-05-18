@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -45,9 +45,9 @@ func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, abnormalEntity *en
 
 // AbnormalDeleteRoom deletes a room by room ID
 func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, abnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	if err := tx.Model(&mysql.Rooms{}).
+	if err := tx.Model(&mysql.GameRooms{}).
 		Where("id = ?", abnormalEntity.RoomID).
-		Delete(&mysql.Rooms{}).Error; err != nil {
+		Delete(&mysql.GameRooms{}).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "방 삭제 실패",

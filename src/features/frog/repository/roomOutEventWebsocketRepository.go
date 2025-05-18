@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -21,7 +21,7 @@ func RoomOutFindAllRoomUsers(ctx context.Context, tx *gorm.DB, roomID uint) ([]e
 
 func RoomOutCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) error {
 	// 방장인지 체크
-	room := mysql.Rooms{}
+	room := mysql.GameRooms{}
 	err := tx.WithContext(ctx).Where("id = ?", roomID).First(&room).Error
 	if err != nil {
 		return fmt.Errorf("방 정보를 찾을 수 없습니다. %v", err)
@@ -34,7 +34,7 @@ func RoomOutCheckOwner(ctx context.Context, tx *gorm.DB, uID uint, roomID uint) 
 
 func RoomOutUpdateUser(ctx context.Context, tx *gorm.DB, targetUserID uint, roomID uint) error {
 	// 타겟 유저 데이터 변경 (플레이 상태, 룸ID)
-	err := tx.WithContext(ctx).Model(&mysql.Users{}).Where("id = ?", targetUserID).Updates(mysql.Users{RoomID: int(1), State: "wait"})
+	err := tx.WithContext(ctx).Model(&mysql.GameUsers{}).Where("id = ?", targetUserID).Updates(mysql.GameUsers{RoomID: int(1), State: "wait"})
 	if err.Error != nil {
 		return fmt.Errorf("유저 정보 업데이트 실패: %v", err.Error)
 	}
@@ -53,7 +53,7 @@ func RoomOutDeleteRoomUser(ctx context.Context, tx *gorm.DB, targetUserID uint, 
 
 func RoomOutUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint) error {
 	// 방 현재 인원을 감소시킨다.
-	err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
+	err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", roomID).Update("current_count", gorm.Expr("current_count - 1"))
 	if err.Error != nil {
 		return fmt.Errorf("방 인원수 업데이트 실패: %v", err.Error)
 	}

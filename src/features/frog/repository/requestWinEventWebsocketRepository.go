@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -97,7 +97,7 @@ func RequestWinUpdateRoomUsers(c context.Context, tx *gorm.DB, requestWinEntity 
 // RequestWinLoanDiffCoin subtracts coins from the target user in loan case
 func RequestWinLoanDiffCoin(c context.Context, tx *gorm.DB, requestWinEntity *entity.WSRequestWinEntity) *entity.ErrorInfo {
 	coinStr := fmt.Sprintf("coin - %d", requestWinEntity.Score)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", requestWinEntity.LoanInfo.TargetUserID).
 		Update("coin", gorm.Expr(coinStr)).Error
 	if err != nil {
@@ -113,7 +113,7 @@ func RequestWinLoanDiffCoin(c context.Context, tx *gorm.DB, requestWinEntity *en
 // RequestWinLoanAddCoin adds coins to the winning user in loan case
 func RequestWinLoanAddCoin(c context.Context, tx *gorm.DB, requestWinEntity *entity.WSRequestWinEntity) *entity.ErrorInfo {
 	coinStr := fmt.Sprintf("coin + %d", requestWinEntity.Score)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", requestWinEntity.UserID).
 		Update("coin", gorm.Expr(coinStr)).Error
 	if err != nil {
@@ -129,7 +129,7 @@ func RequestWinLoanAddCoin(c context.Context, tx *gorm.DB, requestWinEntity *ent
 // RequestWinDiffCoin subtracts coins from all players except the winner
 func RequestWinDiffCoin(c context.Context, tx *gorm.DB, requestWinEntity *entity.WSRequestWinEntity, coin int) *entity.ErrorInfo {
 	coinStr := fmt.Sprintf("coin - %d", coin)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("room_id = ? and id != ?", requestWinEntity.RoomID, requestWinEntity.UserID).
 		Update("coin", gorm.Expr(coinStr)).Error
 	if err != nil {
@@ -145,7 +145,7 @@ func RequestWinDiffCoin(c context.Context, tx *gorm.DB, requestWinEntity *entity
 // RequestWinAddCoin adds coins to the winner in non-loan case
 func RequestWinAddCoin(c context.Context, tx *gorm.DB, requestWinEntity *entity.WSRequestWinEntity) *entity.ErrorInfo {
 	coinStr := fmt.Sprintf("coin + %d", requestWinEntity.Score)
-	err := tx.Model(&mysql.Users{}).
+	err := tx.Model(&mysql.GameUsers{}).
 		Where("id = ?", requestWinEntity.UserID).
 		Update("coin", gorm.Expr(coinStr)).Error
 	if err != nil {

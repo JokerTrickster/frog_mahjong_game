@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"main/features/ws/model/entity"
+	"main/features/frog/model/entity"
 	"time"
 
-	_errors "main/features/ws/model/errors"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 	_redis "main/utils/db/redis"
 
@@ -97,7 +97,7 @@ func RedisSessionDelete(ctx context.Context, sessionID string) *entity.ErrorInfo
 }
 
 func DeleteAllRooms(ctx context.Context, tx *gorm.DB, userID uint) *entity.ErrorInfo {
-	if err := tx.Model(&mysql.Rooms{}).Where("owner_id = ?", userID).Delete(&mysql.Rooms{}).Error; err != nil {
+	if err := tx.Model(&mysql.GameRooms{}).Where("owner_id = ?", userID).Delete(&mysql.GameRooms{}).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("방 삭제 실패: %v", err.Error()),

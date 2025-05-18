@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"main/features/ws/model/entity"
-	_errors "main/features/ws/model/errors"
+	"main/features/frog/model/entity"
+	_errors "main/features/frog/model/errors"
 	"main/utils/db/mysql"
 
 	"gorm.io/gorm"
@@ -42,8 +42,8 @@ func CancelMatchDeleteOneRoomUser(ctx context.Context, tx *gorm.DB, roomID, uID 
 }
 
 // CancelMatchFindOneAndUpdateRoom updates room information and deletes it if empty
-func CancelMatchFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.Rooms, *entity.ErrorInfo) {
-	var room mysql.Rooms
+func CancelMatchFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, roomID uint) (*mysql.GameRooms, *entity.ErrorInfo) {
+	var room mysql.GameRooms
 	if err := tx.WithContext(ctx).Model(&room).Where("id = ?", roomID).First(&room).Error; err != nil {
 		return nil, &entity.ErrorInfo{
 			Code: _errors.ErrCodeNotFound,
@@ -73,7 +73,7 @@ func CancelMatchFindOneAndUpdateRoom(ctx context.Context, tx *gorm.DB, roomID ui
 
 // CancelMatchFindOneAndUpdateUser updates user information to default state
 func CancelMatchFindOneAndUpdateUser(ctx context.Context, tx *gorm.DB, uID uint) *entity.ErrorInfo {
-	user := &mysql.Users{
+	user := &mysql.GameUsers{
 		RoomID: 1,
 		State:  "wait",
 	}
@@ -102,7 +102,7 @@ func CancelMatchFindOneRoomUser(ctx context.Context, tx *gorm.DB, roomID uint) (
 
 // CancelMatchUpdateRoomOwner updates the owner of the room
 func CancelMatchUpdateRoomOwner(ctx context.Context, tx *gorm.DB, roomID uint, roomUserID uint) *entity.ErrorInfo {
-	if err := tx.WithContext(ctx).Model(&mysql.Rooms{}).Where("id = ?", roomID).Update("owner_id", roomUserID).Error; err != nil {
+	if err := tx.WithContext(ctx).Model(&mysql.GameRooms{}).Where("id = ?", roomID).Update("owner_id", roomUserID).Error; err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
 			Msg:  "방장 변경 실패",
