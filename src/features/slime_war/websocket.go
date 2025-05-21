@@ -2,7 +2,6 @@ package slime_war
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"main/features/slime_war/model/entity"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 /*
@@ -34,22 +32,11 @@ const (
 	PingPeriod = 5 * time.Second // PongWait의 1/3~1/2
 )
 
-func processMessage(gameName string, d amqp.Delivery) {
-	var msg entity.WSMessage
-
-	// Parse JSON message
-	err := json.Unmarshal(d.Body, &msg)
-	if err != nil {
-		log.Printf("Failed to unmarshal JSON for %s: %v", gameName, err)
-		d.Nack(false, false) // Reject message, don't requeue
-		return
-	}
-
+func processMessage(gameName string, msg entity.WSMessage) {
 	utils.LogInfo(fmt.Sprintf("[slime-war] Received message: %v \n", msg))
 	var errInfo *entity.ErrorInfo
 	// 이벤트 처리
 	switch msg.Event {
-
 	case "MATCH":
 		errInfo = MatchEventWebsocket(&msg)
 	case "START":
@@ -70,68 +57,20 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = HeroEventWebsocket(&msg)
 	case "GET_CARD":
 		errInfo = GetCardEventWebsocket(&msg)
-
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
-		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음
 		return
 	}
 	if errInfo != nil {
 		SendErrorMessage(&msg, errInfo)
-		d.Ack(false)
 	}
-	// Acknowledge message after successful processing
-	d.Ack(false)
 }
 
 func WSHandleMessages(gameName string) {
-	rabbitManager := utils.GetRabbitMQManager()
-
-	// 메시지 발행
 	go func() {
 		for {
 			msg := <-entity.WSBroadcast
-			msgBytes, err := json.Marshal(msg)
-			if err != nil {
-				log.Printf("Failed to marshal WSMessage: %v", err)
-				continue
-			}
-
-			if err := rabbitManager.PublishMessage(gameName, msgBytes); err != nil {
-				log.Printf("Failed to publish message to slime-war queue: %v", err)
-			}
-		}
-	}()
-
-	// 메시지 소비
-	go func() {
-		for {
-			channel, err := rabbitManager.GetChannel(gameName)
-			if err != nil {
-				log.Printf("Failed to get channel for slime-war queue: %v", err)
-				time.Sleep(5 * time.Second) // 재시도 대기
-				continue
-			}
-
-			msgs, err := channel.Consume(
-				gameName, // Queue name
-				"",       // Consumer tag
-				false,    // Auto-ack
-				false,    // Exclusive
-				false,    // No-local
-				false,    // No-wait
-				nil,      // Arguments
-			)
-			if err != nil {
-				log.Printf("Failed to register consumer for slime-war queue: %v", err)
-				time.Sleep(5 * time.Second) // 재시도 대기
-				continue
-			}
-
-			log.Printf("Waiting for messages for game: %s (slime-war)", gameName)
-			for msg := range msgs {
-				processMessage(gameName, msg)
-			}
+			processMessage(gameName, msg)
 		}
 	}()
 }

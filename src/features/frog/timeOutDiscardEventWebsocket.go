@@ -42,6 +42,10 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo 
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 
+		errInfo = repository.UpdateRound(ctx, tx, roomID)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
 		if err != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -56,7 +60,7 @@ func TimeOutDiscardCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo 
 	if errInfo != nil {
 		return errInfo
 	}
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound, roomInfoMsg.ErrorInfo)
 
 	// 론 가능 여부를 true로 변경
 	roomInfoMsg.GameInfo.IsLoanAllowed = true

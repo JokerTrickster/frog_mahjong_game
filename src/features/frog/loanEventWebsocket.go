@@ -68,7 +68,7 @@ func LoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if errInfo != nil {
 		return errInfo
 	}
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound, roomInfoMsg.ErrorInfo)
 
 	//론한 유저에 대한 정보를 게임정보에 저장한다.
 	LoanInfo := entity.LoanInfo{

@@ -78,7 +78,7 @@ func SuccessLoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if errInfo != nil {
 		return errInfo
 	}
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound, roomInfoMsg.ErrorInfo)
 
 	//승리 유저 카드 정보 순서 저장
 	cards := []*entity.Card{}

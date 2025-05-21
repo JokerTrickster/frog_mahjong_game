@@ -53,6 +53,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		errInfo = repository.UpdateRound(ctx, tx, roomID)
 
 		preloadUsers, errInfo = repository.PreloadFindGameInfo(ctx, tx, roomID)
 		if errInfo != nil {
@@ -69,7 +70,7 @@ func ImportCardsEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if errInfo != nil {
 		return errInfo
 	}
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound, roomInfoMsg.ErrorInfo)
 	message, err := CreateMessage(&roomInfoMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeInternal, err.Error(), _errors.ErrGameTerminated)

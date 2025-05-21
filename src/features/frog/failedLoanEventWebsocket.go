@@ -67,7 +67,7 @@ func FailedLoanEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	if errInfo != nil {
 		return errInfo
 	}
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound+1, roomInfoMsg.ErrorInfo)
+	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, gameRoomSettings.CurrentRound, roomInfoMsg.ErrorInfo)
 
 	// 론 가능 여부를 true로 변경
 	roomInfoMsg.GameInfo.IsLoanAllowed = true
