@@ -73,3 +73,12 @@ func CreateInitCards(roomID uint, cards []mysql.FrogCards) []mysql.FrogUserCards
 
 	return userCards
 }
+
+func CreateFrogGameRoomSettingsDTO(roomID uint) *mysql.FrogGameRoomSettings {
+	return &mysql.FrogGameRoomSettings{
+		RoomID:             int(roomID),
+		Timer:              30,
+		RemainingCardCount: 44,
+		CurrentRound:       0,
+	}
+}

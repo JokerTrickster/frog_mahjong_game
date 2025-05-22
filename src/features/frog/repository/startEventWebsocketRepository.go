@@ -138,3 +138,15 @@ func StartFindCards(ctx context.Context, tx *gorm.DB) ([]mysql.FrogCards, *entit
 	}
 	return cards, nil
 }
+
+func StartCreateFrogGameRoomSettings(ctx context.Context, tx *gorm.DB, frogGameRoomSettingsDTO *mysql.FrogGameRoomSettings) *entity.ErrorInfo {
+	err := tx.WithContext(ctx).Create(frogGameRoomSettingsDTO)
+	if err.Error != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal, // 500
+			Msg:  "게임 룸 설정 생성 실패",
+			Type: _errors.ErrCreateFailed,
+		}
+	}
+	return nil
+}

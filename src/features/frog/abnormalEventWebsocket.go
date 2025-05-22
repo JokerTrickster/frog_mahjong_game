@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"main/features/frog/model/entity"
-	"main/features/frog/repository"
 	_errors "main/features/frog/model/errors"
+	"main/features/frog/repository"
 	"main/utils/db/mysql"
 	"sync"
 
@@ -66,6 +66,18 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 		Message: message,
 	}
 	sendMessageToClients(roomID, &msg)
-	// 재접속 대기 시작
-	waitForReconnection(roomID, sessionID, preloadUsers)
+	// `entity.WSClients`에서 sessionID가 존재하는지 확인
+	if _, exists := entity.WSClients[sessionID]; !exists {
+		fmt.Printf("Session %s does not exist in WSClients. Skipping cleanup.\n", sessionID)
+		return
+	}
+
+	// `entity.RoomSessions`에서 roomID가 존재하는지 확인
+	if _, exists := entity.RoomSessions[roomID]; !exists {
+		fmt.Printf("Room %d does not exist in RoomSessions. Skipping cleanup.\n", roomID)
+		return
+	}
+
+	fmt.Printf("Session %s in room %d failed to reconnect. Cleaning up.\n", sessionID, roomID)
+	cleanupSession(roomID, sessionID, preloadUsers)
 }
