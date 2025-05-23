@@ -40,3 +40,7 @@ type SequenceResultBoardGameRepository struct {
 type GameOverBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type FrogCardListBoardGameRepository struct {
+	GormDB *gorm.DB
+}

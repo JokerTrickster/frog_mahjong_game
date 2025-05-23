@@ -38,3 +38,7 @@ type ISequenceRankBoardGameHandler interface {
 type IGameOverBoardGameHandler interface {
 	GameOver(c echo.Context) error
 }
+
+type IFrogCardListBoardGameHandler interface {
+	FrogCardList(c echo.Context) error
+}

@@ -50,3 +50,8 @@ type ISequenceRankBoardGameRepository interface {
 type IGameOverBoardGameRepository interface {
 	GameOverInsertGameResult(ctx context.Context, gameResultDTO *mysql.GameResults) error
 }
+
+type IFrogCardListBoardGameRepository interface {
+	FindFrogCard(ctx context.Context) ([]*mysql.FrogCards, error)
+	CountFrogCard(ctx context.Context) (int, error)
+}

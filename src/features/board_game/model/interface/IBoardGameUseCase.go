@@ -44,3 +44,7 @@ type ISequenceRankBoardGameUseCase interface {
 type IGameOverBoardGameUseCase interface {
 	GameOver(c context.Context, userID int, req *request.ReqGameOverBoardGame) error
 }
+
+type IFrogCardListBoardGameUseCase interface {
+	FrogCardList(c context.Context) (response.ResFrogCardListBoardGame, error)
+}

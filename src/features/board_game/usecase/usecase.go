@@ -64,3 +64,19 @@ func CreateSequenceRankUser(userDTO *mysql.GameUsers, correctDTO *entity.Sequenc
 		ProfileID: int(userDTO.ProfileID),
 	}
 }
+
+func CreateResFrogCardList(cards []*mysql.FrogCards, count int) response.ResFrogCardListBoardGame {
+	res := response.ResFrogCardListBoardGame{
+		TotalCount: count,
+	}
+	for _, card := range cards {
+		c := response.FrogCard{
+			ID:    int(card.ID),
+			Count: card.Count,
+			Color: card.Color,
+		}
+		res.Cards = append(res.Cards, c)
+	}
+	return res
+
+}

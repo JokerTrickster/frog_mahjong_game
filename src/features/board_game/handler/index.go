@@ -19,4 +19,5 @@ func NewBoardGameHandler(c *echo.Echo) {
 	NewSequenceResultBoardGameHandler(c, usecase.NewSequenceResultBoardGameUseCase(repository.NewSequenceResultBoardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewSequenceRankBoardGameHandler(c, usecase.NewSequenceRankBoardGameUseCase(repository.NewSequenceRankBoardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 	NewGameOverBoardGameHandler(c, usecase.NewGameOverBoardGameUseCase(repository.NewGameOverBoardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
+	NewFrogCardListBoardGameHandler(c, usecase.NewFrogCardListBoardGameUseCase(repository.NewFrogCardListBoardGameRepository(mysql.GormMysqlDB), mysql.DBTimeOut))
 }
