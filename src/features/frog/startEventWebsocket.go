@@ -56,6 +56,12 @@ func StartEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
+		//게임 룸 셋팅
+		frogGameRoomSettingsDTO := CreateFrogGameRoomSettingsDTO(roomID)
+		errInfo = repository.StartCreateFrogGameRoomSettings(ctx, tx, frogGameRoomSettingsDTO)
+		if errInfo != nil {
+			return fmt.Errorf("%s", errInfo.Msg)
+		}
 
 		// cards 데이터 생성
 		userCards := CreateInitCards(roomID, cards)

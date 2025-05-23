@@ -71,19 +71,10 @@ func (r *RabbitMQManager) connect() error {
 	}
 
 	// `frog` 채널 및 큐 초기화
-	if err := r.initChannelAndQueue("frog"); err != nil {
-		return err
-	}
-	// `frog` 채널 및 큐 초기화
 	if err := r.initChannelAndQueue("find-it"); err != nil {
 		return err
 	}
-	if err := r.initChannelAndQueue("slime-war"); err != nil {
-		return err
-	}
-	if err := r.initChannelAndQueue("sequence"); err != nil {
-		return err
-	}
+
 	return nil
 }
 

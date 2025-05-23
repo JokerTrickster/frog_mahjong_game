@@ -154,7 +154,7 @@ func CreateErrorMessage(errCode int, errType, errMsg string) *entity.ErrorInfo {
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 	// 로그 메시지 생성
-	utils.LogError(msg.Message)
+	utils.LogInfo(msg.Message)
 
 	// // 메시지 암호화
 	// encryptedMessage, err := utils.EncryptAES(msg.Message)
