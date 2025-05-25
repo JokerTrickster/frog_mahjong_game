@@ -1,4 +1,22 @@
 definitions:
+  main_features_board_game_model_response.FrogCard:
+    properties:
+      color:
+        type: string
+      count:
+        type: integer
+      id:
+        type: integer
+    type: object
+  main_features_game_model_response.FrogCard:
+    properties:
+      color:
+        type: string
+      count:
+        type: integer
+      id:
+        type: integer
+    type: object
   main_features_game_profiles_model_response.Profile:
     properties:
       image:
@@ -599,15 +617,6 @@ definitions:
       userID:
         type: integer
     type: object
-  response.FrogCard:
-    properties:
-      color:
-        type: string
-      count:
-        type: integer
-      id:
-        type: integer
-    type: object
   response.GameInfo:
     properties:
       category:
@@ -732,6 +741,15 @@ definitions:
           $ref: '#/definitions/response.SoloPlayGameInfo'
         type: array
     type: object
+  response.ResFrogCardListBoardGame:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/main_features_board_game_model_response.FrogCard'
+        type: array
+      totalCount:
+        type: integer
+    type: object
   response.ResGameGoogleOauthCallback:
     properties:
       accessToken:
@@ -804,7 +822,7 @@ definitions:
     properties:
       cards:
         items:
-          $ref: '#/definitions/response.FrogCard'
+          $ref: '#/definitions/main_features_game_model_response.FrogCard'
         type: array
       totalCount:
         type: integer
@@ -1418,6 +1436,33 @@ paths:
       summary: 함께하기 방 생성 (패스워드 발급) (ws)
       tags:
       - ws
+  /frog/v0.1/game/cards:
+    get:
+      description: |-
+        ■ errCode with 400
+        PARAM_BAD : 파라미터 오류
+        NOT_OWNER : 방장이 시작 요청을 하지 않음
+        NOT_FIRST_PLAYER : 첫 플레이어가 아님
+
+        ■ errCode with 500
+        INTERNAL_SERVER : 내부 로직 처리 실패
+        INTERNAL_DB : DB 처리 실패
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResFrogCardListBoardGame'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: 개굴작 카드 정보 리스트 가져오기
+      tags:
+      - app/board-game/game
   /frog/v0.1/rooms/join/play/ws:
     get:
       description: |-

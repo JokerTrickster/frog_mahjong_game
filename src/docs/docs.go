@@ -434,6 +434,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/frog/v0.1/game/cards": {
+            "get": {
+                "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nNOT_OWNER : 방장이 시작 요청을 하지 않음\nNOT_FIRST_PLAYER : 첫 플레이어가 아님\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app/board-game/game"
+                ],
+                "summary": "개굴작 카드 정보 리스트 가져오기",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResFrogCardListBoardGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/frog/v0.1/rooms/join/play/ws": {
             "get": {
                 "description": "■ errCode with 400\nPARAM_BAD : 파라미터 오류\nUSER_NOT_FOUND : 유저를 찾을 수 없음\nUSER_ALREADY_EXISTED : 이미 존재하는 유저\nRoom_NOT_FOUND : 방을 찾을 수 없음\nRoom_FULL : 방이 꽉 참\nRoom_USER_NOT_FOUND : 방 유저를 찾을 수 없음\n\n■ errCode with 500\nINTERNAL_SERVER : 내부 로직 처리 실패\nINTERNAL_DB : DB 처리 실패\nPLAYER_STATE_CHANGE_FAILED : 플레이어 상태 변경 실패",
@@ -4185,6 +4213,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main_features_board_game_model_response.FrogCard": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main_features_game_model_response.FrogCard": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "main_features_game_profiles_model_response.Profile": {
             "type": "object",
             "properties": {
@@ -5106,20 +5162,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.FrogCard": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "count": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "response.GameInfo": {
             "type": "object",
             "properties": {
@@ -5312,6 +5354,20 @@ const docTemplate = `{
                 }
             }
         },
+        "response.ResFrogCardListBoardGame": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main_features_board_game_model_response.FrogCard"
+                    }
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.ResGameGoogleOauthCallback": {
             "type": "object",
             "properties": {
@@ -5423,7 +5479,7 @@ const docTemplate = `{
                 "cards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.FrogCard"
+                        "$ref": "#/definitions/main_features_game_model_response.FrogCard"
                     }
                 },
                 "totalCount": {
