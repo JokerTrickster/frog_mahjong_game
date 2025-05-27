@@ -62,7 +62,15 @@ func CreateMatchRoomUserDTO(roomID uint, userID uint) *mysql.GameRoomUsers {
 
 func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUsers, playTurn int, MessageInfoError *entity.ErrorInfo, selectCardID int) *entity.MessageInfo {
 	MessageInfoMsg := entity.MessageInfo{}
-	gameRoomSetting := &entity.SlimeWarGameInfo{}
+	gameRoomSetting := &entity.SlimeWarGameInfo{
+		KingPosition: 0,
+		Timer:        0,
+		SlimeCount:   0,
+		Round:        0,
+		IsFull:       false,
+		AllReady:     false,
+		GameOver:     false,
+	}
 	dropedDummyIndices := make([]int, 0)
 	remainingDummyIndices := make([]int, 0)
 	password := ""
@@ -152,7 +160,6 @@ func CreateMessageInfoMSG(ctx context.Context, preloadUsers []entity.PreloadUser
 		MessageInfoMsg.ErrorInfo = MessageInfoError
 	}
 	return &MessageInfoMsg
-
 }
 func CreateChatMessage(chatInfoMsg *entity.ChatInfo) (string, error) {
 	// 구조체를 JSON 문자열로 변환 (마샬링)
