@@ -10,9 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// 카드 정보 모두 삭제
 func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.UserBirdCards{}).Error
+	err := tx.Model(&mysql.SlimeWarRoomCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SlimeWarRoomCards{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -23,7 +22,42 @@ func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *en
 	return nil
 }
 
-// 방 삭제 처리
+func AbnormalDeleteAllMaps(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SlimeWarRoomMaps{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SlimeWarRoomMaps{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("맵 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteMapFailed,
+		}
+	}
+	return nil
+}
+
+func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SlimeWarUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SlimeWarUsers{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 유저 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteRoomUserFailed,
+		}
+	}
+	return nil
+}
+
+func AbnormalDeleteGameRoomSetting(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SlimeWarGameRoomSettings{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SlimeWarGameRoomSettings{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("게임 셋팅 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteGameRoomSettingFailed,
+		}
+	}
+	return nil
+}
+
 func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
 	err := tx.Model(&mysql.GameRooms{}).Where("id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRooms{}).Error
 	if err != nil {
@@ -31,19 +65,6 @@ func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity
 			Code: _errors.ErrCodeInternal,
 			Msg:  fmt.Sprintf("방 삭제 실패: %v", err),
 			Type: _errors.ErrDeleteRoomFailed,
-		}
-	}
-	return nil
-}
-
-// 방 유저 정보 삭제
-func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.GameRoomUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRoomUsers{}).Error
-	if err != nil {
-		return &entity.ErrorInfo{
-			Code: _errors.ErrCodeInternal,
-			Msg:  fmt.Sprintf("방 유저 삭제 실패: %v", err),
-			Type: _errors.ErrDeleteRoomUserFailed,
 		}
 	}
 	return nil

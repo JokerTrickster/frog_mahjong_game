@@ -10,9 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// 카드 정보 모두 삭제
 func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.UserBirdCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.UserBirdCards{}).Error
+	err := tx.Model(&mysql.SequenceRoomCards{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SequenceRoomCards{}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
@@ -22,8 +21,42 @@ func AbnormalDeleteAllCards(ctx context.Context, tx *gorm.DB, AbnormalEntity *en
 	}
 	return nil
 }
+func AbnormalDeleteAllMaps(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SequenceRoomMaps{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SequenceRoomMaps{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("맵 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteMapFailed,
+		}
+	}
+	return nil
+}
 
-// 방 삭제 처리
+func AbnormalDeleteGameRoomSetting(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SequenceGameRoomSettings{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SequenceGameRoomSettings{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("게임 셋팅 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteGameRoomSettingFailed,
+		}
+	}
+	return nil
+}
+
+func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
+	err := tx.Model(&mysql.SequenceUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.SequenceUsers{}).Error
+	if err != nil {
+		return &entity.ErrorInfo{
+			Code: _errors.ErrCodeInternal,
+			Msg:  fmt.Sprintf("방 유저 삭제 실패: %v", err),
+			Type: _errors.ErrDeleteRoomUserFailed,
+		}
+	}
+	return nil
+}
+
 func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
 	err := tx.Model(&mysql.GameRooms{}).Where("id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRooms{}).Error
 	if err != nil {
@@ -36,26 +69,12 @@ func AbnormalDeleteRoom(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity
 	return nil
 }
 
-// 방 유저 정보 삭제
-func AbnormalDeleteRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.GameRoomUsers{}).Where("room_id = ?", AbnormalEntity.RoomID).Delete(&mysql.GameRoomUsers{}).Error
-	if err != nil {
-		return &entity.ErrorInfo{
-			Code: _errors.ErrCodeInternal,
-			Msg:  fmt.Sprintf("방 유저 삭제 실패: %v", err),
-			Type: _errors.ErrDeleteRoomUserFailed,
-		}
-	}
-	return nil
-}
-
-// 룸 유저 상태 변경 (play -> disconnected)
 func AbnormalUpdateRoomUsers(ctx context.Context, tx *gorm.DB, AbnormalEntity *entity.WSAbnormalEntity) *entity.ErrorInfo {
-	err := tx.Model(&mysql.GameRoomUsers{}).Where("room_id = ? and user_id = ?", AbnormalEntity.RoomID, AbnormalEntity.UserID).Update("player_state", "disconnected").Error
+	err := tx.Model(&mysql.SequenceUsers{}).Where("room_id = ? and user_id = ?", AbnormalEntity.RoomID, AbnormalEntity.UserID).Update("player_state", "disconnected").Error
 	if err != nil {
 		return &entity.ErrorInfo{
 			Code: _errors.ErrCodeInternal,
-			Msg:  fmt.Sprintf("유저 상태 변경 실패: %v", err),
+			Msg:  fmt.Sprintf("방 유저 상태 변경 실패: %v", err),
 			Type: _errors.ErrUpdateUserStateFailed,
 		}
 	}

@@ -57,23 +57,6 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 		}
 	}
 
-	// 클라이언트에 메시지 전송
-	MessageInfoMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, MessageInfoMsg.ErrorInfo, 0)
-	MessageInfoMsg.SequenceGameInfo.AllReady = false
-
-	message, err := CreateMessage(&MessageInfoMsg)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	msg := entity.WSMessage{
-		RoomID:  roomID,
-		UserID:  userID,
-		Message: message,
-		Event:   "DISCONNECT",
-	}
-	sendMessageToClients(roomID, &msg)
-
 	// `entity.WSClients`에서 sessionID가 존재하는지 확인
 	if _, exists := entity.WSClients[sessionID]; !exists {
 		fmt.Printf("Session %s does not exist in WSClients. Skipping cleanup.\n", sessionID)
@@ -86,6 +69,5 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 		return
 	}
 
-	fmt.Printf("Session %s in room %d failed to reconnect. Cleaning up.\n", sessionID, roomID)
 	cleanupSession(roomID, sessionID, preloadUsers)
 }

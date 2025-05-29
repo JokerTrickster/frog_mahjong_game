@@ -51,33 +51,5 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 		return
 	}
 
-	// 메시지 생성
-	roomInfoMsg = *CreateRoomInfoMSG(ctx, preloadUsers, 1, roomInfoMsg.ErrorInfo)
-	roomInfoMsg.GameInfo.AllReady = false
-
-	// 구조체를 JSON 문자열로 변환 (마샬링)
-	message, err := CreateMessage(&roomInfoMsg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	msg := entity.WSMessage{
-		RoomID:  roomID,
-		UserID:  userID,
-		Message: message,
-	}
-	sendMessageToClients(roomID, &msg)
-	// `entity.WSClients`에서 sessionID가 존재하는지 확인
-	if _, exists := entity.WSClients[sessionID]; !exists {
-		fmt.Printf("Session %s does not exist in WSClients. Skipping cleanup.\n", sessionID)
-		return
-	}
-
-	// `entity.RoomSessions`에서 roomID가 존재하는지 확인
-	if _, exists := entity.RoomSessions[roomID]; !exists {
-		fmt.Printf("Room %d does not exist in RoomSessions. Skipping cleanup.\n", roomID)
-		return
-	}
-
-	fmt.Printf("Session %s in room %d failed to reconnect. Cleaning up.\n", sessionID, roomID)
 	cleanupSession(roomID, sessionID, preloadUsers)
 }

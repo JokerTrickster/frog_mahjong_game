@@ -51,6 +51,8 @@ func processMessage(gameName string, msg entity.WSMessage) {
 		errInfo = JoinPlayEventWebsocket(&msg)
 	case "USE_CARD":
 		errInfo = UseCardEventWebsocket(&msg)
+	case "REMOVE_CARD":
+		errInfo = RemoveCardEventWebsocket(&msg)
 
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
