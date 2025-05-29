@@ -58,18 +58,29 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.Preload
 			AbnormalUserID: getUserIDFromSessionID(sessionID),
 		}
 
-		// 카드 삭제
+		// 방 카드 삭제
 		if errInfo = repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity); errInfo != nil {
 			return fmt.Errorf("Failed to delete cards: %s", errInfo.Msg)
+		}
+
+		// 방 맵 삭제
+		if errInfo = repository.AbnormalDeleteAllMaps(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete maps: %s", errInfo.Msg)
+		}
+
+		// 방 게임 셋팅 삭제
+		if errInfo = repository.AbnormalDeleteGameRoomSetting(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete game room setting: %s", errInfo.Msg)
+		}
+
+		// 방 유저 삭제
+		if errInfo = repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); errInfo != nil {
+			return fmt.Errorf("Failed to delete room users: %s", errInfo.Msg)
 		}
 
 		// 방 삭제
 		if errInfo = repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity); errInfo != nil {
 			return fmt.Errorf("Failed to delete room: %s", errInfo.Msg)
-		}
-		// 방 유저 정보 삭제
-		if errInfo = repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); errInfo != nil {
-			return fmt.Errorf("Failed to delete room users: %s", errInfo.Msg)
 		}
 
 		return nil
@@ -99,9 +110,6 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.Preload
 		delete(entity.RoomSessions, roomID)
 		fmt.Printf("Room %d deleted as it is empty.\n", roomID)
 	}
-
-	// 타이머 삭제
-	reconnectTimers.Delete(sessionID)
 }
 
 // 유저 ID를 sessionID로부터 가져오는 함수
