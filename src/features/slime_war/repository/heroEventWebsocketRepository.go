@@ -57,10 +57,9 @@ func HeroUpdateKing(ctx context.Context, tx *gorm.DB, roomID uint, kingIndex int
 
 func HeroUpdateUserSlime(ctx context.Context, tx *gorm.DB, roomID uint, uID uint, kingIndex int) *entity.ErrorInfo {
 	// Update the slime position for the user
-	err := tx.Model(&mysql.SlimeWarRoomCards{}).
+	err := tx.Model(&mysql.SlimeWarRoomMaps{}).
 		Where("room_id = ? AND map_id = ?", roomID, kingIndex).
 		Updates(map[string]interface{}{
-			"state":   "owned",
 			"user_id": uID,
 		}).Error
 
