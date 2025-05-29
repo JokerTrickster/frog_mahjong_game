@@ -66,18 +66,24 @@ func cleanupSession(roomID uint, sessionID string, preloadUsers []entity.RoomUse
 			AbnormalUserID: getUserIDFromSessionID(sessionID),
 		}
 
-		// 카드 삭제
+		// 방 카드 삭제
 		if err := repository.AbnormalDeleteAllCards(ctx, tx, &abnormalEntity); err != nil {
 			return fmt.Errorf("Failed to delete cards: %s", err.Msg)
+		}
+
+		// 방 게임 셋팅 삭제
+		if err := repository.AbnormalDeleteGameRoomSetting(ctx, tx, &abnormalEntity); err != nil {
+			return fmt.Errorf("Failed to delete game room setting: %s", err.Msg)
+		}
+
+		// 방 유저 삭제
+		if err := repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); err != nil {
+			return fmt.Errorf("Failed to delete room users: %s", err.Msg)
 		}
 
 		// 방 삭제
 		if err := repository.AbnormalDeleteRoom(ctx, tx, &abnormalEntity); err != nil {
 			return fmt.Errorf("Failed to delete room: %s", err.Msg)
-		}
-		// 방 유저 정보 삭제
-		if err := repository.AbnormalDeleteRoomUsers(ctx, tx, &abnormalEntity); err != nil {
-			return fmt.Errorf("Failed to delete room users: %s", err.Msg)
 		}
 
 		return nil
