@@ -30,7 +30,7 @@ func RemoveCardUpdateMapState(ctx context.Context, tx *gorm.DB, roomID, userID, 
 	err := tx.Model(&mysql.SequenceRoomMaps{}).
 		Where("room_id = ? AND  map_id = ? ", roomID, mapID).
 		Updates(map[string]interface{}{
-			"user_id": userID,
+			"user_id": 0,
 		}).Error
 	if err != nil {
 		return &entity.ErrorInfo{
