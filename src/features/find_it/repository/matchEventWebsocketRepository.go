@@ -32,7 +32,7 @@ func MatchFindOneWaitingRoom(ctx context.Context) (*mysql.GameRooms, *entity.Err
 		Where("deleted_at IS NULL").
 		Where("state = ?", "wait").
 		Where("current_count < max_count").
-		Where("game_id = ?", 1)
+		Where("game_id = ?", mysql.FIND_IT)
 
 	err := query.First(&roomsDTO).Error
 	if err != nil {

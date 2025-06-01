@@ -87,7 +87,7 @@ func match(c echo.Context) error {
 			return fmt.Errorf("%s", newErr.Msg)
 		}
 		// room_user 생성
-		roomUserDTO := CreateMatchRoomUserDTO(roomID, userID)
+		roomUserDTO := CreateMatchRoomUserDTO(userID, roomID)
 		newErr = repository.MatchInsertOneRoomUser(ctx, tx, roomUserDTO)
 		if newErr != nil {
 			SendWebSocketCloseMessage(ws, newErr.Code, newErr.Msg)
