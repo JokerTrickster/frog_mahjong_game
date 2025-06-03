@@ -34,6 +34,7 @@ func NewGameOverBoardGameHandler(c *echo.Echo, useCase _interface.IGameOverBoard
 // @Description INTERNAL_SERVER : 내부 로직 처리 실패
 // @Description INTERNAL_DB : DB 처리 실패
 // @Param tkn header string true "accessToken"
+// @Param json body request.ReqGameOverBoardGame true "json body"
 // @Produce json
 // @Success 200 {object} bool
 // @Failure 400 {object} error

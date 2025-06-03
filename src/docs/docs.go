@@ -32,6 +32,15 @@ const docTemplate = `{
                         "name": "tkn",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "description": "json body",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReqGameOverBoardGame"
+                        }
                     }
                 ],
                 "responses": {
@@ -4632,6 +4641,26 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "request.ReqGameOverBoardGame": {
+            "type": "object",
+            "properties": {
+                "gameType": {
+                    "type": "integer"
+                },
+                "result": {
+                    "type": "integer"
+                },
+                "roomID": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },

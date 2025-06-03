@@ -274,6 +274,19 @@ definitions:
       name:
         type: string
     type: object
+  request.ReqGameOverBoardGame:
+    properties:
+      gameType:
+        type: integer
+      result:
+        type: integer
+      roomID:
+        type: integer
+      score:
+        type: integer
+      userID:
+        type: integer
+    type: object
   request.ReqGameReissue:
     properties:
       accessToken:
@@ -1094,6 +1107,12 @@ paths:
         name: tkn
         required: true
         type: string
+      - description: json body
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.ReqGameOverBoardGame'
       produces:
       - application/json
       responses:
