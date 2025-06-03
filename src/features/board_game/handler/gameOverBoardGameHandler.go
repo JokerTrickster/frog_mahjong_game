@@ -18,7 +18,7 @@ func NewGameOverBoardGameHandler(c *echo.Echo, useCase _interface.IGameOverBoard
 	handler := &GameOverBoardGameHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/game-over", handler.GameOver, mw.TokenChecker)
+	c.POST("/board-game/v0.1/game-over", handler.GameOver, mw.TokenChecker)
 	return handler
 }
 
