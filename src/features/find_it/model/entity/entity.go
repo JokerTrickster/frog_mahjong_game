@@ -82,6 +82,7 @@ type GameInfo struct {
 	TimerUsed       bool        `json:"timerUsed"`       // 타이머 사용 여부
 	RoundCount      int         `json:"roundCount"`      // 라운드 카운트
 	FailedPositions []*Position `json:"failedPositions"` // 못찾은 위치 (x,y)
+	GameOver        bool        `json:"gameOver"`        // 게임 종료 여부
 }
 type ImageInfo struct {
 	ID               int    `json:"id"`

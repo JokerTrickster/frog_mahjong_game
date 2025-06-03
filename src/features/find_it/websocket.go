@@ -70,7 +70,8 @@ func processMessage(gameName string, d amqp.Delivery) {
 		errInfo = JoinPlayEventWebsocket(&msg)
 	case "SUBMIT_POSITION":
 		errInfo = SubmitPositionEventWebsocket(&msg)
-
+	case "GAME_OVER":
+		errInfo = GameOverEventWebsocket(&msg)
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
 		d.Nack(false, false) // 알 수 없는 이벤트 -> 재처리하지 않음

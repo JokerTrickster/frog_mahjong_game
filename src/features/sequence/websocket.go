@@ -53,7 +53,8 @@ func processMessage(gameName string, msg entity.WSMessage) {
 		errInfo = UseCardEventWebsocket(&msg)
 	case "REMOVE_CARD":
 		errInfo = RemoveCardEventWebsocket(&msg)
-
+	case "GAME_OVER":
+		errInfo = GameOverEventWebsocket(&msg)
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
 		return

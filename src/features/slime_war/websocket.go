@@ -57,6 +57,8 @@ func processMessage(gameName string, msg entity.WSMessage) {
 		errInfo = HeroEventWebsocket(&msg)
 	case "GET_CARD":
 		errInfo = GetCardEventWebsocket(&msg)
+	case "GAME_OVER":
+		errInfo = GameOverEventWebsocket(&msg)
 	default:
 		log.Printf("Unknown event: %s", msg.Event)
 		return
