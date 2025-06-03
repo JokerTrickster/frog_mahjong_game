@@ -939,7 +939,7 @@ definitions:
     type: object
   response.ResSequenceResult:
     properties:
-      result:
+      users:
         items:
           $ref: '#/definitions/response.SequenceResult'
         type: array
@@ -971,7 +971,7 @@ definitions:
     type: object
   response.ResSlimeWarResult:
     properties:
-      result:
+      users:
         items:
           $ref: '#/definitions/response.SlimeWarResult'
         type: array
@@ -1037,6 +1037,8 @@ definitions:
     type: object
   response.SequenceResult:
     properties:
+      result:
+        type: integer
       score:
         type: integer
       userID:
@@ -1044,6 +1046,8 @@ definitions:
     type: object
   response.SlimeWarResult:
     properties:
+      result:
+        type: integer
       score:
         type: integer
       userID:

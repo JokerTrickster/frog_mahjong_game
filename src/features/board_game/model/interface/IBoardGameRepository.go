@@ -31,6 +31,7 @@ type ISlimeWarGetsCardBoardGameRepository interface {
 type ISlimeWarResultBoardGameRepository interface {
 	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.SlimeWarUsers, error)
 	FindRoomMaps(ctx context.Context, roomID int) ([]*mysql.SlimeWarRoomMaps, error)
+	FindGameResult(ctx context.Context, roomID int) ([]*mysql.GameResults, error)
 }
 
 type ISlimeWarRankBoardGameRepository interface {
@@ -41,6 +42,7 @@ type ISlimeWarRankBoardGameRepository interface {
 type ISequenceResultBoardGameRepository interface {
 	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.SequenceUsers, error)
 	FindRoomMaps(ctx context.Context, roomID int) ([]*mysql.SequenceRoomMaps, error)
+	FindGameResult(ctx context.Context, roomID int) ([]*mysql.GameResults, error)
 }
 type ISequenceRankBoardGameRepository interface {
 	FindTop3User(ctx context.Context) ([]*entity.SequenceRankEntity, error)

@@ -24,3 +24,9 @@ func (d *SlimeWarResultBoardGameRepository) FindRoomMaps(ctx context.Context, ro
 	err := d.GormDB.WithContext(ctx).Where("room_id = ?", roomID).Find(&maps).Error
 	return maps, err
 }
+
+func (d *SlimeWarResultBoardGameRepository) FindGameResult(ctx context.Context, roomID int) ([]*mysql.GameResults, error) {
+	var results []*mysql.GameResults
+	err := d.GormDB.WithContext(ctx).Where("room_id = ?", roomID).Find(&results).Error
+	return results, err
+}

@@ -22,32 +22,17 @@ func (d *SequenceResultBoardGameUseCase) SequenceResult(c context.Context, req *
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 
-	// 방에 접소한 유저 정보를 가져온다.
-	roomUserDTOs, err := d.Repository.FindGameRoomUser(ctx, req.RoomID)
-	if err != nil {
-		return response.ResSequenceResult{}, err
-	}
-
-	// 맵 정보 가져오기
-	maps, err := d.Repository.FindRoomMaps(ctx, req.RoomID)
+	gameResultDTOs, err := d.Repository.FindGameResult(ctx, req.RoomID)
 	if err != nil {
 		return response.ResSequenceResult{}, err
 	}
 
 	res := response.ResSequenceResult{}
 	userResult := make([]response.SequenceResult, 0)
-	// 유저 별로 맵 정보 기반으로 점수를 계산한다.
-	for _, roomUserDTO := range roomUserDTOs {
-		userID := roomUserDTO.UserID
-		userScore := 0
-		for _, mapDTO := range maps {
-			if mapDTO.UserID == userID {
-				userScore += 1
-			}
-		}
-		userResult = append(userResult, response.SequenceResult{UserID: userID, Score: userScore})
+	for _, gameResultDTO := range gameResultDTOs {
+		userResult = append(userResult, response.SequenceResult{UserID: gameResultDTO.UserID, Score: gameResultDTO.Score, Result: gameResultDTO.Result})
 	}
-	res.Result = userResult
+	res.Users = userResult
 
 	return res, nil
 }

@@ -358,6 +358,7 @@ type GameResults struct {
 	gorm.Model
 	RoomID   int `json:"roomID" gorm:"column:room_id"`
 	UserID   int `json:"userID" gorm:"column:user_id"`
+	Score    int `json:"score" gorm:"column:score"`
 	Result   int `json:"result" gorm:"column:result"` // 0: 패배, 1: 승리
 	GameType int `json:"gameType" gorm:"column:game_type"`
 }

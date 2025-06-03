@@ -5662,7 +5662,7 @@ const docTemplate = `{
         "response.ResSequenceResult": {
             "type": "object",
             "properties": {
-                "result": {
+                "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.SequenceResult"
@@ -5712,7 +5712,7 @@ const docTemplate = `{
         "response.ResSlimeWarResult": {
             "type": "object",
             "properties": {
-                "result": {
+                "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.SlimeWarResult"
@@ -5815,6 +5815,9 @@ const docTemplate = `{
         "response.SequenceResult": {
             "type": "object",
             "properties": {
+                "result": {
+                    "type": "integer"
+                },
                 "score": {
                     "type": "integer"
                 },
@@ -5826,6 +5829,9 @@ const docTemplate = `{
         "response.SlimeWarResult": {
             "type": "object",
             "properties": {
+                "result": {
+                    "type": "integer"
+                },
                 "score": {
                     "type": "integer"
                 },

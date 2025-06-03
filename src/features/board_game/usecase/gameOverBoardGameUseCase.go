@@ -21,15 +21,13 @@ func (d *GameOverBoardGameUseCase) GameOver(c context.Context, userID int, req *
 	ctx, cancel := context.WithTimeout(c, d.ContextTimeout)
 	defer cancel()
 	gameResultDTO := &mysql.GameResults{
-		UserID:   userID,
 		GameType: req.GameType,
 		RoomID:   req.RoomID,
+		Score:    req.Score,
+		Result:   req.Result,
+		UserID:   req.UserID,
 	}
-	if req.Winner {
-		gameResultDTO.Result = 1
-	} else {
-		gameResultDTO.Result = 0
-	}
+
 	err := d.Repository.GameOverInsertGameResult(ctx, gameResultDTO)
 	if err != nil {
 		return err

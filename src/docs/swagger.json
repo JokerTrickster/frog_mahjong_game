@@ -5651,7 +5651,7 @@
         "response.ResSequenceResult": {
             "type": "object",
             "properties": {
-                "result": {
+                "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.SequenceResult"
@@ -5701,7 +5701,7 @@
         "response.ResSlimeWarResult": {
             "type": "object",
             "properties": {
-                "result": {
+                "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.SlimeWarResult"
@@ -5804,6 +5804,9 @@
         "response.SequenceResult": {
             "type": "object",
             "properties": {
+                "result": {
+                    "type": "integer"
+                },
                 "score": {
                     "type": "integer"
                 },
@@ -5815,6 +5818,9 @@
         "response.SlimeWarResult": {
             "type": "object",
             "properties": {
+                "result": {
+                    "type": "integer"
+                },
                 "score": {
                     "type": "integer"
                 },
