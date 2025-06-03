@@ -54,8 +54,10 @@ func NextRoundEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//
 
 	if !req.OpponentCanMove {
-		msg.Event = "GAME_OVER"
-		messageMsg.SlimeWarGameInfo.GameOver = true
+		// 둘다 이동이 불가능할 때 
+		for _, user := range messageMsg.Users {
+			user.CanMove = false
+		}
 	} else {
 		for _, user := range messageMsg.Users {
 			if user.ID == req.UserID {
