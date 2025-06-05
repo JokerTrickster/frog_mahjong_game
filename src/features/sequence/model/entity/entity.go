@@ -66,6 +66,7 @@ type User struct {
 	OwnedMapIDs  []int  `json:"ownedMapIDs"`  // 소유한 맵 ID 배열
 	OwnedCardIDs []int  `json:"ownedCardIDs"` // 소유한 카드 ID 배열
 	ColorType    int    `json:"colorType"`    // 색상 타입
+	LastCardID   int    `json:"lastCardID"`   // 마지막 카드 ID
 }
 type SequenceGameInfo struct {
 	AllReady  bool   `json:"allReady"`  // 게임 시작 여부

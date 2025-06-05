@@ -68,6 +68,7 @@ type User struct {
 	OwnedCardIDs   []int  `json:"ownedCardIDs"`   // 소유한 카드 ID 배열
 	ColorType      int    `json:"colorType"`      // 색상 타입
 	CanMove        bool   `json:"canMove"`        // 움직일 수 있는지 여부
+	LastCardID     int    `json:"lastCardID"`     // 마지막 카드 ID
 }
 type SlimeWarGameInfo struct {
 	AllReady              bool   `json:"allReady"`              // 게임 시작 여부

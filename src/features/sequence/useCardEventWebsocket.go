@@ -66,6 +66,13 @@ func UseCardEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
 
+	// 현재 유저에 마지막 카드 정보를 저장한다.
+	if messageMsg.Users[0].ID == userID {
+		messageMsg.Users[0].LastCardID = req.CardID
+	} else {
+		messageMsg.Users[1].LastCardID = req.CardID
+	}
+
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")

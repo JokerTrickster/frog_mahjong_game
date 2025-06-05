@@ -37,7 +37,6 @@ func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 		// 	return fmt.Errorf("%s", errInfo.Msg)
 		// }
 
-
 		// 왕을 이동시킨다. 라운드 수를 증가시킨다.
 		errInfo = repository.HeroUpdateKing(ctx, tx, roomID, req.KingIndex)
 		if errInfo != nil {
@@ -75,7 +74,11 @@ func HeroEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 
 	// 메시지 생성
 	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
-
+	if messageMsg.Users[0].ID == uID {
+		messageMsg.Users[0].LastCardID = req.CardID
+	} else {
+		messageMsg.Users[1].LastCardID = req.CardID
+	}
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
 		return CreateErrorMessage(_errors.ErrCodeBadRequest, _errors.ErrMarshalFailed, "메시지 생성 에러")

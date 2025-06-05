@@ -27,6 +27,7 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	//해당 방이 대기상태인지 체크한다.
 	preloadUsers := []entity.PreloadUsers{}
 	messageMsg := entity.MessageInfo{}
+	lastCardID := 0
 	var errInfo *entity.ErrorInfo
 
 	err = mysql.Transaction(mysql.GormMysqlDB, func(tx *gorm.DB) error {
@@ -36,6 +37,7 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 			return fmt.Errorf("%s", errInfo.Msg)
 		}
 		randomCard := userCards[rand.Intn(len(userCards))]
+		lastCardID = int(randomCard.CardID)
 		errInfo = repository.TimeOutUpdateCardState(ctx, tx, int(roomID), int(randomCard.CardID))
 		if errInfo != nil {
 			return fmt.Errorf("%s", errInfo.Msg)
@@ -68,7 +70,12 @@ func TimeOutEventWebsocket(msg *entity.WSMessage) *entity.ErrorInfo {
 	}
 
 	// 메시지 생성
-	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, 0)
+	messageMsg = *CreateMessageInfoMSG(ctx, preloadUsers, 1, messageMsg.ErrorInfo, lastCardID)
+	if messageMsg.Users[0].ID == uint(req.UserID) {
+		messageMsg.Users[0].LastCardID = lastCardID
+	} else {
+		messageMsg.Users[1].LastCardID = lastCardID
+	}
 
 	message, err := CreateMessage(&messageMsg)
 	if err != nil {
