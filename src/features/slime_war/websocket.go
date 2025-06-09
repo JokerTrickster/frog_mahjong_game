@@ -1,11 +1,9 @@
 package slime_war
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"main/features/slime_war/model/entity"
-	"main/features/slime_war/repository"
 	"main/utils"
 	"time"
 
@@ -70,6 +68,11 @@ func processMessage(gameName string, msg entity.WSMessage) {
 
 func WSHandleMessages(gameName string) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("Recovered from panic in WSHandleMessages: %v", r)
+			}
+		}()
 		for {
 			msg := <-entity.WSBroadcast
 			processMessage(gameName, msg)
@@ -79,6 +82,11 @@ func WSHandleMessages(gameName string) {
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
 func HandlePingPong(wsClient *entity.WSClient) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered from panic in HandlePingPong: %v", r)
+		}
+	}()
 	ws := wsClient.Conn
 
 	// Set initial deadline for Pong
@@ -137,33 +145,5 @@ func removeSessionFromRoom(roomID uint, sessionID string) {
 			entity.RoomSessions[roomID] = append(sessions[:i], sessions[i+1:]...)
 			break
 		}
-	}
-}
-
-func disconnectClient(userID, roomID uint) {
-	// RoomID에 연결된 모든 세션을 검색
-	if sessionIDs, ok := entity.RoomSessions[roomID]; ok {
-		for _, sessionID := range sessionIDs {
-			// 특정 userID를 가진 클라이언트를 찾는다.
-			if client, exists := entity.WSClients[sessionID]; exists && client.UserID == userID {
-				// 클라이언트 연결 종료
-				client.Conn.Close()
-				client.Closed = true
-				// redis 세션 id 삭제
-				newErr := repository.RedisSessionDelete(context.TODO(), sessionID)
-				if newErr != nil {
-					fmt.Printf("Failed to delete session: %v\n", newErr.Msg)
-				}
-
-				// 세션 및 클라이언트 데이터 정리
-				delete(entity.WSClients, sessionID)
-				removeSessionFromRoom(roomID, sessionID)
-
-				fmt.Printf("User %d disconnected from room %d\n", userID, roomID)
-				break
-			}
-		}
-	} else {
-		fmt.Printf("Room %d does not exist or has no active sessions\n", roomID)
 	}
 }

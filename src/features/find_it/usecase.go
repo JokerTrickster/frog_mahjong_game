@@ -274,6 +274,11 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered from panic in sendMessageToClients: %v", r)
+		}
+	}()
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 

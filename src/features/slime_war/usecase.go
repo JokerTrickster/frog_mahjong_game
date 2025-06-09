@@ -280,6 +280,11 @@ func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
 
 // 특정 크라이언트에 메시지 전송
 func SendMessageToClient(roomID uint, msg *entity.WSMessage) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered from panic in SendMessageToClient: %v", r)
+		}
+	}()
 	// 로그 메시지 생성
 	utils.LogError(msg.Message)
 

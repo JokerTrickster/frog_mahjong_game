@@ -66,6 +66,11 @@ func processMessage(gameName string, msg entity.WSMessage) {
 
 func WSHandleMessages(gameName string) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("Recovered from panic in WSHandleMessages: %v", r)
+			}
+		}()
 		for {
 			msg := <-entity.WSBroadcast
 			processMessage(gameName, msg)
@@ -75,6 +80,11 @@ func WSHandleMessages(gameName string) {
 
 // HandlePingPong manages PING/PONG messages to keep the connection alive.
 func HandlePingPong(wsClient *entity.WSClient) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered from panic in HandlePingPong: %v", r)
+		}
+	}()
 	ws := wsClient.Conn
 
 	// Set initial deadline for Pong

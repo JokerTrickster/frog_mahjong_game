@@ -141,26 +141,6 @@ func CreateChatMessage(chatInfoMsg *entity.ChatInfo) (string, error) {
 	return string(jsonData), nil
 }
 
-// 기존 연결 복구
-func restoreSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
-	// 타이머 취소
-	if timer, ok := reconnectTimers.Load(sessionID); ok {
-		timer.(*time.Timer).Stop()
-		reconnectTimers.Delete(sessionID)
-		fmt.Printf("Reconnection successful for session %s in room %d. Timer canceled.\n", sessionID, roomID)
-	}
-	// 세션 ID 생성
-	newSessionID := generateSessionID()
-
-	// 세션 ID 저장
-	newErr := repository.MatchRedisSessionSet(context.TODO(), newSessionID, roomID)
-	if newErr != nil {
-		fmt.Println(newErr)
-	}
-	// 새로운 세션으로 등록
-	registerNewSession(ws, newSessionID, roomID, userID)
-}
-
 // 새로운 세션 등록
 func registerNewSession(ws *websocket.Conn, sessionID string, roomID uint, userID uint) {
 	// 세션 등록
@@ -225,6 +205,11 @@ func readMessages(ws *websocket.Conn, sessionID string, roomID uint, userID uint
 
 // 클라이언트에 메시지 전송
 func sendMessageToClients(roomID uint, msg *entity.WSMessage) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered from panic in sendMessageToClients: %v", r)
+		}
+	}()
 	// 로그 메시지 생성
 	utils.LogInfo(msg.Message)
 

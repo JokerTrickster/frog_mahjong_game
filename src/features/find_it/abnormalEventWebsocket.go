@@ -74,6 +74,4 @@ func AbnormalSendErrorMessage(roomID, userID uint, sessionID string) {
 	}
 	sendMessageToClients(roomID, &msg)
 
-	// 재접속 대기 시작
-	// waitForReconnection(roomID, sessionID, preloadUsers)
 }
