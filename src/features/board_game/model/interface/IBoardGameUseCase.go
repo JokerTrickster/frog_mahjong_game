@@ -48,3 +48,7 @@ type IGameOverBoardGameUseCase interface {
 type IFrogCardListBoardGameUseCase interface {
 	FrogCardList(c context.Context) (response.ResFrogCardListBoardGame, error)
 }
+
+type IFindItResultBoardGameUseCase interface {
+	FindItResult(c context.Context, req *request.ReqFindItResult) (response.ResFindItResult, error)
+}
