@@ -44,3 +44,7 @@ type GameOverBoardGameRepository struct {
 type FrogCardListBoardGameRepository struct {
 	GormDB *gorm.DB
 }
+
+type FindItResultBoardGameRepository struct {
+	GormDB *gorm.DB
+}

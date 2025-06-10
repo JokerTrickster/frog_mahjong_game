@@ -42,3 +42,7 @@ type IGameOverBoardGameHandler interface {
 type IFrogCardListBoardGameHandler interface {
 	FrogCardList(c echo.Context) error
 }
+
+type IFindItResultBoardGameHandler interface {
+	FindItResult(c echo.Context) error
+}

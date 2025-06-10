@@ -57,3 +57,8 @@ type IFrogCardListBoardGameRepository interface {
 	FindFrogCard(ctx context.Context) ([]*mysql.FrogCards, error)
 	CountFrogCard(ctx context.Context) (int, error)
 }
+
+type IFindItResultBoardGameRepository interface {
+	FindFindItResult(ctx context.Context, userID, roomID int) ([]*mysql.FindItUserCorrectPositions, error)
+	FindGameRoomUser(ctx context.Context, roomID int) ([]*mysql.GameRoomUsers, error)
+}
