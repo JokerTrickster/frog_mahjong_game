@@ -10,6 +10,6 @@ type IUploadProfilesHandler interface {
 	Upload(c echo.Context) error
 }
 
-type IUpdateProfileHandler interface {
+type IUpdateProfilesHandler interface {
 	Update(c echo.Context) error
 }
