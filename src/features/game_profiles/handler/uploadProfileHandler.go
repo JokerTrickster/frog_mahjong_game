@@ -42,7 +42,7 @@ func NewUploadProfilesHandler(c *echo.Echo, useCase _interface.IUploadProfilesUs
 // @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags game/profile
+// @Tags app/board-game/profile
 func (d *UploadProfilesHandler) Upload(c echo.Context) error {
 	ctx := context.Background()
 	file, err := c.FormFile("image")

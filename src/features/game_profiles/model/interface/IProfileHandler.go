@@ -9,3 +9,7 @@ type IListProfilesHandler interface {
 type IUploadProfilesHandler interface {
 	Upload(c echo.Context) error
 }
+
+type IUpdateProfileHandler interface {
+	Update(c echo.Context) error
+}

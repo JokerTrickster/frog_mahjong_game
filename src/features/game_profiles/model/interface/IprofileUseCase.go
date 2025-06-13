@@ -13,3 +13,7 @@ type IListProfilesUseCase interface {
 type IUploadProfilesUseCase interface {
 	Upload(c context.Context, e entity.ImageUploadProfileEntity) error
 }
+
+type IUpdateProfilesUseCase interface {
+	Update(c context.Context, userID int, profileID int) (response.ResUpdateProfile, error)
+}
