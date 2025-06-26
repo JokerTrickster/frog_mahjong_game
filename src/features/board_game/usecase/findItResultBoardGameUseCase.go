@@ -29,7 +29,6 @@ func (d *FindItResultBoardGameUseCase) FindItResult(c context.Context, req *requ
 
 	res := response.ResFindItResult{}
 	userResult := make([]response.FindItResult, 0)
-
 	for _, userDTO := range userDTOs {
 		findItResultDTOs, err := d.Repository.FindFindItResult(ctx, int(userDTO.UserID), req.RoomID)
 		if err != nil {
