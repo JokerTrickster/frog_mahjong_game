@@ -12,3 +12,7 @@ type IListProfilesRepository interface {
 type IUploadProfilesRepository interface {
 	InsertOneProfile(ctx context.Context, profile *mysql.GameProfiles) error
 }
+
+type IUpdateProfilesRepository interface {
+	UpdateOneProfile(ctx context.Context, userID int, profileID int) error
+}

@@ -16,12 +16,12 @@ func NewListProfilesHandler(c *echo.Echo, useCase _interface.IListProfilesUseCas
 	handler := &ListProfilesHandler{
 		UseCase: useCase,
 	}
-	c.GET("/v0.1/game/profiles", handler.List)
+	c.GET("/board-game/v0.1/profiles", handler.List)
 	return handler
 }
 
 // 프로필 리스트 가져오기
-// @Router /v0.1/game/profiles [get]
+// @Router /board-game/v0.1/profiles [get]
 // @Summary 프로필 리스트 가져오기
 // @Description
 // @Description ■ errCode with 400
@@ -35,7 +35,7 @@ func NewListProfilesHandler(c *echo.Echo, useCase _interface.IListProfilesUseCas
 // @Success 200 {object} response.ResListGameProfile
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags game/profile
+// @Tags app/board-game/profile
 func (d *ListProfilesHandler) List(c echo.Context) error {
 	ctx := context.Background()
 	res, err := d.UseCase.List(ctx)

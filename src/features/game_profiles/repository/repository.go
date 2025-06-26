@@ -9,3 +9,7 @@ type ListProfilesRepository struct {
 type UploadProfilesRepository struct {
 	GormDB *gorm.DB
 }
+
+type UpdateProfilesRepository struct {
+	GormDB *gorm.DB
+}

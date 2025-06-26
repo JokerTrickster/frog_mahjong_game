@@ -19,12 +19,12 @@ func NewUploadProfilesHandler(c *echo.Echo, useCase _interface.IUploadProfilesUs
 	handler := &UploadProfilesHandler{
 		UseCase: useCase,
 	}
-	c.POST("/v0.1/game/profiles/image", handler.Upload)
+	c.POST("/board-game/v0.1/profiles/image", handler.Upload)
 	return handler
 }
 
 // 프로필 이미지 업로드하기
-// @Router /v0.1/game/profiles/image [post]
+// @Router /board-game/v0.1/profiles/image [post]
 // @Summary 프로필 이미지 업로드하기
 // @Description
 // @Description ■ errCode with 400
@@ -42,7 +42,7 @@ func NewUploadProfilesHandler(c *echo.Echo, useCase _interface.IUploadProfilesUs
 // @Success 200 {object} bool
 // @Failure 400 {object} error
 // @Failure 500 {object} error
-// @Tags game/profile
+// @Tags app/board-game/profile
 func (d *UploadProfilesHandler) Upload(c echo.Context) error {
 	ctx := context.Background()
 	file, err := c.FormFile("image")
