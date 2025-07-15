@@ -2,8 +2,11 @@ name: deploy DEV
 
 on:
   workflow_dispatch:
-    branches:
-      - dev
+    inputs:
+      branch:
+        description: "배포할 브랜치 선택"
+        required: true
+        default: "dev"
 
 jobs:
   test:
