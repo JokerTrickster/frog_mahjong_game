@@ -6,10 +6,6 @@ on:
       - dev
 
 jobs:
-  test:
-    name: api server test
-    runs-on: self-hosted
-
   build:
       name: build n deploy
       runs-on: self-hosted
