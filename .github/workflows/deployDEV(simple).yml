@@ -1,0 +1,47 @@
+name: deploy DEV
+
+on:
+  workflow_dispatch:
+    branches:
+      - dev
+
+jobs:
+  test:
+    name: api server test
+    runs-on: self-hosted
+
+  build:
+      name: build n deploy
+      runs-on: self-hosted
+      env:
+        REPO_DOMAIN: 298483610289.dkr.ecr.ap-northeast-2.amazonaws.com
+        REPO_URL: dev_frog
+        REGION: ap-northeast-2
+      steps:
+      - name: check path
+        run: pwd
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: prepare envs
+        id: vars
+        run: |
+          echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "COMMIT=$(git rev-parse --short ${GITHUB_SHA})" >> $GITHUB_OUTPUT
+          echo "MEM=412" >> $GITHUB_OUTPUT
+       
+      - name: login to ECR
+        run: aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${REPO_DOMAIN}
+      - name: build & tag image
+        run: |
+          V=$(echo $(TZ=":Asia/Seoul" date '+%y%m%d_%H%M%S'))-${{ steps.vars.outputs.COMMIT }}
+          echo $V
+          docker build -t ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} --build-arg VERSION=${V} --build-arg LOKI_URL=${LOKI_URL} -f ./deployment/Dockerfile ./src/
+          docker tag ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+      - name: push image
+        id: image
+        run: |
+          DIGEST=$(docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} | tail -1 | awk '{ print $3 }')
+          docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
+          echo "digest of ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} is ${DIGEST}"
+          echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
