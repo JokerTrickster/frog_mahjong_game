@@ -34,8 +34,8 @@ COPY --from=builder /build/main .
 # Promtail 설정 디렉토리 생성
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
 
-# Promtail 설정 파일 복사 (COPY 사용)
-COPY deployment/promtail-config.yaml /etc/promtail/promtail-config.yaml
+# Promtail 설정 파일 복사 (상대 경로 수정)
+COPY promtail-config.yaml /etc/promtail/promtail-config.yaml
 
 # 환경변수 설정
 ARG LOKI_URL
