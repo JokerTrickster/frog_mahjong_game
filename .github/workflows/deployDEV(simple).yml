@@ -13,9 +13,9 @@ jobs:
       name: build n deploy
       runs-on: self-hosted
       env:
-        REPO_DOMAIN: 298483610289.dkr.ecr.ap-northeast-2.amazonaws.com
+        REPO_DOMAIN: 298483610289.dkr.ecr.ap-south-1.amazonaws.com
         REPO_URL: dev_frog
-        REGION: ap-northeast-2
+        REGION: ap-south-1
       steps:
       - name: check path
         run: pwd
