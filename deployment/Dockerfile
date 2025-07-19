@@ -34,41 +34,8 @@ COPY --from=builder /build/main .
 # Promtail 설정 디렉토리 생성
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
 
-# Promtail 설정 파일 생성 (제공된 내용으로)
-RUN cat > /etc/promtail/promtail-config.yaml << 'EOF'
-server:
-  http_listen_port: 3100
-  grpc_listen_port: 0
-
-positions:
-  filename: /logs/positions.yaml
-
-clients:
-  - url: http://loki:3100/loki/api/v1/push
-
-scrape_configs:
-  - job_name: info
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: info_logs
-          __path__: /logs/info.log
-  - job_name: error
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: error_logs
-          __path__: /logs/error.log
-  - job_name: warning
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: warning_logs
-          __path__: /logs/warning.log
-EOF
+# Promtail 설정 파일 복사 (COPY 사용)
+COPY deployment/promtail-config.yaml /etc/promtail/promtail-config.yaml
 
 # 환경변수 설정
 ARG LOKI_URL
