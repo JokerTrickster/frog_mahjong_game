@@ -5,18 +5,18 @@ WORKDIR /build/
 # 디버그: 현재 위치와 파일 목록 확인
 RUN pwd && ls -la
 
-# 의존성 캐시 단계 추가 (go.sum이 없을 경우)
-COPY src/go.mod ./
+# 의존성 캐시 단계 추가 (빌드 컨텍스트가 src이므로)
+COPY go.mod ./
 RUN go mod download
 
 # 디버그: 복사 후 파일 확인
 RUN pwd && ls -la
 
-# 소스 코드 복사
+# 소스 코드 복사 (빌드 컨텍스트가 src이므로)
 COPY . .
 
-# 빌드 실행 (src 폴더로 이동해서 빌드)
-RUN cd src && CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w' -o ../main .
+# 빌드 실행 (src 폴더에서 빌드하므로)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-s -w' -o main .
 
 # 실행 단계
 FROM alpine:3.15 AS runner
@@ -40,7 +40,7 @@ COPY --from=builder /build/main .
 # Promtail 설정 디렉토리 생성
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
 
-# Promtail 설정 파일 복사 부분을 제거하고 직접 생성
+# Promtail 설정 파일 직접 생성
 RUN echo "server:\n\
   http_listen_port: 3100\n\
   grpc_listen_port: 0\n\
