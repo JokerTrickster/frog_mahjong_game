@@ -40,39 +40,41 @@ COPY --from=builder /build/main .
 # Promtail 설정 디렉토리 생성
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
 
-# Promtail 설정 파일 직접 생성
-RUN echo "server:\n\
-  http_listen_port: 3100\n\
-  grpc_listen_port: 0\n\
-\n\
-positions:\n\
-  filename: /logs/positions.yaml\n\
-\n\
-clients:\n\
-  - url: http://loki:3100/loki/api/v1/push\n\
-\n\
-scrape_configs:\n\
-  - job_name: info\n\
-    static_configs:\n\
-      - targets:\n\
-          - localhost\n\
-        labels:\n\
-          job: info_logs\n\
-          __path__: /logs/info.log\n\
-  - job_name: error\n\
-    static_configs:\n\
-      - targets:\n\
-          - localhost\n\
-        labels:\n\
-          job: error_logs\n\
-          __path__: /logs/error.log\n\
-  - job_name: warning\n\
-    static_configs:\n\
-      - targets:\n\
-          - localhost\n\
-        labels:\n\
-          job: warning_logs\n\
-          __path__: /logs/warning.log" > /etc/promtail/promtail-config.yaml
+# Promtail 설정 파일 직접 생성 (YAML 형식 수정)
+RUN cat > /etc/promtail/promtail-config.yaml << 'EOF'
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 0
+
+positions:
+  filename: /logs/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: info
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: info_logs
+          __path__: /logs/info.log
+  - job_name: error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: error_logs
+          __path__: /logs/error.log
+  - job_name: warning
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: warning_logs
+          __path__: /logs/warning.log
+EOF
 
 # 환경변수 설정
 ARG LOKI_URL

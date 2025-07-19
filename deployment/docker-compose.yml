@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Board Game Server (ECR에서 이미지 가져오기)
   board_game_server:
-    image: 298483610289.dkr.ecr.ap-northeast-2.amazonaws.com/dev_frog:dev_latest
+    image: 298483610289.dkr.ecr.ap-south-1.amazonaws.com/dev_frog:dev_latest
     ports:
       - "8080:8080"
     environment:
