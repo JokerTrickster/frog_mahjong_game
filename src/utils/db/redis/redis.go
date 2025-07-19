@@ -27,13 +27,11 @@ func InitRedis() error {
 			return err
 		}
 		fmt.Println(dbInfos)
-		connectionString = fmt.Sprintf("redis://%s:%s@%s:%s/%s",
-			dbInfos[4], //user
+		connectionString = fmt.Sprintf("redis://:%s@%s:%s/%s",
 			dbInfos[3], //password
 			dbInfos[0], //host
 			dbInfos[1], //port
 			dbInfos[2], //db
-
 		)
 		fmt.Println(connectionString)
 	}

@@ -3,7 +3,7 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /build/
 
 # 의존성 캐시 단계 추가
-COPY go.mod go.sum ./
+COPY src/go.mod src/go.sum ./
 RUN go mod download
 
 # 소스 코드 복사
@@ -34,7 +34,7 @@ COPY --from=builder /build/main .
 RUN mkdir -p /etc/promtail && chmod 755 /etc/promtail
 ARG LOKI_URL
 ENV LOKI_URL=${LOKI_URL}
-COPY ./promtail-config.yaml /etc/promtail/promtail-config.yaml
+COPY deployment/promtail-config.yaml /etc/promtail/promtail-config.yaml
 RUN chmod 755 /etc/promtail/promtail-config.yaml 
 RUN sed -i "s|http://loki:3100/loki/api/v1/push|http://${LOKI_URL}:3100/loki/api/v1/push|" /etc/promtail/promtail-config.yaml
 RUN echo "cat /etc/promtail/promtail-config.yaml" | cat /etc/promtail/promtail-config.yaml

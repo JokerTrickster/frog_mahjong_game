@@ -40,15 +40,10 @@ type CtxValues struct {
 
 // 사용할 환경 변수 값들 초기화해주는 함수
 func InitEnv() error {
-	envVarNames := InitVarNames()
-	envs, err := getOSLookupEnv(envVarNames)
-	if err != nil {
-		return err
-	}
 	Env = envStruct{
-		Port:    envs["PORT"],
-		Env:     envs["ENV"],
-		IsLocal: envIsLocal(envs["IS_LOCAL"]),
+		Port:    "8080",
+		Env:     "local",
+		IsLocal: false,
 	}
 	return nil
 }

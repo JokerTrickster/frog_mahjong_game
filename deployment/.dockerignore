@@ -1,3 +1,27 @@
+# 빌드 캐시
+dist/
+*.out
+
+# node / python 캐시
+node_modules/
+__pycache__/
+*.pyc
+
+# IDE 설정
+.vscode/
+.idea/
+
+# Git
 .git
-node_modules
-dist
+.gitignore
+
+# OS 메타파일
+.DS_Store
+
+# 로그, DB, 백업
+*.log
+*.sqlite
+*.db
+*.zip
+*.tar.gz
+tmp/

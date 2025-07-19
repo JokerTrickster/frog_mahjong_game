@@ -44,12 +44,3 @@ jobs:
           docker push ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest
           echo "digest of ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_${{ steps.vars.outputs.COMMIT }} is ${DIGEST}"
           echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
-      - name: stop old container (if running)
-        run: |
-          docker rm -f board_game_server || true
-      - name: run new container
-        run: |
-          docker run -d --name board_game_server \
-              -p 8080:8080 \
-              --env-file ./deployment/.env \
-              ${REPO_DOMAIN}/${REPO_URL}:${{ steps.vars.outputs.BRANCH }}_latest      

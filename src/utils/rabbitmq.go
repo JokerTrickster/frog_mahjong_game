@@ -46,7 +46,7 @@ func (r *RabbitMQManager) connect() error {
 			os.Getenv("RABBITMQ_PASSWORD"),
 		)
 	} else {
-		dbInfos, err := _aws.AwsSsmGetParams([]string{"dev_frog_rabbitmq_user", "dev_frog_rabbitmq_password", "dev_common_mysql_host", "dev_frog_rabbitmq_port"})
+		dbInfos, err := _aws.AwsSsmGetParams([]string{"dev_frog_rabbitmq_user", "dev_frog_rabbitmq_password", "dev_frog_rabbitmq_host", "dev_frog_rabbitmq_port"})
 		if err != nil {
 			return fmt.Errorf("Failed to fetch RabbitMQ credentials: %v", err)
 		}

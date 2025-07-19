@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # Board Game Server (ECR에서 이미지 가져오기)
+  board_game_server:
+    image: 298483610289.dkr.ecr.ap-northeast-2.amazonaws.com/dev_frog:dev_latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=development
+      - PORT=8080
+      - DATABASE_URL=mysql://root:examplepassword@mysql:3306/dev_frog
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://board:examplepassword@rabbitmq:5672/
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    volumes:
+      - logs_data:/logs
+    networks:
+      - board_game_network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: dev_frog
+      MYSQL_USER: board
+      MYSQL_PASSWORD: examplepassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - board_game_network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: >
+      redis-server
+      --requirepass examplepassword
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - board_game_network
+
+  # Promtail (로그 수집)
+  promtail:
+    image: grafana/promtail:latest
+    ports:
+      - "9080:9080"
+    volumes:
+      - logs_data:/logs
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - board_game_network
+
+  # Grafana (모니터링 대시보드)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - board_game_network
+
+  # Loki (로그 저장소)
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+    networks:
+      - board_game_network
+
+  # RabbitMQ (메시지 큐)
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP 포트
+      - "15672:15672"   # 관리 웹 UI 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: board
+      RABBITMQ_DEFAULT_PASS: examplepassword
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - board_game_network
+
+volumes:
+  mysql_data:
+  grafana_data:
+  loki_data:
+  redis_data:
+  rabbitmq_data:
+  logs_data:
+
+networks:
+  board_game_network:
+    driver: bridge
