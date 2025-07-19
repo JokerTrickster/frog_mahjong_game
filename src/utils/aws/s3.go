@@ -18,7 +18,7 @@ import (
 var imgMeta = map[ImgType]imgMetaStruct{
 	ImgTypeProfile: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "profiles",
 		width:      512,
 		height:     512,
@@ -26,7 +26,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeCard: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "cards",
 		width:      512,
 		height:     512,
@@ -34,7 +34,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeBirdCard: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "wingspan/images",
 		width:      512,
 		height:     512,
@@ -42,7 +42,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeMission: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "wingspan/missions",
 		width:      30,
 		height:     30,
@@ -50,7 +50,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeFrogCard: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "frog/images",
 		width:      45,
 		height:     45,
@@ -58,7 +58,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeFindIt: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "find-it/images",
 		width:      0,
 		height:     0,
@@ -66,7 +66,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeBoardGame: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "board_game/images",
 		width:      0,
 		height:     0,
@@ -74,7 +74,7 @@ var imgMeta = map[ImgType]imgMetaStruct{
 	},
 	ImgTypeSlimeWar: {
 		bucket:     func() string { return "dev-frog" },
-		domain:     func() string { return "dev-frog.s3.ap-northeast-2.amazonaws.com" },
+		domain:     func() string { return "dev-frog.s3.ap-south-1.amazonaws.com" },
 		path:       "slime_war/images",
 		width:      0,
 		height:     0,

@@ -45,7 +45,7 @@ func InitAws() error {
 	var awsConfig aws.Config
 	var err error
 
-	awsConfig, err = AwsConfig.LoadDefaultConfig(context.TODO(), AwsConfig.WithRegion("ap-northeast-2"))
+	awsConfig, err = AwsConfig.LoadDefaultConfig(context.TODO(), AwsConfig.WithRegion("ap-south-1"))
 	if err != nil {
 		return err
 	}
