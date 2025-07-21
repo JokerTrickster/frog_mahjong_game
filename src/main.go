@@ -41,7 +41,7 @@ func main() {
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	} else {
 
-		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("%s-%s-api.jokertrickster.com", utils.Env.Env, "frog")
+		swaggerDocs.SwaggerInfo.Host = fmt.Sprintf("dev-board-api.boardgame.com")
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
 	e.HideBanner = true
