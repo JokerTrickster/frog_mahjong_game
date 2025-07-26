@@ -305,6 +305,36 @@ CREATE TABLE user_items (
 	FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 );
 
+CREATE TABLE game_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    name VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255),
+    coin INT,   -- 게임 플레이에 필요한 코인 
+    state VARCHAR(50),
+    profile_id INT default 1,
+	room_id INT,
+    alert_enabled TINYINT(1) DEFAULT 1, 
+    provider VARCHAR(50) -- email, google, kakao
+);
+CREATE TABLE game_rooms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    current_count INT default 0,
+    max_count INT default 2,
+    min_count INT default 2,
+    name VARCHAR(255),
+    password VARCHAR(255),
+    state VARCHAR(50),
+    owner_id INT,
+    game_id INT,    -- 틀린그림 찾기 : 1
+    start_time TIMESTAMP
+);
 
 create table frog_room_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -408,21 +438,6 @@ create table frog_game_room_settings(
 
 -- find it 
 
-CREATE TABLE game_users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    name VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    coin INT,   -- 게임 플레이에 필요한 코인 
-    state VARCHAR(50),
-    profile_id INT default 1,
-	room_id INT,
-    alert_enabled TINYINT(1) DEFAULT 1, 
-    provider VARCHAR(50) -- email, google, kakao
-);
 create table game_profiles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
@@ -444,21 +459,6 @@ CREATE TABLE game_user_profiles (
     FOREIGN KEY (profile_id) REFERENCES game_profiles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE game_rooms (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-    current_count INT default 0,
-    max_count INT default 2,
-    min_count INT default 2,
-    name VARCHAR(255),
-    password VARCHAR(255),
-    state VARCHAR(50),
-    owner_id INT,
-    game_id INT,    -- 틀린그림 찾기 : 1
-    start_time TIMESTAMP
-);
 CREATE TABLE game_room_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -735,7 +735,7 @@ create table sequence_cards (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     image VARCHAR(255),
     type varchar(255),
-    count int
+    count varchar(255)
 );
 
 INSERT INTO sequence_cards (image, type, count) VALUES
